@@ -230,7 +230,7 @@ conversion can lead to drifting results due to rounding.
 
 =head2 hex_from_rgb
 
-Converts red green blue triplet into format: '#RRGGBB'.
+Converts a red green blue triplet into format: '#RRGGBB'.
 
 =head2 rgb_from_hex
 

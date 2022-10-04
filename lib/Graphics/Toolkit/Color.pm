@@ -1,11 +1,10 @@
 
-# Chart::Color: read only color holding object 
-#               with methods for relation, mixing and transitions
+# read only color holding object with methods for relation, mixing and transitions
 
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.0';
+our $VERSION = '1.00';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -251,12 +250,12 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color - read only single color holding objects
+Graphics::Toolkit::Color - color palette creation tool
 
 =head1 SYNOPSIS 
 
     my $red = Graphics::Toolkit::Color->new('red');
-    say $red->add('blue')->name;              # magenta, mixed in RGB space
+    say $red->add('blue')->name;              # 'magenta', mixed in RGB space
     Graphics::Toolkit::Color->new( 0, 0, 255)->hsl    # 240, 100, 50 = blue
     $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1);# mix blue with a little grey
     $red->gradient( '#0000FF', 10);           # 10 colors from red to blue  
@@ -264,10 +263,11 @@ Graphics::Toolkit::Color - read only single color holding objects
 
 =head1 DESCRIPTION
 
-This module is designed for internal usage. It handles also all color
-definitions done by users with method "$chart->set(color => {...})". 
-To see which formats are allowed there, read the next section and please
-note that ->set() handles only scalar values.
+Each object has 7 attributes, which are its RGB and HSL values and if possible a name.
+This is because humans access colors on hardware level (eye) in RGB,
+on cognition level in HSL (brain) and on cultural level (language) with names. 
+Having easy access to all three and some color math should enable you to get the color
+palette you desire quickly and with no additional dependencies.
 
 =head1 CONSTRUCTOR
 
@@ -511,6 +511,36 @@ The third argument moves C2 along the L axis (vertical), which gives the
 circle a tilt, so that the complementary colors will differ in lightness.
 
     my @colors = $c->complementary( 3, +20, -10 );
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<Color::Scheme>
+
+=item *
+
+L<Graphics::ColorUtils>
+
+=item *
+
+L<Graphics::ColorObject>
+
+=item *
+
+L<Convert::Color>
+
+=item *
+
+L<Graphics::ColorNames>
+
+=item *
+
+L<Color::Similarity>
+
+=back
 
 =head1 COPYRIGHT & LICENSE
 

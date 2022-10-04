@@ -893,25 +893,28 @@ Graphics::Toolkit::Color::Constant - access values of color constants
 
 =head1 SYNOPSIS 
 
+    use Graphics::Toolkit::Color::Constant qw/:all/;
     my @names = Graphics:..:Constant::all_names();
-    my @rgb  = Graphics:..:Constant::rgb_from_name('darkblue');
-    my @hsl  = Graphics:..:hsl_from_name('darkblue');
+    my @rgb  = rgb_from_name('darkblue');
+    my @hsl  = hsl_from_name('darkblue');
     
     Graphics::Toolkit::Color::Value::add_rgb('lucky', [0, 100, 50]);
 
 =head1 DESCRIPTION
 
-RGB and HSL values of named colors from the X11 and HTML standard 
-and Pantone report. Allows also reverse search, storage and conversion
-of color values.
-
-This module is supposed to be used by Graphics::Toolkit::Color 
-and not directly by the user (for the most part). It converts a stored
-color name into its values (rgb, hsl or both) and back. One color can
-have multiple names. Also nearby (similar) colors can be searched. 
+RGB and HSL values of named colors from the X11, HTML(CSS), SVG standard 
+and Pantone report. Allows also nearby search, reverse search and storage
+(not permanent) of additional names. One color may have multiple names. 
 Own colors can be (none permanently) stored for later reference by name.
-For this a name has to be chosen, that is not already taken. 
-Independently of that can any color be converted from rgb to hsl and back.
+For this a name has to be chosen, that is not already taken. The 
+corresponding color may be defined by an RGB or HSL triplet. 
+
+No so symbol is imported by default. The sub symbols: C<rgb_from_name>,
+C<hsl_from_name>, C<name_from_rgb>, C<name_from_hsl> may be importad
+individually or by:
+ 
+    use Graphics::Toolkit::Color::Constant qw/:all/;
+  
 
 =head1 ROUTINES
 

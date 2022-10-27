@@ -61,7 +61,7 @@
     
     Optionally modules of the Graphics::ColorNames::* namespace are
     required if your color definitions calls for them.
-    (see [POD docs](https://metacpan.org/pod/Graphics-Color-Toolkit##new(-'standard:color'-) for details)
+(see [POD docs](https://metacpan.org/pod/Graphics-Color-Toolkit#new(-'standard:color'-) for details)
     
  
 [CHANGES](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/Changes) (with roadmap)

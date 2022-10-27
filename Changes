@@ -1,8 +1,12 @@
+1.02    2022-10-27  lichtkind
+-------
+    * = fixes
+
 1.01    2022-10-27  lichtkind
 -------
     * = fixes
     * ? mention VACCC and other additional color palettes
-    * ! loading from Graphics::ColorNames::* via 'palette_name:color_name' was actually brokens
+    * ! loading from Graphics::ColorNames::* via 'palette_name:color_name' was actually broken
     
 
 1.0     2022-10-04  lichtkind

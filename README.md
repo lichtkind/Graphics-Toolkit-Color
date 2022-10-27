@@ -4,7 +4,7 @@
 
 ### VERSION
  
-    1.0
+    1.01
 
 [on CPAN](https://metacpan.org/pod/Graphics-Color-Toolkit)
 
@@ -61,7 +61,7 @@
     
     Optionally modules of the Graphics::ColorNames::* namespace are
     required if your color definitions calls for them.
-    (see Chart::Color for details)
+    (see [POD docs](https://metacpan.org/pod/Graphics-Color-Toolkit##new(-'standard:color'-) for details)
     
  
 [CHANGES](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/Changes) (with roadmap)

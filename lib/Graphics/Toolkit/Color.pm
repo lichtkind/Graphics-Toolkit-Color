@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -56,16 +56,14 @@ sub _rgb_from_name_or_hex {
     if (substr($arg, 0, 1) eq '#'){                  # resolve #RRGGBB -> ($r, $g, $b)
         return rgb_from_hex( $arg );
     } elsif ($i > -1 ){                              # resolve pallet:name -> ($r, $g, $b)
-        my $pallet_name = substr $arg,   0, $i-1;
+        my $pallet_name = substr $arg,   0, $i;
         my $color_name = substr $arg, $i+1;
-        
         my $module_base = 'Graphics::ColorNames';
         eval "use $module_base";
         return carp "$module_base is not installed, but it's needed to load external colors" if $@;
-        
         my $module = $module_base.'::'.$pallet_name;
         eval "use $module";
-        return carp "$module is not installed, to load color '$color_name'" if $@;
+        return carp "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
         
         my $pal = Graphics::ColorNames->new( $pallet_name );
         my @rgb = $pal->rgb( $color_name );
@@ -290,8 +288,9 @@ numbers (1_000 == 1000) (see more under L<Graphics::Toolkit::Color::Constant>).
 Get a color by name from a specific standard as provided by an external
 module L<Graphics::ColorNames>::* , which has to be installed separately.
 * is a placeholder for the pallet name, which might be: Crayola, CSS,
-EmergyC, GrayScale, HTML, IE, SVG, Werner, VACCC, WWW or X.
-In ladder case Graphics::ColorNames::X has to be installed.
+EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone, PantoneReport, 
+SVG, VACCC, Werner, Windows, WWW or X. In ladder case
+Graphics::ColorNames::X has to be installed.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
     my @s = Graphics::ColorNames::all_schemes();    # installed pallets

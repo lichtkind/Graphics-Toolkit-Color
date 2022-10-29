@@ -10,12 +10,17 @@ use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
 use Graphics::Toolkit::Color::Value ':all';
 
+use Exporter 'import';
+our @EXPORT_OK = qw/color/;
+
 my $new_help = 'constructor of Graphics::Toolkit::Color object needs either:'.
         ' 1. RGB or HSL hash or ref: ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
         ' 2. RGB array or ref: ->new( [255, 0, 0 ]) or >new( 255, 0, 0 )'.
         ' 3. hex form "#FF0000" or "#f00" 4. a name: "red" or "SVG:red".';
 
 ## constructor #########################################################
+
+sub color { Graphics::Toolkit::Color->new ( @_ ) }
         
 sub new {
     my ($pkg, @args) = @_;
@@ -57,7 +62,7 @@ sub _rgb_from_name_or_hex {
         return rgb_from_hex( $arg );
     } elsif ($i > -1 ){                              # resolve pallet:name -> ($r, $g, $b)
         my $pallet_name = substr $arg,   0, $i;
-        my $color_name = substr $arg, $i+1;
+        my $color_name = Graphics::Toolkit::Color::Constant::_clean_name(substr $arg, $i+1);
         my $module_base = 'Graphics::ColorNames';
         eval "use $module_base";
         return carp "$module_base is not installed, but it's needed to load external colors" if $@;
@@ -248,7 +253,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color - color palette creation tool
+Graphics::Toolkit::Color - color palette creation helper
 
 =head1 SYNOPSIS 
 
@@ -335,6 +340,17 @@ it will be rotated into range, e.g. 361 = 1.
     my $red = Graphics::Toolkit::Color->new( h =>   0, s => 100, b => 50 );
     my $red = Graphics::Toolkit::Color->new({h =>   0, s => 100, b => 50}); # good too
     ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # also fine
+
+=head2 color
+
+If writing C<Graphics::Toolkit::Color->new(...> is too much typing for you
+or takes to much space, import the subroutine C<color>, which takes
+all the same arguments as described above.
+
+
+    use Graphics::Toolkit::Color qw/color/;
+    my $green = color('green');
+    my $darkblue = color([20, 20, 250]);
 
 
 =head1 GETTER / ATTRIBUTES
@@ -521,6 +537,10 @@ L<Color::Scheme>
 
 =item *
 
+L<Color::Library>
+
+=item *
+
 L<Graphics::ColorUtils>
 
 =item *
@@ -530,10 +550,6 @@ L<Graphics::ColorObject>
 =item *
 
 L<Convert::Color>
-
-=item *
-
-L<Graphics::ColorNames>
 
 =item *
 

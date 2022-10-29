@@ -2,7 +2,8 @@
 -------
     * = fixes
     * + sub color {} as importable constructor shortcut
-    * ! clean constructor input color_name in 'palette_name:color_name' same as 'color_name'
+    * ? cleaned some constructor related bits in POD
+    * ! normalize constructor input color_name in 'palette_name:color_name' same as 'color_name'
 
 1.01    2022-10-27  lichtkind
 -------

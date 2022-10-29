@@ -281,21 +281,23 @@ or HSL color space.
 =head2 new( 'name' )
 
 Get a color by providing a name from the X11, HTML (CSS) or SVG standard
-or a Pantone report. Upper/Camel case will be treated as lower case and
-inserted underscore letters ('_') will be ignored as perl does in
-numbers (1_000 == 1000) (see more under L<Graphics::Toolkit::Color::Constant>).
+or a Pantone report. UPPER or CamelCase will be normalized to lower case
+and inserted underscore letters ('_') will be ignored as perl does in
+numbers (1_000 == 1000). All available names are listed under
+L<Graphics::Toolkit::Color::Constant>.s
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Constant::all_names(); # select from these
 
-=head2 new( 'standard:color' )
+=head2 new( 'pallet:color' )
 
-Get a color by name from a specific standard as provided by an external
-module L<Graphics::ColorNames>::* , which has to be installed separately.
-* is a placeholder for the pallet name, which might be: Crayola, CSS,
-EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone, PantoneReport, 
-SVG, VACCC, Werner, Windows, WWW or X. In ladder case
-Graphics::ColorNames::X has to be installed.
+Get a color by name from a specific pallet or standard as provided by an
+external module L<Graphics::ColorNames>::* , which has to be installed
+separately. * is a placeholder for the pallet name, which might be: 
+Crayola, CSS, EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone,
+PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In ladder case
+Graphics::ColorNames::X has to be installed. The color name will be 
+normalized as above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
     my @s = Graphics::ColorNames::all_schemes();    # installed pallets

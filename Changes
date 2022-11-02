@@ -1,3 +1,8 @@
+1.03    2022-1   lichtkind
+-------
+    * = fixes
+    * ? mention Bundle::Graphics::ColorNames in POD
+
 1.02    2022-10-29  lichtkind
 -------
     * = fixes

@@ -284,23 +284,24 @@ Get a color by providing a name from the X11, HTML (CSS) or SVG standard
 or a Pantone report. UPPER or CamelCase will be normalized to lower case
 and inserted underscore letters ('_') will be ignored as perl does in
 numbers (1_000 == 1000). All available names are listed under
-L<Graphics::Toolkit::Color::Constant>.s
+L<Graphics::Toolkit::Color::Constant>.
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Constant::all_names(); # select from these
 
-=head2 new( 'pallet:color' )
+=head2 new( 'scheme:color' )
 
-Get a color by name from a specific pallet or standard as provided by an
+Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
 separately. * is a placeholder for the pallet name, which might be: 
 Crayola, CSS, EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone,
 PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In ladder case
-Graphics::ColorNames::X has to be installed. The color name will be 
-normalized as above.
+Graphics::ColorNames::X has to be installed. You can get them all at once
+via L<Bundle::Graphics::ColorNames>. The color name will be  normalized
+as above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
-    my @s = Graphics::ColorNames::all_schemes();    # installed pallets
+    my @s = Graphics::ColorNames::all_schemes();          # installed
 
 =head2 new( '#rgb' )
 
@@ -308,7 +309,7 @@ Color definitions in hexadecimal format as widely used in the web, are
 also acceptable.
 
     my $color = Graphics::Toolkit::Color->new('#FF0000');
-    my $color = Graphics::Toolkit::Color->new('#f00');   # works too
+    my $color = Graphics::Toolkit::Color->new('#f00');    # works too
 
 
 =head2 new( [$r, $g, $b] )
@@ -329,7 +330,7 @@ the first letter of each key is significant.
 
     my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
     my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
-    ... Color->new( Red => 255, Green => 0, Blue => 0);      # also fine
+    ... Color->new( Red => 255, Green => 0, Blue => 0);   # also fine
 
 =head2 new( {h => $h, s => $s, l => $l} )
 
@@ -548,6 +549,10 @@ L<Graphics::ColorUtils>
 =item *
 
 L<Graphics::ColorObject>
+
+=item *
+
+L<Color::Calc>
 
 =item *
 

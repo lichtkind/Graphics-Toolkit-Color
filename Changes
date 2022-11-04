@@ -1,9 +1,10 @@
-1.04    2022-11-0    lichtkind
+1.04    2022-11-04  lichtkind
 -------
-    * = small enhancements
+    * = fixes
+    * & fixing meta files
     * ? typos
 
-1.03    2022-11-04   lichtkind
+1.03    2022-11-04  lichtkind
 -------
     * = small enhancements
     * + recursive constructor that takes an object as argument

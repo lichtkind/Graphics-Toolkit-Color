@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';

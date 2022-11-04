@@ -1,7 +1,12 @@
-1.03    2022-11-4   lichtkind
+1.04    2022-11-0    lichtkind
 -------
     * = small enhancements
-    * + recursive constructor that takes an onject as argument
+    * ? typos
+
+1.03    2022-11-04   lichtkind
+-------
+    * = small enhancements
+    * + recursive constructor that takes an object as argument
     * ? mention Bundle::Graphics::ColorNames in POD
 
 1.02    2022-10-29  lichtkind

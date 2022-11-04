@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -40,7 +40,10 @@ sub _new_from_scalar {
     } elsif (ref $arg eq 'ARRAY'){
         return carp "need exactly 3 RGB numbers!" unless @$arg == 3;
         $arg = { r => $arg->[0], g => $arg->[1], b => $arg->[2] };
+    } elsif (ref $arg eq __PACKAGE__) {
+        $arg = { r => $arg->[1], g => $arg->[2], b => $arg->[3] };
     }
+    
     return carp $new_help unless ref $arg eq 'HASH' and keys %$arg == 3;
     my %named_arg = map { _shrink_key($_) =>  $arg->{$_} } keys %$arg; # reduce keys to lc first char
 

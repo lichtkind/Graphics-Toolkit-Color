@@ -1,6 +1,7 @@
-1.03    2022-1   lichtkind
+1.03    2022-11-4   lichtkind
 -------
-    * = fixes
+    * = small enhancements
+    * + recursive constructor that takes an onject as argument
     * ? mention Bundle::Graphics::ColorNames in POD
 
 1.02    2022-10-29  lichtkind

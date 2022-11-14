@@ -261,11 +261,11 @@ Graphics::Toolkit::Color - color palette creation helper
 =head1 SYNOPSIS 
 
     my $red = Graphics::Toolkit::Color->new('red');
-    say $red->add('blue')->name;              # 'magenta', mixed in RGB space
-    Graphics::Toolkit::Color->new( 0, 0, 255)->hsl    # 240, 100, 50 = blue
-    $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1);# mix blue with a little grey
-    $red->gradient( '#0000FF', 10);           # 10 colors from red to blue  
-    $red->complementary( 3 );                 # get fitting red green and blue
+    say $red->add('blue')->name;                    # 'magenta', mixed in RGB space
+    Graphics::Toolkit::Color->new( 0, 0, 255)->hsl; # 240, 100, 50 = blue
+    $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1); # mix blue with a little grey
+    $red->gradient( '#0000FF', 10);                 # 10 colors from red to blue  
+    $red->complementary( 3 );                       # get fitting red green and blue
 
 =head1 DESCRIPTION
 

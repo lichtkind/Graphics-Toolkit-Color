@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -260,10 +260,10 @@ Graphics::Toolkit::Color - color palette creation helper
 
 =head1 SYNOPSIS 
 
-    my $red = Graphics::Toolkit::Color->new('red');
-    say $red->add('blue')->name;                    # 'magenta', mixed in RGB space
+    my $red = Graphics::Toolkit::Color->new('red'); # create color object
+    say $red->add('blue')->name;                    # mix in RGB: 'magenta'
     Graphics::Toolkit::Color->new( 0, 0, 255)->hsl; # 240, 100, 50 = blue
-    $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1); # mix blue with a little grey
+    $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1); # mix blue with a little grey in HSL
     $red->gradient( '#0000FF', 10);                 # 10 colors from red to blue  
     $red->complementary( 3 );                       # get fitting red green and blue
 

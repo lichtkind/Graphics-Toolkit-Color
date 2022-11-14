@@ -1,3 +1,9 @@
+1.05    2022-11-    lichtkind
+-------
+    * = fixes
+
+    * ? synopsis cleanup
+    
 1.04    2022-11-04  lichtkind
 -------
     * = fixes
@@ -23,7 +29,6 @@
     * ? mention VACCC and other additional color palettes
     * ! loading from Graphics::ColorNames::* via 'palette_name:color_name' was actually broken
     
-
 1.0     2022-10-04  lichtkind
 -------
     * = initial release - moved code out of Chart module

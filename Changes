@@ -1,7 +1,7 @@
 1.05    2022-12-31    lichtkind
 -------
     * = fixes
-    * + added accessors for hash syntax
+    * + added getters for data hashes
     * ? cleaned some sentences and comments
     * ? synopsis cleanup
 

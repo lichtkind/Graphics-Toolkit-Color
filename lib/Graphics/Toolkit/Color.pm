@@ -402,6 +402,16 @@ Three values of red, green and blue (see above).
 String starting with '#', followed by six hexadecimal figures.
 Two digits for each of red, green and blue value - the format used in CSS.
 
+=head2 rgb_hash
+
+Reference to a I<HASH> containing the keys C<'red'>, C<'green'> and C<'blue'>
+with their respective values as defined above.
+
+=head2 hsl_hash
+
+Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'lightness'>
+with their respective values as defined below.
+
 =head2 hue
 
 Integer between 0 .. 359 describing the angle (in degrees) of the

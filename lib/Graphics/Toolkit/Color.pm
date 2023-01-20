@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -382,9 +382,9 @@ at: L<Graphics::Toolkit::Color::Constant/NAMES>
 
 =head2 string
 
-Returns string to serialize color object
-(recreate by C<Graphics::Toolkit::Color->new ($string)>).
-It is either the color name (if color has one) or result of L<rgb_hex>.
+Returns string that can be serialized back into a color object
+(recreated by Graphics::Toolkit::Color-&gt;new( $string )).
+It is either the color name (if color has one) or result of L</rgb_hex>.
 
 =head2 red
 

@@ -1,4 +1,9 @@
+1.07    2023-01-20    lichtkind
+-------
+    * = POD fixes
+
 1.06    2023-01-20    lichtkind
+
 -------
     * = maintenance release
     * + simplified string serialisation method (->new(eval $string) => ->new($string))

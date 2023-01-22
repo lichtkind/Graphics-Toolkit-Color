@@ -369,57 +369,37 @@ all the same arguments as described above.
 
 =head1 GETTER / ATTRIBUTES
 
-are all read only methods - giving access to different parts of the
+are read only methods - giving access to different parts of the
 objects data.
 
 =head2 name
 
-Name of the color in the X11 or HTML (SVG) standard or the Pantone report.
-The name will be found and filled in, even when the object is created
-with RGB or HSL values. If the color is not found in any of the mentioned
-standards, it returns an empty string. All names are
-at: L<Graphics::Toolkit::Color::Constant/NAMES>
+String with name of the color in the X11 or HTML (SVG) standard or the
+Pantone report. The name will be found and filled in, even when the object
+is created with RGB or HSL values. If the color is not found in any of
+the mentioned standards, it returns an empty string. All names are at:
+L<Graphics::Toolkit::Color::Constant/NAMES>
 
 =head2 string
 
-Returns string that can be serialized back into a color object
-(recreated by Graphics::Toolkit::Color-&gt;new( $string )).
-It is either the color name (if color has one) or result of L</rgb_hex>.
+String that can be serialized back into a color object
+(recreated by Graphics::Toolkit::Color->new( $string )).
+It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 
 =head2 red
 
 Integer between 0 .. 255 describing the red portion in RGB space.
+Higher value means more color and an lighter color.
 
 =head2 green
 
 Integer between 0 .. 255 describing the green portion in RGB space.
+Higher value means more color and an lighter color.
 
 =head2 blue
 
 Integer between 0 .. 255 describing the blue portion in RGB space.
-
-=head2 rgb
-
-List with values of red, green and blue (see above), no refeerence.
-
-=head2 rgb_hex
-
-String starting with '#', followed by six hexadecimal figures.
-Two digits for each of red, green and blue value - the format used in CSS.
-
-=head2 rgb_hash
-
-Reference to a I<HASH> containing the keys C<'red'>, C<'green'> and C<'blue'>
-with their respective values as defined above.
-
-=head2 hsl_hash
-
-Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'lightness'>
-with their respective values as defined below.
-
-=head2 hsl
-
-List of three values of hue, saturation and lightness (see below).
+Higher value means more color and an lighter color.
 
 =head2 hue
 
@@ -427,7 +407,8 @@ Integer between 0 .. 359 describing the angle (in degrees) of the
 circular dimension in HSL space named hue.
 0 approximates red, 30 - orange, 60 - yellow, 120 - green, 180 - cyan,
 240 - blue, 270 - violet, 300 - magenta, 330 - pink.
-0 and 360 point to the same coordinate, but this module only deals with 0.
+0 and 360 point to the same coordinate. This module only outputs 0,
+even if accepting 360 as input.
 
 =head2 saturation
 
@@ -438,7 +419,32 @@ Integer between 0 .. 100 describing percentage of saturation in HSL space.
 
 Integer between 0 .. 100 describing percentage of lightness in HSL space.
 0 is always black, 100 is always white and 50 the most colorful
-(depending on hue value) (or grey - if saturation = 0).
+(depending on L</hue> value) (or grey - if saturation = 0).
+
+=head2 rgb
+
+List (no I<ARRAY> reference) with values of L</red>, L</green> and L</blue>.
+
+=head2 hsl
+
+List (no I<ARRAY> reference) with values of L</hue>, L</saturation> and L</lightness>.
+
+=head2 rgb_hex
+
+String starting with character '#', followed by six hexadecimal lower case figures.
+Two digits for each of L</red>, L</green> and L</blue> value -
+the format used in CSS (#rrggbb).
+
+=head2 rgb_hash
+
+Reference to a I<HASH> containing the keys C<'red'>, C<'green'> and C<'blue'>
+with their respective values as defined above.
+
+=head2 hsl_hash
+
+Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'lightness'>
+with their respective values as defined above.
+
 
 =head1 METHODS
 

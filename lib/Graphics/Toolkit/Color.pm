@@ -195,8 +195,10 @@ sub blend_with {
     new( __PACKAGE__, { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
 }
 
+# for compatibility
+sub gradient_to { hsl_gradient_to( @_ ) }
 
-sub gradient_to {
+sub hsl_gradient_to {
     my ($self, $c2, $steps, $power) = @_;
     return carp "need color object or definition as first argument" unless defined $c2;
     $c2 = (ref $c2 eq __PACKAGE__) ? $c2 : _new_from_scalar( $c2 );
@@ -217,6 +219,27 @@ sub gradient_to {
                     $self->lightness  + ($pos * $delta_hsl[2]));
         @hsl = trim_hsl( @hsl );
         push @colors, new( __PACKAGE__, { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
+    }
+    $self, @colors, $c2;
+}
+
+sub rgb_gradient_to {
+    my ($self, $c2, $steps, $power) = @_;
+    return carp "need color object or definition as first argument" unless defined $c2;
+    $c2 = (ref $c2 eq __PACKAGE__) ? $c2 : _new_from_scalar( $c2 );
+    return unless ref $c2 eq __PACKAGE__;
+    $steps //= 3;
+    $power //= 1;
+    return carp "third argument (dynamics), has to be positive (>= 0)" if $power <= 0;
+    return $self if $steps == 1;
+    my @colors = ();
+    my @delta_rgb = ($c2->red - $self->red, $c2->green - $self->green, $c2->blue - $self->blue );
+    for my $i (1 .. $steps-2){
+        my $pos = ($i / ($steps-1)) ** $power;
+        my @rgb = ( $self->red   + ($pos * $delta_rgb[0]),
+                    $self->green + ($pos * $delta_rgb[1]),
+                    $self->blue  + ($pos * $delta_rgb[2]));
+        push @colors, new( __PACKAGE__, @rgb);
     }
     $self, @colors, $c2;
 }
@@ -507,7 +530,7 @@ RGB (unless told so), while this method always operates in HSL space.
     my $difference = $color->blend_with( $c2, -1 );
 
 
-=head2 gradient_to
+=head2 rgb_gradient_to
 
 Creates a gradient (a list of colors that build a transition) between
 current (C1) and a second, given color (C2).
@@ -521,16 +544,20 @@ color in between, which is the same as the result of method blend_with.
 
 Third argument is also a positive number $p, which defaults to one.
 It defines the dynamics of the transition between the two colors.
-If $p == 1 you get a linear transition - meaning the distance in HSL
-space (distance_hsl) is equal from one color to the next. If $p != 1,
+If $p == 1 you get a linear transition - meaning the distance in RGB
+space is equal from one color to the next. If $p != 1,
 the formula $n ** $p starts to create a parabola function, which defines
 a none linear mapping. For values $n > 1 the transition starts by sticking
 to C1 and slowly getting faster and faster toward C2. Values $n < 1 do
 the opposite: starting by moving fastest from C1 to C2 (big distances)
 and becoming slower and slower.
 
-    my @colors = $c->gradient_to( $grey, 5 );         # we turn to grey
-    @colors = $c1->gradient_to( [14,10,222], 10, 3 ); # none linear gradient
+    my @colors = $c->rgb_gradient_to( $grey, 5 );         # we turn to grey
+    @colors = $c1->rgb_gradient_to( [14,10,222], 10, 3 ); # none linear gradient
+
+=head2 hsl_gradient_to
+
+Same as L</rgb_gradient_to>, but in HSL space.
 
 =head2 complementary
 

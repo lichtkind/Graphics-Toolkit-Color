@@ -1,6 +1,9 @@
-1.08    2023-01-20    lichtkind
+1.08    2023-01-24    lichtkind
 -------
-    * = even more POD fixes
+    * = small enhancements
+    * + added method rgb_gradient_to
+    * ~ changed gradient_to  to hsl_gradient_to (but keeping compatibility)
+    * ? even more POD fixes
 
 1.07    2023-01-20    lichtkind
 -------

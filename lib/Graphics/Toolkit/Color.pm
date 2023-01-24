@@ -289,7 +289,7 @@ Graphics::Toolkit::Color - color palette creation helper
     say $red->add('blue')->name;                    # mix in RGB: 'magenta'
     Graphics::Toolkit::Color->new( 0, 0, 255)->hsl; # 240, 100, 50 = blue
     $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1); # mix blue with a little grey in HSL
-    $red->gradient_to( '#0000FF', 10);              # 10 colors from red to blue
+    $red->rgb_gradient_to( '#0000FF', 10);          # 10 colors from red to blue
     $red->complementary( 3 );                       # get fitting red green and blue
 
 
@@ -536,7 +536,7 @@ Creates a gradient (a list of colors that build a transition) between
 current (C1) and a second, given color (C2).
 
 The first argument is C2. Either as an Graphics::Toolkit::Color object or a
-scalar (name, hex or reference), which is acceptable to the method new.
+scalar (name, hex or reference), which is acceptable to a constructor.
 
 Second argument is the number $n of colors, which make up the gradient
 (including C1 and C2). It defaults to 3. These 3 colors C1, C2 and a
@@ -557,7 +557,7 @@ and becoming slower and slower.
 
 =head2 hsl_gradient_to
 
-Same as L</rgb_gradient_to>, but in HSL space.
+Same as L</rgb_gradient_to> (what you normally want), but in HSL space.
 
 =head2 complementary
 

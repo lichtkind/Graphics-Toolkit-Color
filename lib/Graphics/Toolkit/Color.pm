@@ -4,7 +4,7 @@
 use v5.12;
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.08';
+our $VERSION = '1.09';
 
 use Carp;
 use Graphics::Toolkit::Color::Constant ':all';
@@ -318,7 +318,7 @@ Get a color by providing a name from the X11, HTML (CSS) or SVG standard
 or a Pantone report. UPPER or CamelCase will be normalized to lower case
 and inserted underscore letters ('_') will be ignored as perl does in
 numbers (1_000 == 1000). All available names are listed under
-L<Graphics::Toolkit::Color::Constant>.
+L<Graphics::Toolkit::Color::Constant/NAMES>. (See also: L</name>)
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Constant::all_names(); # select from these
@@ -397,15 +397,17 @@ objects data.
 
 =head2 name
 
-String with name of the color in the X11 or HTML (SVG) standard or the
-Pantone report. The name will be found and filled in, even when the object
-is created with RGB or HSL values. If the color is not found in any of
-the mentioned standards, it returns an empty string. All names are at:
-L<Graphics::Toolkit::Color::Constant/NAMES>
+String with normalized name (lower case without I<'_'>) of the color as
+in X11 or HTML (SVG) standard or the Pantone report.
+The name will be found and filled in, even when the object
+was created with RGB or HSL values.
+If no color is found, C<name> returns an empty string.
+All names are at: L<Graphics::Toolkit::Color::Constant/NAMES>
+(See als: L</new(-'name'-)>)
 
 =head2 string
 
-String that can be serialized back into a color object
+String that can be serialized back into a color an object
 (recreated by Graphics::Toolkit::Color->new( $string )).
 It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 
@@ -620,7 +622,7 @@ L<Color::Similarity>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2022 Herbert Breunung.
+Copyright 2022-2023 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

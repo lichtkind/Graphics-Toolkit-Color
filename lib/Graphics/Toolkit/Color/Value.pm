@@ -6,8 +6,8 @@ package Graphics::Toolkit::Color::Value;
 
 use Carp;
 use Exporter 'import';
-our @EXPORT_OK = qw/check_rgb check_hsl trim_rgb trim_hsl 
-    difference_rgb difference_hsl distance_rgb distance_hsl 
+our @EXPORT_OK = qw/check_rgb check_hsl trim_rgb trim_hsl
+    difference_rgb difference_hsl distance_rgb distance_hsl
     hsl_from_rgb rgb_from_hsl hex_from_rgb rgb_from_hex/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
@@ -48,17 +48,17 @@ sub trim_hsl { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     return (0,0,0) unless @hsl == 3;
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
-    for (1..2){ 
+    for (1..2){
         $hsl[$_] =   0 if $hsl[$_] <   0;
-        $hsl[$_] = 100 if $hsl[$_] > 100; 
+        $hsl[$_] = 100 if $hsl[$_] > 100;
     }
     $hsl[$_] = round($hsl[$_]) for 0..2;
     @hsl;
 }
 
 sub difference_rgb { # \@rgb, \@rgb --> @rgb             distance as vector
-    my ($rgb, $rgb2) = @_;               
-    return carp  "need two triplets of rgb values in 2 arrays to compute rgb differences" 
+    my ($rgb, $rgb2) = @_;
+    return carp  "need two triplets of rgb values in 2 arrays to compute rgb differences"
         unless ref $rgb eq 'ARRAY' and @$rgb == 3 and ref $rgb2 eq 'ARRAY' and @$rgb2 == 3;
     check_rgb(@$rgb) and return;
     check_rgb(@$rgb2) and return;
@@ -80,14 +80,14 @@ sub distance_rgb { # \@rgb, \@rgb --> $d
     return carp  "need two triplets of rgb values in 2 arrays to compute rgb distance " if @_ != 2;
     my @delta_rgb = difference_rgb( $_[0], $_[1] );
     return unless @delta_rgb == 3;
-    sqrt($delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2); 
+    sqrt($delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2);
 }
 
 sub distance_hsl { # \@hsl, \@hsl --> $d
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl distance " if @_ != 2;
     my @delta_hsl = difference_hsl( $_[0], $_[1] );
     return unless @delta_hsl == 3;
-    sqrt($delta_hsl[0] ** 2 + $delta_hsl[1] ** 2 + $delta_hsl[2] ** 2); 
+    sqrt($delta_hsl[0] ** 2 + $delta_hsl[1] ** 2 + $delta_hsl[2] ** 2);
 }
 
 sub hsl_from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
@@ -119,10 +119,10 @@ sub rgb_from_hsl { # convert color value triplet (int > int), (real > real) if $
 sub hex_from_rgb {  return unless @_ == 3;  sprintf "#%02x%02x%02x", @_ }
 sub rgb_from_hex { # translate #000000 and #000 --> r, g, b
     my $hex = shift;
-    return carp "hex color definition '$hex' has to start with # followed by 3 or 6 hex characters (0-9,a-f)" 
+    return carp "hex color definition '$hex' has to start with # followed by 3 or 6 hex characters (0-9,a-f)"
         unless defined $hex and (length($hex) == 4 or length($hex) == 7) and $hex =~ /^#[\da-f]+$/i;
     $hex = substr $hex, 1;
-    (length $hex == 3) ? (map { hex($_.$_) } unpack( "a1 a1 a1", $hex)) 
+    (length $hex == 3) ? (map { hex($_.$_) } unpack( "a1 a1 a1", $hex))
                        : (map { hex($_   ) } unpack( "a2 a2 a2", $hex));
 }
 
@@ -172,19 +172,19 @@ __END__
 
 Graphics::Toolkit::Color::Value - check, convert and measure color values
 
-=head1 SYNOPSIS 
+=head1 SYNOPSIS
 
     use Graphics::Toolkit::Color::Value;         # import nothing
     use Graphics::Toolkit::Color::Value ':all';  # import all routines
-    
+
     check_rgb( 256, 10, 12 ); # throws error 255 is the limit
     my @hsl = hsl_from_rgb( 20, 50, 70 ); # convert from RGB to HSL space
 
 
 =head1 DESCRIPTION
 
-A set of helper routines to handle RGB and HSL values: bound checks, 
-conversion, measurement. Most subs expect three numerical values, 
+A set of helper routines to handle RGB and HSL values: bound checks,
+conversion, measurement. Most subs expect three numerical values,
 or sometimes two triplet. This module is supposed to be used by
 Graphics::Toolkit::Color and not directly.
 
@@ -209,36 +209,38 @@ Change HSL triplet to the nearest valid values.
 
 =head2 hsl_from_rgb
 
-Converting an rgb value triplet into the corresponding hsl 
+Converting an rgb value triplet into the corresponding hsl
 
 Red, Green and Blue are integer in 0 .. 255.
-Hue is an integer between 0 .. 359 (hue) 
+Hue is an integer between 0 .. 359 (hue)
 and saturation and lightness are 0 .. 100 (percentage).
 A hue of 360 and 0 (degree in a cylindrical coordinate system) is
 considered to be the same, this modul deals only with the ladder.
 
 =head2 rgb_from_hsl
 
-Converting an hsl value triplet into the corresponding rgb 
+Converting an hsl value triplet into the corresponding rgb
 (see rgb_from_name and hsl_from_name). Please not that back and forth
 conversion can lead to drifting results due to rounding.
 
     my @rgb = rgb_from_hsl( 0, 90, 50 );
     my @rgb = rgb_from_hsl( [0, 90, 50] ); # works too
-    # for real (none integer results), any none zero value works as second arg 
+    # for real (none integer results), any none zero value works as second arg
     my @rgb = rgb_from_hsl( [0, 90, 50], 'real');
 
 =head2 hex_from_rgb
 
-Converts a red green blue triplet into format: '#RRGGBB'.
+Converts a red green blue triplet into format: '#rrggbb'
+(lower case hex digits).
 
 =head2 rgb_from_hex
 
-Converts '#RRGGBB' or '#RGB' hex values into regular RGB triple of 0..255.
+Converts '#rrggbb' or '#rgb' (CSS short format) hex values into regular
+RGB triple of 0..255 integer.
 
 =head2 distance_rgb
 
-Distance in (linear) rgb color space between two coordinates.
+Distance (real) in (linear) rgb color space between two coordinates.
 
 
     my $d = distance_rgb([1,1,1], [2,2,2]);  # approx 1.7
@@ -246,16 +248,16 @@ Distance in (linear) rgb color space between two coordinates.
 
 =head2 distance_hsl
 
-Distance in (cylindrical) hsl color space between two coordinates.
+Distance (real) in (cylindrical) hsl color space between two coordinates.
 
     my $d = distance_rgb([1,1,1], [356, 3, 2]); # approx 6
 
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2022 Herbert Breunung.
+Copyright 2022-23 Herbert Breunung.
 
-This program is free software; you can redistribute it and/or modify it 
+This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.
 
 =head1 AUTHOR

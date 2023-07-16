@@ -1,10 +1,12 @@
 
-1.09    2023-07-16    lichtkind
+1.09    2023-07-17    lichtkind
 -------
-    * = small enhancements
+    * = maintenance release
     * ? ever more POD fixes
     * ? new method chapter split
     * ? POD in HSL constructor
+    * & enhance some tests and new ones
+    * / split and rearrange value libs with tests
 
 1.08    2023-01-24    lichtkind
 -------

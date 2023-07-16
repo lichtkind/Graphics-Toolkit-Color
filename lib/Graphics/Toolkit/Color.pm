@@ -374,15 +374,18 @@ in previous paragraph. Out of range values will be corrected to the
 closest value in range. Since L</hue> is a polar coordinate,
 it will be rotated into range, e.g. 361 = 1.
 
-    my $red = Graphics::Toolkit::Color->new( h =>   0, s => 100, b => 50 );
-    my $red = Graphics::Toolkit::Color->new({h =>   0, s => 100, b => 50}); # good too
+    my $red = Graphics::Toolkit::Color->new( h =>   0, s => 100, l => 50 );
+    my $red = Graphics::Toolkit::Color->new({h =>   0, s => 100, l => 50}); # good too
     ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # also fine
 
 =head2 color
 
-If writing C<Graphics::Toolkit::Color->new(...> is too much typing for you
-or takes to much space, import the subroutine C<color>, which takes
-all the same arguments as described above.
+If writing
+
+    Graphics::Toolkit::Color->new( ...);
+
+is too much typing for you or takes to much space, import the subroutine
+C<color>, which takes all the same arguments as described above.
 
 
     use Graphics::Toolkit::Color qw/color/;
@@ -471,7 +474,7 @@ Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'ligh
 with their respective values as defined above.
 
 
-=head1 METHODS
+=head1 COLOR RELATION METHODS
 
 create new, related color (objects) or compute similarity of colors
 
@@ -531,6 +534,7 @@ RGB (unless told so), while this method always operates in HSL space.
     $color->blend_with( [192, 192, 192] );                 # still same
     my $difference = $color->blend_with( $c2, -1 );
 
+=head1 COLOR SET CREATION METHODS
 
 =head2 rgb_gradient_to
 
@@ -597,6 +601,10 @@ L<Color::Scheme>
 =item *
 
 L<Color::Library>
+
+=item *
+
+L<Graphics::Color>
 
 =item *
 

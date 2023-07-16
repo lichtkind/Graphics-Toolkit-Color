@@ -113,8 +113,8 @@ sub distance_to {
     $metric = lc $metric;
     return distance_hsl( [$self->hsl], [$c2->hsl] ) if $metric eq 'hsl';
     return distance_rgb( [$self->rgb], [$c2->rgb] ) if $metric eq 'rgb';
-    my @delta_rgb = difference_rgb( [$self->rgb], [$c2->rgb] );
-    my @delta_hsl = difference_hsl( [$self->hsl], [$c2->hsl] );
+    my @delta_rgb = delta_rgb( [$self->rgb], [$c2->rgb] );
+    my @delta_hsl = delta_hsl( [$self->hsl], [$c2->hsl] );
     my $help = "unknown distance metric: $metric. try r, g, b, rg, rb, gb, rgb, h, s, l, hs, hl, sl, hsl (default).";
     if (length $metric == 2){
         if    ($metric eq 'hs' or $metric eq 'sh') {return sqrt( $delta_hsl[0] ** 2 + $delta_hsl[1] ** 2 )}
@@ -165,7 +165,7 @@ sub add {
     $rgb[1] += delete $named_arg{'g'} // 0;
     $rgb[2] += delete $named_arg{'b'} // 0;
     return new( __PACKAGE__, trim_rgb( @rgb ) ) unless %named_arg;
-    my @hsl = Graphics::Toolkit::Color::Value::_hsl_from_rgb( @rgb ); # withound rounding
+    my @hsl = Graphics::Toolkit::Color::Value::HSL::_from_rgb( @rgb ); # withound rounding
     $hsl[0] += delete $named_arg{'h'} // 0;
     $hsl[1] += delete $named_arg{'s'} // 0;
     $hsl[2] += delete $named_arg{'l'} // 0;
@@ -297,8 +297,8 @@ Graphics::Toolkit::Color - color palette creation helper
 
 Read only color holding objects with no additional dependencies.
 Create them in many different ways (see section I<CONSTRUCTOR>).
-Access its values via methods from section I<GETTER> or create related
-color objects via methods listed under I<METHODS>.
+Access its values via methods from section I<GETTER> or measure differences
+and create related color objects via methods listed under I<METHODS>.
 
 Humans access colors on hardware level (eye) in RGB, on cognition level
 in HSL (brain) and on cultural level (language) with names.
@@ -600,15 +600,15 @@ L<Color::Scheme>
 
 =item *
 
-L<Color::Library>
+L<Graphics::ColorUtils>
+
+=item *
+
+L<Color::Fade>
 
 =item *
 
 L<Graphics::Color>
-
-=item *
-
-L<Graphics::ColorUtils>
 
 =item *
 

@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSL space
+# color value computation utilities
 
 package Graphics::Toolkit::Color::Value::Util;
 

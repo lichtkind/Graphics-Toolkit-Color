@@ -1,15 +1,15 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSL space
+# check, convert and measure color values in CMYK space
 
-package Graphics::Toolkit::Color::Value::HSL;
+package Graphics::Toolkit::Color::Value::CMYK;
 use Graphics::Toolkit::Color::Value::Util ':all';
 use Graphics::Toolkit::Color::Value::RGB  ':all';
 
 use Carp;
 use Exporter 'import';
-our @EXPORT_OK = qw/check_hsl trim_hsl delta_hsl distance_hsl hsl_from_rgb rgb_from_hsl/;
+our @EXPORT_OK = qw/check_cmyk trim_cmyk delta_cmyk distance_cmyk cmyk_from_rgb rgb_from_cmyk/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 sub check_hsl { &check }
@@ -23,7 +23,7 @@ sub check {
     0;
 }
 
-sub trim_hsl { &trim }
+sub trim_cmyk { &trim }
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
     return (0,0,0) unless @hsl == 3;
@@ -37,7 +37,7 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     @hsl;
 }
 
-sub delta_hsl { &delta }
+sub delta_cmyk { &delta }
 sub delta { # \@hsl, \@hsl --> $d
     my ($hsl, $hsl2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
@@ -49,7 +49,7 @@ sub delta { # \@hsl, \@hsl --> $d
     ($delta_h, abs($hsl->[1] - $hsl2->[1]), abs($hsl->[2] - $hsl2->[2]) );
 }
 
-sub distance_hsl { &distance }
+sub distance_cmyk { &distance }
 sub distance { # \@hsl, \@hsl --> $d
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl distance " if @_ != 2;
     my @delta_hsl = delta( $_[0], $_[1] );
@@ -71,7 +71,7 @@ sub _from_rgb { # float conversion
     ($H, $S * 100, $avg * 0.392156863 );
 }
 
-sub hsl_from_rgb { &from_rgb }
+sub cmyk_from_rgb { &from_rgb }
 sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
     my (@rgb) = @_;
     my $real = '';
@@ -99,7 +99,7 @@ sub _to_rgb { # float conversion
          :                 ($C + $m,      $m, $X + $m);
 }
 
-sub rgb_from_hsl { &to_rgb }
+sub rgb_from_cmyk { &to_rgb }
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     my (@hsl) = @_;
     my $real = '';
@@ -114,9 +114,9 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
 }
 
 sub as_hash {
-    my (@hsl) = @_;
-    check(@hsl) and return;
-    return {'H' => $hsl[0], 'S' => $hsl[1], 'L' => $hsl[2], };
+    my (@cmyk) = @_;
+    check(@cmyk) and return;
+    return {'C' => $hsl[0], 'M' => $hsl[1], 'Y' => $hsl[2], 'K' => $hsl[3], };
 }
 
 1;

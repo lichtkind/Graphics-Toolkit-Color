@@ -7,14 +7,19 @@ package Graphics::Toolkit::Color::Value;
 use Graphics::Toolkit::Color::Value::Util ':all';
 use Graphics::Toolkit::Color::Value::RGB  ':all';
 use Graphics::Toolkit::Color::Value::HSL  ':all';
+use Graphics::Toolkit::Color::Value::CMYK ':all';
 
 use Carp;
 use Exporter 'import';
 our @EXPORT_OK = (@Graphics::Toolkit::Color::Value::RGB::EXPORT_OK,
-                  @Graphics::Toolkit::Color::Value::HSL::EXPORT_OK);
+                  @Graphics::Toolkit::Color::Value::HSL::EXPORT_OK,
+                  @Graphics::Toolkit::Color::Value::CMYK::EXPORT_OK,
+);
 our %EXPORT_TAGS = (all => [@EXPORT_OK],
                     rgb => \@Graphics::Toolkit::Color::Value::RGB::EXPORT_OK,
-                    hsl => \@Graphics::Toolkit::Color::Value::HSL::EXPORT_OK);
+                    hsl => \@Graphics::Toolkit::Color::Value::HSL::EXPORT_OK,
+                   cmyk => \@Graphics::Toolkit::Color::Value::CMYK::EXPORT_OK,
+);
 
 1;
 

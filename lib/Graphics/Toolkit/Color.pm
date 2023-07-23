@@ -96,8 +96,8 @@ sub lightness   { $_[0][6] }
 sub rgb         { @{$_[0]}[1 .. 3] }
 sub hsl         { @{$_[0]}[4 .. 6] }
 
-sub rgb_hash    { Graphics::Toolkit::Color::Value::RGB::as_hash( $_[0]->rgb ) }
-sub hsl_hash    { Graphics::Toolkit::Color::Value::HSL::as_hash( $_[0]->hsl ) }
+sub rgb_hash    { Graphics::Toolkit::Color::Value::RGB::as_long_hash( $_[0]->rgb ) }
+sub hsl_hash    { Graphics::Toolkit::Color::Value::HSL::as_long_hash( $_[0]->hsl ) }
 sub rgb_hex     { hex_from_rgb( $_[0]->rgb ) }
 sub string      { $_[0]->name ? $_[0]->name : $_[0]->rgb_hex }
 

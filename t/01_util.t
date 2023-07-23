@@ -33,14 +33,14 @@ my $ehv = \&Graphics::Toolkit::Color::Util::extract_hash_values;
 is( $ehv->([c=>1, m=>1, y=>1, k=>1], {c=>1, m=>1, y=>1}, ),         0,     'def is nt a hash');
 is( $ehv->({c=>1, m=>1, y=>1, k=>1}, [c=>1, m=>1, y=>1, k => 1], ), 0,     'values are not in a hash');
 
-my $rgb = $ehv->({r=>1, g=>2, b=>3}, {Red =>100, Green =>200, Blue =>300}, );
+my $rgb = $ehv->({r=>0, g=>1, b=>2}, {Red =>100, Green =>200, Blue =>300}, );
 is( ref $rgb, 'ARRAY',    'found values in RGB hash');
 is( int @$rgb, 3,         'got three values extracted');
 is( int $rgb->[0], 100,   'got first value right');
 is( int $rgb->[1], 200,   'got second value right');
 is( int $rgb->[2], 300,   'got third value right');
 
-my $cmyk = $ehv->({c=>1, m=>2, y=>3, k=> 4}, {c=>100, m=>200, y=>300, Key => 400}, );
+my $cmyk = $ehv->({c=>0, m=>1, y=>2, k=> 3}, {c=>100, m=>200, y=>300, Key => 400}, );
 is( ref $cmyk, 'ARRAY',    'found values in CMYK hash');
 is( int @$cmyk, 4,         'got three values extracted');
 is( int $cmyk->[0], 100,   'got first value right');

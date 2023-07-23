@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Util;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/round has_hash_key_initials extract_hash_values/;
+our @EXPORT_OK = qw/round has_hash_key_initials extract_hash_values color_key_short_cut/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half = 0.50000000000008;
@@ -22,7 +22,7 @@ sub has_hash_key_initials {
     my @keys = keys %$value_hash;
     return 0 unless keys (%$def_hash) == @keys;
     for my $key (@keys) {
-        return 0 unless exists $def_hash->{ _key_short_cut( $key ) };
+        return 0 unless exists $def_hash->{ color_key_short_cut( $key ) };
     }
     return 1;
 }
@@ -34,13 +34,13 @@ sub extract_hash_values {
     return 0 unless keys (%$def_hash) == @keys;
     my @values;
     for my $key (@keys) {
-        my $shortcut = _key_short_cut( $key );
+        my $shortcut = color_key_short_cut( $key );
         return 0 unless exists $def_hash->{ $shortcut };
-        $values[ $def_hash->{ $shortcut } - 1 ] = $value_hash->{ $key };
+        $values[ $def_hash->{ $shortcut } ] = $value_hash->{ $key };
     }
     return \@values;
 }
 
-sub _key_short_cut { lc substr($_[0], 0, 1) }
+sub color_key_short_cut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;

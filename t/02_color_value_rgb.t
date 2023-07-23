@@ -88,4 +88,6 @@ is( $rgb[2],  30,     'converted random color (lower case) from hex to RGB blue 
 
 # OO API
 
+my $c = Graphics::Toolkit::Color::Value::RGB->new(10, 20, 1000);
+
 exit 0;

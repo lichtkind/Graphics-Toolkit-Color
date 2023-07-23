@@ -5,6 +5,8 @@ use warnings;
 
 package Graphics::Toolkit::Color::Value;
 use Graphics::Toolkit::Color::Util ':all';
+my @spaces = qw/RGB HSL CMYK/;
+
 use Graphics::Toolkit::Color::Value::RGB  ':all';
 use Graphics::Toolkit::Color::Value::HSL  ':all';
 use Graphics::Toolkit::Color::Value::HSV  ':all';
@@ -60,6 +62,9 @@ A set of helper routines to handle RGB and HSL values: bound checks,
 conversion, measurement. Most subs expect three numerical values,
 or sometimes two triplet. This module is supposed to be used by
 Graphics::Toolkit::Color and not directly.
+
+
+=head1 COLOR SPACES
 
 
 =head1 ROUTINES

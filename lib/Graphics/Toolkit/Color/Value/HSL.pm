@@ -12,20 +12,28 @@ use Exporter 'import';
 our @EXPORT_OK = qw/check_hsl trim_hsl delta_hsl distance_hsl hsl_from_rgb rgb_from_hsl/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
-our @getter = qw/hsl hue saturation lightness hash/;
-our $name = 'hsl';
-my $keys = { h => 1, s => 2, l => 3};
+our @keys = qw/hue saturation lightness/;
+our @short_keys = map {color_key_short_cut $_} @keys;
+our @getter = (@keys, qw/list hash long_name_hash/);
+our $space_name = join '', @short_keys;
+my $key_count = length $space_name;
+my @key_iterator = 0 .. $key_count - 1;
+my $shortcut_order = { map { $short_keys[$_] => $_ } @key_iterator };
 
 sub new {
     my $pkg = shift;
-    my @hsl = from_rgb(@_);
-    bless \@hsl;
+    bless [ from_rgb( trim_rgb( @_ ) ) ];
 }
-sub hsl        { @{$_[0]} }
-sub hue        { $_[0][0] }
-sub saturation { $_[0][1] }
-sub lightness  { $_[0][2] }
-sub hash       { as_hash( $_[0]->hsl )  }
+sub values {
+    my $self = shift;
+    my $which = lc( shift // 'list' );
+    if    ($which eq 'list')       { @$self }
+    elsif ($which eq 'hash')       { as_hash( @$self ) }
+    elsif ($which eq 'hue')        { $self->[0] }
+    elsif ($which eq 'saturation') { $self->[1] }
+    elsif ($which eq 'lightness')  { $self->[2] }
+    elsif (exists $shortcut_order->{$which}) { $self->[ $shortcut_order->{$which} - 1 ] }
+}
 
 sub check_hsl { &check }
 sub check {
@@ -41,14 +49,14 @@ sub check {
 sub trim_hsl { &trim }
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
-    return (0,0,0) unless @hsl == 3;
+    return (0,0,0) unless @hsl == $key_count;
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
     for (1..2){
         $hsl[$_] =   0 if $hsl[$_] <   0;
         $hsl[$_] = 100 if $hsl[$_] > 100;
     }
-    $hsl[$_] = round($hsl[$_]) for 0..2;
+    $hsl[$_] = round($hsl[$_]) for @key_iterator;
     @hsl;
 }
 
@@ -56,7 +64,7 @@ sub delta_hsl { &delta }
 sub delta { # \@hsl, \@hsl --> $d
     my ($hsl, $hsl2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
-        unless ref $hsl eq 'ARRAY' and @$hsl == 3 and ref $hsl2 eq 'ARRAY' and @$hsl2 == 3;
+        unless ref $hsl eq 'ARRAY' and @$hsl == $key_count and ref $hsl2 eq 'ARRAY' and @$hsl2 == $key_count;
     check(@$hsl) and return;
     check(@$hsl2) and return;
     my $delta_h = abs($hsl->[0] - $hsl2->[0]);
@@ -128,16 +136,18 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
 }
 
+
 sub as_hash {
     my (@hsl) = @_;
     check(@hsl) and return;
-    return {'hue' => $hsl[0], 'saturation' => $hsl[1], 'lightness' => $hsl[2], };
+    return { map {$short_keys[$_] => $hsl[$_] } @key_iterator };
 }
-
-sub is_hash { has_hash_key_initials( $keys, $_[0] )}
-
-sub as_list { # hash --> @list|0
-    extract_hash_values ( $keys, $_[0] );
+sub as_long_hash {
+    my (@hsl) = @_;
+    check(@hsl) and return;
+    return { map {$keys[$_] => $hsl[$_] } @key_iterator };
 }
+sub is_hash { has_hash_key_initials( $shortcut_order, $_[0] )}
+sub hash_as_list { extract_hash_values ( $shortcut_order, $_[0] ) } # % --> @list|0
 
 1;

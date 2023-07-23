@@ -1,8 +1,9 @@
 
-1.10    2023-07-18    lichtkind
+1.10    2023-07-23    lichtkind
 -------
     * =
-    * + add CMYK support
+    * + add CMY, CMYK and HSL support
+    * ? rewritten large part of documentation
 
 
 1.09    2023-07-17    lichtkind

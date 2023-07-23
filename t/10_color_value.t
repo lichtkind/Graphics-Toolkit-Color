@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 108;
+use Test::More tests => 109;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -56,13 +56,14 @@ is( $rgb[0],   0,     'default color is black (R) no args');
 is( $rgb[1],   0,     'default color is black (G) no args');
 is( $rgb[2],   0,     'default color is black (B) no args');
 @rgb = $tr_rgb->(1,2);
-is( $rgb[0],   0,     'default color is black (R) too few args');
-is( $rgb[1],   0,     'default color is black (G) too few args');
-is( $rgb[2],   0,     'default color is black (B) too few args');
+is( $rgb[0],   1,     'default color is black (R) took first arg');
+is( $rgb[1],   2,     'default color is black (G) took second arg');
+is( $rgb[2],   0,     'default color is black (B) gilld in third value');
 @rgb = $tr_rgb->(1,2,3,4);
-is( $rgb[0],   0,     'default color is black (R) too many args');
-is( $rgb[1],   0,     'default color is black (G) too many args');
-is( $rgb[2],   0,     'default color is black (B) too many args');
+is( $rgb[0],   1,     'default color is black (R) took first of too many args');
+is( $rgb[1],   2,     'default color is black (G) took second of too many args');
+is( $rgb[2],   3,     'default color is black (B) too third of too many args');
+is( int @rgb,  3,    'left out the needless argument');
 @rgb = $tr_rgb->(-1,-1,-1);
 is( int @rgb,  3,     'color is trimmed up');
 is( $rgb[0],   0,     'too low red value is trimmed up');

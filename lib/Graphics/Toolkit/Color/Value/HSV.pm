@@ -3,29 +3,29 @@ use warnings;
 
 # check, convert and measure color values in HSL space
 
-package Graphics::Toolkit::Color::Value::HSL;
+package Graphics::Toolkit::Color::Value::HSV;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::Value::RGB  ':all';
 
 use Carp;
 use Exporter 'import';
-our @EXPORT_OK = qw/check_hsl trim_hsl delta_hsl distance_hsl hsl_from_rgb rgb_from_hsl/;
+our @EXPORT_OK = qw/check_hsv trim_hsv delta_hsv distance_hsv hsv_from_rgb rgb_from_hsv/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
-our @getter = qw/hsl hue saturation lightness hash/;
-our $name = 'hsl';
-my $keys = { h => 1, s => 2, l => 3};
+our @getter = qw/hsv hue saturation value hash/;
+our $name = 'hsv';
+my $keys = { h => 1, s => 2, v => 3};
 
 sub new {
     my $pkg = shift;
-    my @hsl = from_rgb(@_);
-    bless \@hsl;
+    my @hsv = from_rgb(@_);
+    bless \@hsv;
 }
-sub hsl        { @{$_[0]} }
+sub hsv        { @{$_[0]} }
 sub hue        { $_[0][0] }
 sub saturation { $_[0][1] }
-sub lightness  { $_[0][2] }
-sub hash       { as_hash( $_[0]->hsl )  }
+sub value      { $_[0][2] }
+sub hash       { as_hash( $_[0]->hsv )  }
 
 sub check_hsl { &check }
 sub check {
@@ -41,10 +41,11 @@ sub check {
 sub trim_hsl { &trim }
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
-    return (0,0,0) unless @hsl == 3;
+    return (0,0,0) if @hsl < 1;
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
     for (1..2){
+        $hsl[$_] =   0 unless exists $hsl[$_];
         $hsl[$_] =   0 if $hsl[$_] <   0;
         $hsl[$_] = 100 if $hsl[$_] > 100;
     }
@@ -131,7 +132,7 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
 sub as_hash {
     my (@hsl) = @_;
     check(@hsl) and return;
-    return {'hue' => $hsl[0], 'saturation' => $hsl[1], 'lightness' => $hsl[2], };
+    return {'hue' => $hsl[0], 'saturation' => $hsl[1], 'value' => $hsl[2], };
 }
 
 sub is_hash { has_hash_key_initials( $keys, $_[0] )}

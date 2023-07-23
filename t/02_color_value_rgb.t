@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 52;
+use Test::More tests => 53;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -30,20 +30,20 @@ warning_like {$chk_rgb->(0,0, -1 )}  {carped => qr/blue value/},  "blue value is
 warning_like {$chk_rgb->(0,0, 0.5 )} {carped => qr/blue value/},  "blue value is not integer";
 warning_like {$chk_rgb->(0,0, 256)}  {carped => qr/blue value/},  "blue value is too big";
 
-
 my @rgb = $tr_rgb->();
 is( int @rgb,  3,     'default color is set');
 is( $rgb[0],   0,     'default color is black (R) no args');
 is( $rgb[1],   0,     'default color is black (G) no args');
 is( $rgb[2],   0,     'default color is black (B) no args');
 @rgb = $tr_rgb->(1,2);
-is( $rgb[0],   0,     'default color is black (R) too few args');
-is( $rgb[1],   0,     'default color is black (G) too few args');
-is( $rgb[2],   0,     'default color is black (B) too few args');
+is( $rgb[0],   1,     'default color is black (R) took first arg');
+is( $rgb[1],   2,     'default color is black (G) took second arg');
+is( $rgb[2],   0,     'default color is black (B) gilld in third value');
 @rgb = $tr_rgb->(1,2,3,4);
-is( $rgb[0],   0,     'default color is black (R) too many args');
-is( $rgb[1],   0,     'default color is black (G) too many args');
-is( $rgb[2],   0,     'default color is black (B) too many args');
+is( $rgb[0],   1,     'default color is black (R) took first of too many args');
+is( $rgb[1],   2,     'default color is black (G) took second of too many args');
+is( $rgb[2],   3,     'default color is black (B) too third of too many args');
+is( int @rgb,  3,    'left out the needless argument');
 @rgb = $tr_rgb->(-1,-1,-1);
 is( int @rgb,  3,     'trim do not change number of negative values');
 is( $rgb[0],   0,     'too low red value is trimmed up');
@@ -85,5 +85,7 @@ is( $rgb[0],  10,     'converted random color (lower case) from hex to RGB red i
 is( $rgb[1],  20,     'converted random color (lower case) from hex to RGB green is correct');
 is( $rgb[2],  30,     'converted random color (lower case) from hex to RGB blue is correct');
 
+
+# OO API
 
 exit 0;

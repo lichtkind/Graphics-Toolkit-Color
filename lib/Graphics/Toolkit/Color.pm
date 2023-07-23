@@ -93,13 +93,13 @@ sub blue        { $_[0][3] }
 sub hue         { $_[0][4] }
 sub saturation  { $_[0][5] }
 sub lightness   { $_[0][6] }
-sub string      { $_[0][0] ? $_[0][0] : $_[0]->rgb_hex }
-
 sub rgb         { @{$_[0]}[1 .. 3] }
 sub hsl         { @{$_[0]}[4 .. 6] }
-sub rgb_hash    { { red => $_[0][1], green => $_[0][2], blue => $_[0][3] } }
-sub hsl_hash    { { hue => $_[0][4], saturation => $_[0][5], lightness => $_[0][6] } }
-sub rgb_hex     { hex_from_rgb( $_[0]->rgb() ) }
+
+sub rgb_hash    { Graphics::Toolkit::Color::Value::RGB::as_hash( $_[0]->rgb ) }
+sub hsl_hash    { Graphics::Toolkit::Color::Value::HSL::as_hash( $_[0]->hsl ) }
+sub rgb_hex     { hex_from_rgb( $_[0]->rgb ) }
+sub string      { $_[0]->name ? $_[0]->name : $_[0]->rgb_hex }
 
 ## methods ##############################################################
 
@@ -295,19 +295,27 @@ Graphics::Toolkit::Color - color palette creation helper
 
 =head1 DESCRIPTION
 
-Read only color holding objects with no additional dependencies.
-Create them in many different ways (see section I<CONSTRUCTOR>).
-Access its values via methods from section I<GETTER> or measure differences
-and create related color objects via methods listed under I<METHODS>.
+Graphics::Toolkit::Color, for short GTC, is the top level API of this
+module. It is designed to get a fast access to a set of related colors,
+that serve your need. While it can understand and output many color
+formats, its primary (internal) format is RGB, because this it is
+about colors that can be shown on the screen.
 
 Humans access colors on hardware level (eye) in RGB, on cognition level
 in HSL (brain) and on cultural level (language) with names.
 Having easy access to all three and some color math should enable you to get the color
 palette you desire quickly.
 
+GTC are read only color holding objects with no additional dependencies.
+Create them in many different ways (see section I<CONSTRUCTOR>).
+Access its values via methods from section I<GETTER> or measure differences
+and create related color objects via methods listed under I<METHODS>.
+
+
 
 =head1 CONSTRUCTOR
 
+An GTC object
 There are many options to create a color objects.  In short you can
 either use the name of a predefined constant or provide values in RGB
 or HSL color space.
@@ -348,7 +356,7 @@ also acceptable.
 
 =head2 new( [$r, $g, $b] )
 
-Triplet of integer RGB values (L</red>, L</green> and L</blue> : 0 .. 255).
+Triplet of integer RGB values (red, green and blue : 0 .. 255).
 Out of range values will be corrected to the closest value in range.
 
 
@@ -413,21 +421,6 @@ All names are at: L<Graphics::Toolkit::Color::Constant/NAMES>
 String that can be serialized back into a color an object
 (recreated by Graphics::Toolkit::Color->new( $string )).
 It is either the color L</name> (if color has one) or result of L</rgb_hex>.
-
-=head2 red
-
-Integer between 0 .. 255 describing the red portion in RGB space.
-Higher value means more color and an lighter color.
-
-=head2 green
-
-Integer between 0 .. 255 describing the green portion in RGB space.
-Higher value means more color and an lighter color.
-
-=head2 blue
-
-Integer between 0 .. 255 describing the blue portion in RGB space.
-Higher value means more color and an lighter color.
 
 =head2 hue
 

@@ -5,41 +5,38 @@ use warnings;
 
 package Graphics::Toolkit::Color::Value::RGB;
 use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::SpaceKeys;
+
 use Carp;
 use Exporter 'import';
 our @EXPORT_OK = qw/check_rgb trim_rgb delta_rgb distance_rgb hex_from_rgb rgb_from_hex/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
-our @keys = qw/red green blue/;
-our @short_keys = map {color_key_short_cut $_} @keys;
-our @getter = (@keys, qw/hex list hash long_name_hash/);
-our $space_name = join '', @short_keys;
-my $key_count = length $space_name;
-my @key_iterator = 0 .. $key_count - 1;
-my $shortcut_order = { map { $short_keys[$_] => $_ } @key_iterator };
+our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/red green blue/);
+our @getter = (qw/hex list hash long_name_hash/, $def->keys, $def->shortcuts);
 
 sub new {
     my $pkg = shift;
     bless [ trim(@_) ];
 }
-sub values {
+sub format {
     my $self = shift;
     my $which = lc( shift // 'list' );
-    if    ($which eq 'list')          { @$self }
-    elsif ($which eq 'hash')          { as_hash( @$self ) }
-    elsif ($which eq 'long_name_hash'){ as_long_hash( @$self ) }
-    elsif ($which eq 'hex')           { hex_from_rgb(@$self) }
-    elsif ($which eq 'red')           { $self->[0] }
-    elsif ($which eq 'green')         { $self->[1] }
-    elsif ($which eq 'blue')          { $self->[2] }
-    elsif (exists $shortcut_order->{$which}) { $self->[ $shortcut_order->{$which} ] }
+    if    ($which eq 'list')            { @$self }
+    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$self ) }
+    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$self ) }
+    elsif ($which eq 'hex')             { hex_from_rgb(@$self) }
+    elsif ($def->is_key( $which ))      { $def->value_from_key( $which, @$self ) }
+    elsif ($def->is_shortcut( $which )) { $def->value_from_shortcut( $which, @$self ) }
 }
+
+########################################################################
 
 sub check_rgb { &check }
 sub check { # carp returns 1
     my (@rgb) = @_;
     my $range_help = 'has to be an integer between 0 and 255';
-    return carp "need exactly 3 positive integer values 0 <= n < 256 for rgb input" unless @rgb == $key_count;
+    return carp "need exactly 3 positive integer values 0 <= n < 256 for rgb input" unless @rgb == $def->count;
     return carp "red value $rgb[0] ".$range_help   unless int $rgb[0] == $rgb[0] and $rgb[0] >= 0 and $rgb[0] < 256;
     return carp "green value $rgb[1] ".$range_help unless int $rgb[1] == $rgb[1] and $rgb[1] >= 0 and $rgb[1] < 256;
     return carp "blue value $rgb[2] ".$range_help  unless int $rgb[2] == $rgb[2] and $rgb[2] >= 0 and $rgb[2] < 256;
@@ -49,13 +46,13 @@ sub check { # carp returns 1
 sub trim_rgb { &trim }
 sub trim { # cut values into the domain of definition of 0 .. 255
     my (@rgb) = @_;
-    for (@key_iterator){
+    for ($def->iterator){
         $rgb[$_] =   0 unless exists $rgb[$_];
         $rgb[$_] =   0 if $rgb[$_] <   0;
         $rgb[$_] = 255 if $rgb[$_] > 255;
     }
-    $rgb[$_] = round($rgb[$_]) for @key_iterator;
-    pop @rgb until @rgb == $key_count;
+    $rgb[$_] = round($rgb[$_]) for $def->iterator;
+    pop @rgb until @rgb == $def->count;
     @rgb;
 }
 
@@ -63,8 +60,8 @@ sub delta_rgb { &delta }
 sub delta { # \@rgb, \@rgb --> @rgb             distance as vector
     my ($rgb, $rgb2) = @_;
     return carp  "need two triplets of rgb values in 2 arrays to compute rgb differences"
-        unless ref $rgb eq 'ARRAY' and @$rgb == $key_count
-           and ref $rgb2 eq 'ARRAY' and @$rgb2 == $key_count;
+        unless ref $rgb eq 'ARRAY' and @$rgb == $def->count
+           and ref $rgb2 eq 'ARRAY' and @$rgb2 == $def->count;
     check_rgb(@$rgb) and return;
     check_rgb(@$rgb2) and return;
     (abs($rgb->[0] - $rgb2->[0]), abs($rgb->[1] - $rgb2->[1]), abs($rgb->[2] - $rgb2->[2]) );
@@ -92,19 +89,6 @@ sub rgb_from_hex { # translate #000000 and #000 --> r, g, b
 
 # sub is_hex { }
 
-sub as_hash {
-    my (@rgb) = @_;
-    check(@rgb) and return;
-    return { map {$short_keys[$_] => $rgb[$_] } @key_iterator };
-}
-sub as_long_hash {
-    my (@rgb) = @_;
-    check(@rgb) and return;
-    return { map {$keys[$_] => $rgb[$_] } @key_iterator };
-}
-sub is_hash { has_hash_key_initials( $shortcut_order, $_[0] ) }  # % --> ?       # hash with righ keys
-sub hash_as_list { extract_hash_values ( $shortcut_order, $_[0] ) }  # % --> @list|0
-
 1;
 
 __END__
@@ -119,13 +103,8 @@ Graphics::Toolkit::Color::Value::RGB - converter and getter for the RGB color sp
 
     use Graphics::Toolkit::Color::Value::RGB ':all';
     my $c = Graphics::Toolkit::Color::Value::RGB->new(20,30,500);
-    $c->hex;             # same as hex_from_rgb(20,30,50) eq '#141EFF'
-                         # rgb_from_hex('#141EFF')
-    $c->list;            # 20, 30, 255
-    $c->red;             # 20
-    $c->green;           # 30
-    $c->blue;            # 255
-    $c->hash;            # { red => 20, green => 30, blue => 255}
+    $c->format('hex');       # same as hex_from_rgb(20,30,50) eq '#141EFF'
+                             # rgb_from_hex('#141EFF')
 
 
 =head1 DESCRIPTION
@@ -133,6 +112,19 @@ Graphics::Toolkit::Color::Value::RGB - converter and getter for the RGB color sp
 
 
 =head1 OO Interface
+
+    use Graphics::Toolkit::Color::Value::RGB ':all';
+    my $c = Graphics::Toolkit::Color::Value::RGB->new(20,30,500);
+    $c->format('hex');       # same as hex_from_rgb(20,30,50) eq '#141EFF'
+    $c->format('list');      # 20, 30, 255
+    $c->format('hash');      # { red => 20, green => 30, blue => 255}
+    $c->format('char_hash'); # { r => 20, g => 30, b => 255}
+    $c->format('red');       # 20
+    $c->format('green');     # 30
+    $c->format('blue');      # 255
+    $c->format('R');         # 20
+    $c->format('G');         # 30
+    $c->format('B');         # 255
 
 =head1 Importable Routines
 

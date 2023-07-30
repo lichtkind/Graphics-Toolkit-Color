@@ -1,10 +1,11 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSL space
+# check, convert and measure color values in HSV space
 
 package Graphics::Toolkit::Color::Value::HSV;
 use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::SpaceKeys;
 use Graphics::Toolkit::Color::Value::RGB  ':all';
 
 use Carp;
@@ -12,9 +13,8 @@ use Exporter 'import';
 our @EXPORT_OK = qw/check_hsv trim_hsv delta_hsv distance_hsv hsv_from_rgb rgb_from_hsv/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
+our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/hue saturation value/);
 our @getter = qw/hsv hue saturation value hash/;
-our $name = 'hsv';
-my $keys = { h => 1, s => 2, v => 3};
 
 sub new {
     my $pkg = shift;
@@ -127,18 +127,6 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     my @rgb = _to_rgb( @hsl );
     return @rgb if $real;
     ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
-}
-
-sub as_hash {
-    my (@hsl) = @_;
-    check(@hsl) and return;
-    return {'hue' => $hsl[0], 'saturation' => $hsl[1], 'value' => $hsl[2], };
-}
-
-sub is_hash { has_hash_key_initials( $keys, $_[0] )}
-
-sub as_list { # hash --> @list|0
-    extract_hash_values ( $keys, $_[0] );
 }
 
 1;

@@ -1,8 +1,9 @@
 
-1.10    2023-07-23    lichtkind
+1.10    2023-07-27    lichtkind
 -------
     * =
     * + add CMY, CMYK and HSL support
+    * & new getter API
     * ? rewritten large part of documentation
 
 
@@ -68,6 +69,6 @@
 1.0     2022-10-04  lichtkind
 -------
     * = initial release - moved code out of Chart module
-    * & created own distro
+    * \ created own distro
     * ~ small POD fixes
 

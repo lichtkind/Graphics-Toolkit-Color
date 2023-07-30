@@ -1,9 +1,9 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in CMYK space
+# check, convert and measure color values in CMY space
 
-package Graphics::Toolkit::Color::Value::CMYK;
+package Graphics::Toolkit::Color::Value::CMY;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::SpaceKeys;
 use Graphics::Toolkit::Color::Value::RGB  ':all';
@@ -13,7 +13,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw/check_cmyk trim_cmyk delta_cmyk distance_cmyk cmyk_from_rgb rgb_from_cmyk/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
-our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/cyan magenta yellow key/);
+our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/cyan magenta yellow/);
 
 
 sub check_cmyk { &check }

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 66;
+use Test::More tests => 76;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -43,13 +43,25 @@ is( $s3d->is_shortcut('e'),   0,      'not found made up key shortcut e');
 is( $s5d->is_shortcut('H'),   1,      'found key shortcut H');
 is( $s5d->is_shortcut('l'),   0,      'not found made up key shortcut l');
 
+is( $s3d->is_key_or_shortcut('Alpha'),  1, 'alpha is a key');
+is( $s3d->is_key_or_shortcut('A'),      1, 'a is a shortcut');
+is( $s3d->is_key_or_shortcut('Cen'),    0, 'Cen is not a key');
+is( $s3d->is_key_or_shortcut('C'),      0, 'c is not a shortcut');
+
 is( $s3d->is_hash([]),        0,      'array is not a hash');
-is( $s3d->is_hash({aleph => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');
-is( $s3d->is_hash({Aleph => 1, beta => 20, gamma => 3}), 1, 'key casing gets ignored');
+is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');
+is( $s3d->is_hash({ALPHA => 1, Beta => 20, gamma => 3}), 1, 'key casing gets ignored');
 is( $s3d->is_hash({a => 1, b => 1, g => 3}),             1, 'valid shortcut hash');
 is( $s3d->is_hash({a => 1, B => 1, g => 3}),             1, 'shortcut casing gets ignored');
 is( $s3d->is_hash({a => 1, b => 1, g => 3, h => 4}),     0, 'too many hash key shortcut ');
 is( $s3d->is_hash({alph => 1, beth => 1, gimel => 4, daleth => 2, he => 4}), 0, 'one wrong hash key');
+
+is( $s5d->is_partial_hash([]),   0,      'array is not a partial hash');
+is( $s5d->is_partial_hash({aleph => 1, beth => 2, gimel => 3, daleth => 4, he => 5}), 1, 'valid hash with right keys is also correct partial hash');
+is( $s5d->is_partial_hash({aleph => 1, beth => 20, gimel => 3, daleth => 4, he => 5, i => 6}), 0, 'partial hash can not have more keys than full hash definition');
+is( $s5d->is_partial_hash({aleph => 1 }),              1, 'valid partial hash to have only one korrect key');
+is( $s5d->is_partial_hash({ALEPH => 1 }),              1, 'ignore casing');
+is( $s5d->is_partial_hash({aleph => 1, bet => 2, }),  0, 'one bad key makes partial invalid');
 
 
 is( ref $s3d->shortcut_hash_from_list(1,2,3),  'HASH',      'HASH with given values and shortcut keys created');

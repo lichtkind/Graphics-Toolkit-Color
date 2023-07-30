@@ -26,11 +26,22 @@ sub name     {   $_[0]{'name'} }
 
 sub is_key      { (defined  $_[1] and exists $_[0]->{'key_order'}{ lc $_[1] }) ? 1 : 0 }
 sub is_shortcut { (defined  $_[1] and exists $_[0]->{'shortcut_order'}{ lc $_[1] }) ? 1 : 0 }
+sub is_key_or_shortcut { $_[0]->is_key($_[1]) or $_[0]->is_shortcut($_[1]) }
 sub is_hash {
     my ($self, $value_hash) = @_;
     return 0 unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
     for (CORE::keys %$value_hash) {
-        return 0 unless exists $self->{'shortcut_order'}{ color_key_short_cut( $_ ) };
+        return 0 unless $self->is_key_or_shortcut( $_);
+    }
+    return 1;
+}
+sub is_partial_hash {
+    my ($self, $value_hash) = @_;
+    return 0 unless ref $value_hash eq 'HASH';
+    my $key_count = CORE::keys %$value_hash;
+    return 0 unless $key_count and $key_count <= $self->{'count'};
+    for (CORE::keys %$value_hash) {
+        return 0 unless $self->is_key_or_shortcut( $_);
     }
     return 1;
 }

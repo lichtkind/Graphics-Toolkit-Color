@@ -87,7 +87,7 @@ sub rgb_from_hex { # translate #000000 and #000 --> r, g, b
                        : (map { CORE::hex($_   ) } unpack( "a2 a2 a2", $hex));
 }
 
-# sub is_hex { }
+sub is_hex { defined $_[0] and ($_[0] =~ /^#[[:alnum:]]{3}$/ or $_[0] =~ /^#[[:alnum:]]{6}$/)}
 
 1;
 

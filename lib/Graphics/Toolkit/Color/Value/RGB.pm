@@ -15,19 +15,20 @@ our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/red green blue/);
 our @getter = (qw/hex list hash long_name_hash/, $def->keys, $def->shortcuts);
 
-sub new {
-    my $pkg = shift;
-    bless [ trim(@_) ];
-}
+sub definition { $def }
+sub getter     { @getter }
+
 sub format {
-    my $self = shift;
+    my $values = shift;
+    return unless ref $values eq 'ARRAY' and @$values == $def->count;
     my $which = lc( shift // 'list' );
-    if    ($which eq 'list')            { @$self }
-    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$self ) }
-    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$self ) }
-    elsif ($which eq 'hex')             { hex_from_rgb(@$self) }
-    elsif ($def->is_key( $which ))      { $def->value_from_key( $which, @$self ) }
-    elsif ($def->is_shortcut( $which )) { $def->value_from_shortcut( $which, @$self ) }
+    $values = [ trim(@$values) ];
+    if    ($which eq 'list')            { @$values }
+    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$values ) }
+    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$values ) }
+    elsif ($which eq 'hex')             { hex_from_rgb( @$values ) }
+    elsif ($def->is_key( $which ))      { $def->list_value_from_key( $which, @$values ) }
+    elsif ($def->is_shortcut( $which )) { $def->list_value_from_shortcut( $which, @$values ) }
 }
 
 ########################################################################

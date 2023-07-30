@@ -6,14 +6,14 @@ use warnings;
 package Graphics::Toolkit::Color::Value;
 use Carp;
 use Exporter 'import';
-my @color_spaces = qw/rgb hsl cmyk/;
+my @color_spaces = qw/RGB HSL CMYK/;
 
 no strict 'refs';
-eval "use Graphics::Toolkit::Color::Value::".uc($_)." ':all';" for @color_spaces;
+eval 'use Graphics::Toolkit::Color::Value::' . $_ . " ':all';" for @color_spaces;
 
-our @EXPORT_OK = map {@{ __PACKAGE__ . '::'. uc($_) . "::EXPORT_OK" }} @color_spaces;
+our @EXPORT_OK = map {@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' }} @color_spaces;
 our %EXPORT_TAGS = (all => [@EXPORT_OK],
-                    map { $_ => \@{ __PACKAGE__ . '::'. uc($_) . "::EXPORT_OK" } } @color_spaces );
+                    map { $_ => \@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' } } @color_spaces );
 use strict;
 
 

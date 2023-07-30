@@ -7,6 +7,7 @@ package Graphics::Toolkit::Color::Value;
 use Carp;
 use Exporter 'import';
 my @color_spaces = qw/RGB HSL CMYK/;
+my %space_exists = map { lc($_) => 1} @color_spaces;
 
 no strict 'refs';
 eval 'use Graphics::Toolkit::Color::Value::' . $_ . " ':all';" for @color_spaces;
@@ -18,14 +19,25 @@ use strict;
 
 
 
-sub convert_to {
+sub convert_rgb_to {
+    my ($values, $space_name) = @_;
 }
 
-sub exists_space {
+sub convert_rgb_from_list {
+    my ($values, $space_name) = @_;
+}
+
+sub convert_rgb_from_hash {
+    my ($value_hash) = @_;
+}
+
+sub format {
+    my ($values, $space_name, $format) = @_;
 
 }
 
-sub get_object {
+sub distance {
+    my ($values, $space_name, $part) = @_;
 
 }
 

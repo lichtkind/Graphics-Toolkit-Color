@@ -1,9 +1,10 @@
 
-1.10    2023-07-27    lichtkind
+1.10    2023-08-01    lichtkind
 -------
     * =
     * + add CMY, CMYK and HSL support
     * & new getter API
+    * & keep complex names like 'SVG:green' to be returned by getter: ->name
     * ? rewritten large part of documentation
 
 

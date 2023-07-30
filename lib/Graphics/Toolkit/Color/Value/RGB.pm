@@ -13,7 +13,7 @@ our @EXPORT_OK = qw/check_rgb trim_rgb delta_rgb distance_rgb hex_from_rgb rgb_f
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/red green blue/);
-our @getter = (qw/hex list hash long_name_hash/, $def->keys, $def->shortcuts);
+our @getter = (qw/list hash char_hash hex/, $def->keys, $def->shortcuts);
 
 sub definition { $def }
 sub getter     { @getter }
@@ -72,7 +72,7 @@ sub distance_rgb { &distance }
 sub distance { # \@rgb, \@rgb --> $d
     return carp  "need two triplets of rgb values in 2 arrays to compute rgb distance " if @_ != 2;
     my @delta_rgb = delta( $_[0], $_[1] );
-    return unless @delta_rgb == 3;
+    return unless @delta_rgb == $def->count;
     sqrt($delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2);
 }
 

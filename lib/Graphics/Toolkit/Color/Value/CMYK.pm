@@ -6,15 +6,31 @@ use warnings;
 package Graphics::Toolkit::Color::Value::CMYK;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::SpaceKeys;
-use Graphics::Toolkit::Color::Value::RGB  ':all';
 
 use Carp;
 use Exporter 'import';
-our @EXPORT_OK = qw/check_cmyk trim_cmyk delta_cmyk distance_cmyk cmyk_from_rgb rgb_from_cmyk/;
+our @EXPORT_OK = qw/check_cmyk trim_cmyk delta_cmyk distance_cmyk cmyk_from_rgb cmyk_from_hsl/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/cyan magenta yellow key/);
+our @getter = (qw/list hash char_hash/, $def->keys, $def->shortcuts);
 
+sub definition { $def }
+sub getter     { @getter }
+
+sub format {
+    my $values = shift;
+    return unless ref $values eq 'ARRAY' and @$values == $def->count;
+    my $which = lc( shift // 'list' );
+    $values = [ trim(@$values) ];
+    if    ($which eq 'list')            { @$values }
+    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$values ) }
+    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$values ) }
+    elsif ($def->is_key( $which ))      { $def->list_value_from_key( $which, @$values ) }
+    elsif ($def->is_shortcut( $which )) { $def->list_value_from_shortcut( $which, @$values ) }
+}
+
+########################################################################
 
 sub check_cmyk { &check }
 sub check {

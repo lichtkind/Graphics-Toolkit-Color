@@ -26,6 +26,7 @@ sub new {
     my ($pkg, @args) = @_;
     @args = ([@args]) if @args == 3;
     @args = ({ $args[0] => $args[1], $args[2] => $args[3], $args[4] => $args[5] }) if @args == 6;
+    @args = ({ $args[0] => $args[1], $args[2] => $args[3], $args[4] => $args[5], $args[6] => $args[7] }) if @args == 8;
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }
@@ -35,7 +36,7 @@ sub _new_from_scalar {
     if (not ref $arg){ # resolve 'color_name' or '#RRGGBB' -> ($r, $g, $b)
         my @rgb = _rgb_from_name_or_hex($arg);
         return unless @rgb == 3;
-        $name = $arg if index( $arg, ':') > -1;
+        # $name = $arg if index( $arg, ':') > -1;
         $arg = { r => $rgb[0], g => $rgb[1], b => $rgb[2] };
     } elsif (ref $arg eq 'ARRAY'){
         return carp "need exactly 3 RGB numbers!" unless @$arg == 3;
@@ -73,8 +74,8 @@ sub _rgb_from_name_or_hex {
         eval "use $module";
         return carp "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
 
-        my $pal = Graphics::ColorNames->new( $pallet_name );
-        my @rgb = $pal->rgb( $color_name );
+        my $pallet = Graphics::ColorNames->new( $pallet_name );
+        my @rgb = $pallet->rgb( $color_name );
         return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
         @rgb;
     } else {                                         # resolve name -> ($r, $g, $b)

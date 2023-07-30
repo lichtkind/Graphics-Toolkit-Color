@@ -6,7 +6,6 @@ use warnings;
 package Graphics::Toolkit::Color::Value::HSL;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::SpaceKeys;
-use Graphics::Toolkit::Color::Value::RGB  ':all';
 
 use Carp;
 use Exporter 'import';
@@ -14,20 +13,21 @@ our @EXPORT_OK = qw/check_hsl trim_hsl delta_hsl distance_hsl hsl_from_rgb rgb_f
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/hue saturation lightness/);
-our @getter = (qw/hex list hash long_name_hash/, $def->keys, $def->shortcuts);
+our @getter = (qw/list hash char_hash/, $def->keys, $def->shortcuts);
 
-sub new {
-    my $pkg = shift;
-    bless [ from_rgb( trim_rgb( @_ ) ) ];
-}
+sub definition { $def }
+sub getter     { @getter }
+
 sub format {
-    my $self = shift;
+    my $values = shift;
+    return unless ref $values eq 'ARRAY' and @$values == $def->count;
     my $which = lc( shift // 'list' );
-    if    ($which eq 'list')            { @$self }
-    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$self ) }
-    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$self ) }
-    elsif ($def->is_key( $which ))      { $def->value_from_key( $which, @$self ) }
-    elsif ($def->is_shortcut( $which )) { $def->value_from_shortcut( $which, @$self ) }
+    $values = [ trim(@$values) ];
+    if    ($which eq 'list')            { @$values }
+    elsif ($which eq 'hash')            { $def->key_hash_from_list ( @$values ) }
+    elsif ($which eq 'char_hash')       { $def->shortcut_hash_from_list( @$values ) }
+    elsif ($def->is_key( $which ))      { $def->list_value_from_key( $which, @$values ) }
+    elsif ($def->is_shortcut( $which )) { $def->list_value_from_shortcut( $which, @$values ) }
 }
 
 ########################################################################

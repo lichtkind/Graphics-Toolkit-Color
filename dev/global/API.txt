@@ -1,0 +1,46 @@
+
+
+name  --> ~name
+   --
+   ~standard --> ~
+
+values --> () | % | #hex
+   --
+   ~space
+   ~format :|
+
+
+
+set
+   partial hash def
+
+add
+   partial hash def
+
+
+blend
+   with => full def
+   factor => [0..1]
+   space => name|rgb
+
+
+
+
+complementary
+   ---
+   nr => +
+   space => name|rgb
+   { S => *, L => *}
+
+gradient
+   to => color_def
+   ---
+   nr => +
+   dynamics => *
+
+cloud
+   ---
+   space => name|rgb
+   disctance => *
+   radius => *
+   nr => +

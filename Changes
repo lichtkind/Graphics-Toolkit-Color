@@ -3,6 +3,11 @@
 -------
     * =
     * + add CMY, CMYK and HSL support
+    * + new getter: values
+    * \ deprecate all other numeric getter: rgb, red, green, blue, rgb_hex,
+                         rgb_hash, hsl, hue, saturation, lightnss, hsl_hash
+    * \ till 2.0 will be also deprecated: rgb_gradient_to, hsl_gradient_to,
+                                          gradient_to, distance_to
     * & new getter API
     * & keep complex names like 'SVG:green' to be returned by getter: ->name
     * ? rewritten large part of documentation

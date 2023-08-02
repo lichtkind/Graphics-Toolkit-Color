@@ -14,7 +14,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw/color/;
 
 my $new_help = 'constructor of Graphics::Toolkit::Color object needs either:'.
-        ' 1. RGB or HSL hash or ref: ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
+        ' 1. hash or ref (RGB, HSL or any other): ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
         ' 2. RGB array or ref: ->new( [255, 0, 0 ]) or >new( 255, 0, 0 )'.
         ' 3. hex form "#FF0000" or "#f00" 4. a name: "red" or "SVG:red".';
 
@@ -77,11 +77,11 @@ sub _rgb_from_name_or_hex {
         my $pallet = Graphics::ColorNames->new( $pallet_name );
         my @rgb = $pallet->rgb( $color_name );
         return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-        @rgb;
+        return @rgb;
     } else {                                         # resolve name -> ($r, $g, $b)
         my @rgb = rgb_from_name( $arg );
         carp "'$arg' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
-        @rgb;
+        return @rgb;
     }
 }
 
@@ -101,6 +101,8 @@ sub rgb_hash    { Graphics::Toolkit::Color::Value::RGB->new( $_[0]->rgb )->forma
 sub hsl_hash    { Graphics::Toolkit::Color::Value::HSL->new( $_[0]->rgb )->format('hash') }
 sub rgb_hex     { hex_from_rgb( $_[0]->rgb ) }
 sub string      { $_[0]->name ? $_[0]->name : $_[0]->rgb_hex }
+
+sub value       { Graphics::Toolkit::Color::Value::format( @{$_[0]}[1 .. 3], @_) }
 
 ## methods ##############################################################
 

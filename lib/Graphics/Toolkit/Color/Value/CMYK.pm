@@ -13,10 +13,7 @@ our @EXPORT_OK = qw/check_cmyk trim_cmyk delta_cmyk distance_cmyk cmyk_from_rgb 
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/cyan magenta yellow key/);
-our @getter = (qw/list hash char_hash/, $def->keys, $def->shortcuts);
-
 sub definition { $def }
-sub getter     { @getter }
 
 sub format {
     my $values = shift;

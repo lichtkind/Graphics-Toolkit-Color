@@ -13,10 +13,7 @@ our @EXPORT_OK = qw/check_hsl trim_hsl delta_hsl distance_hsl hsl_from_rgb rgb_f
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/hue saturation lightness/);
-our @getter = (qw/list hash char_hash/, $def->keys, $def->shortcuts);
-
 sub definition { $def }
-sub getter     { @getter }
 
 sub format {
     my $values = shift;

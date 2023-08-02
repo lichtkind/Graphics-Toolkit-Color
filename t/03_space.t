@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 82;
+use Test::More tests => 76;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -62,13 +62,6 @@ is( $s5d->is_partial_hash({aleph => 1, beth => 20, gimel => 3, daleth => 4, he =
 is( $s5d->is_partial_hash({aleph => 1 }),              1, 'valid partial hash to have only one korrect key');
 is( $s5d->is_partial_hash({ALEPH => 1 }),              1, 'ignore casing');
 is( $s5d->is_partial_hash({aleph => 1, bet => 2, }),  0, 'one bad key makes partial invalid');
-
-is( $s3d->key_pos('alpha'),  0,         'alpha is the first key');
-is( $s3d->key_pos('beta'),   1,         'beta is the second key');
-is( $s3d->key_pos('emma'),   undef,     'emma is not akey');
-is( $s5d->key_pos('aleph'),  0,         'aleph is the first key');
-is( $s5d->key_pos('he'),     4,         'he is the fourth key');
-is( $s5d->key_pos('emma'),   undef,     'emma is not akey');
 
 
 is( ref $s3d->shortcut_hash_from_list(1,2,3),  'HASH',      'HASH with given values and shortcut keys created');

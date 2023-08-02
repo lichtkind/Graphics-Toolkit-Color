@@ -4,17 +4,19 @@ use warnings;
 # check, convert and measure color values
 
 package Graphics::Toolkit::Color::Value;
+my %space_def =
+    map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" }
+        qw/RGB HSL CMYK/;
+
 use Carp;
 use Exporter 'import';
-my @color_spaces = qw/RGB HSL CMYK/;
-my %space_exists = map { lc($_) => 1} @color_spaces;
 
 no strict 'refs';
-eval 'use Graphics::Toolkit::Color::Value::' . $_ . " ':all';" for @color_spaces;
+eval 'use Graphics::Toolkit::Color::Value::' . $_ . " ':all';" for keys %space_def;
 
-our @EXPORT_OK = map {@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' }} @color_spaces;
+our @EXPORT_OK = map {@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' }} keys %space_def;
 our %EXPORT_TAGS = (all => [@EXPORT_OK],
-                    map { $_ => \@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' } } @color_spaces );
+                    map { $_ => \@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' } } keys %space_def );
 use strict;
 
 
@@ -27,7 +29,7 @@ sub convert_rgb_from_list {
     my ($values, $space_name) = @_;
 }
 
-sub convert_rgb_from_hash {
+sub convert_rgb_from_any_hash {
     my ($value_hash) = @_;
 }
 

@@ -9,11 +9,11 @@ use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
 my $rgb_def = Graphics::Toolkit::Color::Space->new(qw/red green blue/);
-   $rgb_def->add_format( 'hex', \&hex_from_rgb );
+   $rgb_def->add_format(     'hex', \&hex_from_rgb );
+   $rgb_def->add_deformater( 'hex', sub { rgb_from_hex(@_) if is_hex(@_) } );
 
 ########################################################################
 
-sub check_rgb { &check }
 sub check { # carp returns 1
     my (@rgb) = @_;
     my $range_help = 'has to be an integer between 0 and 255';
@@ -24,7 +24,6 @@ sub check { # carp returns 1
     0;
 }
 
-sub trim_rgb { &trim }
 sub trim { # cut values into the domain of definition of 0 .. 255
     my (@rgb) = @_;
     for ($rgb_def->iterator){
@@ -37,7 +36,6 @@ sub trim { # cut values into the domain of definition of 0 .. 255
     @rgb;
 }
 
-sub delta_rgb { &delta }
 sub delta { # \@rgb, \@rgb --> @rgb             distance as vector
     my ($rgb, $rgb2) = @_;
     return carp  "need two triplets of rgb values in 2 arrays to compute rgb differences"
@@ -48,7 +46,6 @@ sub delta { # \@rgb, \@rgb --> @rgb             distance as vector
     (abs($rgb->[0] - $rgb2->[0]), abs($rgb->[1] - $rgb2->[1]), abs($rgb->[2] - $rgb2->[2]) );
 }
 
-sub distance_rgb { &distance }
 sub distance { # \@rgb, \@rgb --> $d
     return carp  "need two triplets of rgb values in 2 arrays to compute rgb distance " if @_ != 2;
     my @delta_rgb = delta( $_[0], $_[1] );

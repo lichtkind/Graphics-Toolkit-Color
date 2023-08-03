@@ -71,14 +71,14 @@ sub list_value_from_shortcut {
 
 sub list_from_hash {
     my ($self, $value_hash) = @_;
-    return 0 unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
+    return undef unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
     my @values = (0) x $self->{'count'};
     for my $value_key (CORE::keys %$value_hash) {
         my $shortcut = color_key_short_cut( $value_key );
         return 0 unless exists $self->{'shortcut_order'}{ $shortcut };
         $values[ $self->{'shortcut_order'}{ $shortcut } ] = $value_hash->{ $value_key };
     }
-    return \@values;
+    return @values;
 }
 
 sub key_hash_from_list {

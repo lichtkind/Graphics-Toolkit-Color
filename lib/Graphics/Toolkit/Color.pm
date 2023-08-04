@@ -1,14 +1,13 @@
 
 # read only color holding object with methods for relation, mixing and transitions
 
-use v5.12;
-
 package Graphics::Toolkit::Color;
 our $VERSION = '1.10';
+use v5.12;
 
 use Carp;
-use Graphics::Toolkit::Color::Constant ':all';
-use Graphics::Toolkit::Color::Value    ':all';
+use Graphics::Toolkit::Color::Constant;
+use Graphics::Toolkit::Color::Value;
 
 use Exporter 'import';
 our @EXPORT_OK = qw/color/;
@@ -30,79 +29,61 @@ sub new {
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }
+
 sub _new_from_scalar {
-    my ($arg) = shift;
-    my $name;
-    if (not ref $arg){ # resolve 'color_name' or '#RRGGBB' -> ($r, $g, $b)
-        my @rgb = _rgb_from_name_or_hex($arg);
-        return unless @rgb == 3;
-        # $name = $arg if index( $arg, ':') > -1;
-        $arg = { r => $rgb[0], g => $rgb[1], b => $rgb[2] };
-    } elsif (ref $arg eq 'ARRAY'){
-        return carp "need exactly 3 RGB numbers!" unless @$arg == 3;
-        $arg = { r => $arg->[0], g => $arg->[1], b => $arg->[2] };
-    } elsif (ref $arg eq __PACKAGE__) {
-        $arg = { r => $arg->[1], g => $arg->[2], b => $arg->[3] };
+    my ($color_def) = shift;
+    my (@rgb, $name);
+    if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/){
+        $name = $color_def;
+        my $i = index( $color_def, ':');
+        if ($i > -1 ){ # resolve pallet:name
+            my $pallet_name = substr $color_def, 0, $i;
+            my $color_name = Graphics::Toolkit::Color::Constant::_clean_name(substr $color_def, $i+1);
+            my $module_base = 'Graphics::ColorNames';
+            eval "use $module_base";
+            return carp "$module_base is not installed, but it's needed to load external colors" if $@;
+            my $module = $module_base.'::'.$pallet_name;
+            eval "use $module";
+            return carp "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
+
+            my $pallet = Graphics::ColorNames->new( $pallet_name );
+            @rgb = $pallet->rgb( $color_name );
+            return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
+        } else {        # resolve name
+            @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name( $color_def );
+            return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
+        }
+    } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
+        return $color_def;
+    } else {            # define color by numbers in any format
+        @rgb = Graphics::Toolkit::Color::Value::deformat( $color_def );
+        return carp $new_help unless @rgb == 3;
+        $name = Graphics::Toolkit::Color::Constant::name_from_rgb( @rgb );
     }
-
-    return carp $new_help unless ref $arg eq 'HASH' and keys %$arg == 3;
-    my %named_arg = map { _shrink_key($_) =>  $arg->{$_} } keys %$arg; # reduce keys to lc first char
-
-    my (@rgb, @hsl);
-    if      (exists $named_arg{'r'} and exists $named_arg{'g'} and exists $named_arg{'b'}) {
-        @rgb = trim_rgb(@named_arg{qw/r g b/});
-        @hsl = hsl_from_rgb( @rgb );
-    } elsif (exists $named_arg{'h'} and exists $named_arg{'s'} and exists $named_arg{'l'}) {
-        @hsl = trim_hsl( @named_arg{qw/h s l/});
-        @rgb = rgb_from_hsl( @hsl );
-    } else { return carp "argument keys need to be r, g and b or h, s and l (long names and upper case work too!)" }
-    $name = name_from_rgb( @rgb ) unless defined $name;
-    bless [$name, @rgb, @hsl];
-}
-sub _rgb_from_name_or_hex {
-    my $arg = shift;
-    my $i = index( $arg, ':');
-    if (substr($arg, 0, 1) eq '#'){                  # resolve #RRGGBB -> ($r, $g, $b)
-        return rgb_from_hex( $arg );
-    } elsif ($i > -1 ){                              # resolve pallet:name -> ($r, $g, $b)
-        my $pallet_name = substr $arg,   0, $i;
-        my $color_name = Graphics::Toolkit::Color::Constant::_clean_name(substr $arg, $i+1);
-        my $module_base = 'Graphics::ColorNames';
-        eval "use $module_base";
-        return carp "$module_base is not installed, but it's needed to load external colors" if $@;
-        my $module = $module_base.'::'.$pallet_name;
-        eval "use $module";
-        return carp "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
-
-        my $pallet = Graphics::ColorNames->new( $pallet_name );
-        my @rgb = $pallet->rgb( $color_name );
-        return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-        return @rgb;
-    } else {                                         # resolve name -> ($r, $g, $b)
-        my @rgb = rgb_from_name( $arg );
-        carp "'$arg' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
-        return @rgb;
-    }
+    bless [$name, @rgb];
 }
 
 ## getter ##############################################################
 
 sub name        { $_[0][0] }
-sub red         { $_[0][1] }
-sub green       { $_[0][2] }
-sub blue        { $_[0][3] }
-sub hue         { $_[0][4] }
-sub saturation  { $_[0][5] }
-sub lightness   { $_[0][6] }
-sub rgb         { @{$_[0]}[1 .. 3] }
-sub hsl         { @{$_[0]}[4 .. 6] }
+sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
 
-sub rgb_hash    { Graphics::Toolkit::Color::Value::RGB->new( $_[0]->rgb )->format('hash') }
-sub hsl_hash    { Graphics::Toolkit::Color::Value::HSL->new( $_[0]->rgb )->format('hash') }
-sub rgb_hex     { hex_from_rgb( $_[0]->rgb ) }
-sub string      { $_[0]->name ? $_[0]->name : $_[0]->rgb_hex }
+    sub rgb         { $_[0]->values('rgb') }
+    sub red         { $_[0]->values('rgb', 'red') }
+    sub green       { $_[0]->values('rgb', 'green') }
+    sub blue        { $_[0]->values('rgb', 'blue') }
+    sub rgb_hex     { $_[0]->values('rgb', 'hex') }
+    sub rgb_hash    { $_[0]->values('rgb', 'hash') }
+    sub hsl         { $_[0]->values('hsl') }
+    sub hue         { $_[0]->values('hsl', 'hue') }
+    sub saturation  { $_[0]->values('hsl', 'saturation') }
+    sub lightness   { $_[0]->values('hsl', 'lightness') }
+    sub hsl_hash    { $_[0]->values('hsl', 'hash') }
 
-sub value       { Graphics::Toolkit::Color::Value::format( @{$_[0]}[1 .. 3], @_) }
+sub values      {
+    my $self = shift;
+    Graphics::Toolkit::Color::Value::format( [@$self[1 .. 3]], @_)
+}
 
 ## methods ##############################################################
 
@@ -256,7 +237,7 @@ sub complementary {
     $hsl2[0] += 180;
     $hsl2[1] += $saturation_change;
     $hsl2[2] += $lightness_change;
-    @hsl2 = trim_hsl( @hsl2 ); # HSL of C2
+    @hsl2 = Graphics::Toolkit::Color::Value::HSL::trim( @hsl2 ); # HSL of C2
     my $c2 = new( __PACKAGE__, { h => $hsl2[0], s => $hsl2[1], l => $hsl2[2] });
     return $c2 if $count < 2;
     my (@colors_r, @colors_l);
@@ -297,6 +278,8 @@ Graphics::Toolkit::Color - color palette creation helper
 
 
 =head1 DESCRIPTION
+
+ATTENTION: deprecated methods of the old API will be removed on version 2.0.
 
 Graphics::Toolkit::Color, for short GTC, is the top level API of this
 module. It is designed to get a fast access to a set of related colors,
@@ -425,8 +408,27 @@ String that can be serialized back into a color an object
 (recreated by Graphics::Toolkit::Color->new( $string )).
 It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 
+=head2 values
+
+Returns the color values.
+
+First argument is the name of a color space: The options are:
+'rgb' (default), hsl, cmyk and cmy.
+
+Second argument is the format. That can vary from space to space but
+generally available are C<list> (default), C<hash>, C<char_hash>
+and names or initials of the value names of that particular space.
+RGB also provides the option C<hex> to get values like '#aabbcc'.
+
+    say $color->values();                      # get list of rgb : 0, 0, 255
+    say $blue->values('RGB', 'hash');          # { red => 0. green => 0, blue => 255}
+    say $blue->values('RGB', 'char_hash');     # { r => 0. g => 0, b => 255}
+    say $blue->values('RGB', 'hex');           # '#00FFFF'
+    say $color->values('HSL', 'saturation');   # 100
+
 =head2 hue
 
+DEPRECATED:
 Integer between 0 .. 359 describing the angle (in degrees) of the
 circular dimension in HSL space named hue.
 0 approximates red, 30 - orange, 60 - yellow, 120 - green, 180 - cyan,
@@ -436,36 +438,43 @@ even if accepting 360 as input.
 
 =head2 saturation
 
+DEPRECATED:
 Integer between 0 .. 100 describing percentage of saturation in HSL space.
 0 is grey and 100 the most colorful (except when lightness is 0 or 100).
 
 =head2 lightness
 
+DEPRECATED:
 Integer between 0 .. 100 describing percentage of lightness in HSL space.
 0 is always black, 100 is always white and 50 the most colorful
 (depending on L</hue> value) (or grey - if saturation = 0).
 
 =head2 rgb
 
+DEPRECATED:
 List (no I<ARRAY> reference) with values of L</red>, L</green> and L</blue>.
 
 =head2 hsl
 
+DEPRECATED:
 List (no I<ARRAY> reference) with values of L</hue>, L</saturation> and L</lightness>.
 
 =head2 rgb_hex
 
+DEPRECATED:
 String starting with character '#', followed by six hexadecimal lower case figures.
 Two digits for each of L</red>, L</green> and L</blue> value -
 the format used in CSS (#rrggbb).
 
 =head2 rgb_hash
 
+DEPRECATED:
 Reference to a I<HASH> containing the keys C<'red'>, C<'green'> and C<'blue'>
 with their respective values as defined above.
 
 =head2 hsl_hash
 
+DEPRECATED:
 Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'lightness'>
 with their respective values as defined above.
 

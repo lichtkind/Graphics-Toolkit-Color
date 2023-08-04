@@ -8,8 +8,9 @@ use Test::Warn;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Value::HSL';
 
-eval "use $module";
+my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
+is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
 my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSL::check;
 my $tr_hsl         = \&Graphics::Toolkit::Color::Value::HSL::trim;
@@ -54,18 +55,6 @@ is( $hsl[0],   0,     'too high hue value is rotated down');
 is( $hsl[1], 100,     'too high saturation value is trimmed down');
 is( $hsl[2], 100,     'too high lightness value is trimmed down');
 
-
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1,1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1,-1)} {carped => qr/blue value/},
-                                                      "blue value is too small for conversion";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(256,1,0)} {carped => qr/red value/},
-                                                      "red value is too large for conversion";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-
 @hsl = Graphics::Toolkit::Color::Value::HSL::from_rgb(127, 127, 127);
 is( int @hsl,  3,     'converted color grey has three hsl values');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
@@ -77,6 +66,12 @@ is( int @rgb,  3,     'converted back color grey has three rgb values');
 is( $rgb[0], 128,     'converted back color grey has right red value');
 is( $rgb[1], 128,     'converted back color grey has right green value');
 is( $rgb[2], 128,     'converted back color grey has right blue value');
+
+@rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(360, -10, 50);
+is( int @rgb,  3,     'trimmed and converted back color grey');
+is( $rgb[0], 128,     'right red value');
+is( $rgb[1], 128,     'right green value');
+is( $rgb[2], 128,     'right blue value');
 
 warning_like {$d_hsl->( []) }                     {carped => qr/two triplets/},"can't get distance without hsl values";
 warning_like {$d_hsl->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';

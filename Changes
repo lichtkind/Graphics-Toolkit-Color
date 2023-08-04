@@ -1,7 +1,7 @@
 
-1.10    2023-08-01    lichtkind
+1.10    2023-08-05    lichtkind
 -------
-    * =
+    * = first phase of of 2.0 rewrite
     * + add CMY, CMYK and HSL support
     * + new getter: values
     * \ deprecate all other numeric getter: rgb, red, green, blue, rgb_hex,

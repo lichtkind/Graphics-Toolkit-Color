@@ -75,7 +75,7 @@ sub list_from_hash {
     my @values = (0) x $self->{'count'};
     for my $value_key (CORE::keys %$value_hash) {
         my $shortcut = color_key_short_cut( $value_key );
-        return 0 unless exists $self->{'shortcut_order'}{ $shortcut };
+        return undef unless exists $self->{'shortcut_order'}{ $shortcut };
         $values[ $self->{'shortcut_order'}{ $shortcut } ] = $value_hash->{ $value_key };
     }
     return @values;

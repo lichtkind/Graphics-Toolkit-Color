@@ -4,43 +4,50 @@ use warnings;
 # check, convert and measure color values
 
 package Graphics::Toolkit::Color::Value;
-my %space_def =
-    map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" }
-        qw/RGB HSL CMYK/;
-
 use Carp;
-use Exporter 'import';
-
-no strict 'refs';
-eval 'use Graphics::Toolkit::Color::Value::' . $_ . " ':all';" for keys %space_def;
-
-our @EXPORT_OK = map {@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' }} keys %space_def;
-our %EXPORT_TAGS = (all => [@EXPORT_OK],
-                    map { $_ => \@{ __PACKAGE__ . '::' . $_ . '::EXPORT_OK' } } keys %space_def );
-use strict;
+my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL
+my %space_def = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
+my $base_package = 'RGB';
 
 
+sub space { $space_def{ $_[0] } if exists $space_def{ $_[0] } }
 
-sub convert_rgb_to {
-    my ($values, $space_name) = @_;
-}
-
-sub convert_rgb_from_list {
-    my ($values, $space_name) = @_;
-}
-
-sub convert_rgb_from_any_hash {
-    my ($value_hash) = @_;
+sub deformat { # convert from any format / space into list of values in base space
+    my ($formated_values) = @_;
+    for my $space_name (@space_packages) {
+        my $color_space = space( $space_name );
+        my @val = $color_space->deformat( $formated_values );
+        next unless defined $val[0];
+        @val = $color_space->convert( \@val, $base_package) unless ($space_name eq $base_package);
+        return Graphics::Toolkit::Color::Value::RGB::trim( @val ); # hardcoded base
+    }
 }
 
 sub format {
-    my ($values, $space_name, $format) = @_;
-
+    my ($values, $space_name, @format) = @_;
+    return carp "got not enough values to format"
+        unless ref $values eq 'ARRAY' and @$values == $space_def{ $base_package }->dimensions;
+    $space_name //= $base_package;
+    $space_name = uc $space_name;
+    @format = ('list') unless @format;
+    return carp "can not format into unknown color space '$space_name', plaease try on of: "
+                . join ', ', map {lc} @space_packages
+        unless exists $space_def{ $space_name };
+    $values = [ $space_def{ $space_name }->deconvert( $values, $base_package) ] unless $space_name eq $base_package;
+    my @values = map { $space_def{ $space_name }->format( $values, $_ ) } @format;
+    return @values == 1 ? $values[0] : @values;
 }
 
 sub distance {
     my ($values, $space_name, $part) = @_;
 
+}
+
+sub delta {
+    my ($vector1, $vector2) = @_;
+    return carp  "need vectors of smae length to compute delta"
+        unless ref $vector1 eq 'ARRAY' and ref $vector2 eq 'ARRAY' and @$vector1 == @$vector2;
+    map { abs($vector1->[$_] - $vector2->[$_]) } 0 .. $#$vector2;
 }
 
 

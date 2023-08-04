@@ -10,24 +10,24 @@ my $module = 'Graphics::Toolkit::Color';
 eval "use $module";
 is( not( $@), 1, 'could load the module');
 
-
 warning_like {Graphics::Toolkit::Color->new()}                    {carped => qr/constructor of/},  "need argument to create object";
 warning_like {Graphics::Toolkit::Color->new('weirdcolorname')}    {carped => qr/unknown color/},   "accept only known color names";
 warning_like {Graphics::Toolkit::Color->new('CHIMNEY:red')}       {carped => qr/ not installed/},  "accept only known palletes";
-warning_like {Graphics::Toolkit::Color->new('#23232')       }     {carped => qr/hex color definition/},  "hex definition too short";
-warning_like {Graphics::Toolkit::Color->new('#232321f')     }     {carped => qr/hex color definition/},  "hex definition too long";
-warning_like {Graphics::Toolkit::Color->new('#23232g')       }    {carped => qr/hex color definition/},    "hex definition has forbidden chars";
-warning_like {Graphics::Toolkit::Color->new('#2322%E')       }    {carped => qr/hex color definition/},    "hex definition has forbidden chars";
+warning_like {Graphics::Toolkit::Color->new('#23232')       }     {carped => qr/constructor of/},  "hex definition too short";
+warning_like {Graphics::Toolkit::Color->new('#232321f')     }     {carped => qr/constructor of/},  "hex definition too long";
+warning_like {Graphics::Toolkit::Color->new('#23232g')       }    {carped => qr/constructor of/},  "hex definition has forbidden chars";
+warning_like {Graphics::Toolkit::Color->new('#2322%E')       }    {carped => qr/constructor of/},  "hex definition has forbidden special chars";
 warning_like {Graphics::Toolkit::Color->new(1,1)}                 {carped => qr/constructor of/},  "too few positional args";
 warning_like {Graphics::Toolkit::Color->new(1,1,1,1,1)}           {carped => qr/constructor of/},  "too many positional args";
-warning_like {Graphics::Toolkit::Color->new([1,1])}               {carped => qr/need exactly 3/},  "too few positional args in ref";
-warning_like {Graphics::Toolkit::Color->new([1,1,1,1])}           {carped => qr/need exactly 3/},  "too many positional args in ref";
+warning_like {Graphics::Toolkit::Color->new([1,1])}               {carped => qr/constructor of/},  "too few positional args in ref";
+warning_like {Graphics::Toolkit::Color->new([1,1,1,1])}           {carped => qr/constructor of/},  "too many positional args in ref";
 warning_like {Graphics::Toolkit::Color->new({ r=>1, g=>1})}       {carped => qr/constructor of/},  "too few named args in ref";
 warning_like {Graphics::Toolkit::Color->new({r=>1,g=>1,b=>1,h=>1,})} {carped => qr/constructor of/},"too many name args in ref";
 warning_like {Graphics::Toolkit::Color->new( r=>1)}               {carped => qr/constructor of/},  "too few named args";
 warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,b=>1,h=>1,a=>1)} {carped => qr/constructor of/},  "too many name args";
-warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,h=>1)}      {carped => qr/argument keys/},   "don't mix named args";
-warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,t=>1)}      {carped => qr/argument keys/},   "don't invent named args";
+warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,h=>1)}      {carped => qr/constructor of/},   "don't mix named args";
+warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,t=>1)}      {carped => qr/constructor of/},   "don't invent named args";
+
 
 my $red = Graphics::Toolkit::Color->new('red');
 is( ref $red,        $module, 'could create object by name');
@@ -53,7 +53,7 @@ is( $red->rgb_hash->{'blue'},   0, 'named red has correct blue value in rgb HASH
 is( $red->hsl_hash->{'hue'},          0, 'named red has correct hue value in hsl HASH');
 is( $red->hsl_hash->{'saturation'}, 100, 'named red has correct saturation value in hsl HASH');
 is( $red->hsl_hash->{'lightness'},   50, 'named red has correct lightness value in hsl HASH');
-is( $red->string,      'red', 'named red does stringify correctly');
+is( $red->string,                 'red', 'named red does stringify correctly');
 is( Graphics::Toolkit::Color->new(15,12,13)->string, '#0f0c0d', 'random color does stringify correctly');
 
 
@@ -163,7 +163,7 @@ is(($red->hsl)[0],         0, 'hash ref red has correct hsl hue component value'
 is(($red->hsl)[1],       100, 'hash ref red has correct hsl saturation component value');
 is(($red->hsl)[2],        50, 'hash ref red has correct hsl lightness component value');
 
-$red = Graphics::Toolkit::Color->new( Hue => 0, Sat => 100, Light => 50 );
+$red = Graphics::Toolkit::Color->new( Hue => 0, Saturation => 100, Lightness => 50 );
 is( ref $red, $module, 'could create object by HSL named args');
 is( $red->red,           255, 'hash ref red has correct red component value');
 is( $red->green,           0, 'hash ref red has correct green component value');
@@ -197,6 +197,7 @@ is( $blue->saturation,100,'blue has correct saturation component value');
 is( $blue->lightness,  50,'blue has correct lightness component value');
 is( $blue->name,  'blue', 'blue color has correct name');
 
+# exit (0);
 is( $blue->distance_to($red),            120, 'correct default hsl distance between red and blue');
 is( $blue->distance_to($red, 'HSL'),     120, 'correct hsl distance between red and blue');
 is( $blue->distance_to($red, 'Hue'),     120, 'correct hue distance between red and blue, long name');
@@ -348,17 +349,17 @@ is( $g[1]->name,                                       'lime',   "complementary 
 is( $g[2]->name,                                       'blue',   "complementary circle ends with blue");
 
 @g = Graphics::Toolkit::Color->new(15,12,13)->complementary(3);
-is( $g[0]->saturation,                      $g[1]->saturation,   "saturation is equal on complementary circle of random color");
-is( $g[1]->saturation,                      $g[2]->saturation,   "saturation is equal on complementary circle 2");
+is( $g[0]->saturation,                       $g[1]->saturation,  "saturation is equal on complementary circle of random color");
+is( $g[1]->saturation,                       $g[2]->saturation,  "saturation is equal on complementary circle 2");
 is( $g[0]->lightness,                        $g[1]->lightness,   "lightness is equal on complementary circle of random color");
 is( $g[1]->lightness,                        $g[2]->lightness,   "lightness is equal on complementary circle 2");
 
 @g = Graphics::Toolkit::Color->new(15,12,13)->complementary(4, 12, 20);
 is( int @g,                                                 4,   "requested amount of complementary colors");
-is( $g[1]->saturation,                      $g[3]->saturation,   "saturation is equal on opposing sides of skewed circle");
+is( $g[1]->saturation,                       $g[3]->saturation,  "saturation is equal on opposing sides of skewed circle");
 is( $g[1]->lightness,                        $g[3]->lightness,   "lightness is equal on opposing sides of skewed circle");
-is( $g[1]->saturation-6,                    $g[0]->saturation,   "saturation moves on skewed circle as predicted fore ");
-is( $g[1]->saturation+6,                    $g[2]->saturation,   "saturation moves on skewed circle as predicted back");
+is( $g[1]->saturation-6,                     $g[0]->saturation,  "saturation moves on skewed circle as predicted fore ");
+is( $g[1]->saturation+6,                     $g[2]->saturation,  "saturation moves on skewed circle as predicted back");
 is( $g[1]->lightness-10,                     $g[0]->lightness,   "lightness moves on skewed circle as predicted fore");
 is( $g[1]->lightness+10,                     $g[2]->lightness,   "lightness moves on skewed circle as predicted back");
 
@@ -369,12 +370,12 @@ is( abs($g[0]->lightness-$g[2]->lightness) < 100,           1,   "cut too large 
 @g = Graphics::Toolkit::Color->new(15,12,13)->complementary(5, 10, 20);
 is( $g[1]->saturation,                      $g[4]->saturation,   "saturation is equal on opposing sides of odd and skewed circle 1");
 is( $g[2]->saturation,                      $g[3]->saturation,   "saturation is equal on opposing sides of odd and skewed circle 2");
-is( $g[1]->lightness,                        $g[4]->lightness,   "lightness is equal on opposing sides of odd and skewed circle 1");
-is( $g[2]->lightness,                        $g[3]->lightness,   "lightness is equal on opposing sides of odd and skewed circle 2");
+is( $g[1]->lightness,                       $g[4]->lightness,    "lightness is equal on opposing sides of odd and skewed circle 1");
+is( $g[2]->lightness,                       $g[3]->lightness,    "lightness is equal on opposing sides of odd and skewed circle 2");
 is( $g[1]->saturation-4,                    $g[0]->saturation,   "saturation moves on odd and skewed circle as predicted fore ");
 is( $g[1]->saturation+4,                    $g[2]->saturation,   "saturation moves on odd and skewed circle as predicted back");
-is( $g[1]->lightness -8,                     $g[0]->lightness,   "lightness moves on odd and skewed circle as predicted fore");
-is( $g[1]->lightness +8,                     $g[2]->lightness,   "lightness moves on odd and skewed circle as predicted back");
+is( $g[1]->lightness -8,                    $g[0]->lightness,    "lightness moves on odd and skewed circle as predicted fore");
+is( $g[1]->lightness +8,                    $g[2]->lightness,    "lightness moves on odd and skewed circle as predicted back");
 
 my $recursive = Graphics::Toolkit::Color->new( $red );
 is(  ref $recursive,                                  $module,   "recursive constructor option works");

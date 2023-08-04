@@ -9,14 +9,14 @@ use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation lightness/);
-   $hsl_def->add_converter('RGB', \&from_rgb, \&to_rgb );
+   $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 ########################################################################
 
 sub check {
     my (@hsl) = @_;
     my $help = 'has to be an integer between 0 and';
-    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsl input" unless @hsl == $hsl_def->count;
+    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsl input" unless $hsl_def->is_array( \@hsl );
     return carp "hue value $hsl[0] $help 359"        unless int $hsl[0] == $hsl[0] and $hsl[0] >= 0 and $hsl[0] < 360;
     return carp "saturation value $hsl[1] $help 100" unless int $hsl[1] == $hsl[1] and $hsl[1] >= 0 and $hsl[1] < 101;
     return carp "lightness value $hsl[2] $help 100"  unless int $hsl[2] == $hsl[2] and $hsl[2] >= 0 and $hsl[2] < 101;
@@ -25,7 +25,7 @@ sub check {
 
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
-    return (0,0,0) unless @hsl == $hsl_def->count;
+    return (0,0,0) unless @hsl == $hsl_def->dimensions;
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
     for (1..2){
@@ -39,7 +39,7 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
 sub delta { # \@hsl, \@hsl --> $d
     my ($hsl, $hsl2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
-        unless ref $hsl eq 'ARRAY' and @$hsl == $hsl_def->count and ref $hsl2 eq 'ARRAY' and @$hsl2 == $hsl_def->count;
+        unless $hsl_def->is_array( $hsl ) and $hsl_def->is_array( $hsl2 );
     check(@$hsl) and return;
     check(@$hsl2) and return;
     my $delta_h = abs($hsl->[0] - $hsl2->[0]);
@@ -82,7 +82,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub _to_rgb { # float conversion
-    my (@hsl) = @_;
+    my (@hsl) = trim(@_);
     $hsl[0] /= 60;
     my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 0.0255;
     my $X = $C * (1 - abs($hsl[0] % 2 - 1 + ($hsl[0] - int $hsl[0])));
@@ -102,7 +102,7 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
         @hsl = @{$hsl[0]};
         $real = $hsl[1] // $real;
     }
-    check( @hsl ) and return unless $real;
+    #check( @hsl ) and return unless $real;
     my @rgb = _to_rgb( @hsl );
     return @rgb if $real;
     ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );

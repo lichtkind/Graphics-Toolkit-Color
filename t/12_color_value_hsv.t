@@ -6,14 +6,15 @@ use Test::More tests => 57;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value::HSL';
+my $module = 'Graphics::Toolkit::Color::Value::HSV';
 
-eval "use $module";
+my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
+is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
-my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSL::check;
-my $tr_hsl         = \&Graphics::Toolkit::Color::Value::HSL::trim;
-my $d_hsl          = \&Graphics::Toolkit::Color::Value::HSL::distance;
+my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSV::check;
+my $tr_hsl         = \&Graphics::Toolkit::Color::Value::HSV::trim;
+my $d_hsl          = \&Graphics::Toolkit::Color::Value::HSV::distance;
 
 ok( !$chk_hsl->(0,0,0),       'check hsl values works on lower bound values');
 ok( !$chk_hsl->(359,100,100), 'check hsl values works on upper bound values');
@@ -55,17 +56,6 @@ is( $hsl[1], 100,     'too high saturation value is trimmed down');
 is( $hsl[2], 100,     'too high lightness value is trimmed down');
 
 
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1,1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1,-1)} {carped => qr/blue value/},
-                                                      "blue value is too small for conversion";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(256,1,0)} {carped => qr/red value/},
-                                                      "red value is too large for conversion";
-warning_like {Graphics::Toolkit::Color::Value::HSL::from_rgb(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-
 @hsl = Graphics::Toolkit::Color::Value::HSL::from_rgb(127, 127, 127);
 is( int @hsl,  3,     'converted color grey has three hsl values');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
@@ -78,18 +68,5 @@ is( $rgb[0], 128,     'converted back color grey has right red value');
 is( $rgb[1], 128,     'converted back color grey has right green value');
 is( $rgb[2], 128,     'converted back color grey has right blue value');
 
-warning_like {$d_hsl->( []) }                     {carped => qr/two triplets/},"can't get distance without hsl values";
-warning_like {$d_hsl->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';
-warning_like {$d_hsl->( [1,2],[1,2,3])}           {carped => qr/two triplets/},'first color is missing a value';
-warning_like {$d_hsl->( [1,2,3],[2,3])}           {carped => qr/two triplets/},'second color is missing a value';
-warning_like {$d_hsl->( [-1,2,3],[1,2,3])}        {carped => qr/hue value/},   'first hue value is too small';
-warning_like {$d_hsl->( [1,2,3],[360,2,3])}       {carped => qr/hue value/},   'second hue value is too large';
-warning_like {$d_hsl->( [1,-1,3],[2,10,3])}       {carped => qr/saturation value/},'first saturation value is too small';
-warning_like {$d_hsl->( [1,2,3],[2,101,3])}       {carped => qr/saturation value/},'second saturation value is too large';
-warning_like {$d_hsl->( [1,1,-1],[2,10,3])}       {carped => qr/lightness value/}, 'first lightness value is too small';
-warning_like {$d_hsl->( [1,2,3],[2,1,101])}       {carped => qr/lightness value/}, 'second lightness value is too large';
-
-is( Graphics::Toolkit::Color::Value::HSL::distance([1, 2, 3], [  2, 6, 11]), 9,     'compute hsl distance');
-is( Graphics::Toolkit::Color::Value::HSL::distance([0, 2, 3], [359, 6, 11]), 9,     'compute hsl distance (test circular property of hsl)');
 
 exit 0;

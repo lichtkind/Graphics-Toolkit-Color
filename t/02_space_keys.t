@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 82;
+use Test::More tests => 81;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -87,18 +87,17 @@ is( $s5d->key_hash_from_list(1,2,3,4,5)->{'beth'},   2,    'right value under "b
 is( $s5d->key_hash_from_list(1,2,3,4,5)->{'gimel'},  3,    'right value under "gimel" key in the converted hash');
 is( $s5d->key_hash_from_list(1,2,3,4,5)->{'daleth'}, 4,    'right value under "daleth" key in the converted hash');
 is( $s5d->key_hash_from_list(1,2,3,4,5)->{'he'},     5,    'right value under "he" key in the converted hash');
-is( int keys %{$s5d->key_hash_from_list(1,2,3,4,5)},  5, 'right amount of shortcut keys');
+is( int keys %{$s5d->key_hash_from_list(1,2,3,4,5)}, 5,    'right amount of shortcut keys');
 
-my $list = $s5d->list_from_hash( {alph => 1, beth => 2, G => 3, daleth => 4, h => 5} );
-is( ref $list,  'ARRAY', 'values extraced');
-is( int @$list,  5, 'right of values extracted keys');
-is( $list->[0],  1, 'first extracted value is correct');
-is( $list->[1],  2, 'second extracted value is correct');
-is( $list->[2],  3, 'third extracted value is correct');
-is( $list->[3],  4, 'fourth extracted value is correct');
-is( $list->[4],  5, 'fifth extracted value is correct');
-$list = $s5d->list_from_hash( {alph => 1, beth => 2, G => 3, daleth => 4, y => 5} );
-is( ref $list,  '', 'no values extraced because one key was wrong');
+my @list = $s5d->list_from_hash( {alph => 1, beth => 2, G => 3, daleth => 4, h => 5} );
+is( int @list,  5, 'right of values extracted keys');
+is( $list[0],   1, 'first extracted value is correct');
+is( $list[1],   2, 'second extracted value is correct');
+is( $list[2],   3, 'third extracted value is correct');
+is( $list[3],   4, 'fourth extracted value is correct');
+is( $list[4],   5, 'fifth extracted value is correct');
+@list = $s5d->list_from_hash( {alph => 1, beth => 2, G => 3, daleth => 4, y => 5} );
+is( $list[0],  undef, 'no values extraced because one key was wrong');
 
 is( $s3d->list_value_from_key('alpha', 1,2,3), 1,   'got correct first value from list by key');
 is( $s3d->list_value_from_key('beta', 1,2,3),  2,   'got correct second value from list by key');

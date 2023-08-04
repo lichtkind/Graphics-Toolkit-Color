@@ -4,41 +4,25 @@ use warnings;
 # check, convert and measure color values in HSV space
 
 package Graphics::Toolkit::Color::Value::HSV;
-use Graphics::Toolkit::Color::Util ':all';
-use Graphics::Toolkit::Color::SpaceKeys;
-use Graphics::Toolkit::Color::Value::RGB  ':all';
-
 use Carp;
-use Exporter 'import';
-our @EXPORT_OK = qw/check_hsv trim_hsv delta_hsv distance_hsv hsv_from_rgb rgb_from_hsv/;
-our %EXPORT_TAGS = (all => [@EXPORT_OK]);
+use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::Space;
 
-our $def = Graphics::Toolkit::Color::SpaceKeys->new(qw/hue saturation value/);
-our @getter = qw/hsv hue saturation value hash/;
+my $hsv_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation value/);
+   $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
-sub new {
-    my $pkg = shift;
-    my @hsv = from_rgb(@_);
-    bless \@hsv;
-}
-sub hsv        { @{$_[0]} }
-sub hue        { $_[0][0] }
-sub saturation { $_[0][1] }
-sub value      { $_[0][2] }
-sub hash       { as_hash( $_[0]->hsv )  }
+########################################################################
 
-sub check_hsl { &check }
 sub check {
-    my (@hsl) = @_;
+    my (@hsv) = @_;
     my $help = 'has to be an integer between 0 and';
-    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsl input" unless @hsl == 3;
-    return carp "hue value $hsl[0] $help 359"        unless int $hsl[0] == $hsl[0] and $hsl[0] >= 0 and $hsl[0] < 360;
-    return carp "saturation value $hsl[1] $help 100" unless int $hsl[1] == $hsl[1] and $hsl[1] >= 0 and $hsl[1] < 101;
-    return carp "lightness value $hsl[2] $help 100"  unless int $hsl[2] == $hsl[2] and $hsl[2] >= 0 and $hsl[2] < 101;
+    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsv input" unless $hsv_def->is_array( \@hsv );
+    return carp "hue value $hsv[0] $help 359"        unless int $hsv[0] == $hsv[0] and $hsv[0] >= 0 and $hsv[0] < 360;
+    return carp "saturation value $hsv[1] $help 100" unless int $hsv[1] == $hsv[1] and $hsv[1] >= 0 and $hsv[1] < 101;
+    return carp "value value $hsv[2] $help 100"      unless int $hsv[2] == $hsv[2] and $hsv[2] >= 0 and $hsv[2] < 101;
     0;
 }
 
-sub trim_hsl { &trim }
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
     return (0,0,0) if @hsl < 1;
@@ -53,19 +37,17 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     @hsl;
 }
 
-sub delta_hsl { &delta }
 sub delta { # \@hsl, \@hsl --> $d
-    my ($hsl, $hsl2) = @_;
+    my ($hsv1, $hsv2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
-        unless ref $hsl eq 'ARRAY' and @$hsl == 3 and ref $hsl2 eq 'ARRAY' and @$hsl2 == 3;
-    check(@$hsl) and return;
+        unless $hsv_def->is_array( $hsv1 ) and $hsv_def->is_array( $hsv2 );
+    check(@$hsl1) and return;
     check(@$hsl2) and return;
-    my $delta_h = abs($hsl->[0] - $hsl2->[0]);
+    my $delta_h = abs($hsl1->[0] - $hsl2->[0]);
     $delta_h = 360 - $delta_h if $delta_h > 180;
-    ($delta_h, abs($hsl->[1] - $hsl2->[1]), abs($hsl->[2] - $hsl2->[2]) );
+    ($delta_h, abs($hsl1->[1] - $hsl2->[1]), abs($hsl1->[2] - $hsl2->[2]) );
 }
 
-sub distance_hsl { &distance }
 sub distance { # \@hsl, \@hsl --> $d
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl distance " if @_ != 2;
     my @delta_hsl = delta( $_[0], $_[1] );
@@ -87,7 +69,6 @@ sub _from_rgb { # float conversion
     ($H, $S * 100, $avg * 0.392156863 );
 }
 
-sub hsl_from_rgb { &from_rgb }
 sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
     my (@rgb) = @_;
     my $real = '';
@@ -115,7 +96,6 @@ sub _to_rgb { # float conversion
          :                 ($C + $m,      $m, $X + $m);
 }
 
-sub rgb_from_hsl { &to_rgb }
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     my (@hsl) = @_;
     my $real = '';
@@ -129,4 +109,4 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
 }
 
-1;
+$hsv_def;

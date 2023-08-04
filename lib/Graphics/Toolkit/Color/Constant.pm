@@ -7,10 +7,6 @@ package Graphics::Toolkit::Color::Constant;
 use Carp;
 use Graphics::Toolkit::Color::Value ':all';
 
-use Exporter 'import';
-our @EXPORT_OK = qw/rgb_from_name hsl_from_name name_from_rgb name_from_hsl/;
-our %EXPORT_TAGS = (all => [@EXPORT_OK]);
-
 our %rgbhsl_from_name = (                                       # 2.6 MB
 # http://en.wikipedia.org/wiki/Web_colors#X11_color_names
     'white'               => [ 255, 255, 255,   0,   0, 100 ],
@@ -756,7 +752,7 @@ sub hsl_from_name {
 sub name_from_rgb {
     my (@rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
-    check_rgb( @rgb ) and return; # return if sub did carp
+    Graphics::Toolkit::Color::Value::RGB::check( @rgb ) and return; # return if sub did carp
     my @names = _names_from_rgb( @rgb );
     wantarray ? @names : $names[0];
 }
@@ -764,7 +760,7 @@ sub name_from_rgb {
 sub name_from_hsl {
     my (@hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
-    check_hsl( @hsl ) and return;
+    Graphics::Toolkit::Color::Value::HSL::check( @hsl ) and return;
     my @names = _names_from_hsl( @hsl );
     wantarray ? @names : $names[0];
 }
@@ -805,7 +801,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
              }
         }
     }
-    @names = grep {distance_hsl( $hsl_center ,[hsl_from_name($_)] ) <= $radius} @names if not ref $radius;
+    @names = grep {Graphics::Toolkit::Color::Value::HSL::distance( $hsl_center ,[hsl_from_name($_)] ) <= $radius} @names if not ref $radius;
     @names;
 }
 
@@ -813,16 +809,16 @@ sub add_rgb {
     my ($name, @rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
     return carp "missing first argument: color name" unless defined $name and $name;
-    check_rgb( @rgb ) and return;
-    _add_color( $name, @rgb, hsl_from_rgb( @rgb ) );
+    Graphics::Toolkit::Color::Value::RGB::check( @rgb ) and return;
+    _add_color( $name, @rgb, Graphics::Toolkit::Color::Value::HSL::from_rgb( @rgb ) );
 }
 
 sub add_hsl {
     my ($name, @hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
     return carp "missing first argument: color name" unless defined $name and $name;
-    check_hsl( @hsl ) and return;
-    _add_color( $name, rgb_from_hsl( @hsl ), @hsl );
+    Graphics::Toolkit::Color::Value::HSL::check( @hsl ) and return;
+    _add_color( $name, Graphics::Toolkit::Color::Value::HSL::to_rgb( @hsl ), @hsl );
 }
 
 sub _add_color {

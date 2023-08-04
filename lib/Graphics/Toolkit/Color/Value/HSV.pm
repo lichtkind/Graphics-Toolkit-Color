@@ -24,31 +24,32 @@ sub check {
 }
 
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
-    my (@hsl) = @_;
-    return (0,0,0) if @hsl < 1;
-    $hsl[0] += 360 while $hsl[0] <    0;
-    $hsl[0] -= 360 while $hsl[0] >= 360;
-    for (1..2){
-        $hsl[$_] =   0 unless exists $hsl[$_];
-        $hsl[$_] =   0 if $hsl[$_] <   0;
-        $hsl[$_] = 100 if $hsl[$_] > 100;
+    my (@hsv) = @_;
+    return (0,0,0) if @hsv < 1;
+    pop @hsv while @hsv > 3;
+
+    $hsv[0] += 360 while $hsv[0] <    0;
+    $hsv[0] -= 360 while $hsv[0] >= 360;
+    for (1 .. 2){
+        $hsv[$_] =   0 unless exists $hsv[$_];
+        $hsv[$_] =   0 if $hsv[$_] <   0;
+        $hsv[$_] = 100 if $hsv[$_] > 100;
     }
-    $hsl[$_] = round($hsl[$_]) for 0..2;
-    @hsl;
+    map {round($_)} @hsv;
 }
 
-sub delta { # \@hsl, \@hsl --> $d
+sub delta { # \@hsv, \@hsv --> @delty
     my ($hsv1, $hsv2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
         unless $hsv_def->is_array( $hsv1 ) and $hsv_def->is_array( $hsv2 );
-    check(@$hsl1) and return;
-    check(@$hsl2) and return;
-    my $delta_h = abs($hsl1->[0] - $hsl2->[0]);
+    check(@$hsv1) and return;
+    check(@$hsv2) and return;
+    my $delta_h = abs($hsv1->[0] - $hsv2->[0]);
     $delta_h = 360 - $delta_h if $delta_h > 180;
-    ($delta_h, abs($hsl1->[1] - $hsl2->[1]), abs($hsl1->[2] - $hsl2->[2]) );
+    ($delta_h, abs($hsv1->[1] - $hsv2->[1]), abs($hsv1->[2] - $hsv2->[2]) );
 }
 
-sub distance { # \@hsl, \@hsl --> $d
+sub distance { # \@hsv, \@hsv --> $d
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl distance " if @_ != 2;
     my @delta_hsl = delta( $_[0], $_[1] );
     return unless @delta_hsl == 3;
@@ -61,12 +62,13 @@ sub _from_rgb { # float conversion
     if    ($rgb[1] > $rgb[0])      { ($maxi, $mini ) = ($mini, $maxi ) }
     if    ($rgb[2] > $rgb[$maxi])  {  $maxi = 2 }
     elsif ($rgb[2] < $rgb[$mini])  {  $mini = 2 }
+
     my $delta = $rgb[$maxi] - $rgb[$mini];
     my $avg = ($rgb[$maxi] + $rgb[$mini]) / 2;
     my $H = !$delta ? 0 : (2 * $maxi + (($rgb[($maxi+1) % 3] - $rgb[($maxi+2) % 3]) / $delta)) * 60;
     $H += 360 if $H < 0;
-    my $S = ($avg == 0) ? 0 : ($avg == 255) ? 0 : $delta / (255 - abs((2 * $avg) - 255));
-    ($H, $S * 100, $avg * 0.392156863 );
+    my $S = ($rgb[$maxi] == 0) ? 0 : ($delta / $rgb[$maxi]);
+    ($H, $S * 100, $rgb[$maxi] * 0.392156863 );
 }
 
 sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
@@ -83,28 +85,31 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub _to_rgb { # float conversion
-    my (@hsl) = @_;
-    $hsl[0] /= 60;
-    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 0.0255;
-    my $X = $C * (1 - abs($hsl[0] % 2 - 1 + ($hsl[0] - int $hsl[0])));
-    my $m = ($hsl[2] * 2.55) - ($C / 2);
-    return ($hsl[0] < 1) ? ($C + $m, $X + $m,      $m)
-         : ($hsl[0] < 2) ? ($X + $m, $C + $m,      $m)
-         : ($hsl[0] < 3) ? (     $m, $C + $m, $X + $m)
-         : ($hsl[0] < 4) ? (     $m, $X + $m, $C + $m)
-         : ($hsl[0] < 5) ? ($X + $m,      $m, $C + $m)
-         :                 ($C + $m,      $m, $X + $m);
+    my (@hsv) = @_;
+    $hsv[0] /= 60;
+
+    my $C = $hsv[1] / 100 * $hsv[2] / 100;
+    my $X = $C * (1 - abs($hsv[0] % 2 - 1));
+    my $m = ($hsv[2] / 100) - $C;
+
+    my @rgb = ($hsv[0] < 1) ? ($C + $m, $X + $m,      $m)
+            : ($hsv[0] < 2) ? ($X + $m, $C + $m,      $m)
+            : ($hsv[0] < 3) ? (     $m, $C + $m, $X + $m)
+            : ($hsv[0] < 4) ? (     $m, $X + $m, $C + $m)
+            : ($hsv[0] < 5) ? ($X + $m,      $m, $C + $m)
+            :                 ($C + $m,      $m, $X + $m);
+    map { 255 * $_ } @rgb;
 }
 
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
-    my (@hsl) = @_;
+    my (@hsv) = @_;
     my $real = '';
-    if (ref $hsl[0] eq 'ARRAY'){
-        @hsl = @{$hsl[0]};
-        $real = $hsl[1] // $real;
+    if (ref $hsv[0] eq 'ARRAY'){
+        @hsv = @{$hsv[0]};
+        $real = $hsv[1] // $real;
     }
-    check( @hsl ) and return unless $real;
-    my @rgb = _to_rgb( @hsl );
+    check( @hsv ) and return unless $real;
+    my @rgb = _to_rgb( @hsv );
     return @rgb if $real;
     ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
 }

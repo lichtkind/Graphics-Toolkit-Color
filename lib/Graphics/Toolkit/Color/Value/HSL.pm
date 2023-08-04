@@ -25,18 +25,20 @@ sub check {
 
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
-    return (0,0,0) unless @hsl == $hsl_def->dimensions;
+    return (0,0,0) if @hsl < 1;
+    pop @hsl while @hsl > 3;
+
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
     for (1..2){
+        $hsl[$_] =   0 unless exists $hsl[$_];
         $hsl[$_] =   0 if $hsl[$_] <   0;
         $hsl[$_] = 100 if $hsl[$_] > 100;
     }
-    $hsl[$_] = round($hsl[$_]) for $hsl_def->iterator;
-    @hsl;
+    map {round($_)} @hsl;
 }
 
-sub delta { # \@hsl, \@hsl --> $d
+sub delta { # \@hsl, \@hsl --> @delta
     my ($hsl, $hsl2) = @_;
     return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
         unless $hsl_def->is_array( $hsl ) and $hsl_def->is_array( $hsl2 );

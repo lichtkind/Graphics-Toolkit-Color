@@ -3,7 +3,7 @@ use warnings;
 
 # logic of value hash keys for all color spacs
 
-package Graphics::Toolkit::Color::SpaceKeys;
+package Graphics::Toolkit::Color::SpaceBasis;
 
 sub new {
     my $pkg = shift;

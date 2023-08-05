@@ -6,18 +6,18 @@ use Test::More tests => 81;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::SpaceKeys';
+my $module = 'Graphics::Toolkit::Color::SpaceBasis';
 
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
-my $obj = Graphics::Toolkit::Color::SpaceKeys->new();
+my $obj = Graphics::Toolkit::Color::SpaceBasis->new();
 is( $obj,  undef,       'constructor needs arguments');
-$obj = Graphics::Toolkit::Color::SpaceKeys->new(1);
+$obj = Graphics::Toolkit::Color::SpaceBasis->new(1);
 is( ref $obj, $module,  'one constructor argument is enough');
 
-my $s3d = Graphics::Toolkit::Color::SpaceKeys->new(qw/Alpha beta gamma/);
-my $s5d = Graphics::Toolkit::Color::SpaceKeys->new(qw/Aleph beth gimel daleth he/);
+my $s3d = Graphics::Toolkit::Color::SpaceBasis->new(qw/Alpha beta gamma/);
+my $s5d = Graphics::Toolkit::Color::SpaceBasis->new(qw/Aleph beth gimel daleth he/);
 is( $s3d->count,         3,     'did count three args');
 is( $s5d->count,         5,     'did count five args');
 is( ($s3d->keys)[0],    'alpha',     'repeat first 3d key back');

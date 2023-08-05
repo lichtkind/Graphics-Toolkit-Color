@@ -6,10 +6,11 @@ use Test::More tests => 53;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value::RGB';
+my $module = 'Graphics::Toolkit::Color::Value::CMY';
 
-eval "use $module";
+my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
+is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
 my $chk_rgb        = \&Graphics::Toolkit::Color::Value::RGB::check;
 my $tr_rgb         = \&Graphics::Toolkit::Color::Value::RGB::trim;

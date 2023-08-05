@@ -5,10 +5,9 @@ use warnings;
 
 package Graphics::Toolkit::Color::Value;
 use Carp;
+my $base_package = 'RGB';
 my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL
 my %space_def = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
-my $base_package = 'RGB';
-
 
 sub space { $space_def{ $_[0] } if exists $space_def{ $_[0] } }
 

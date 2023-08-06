@@ -22,8 +22,8 @@ sub new {
 
     bless { basis => $basis, format => \%formats, deformat => \%deformats, convert => {},
             trim => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
-            delta => sub { my ($self, $vector1, $vector2) = @_;
-                           map {abs($vector1->[$_] - $vector2->[$_]) } $self->iterator },
+            delta => sub { my ($vector1, $vector2) = @_;
+                           map {abs($vector1->[$_] - $vector2->[$_]) } $basis->iterator },
     };
 }
 
@@ -55,7 +55,7 @@ sub change_delta_routine {
 sub delta {
     my ($self, $vector1, $vector2) = @_;
     return unless $self->{'basis'}->is_array( $vector1 ) and $self->{'basis'}->is_array( $vector2 );
-    $self->{'delta'}->( @_ );
+    $self->{'delta'}->( $vector1, $vector2 );
 }
 
 ########################################################################

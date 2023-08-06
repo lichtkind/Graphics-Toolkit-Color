@@ -13,8 +13,6 @@ is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
 my $chk_rgb        = \&Graphics::Toolkit::Color::Value::RGB::check;
-my $tr_rgb         = \&Graphics::Toolkit::Color::Value::RGB::trim;
-my $d_rgb          = \&Graphics::Toolkit::Color::Value::RGB::distance;
 my $rgb2h          = \&Graphics::Toolkit::Color::Value::RGB::hex_from_rgb;
 
 ok( !$chk_rgb->(0,0,0),       'check rgb values works on lower bound values');

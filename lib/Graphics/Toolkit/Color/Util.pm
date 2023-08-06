@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Util;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/round/;
+our @EXPORT_OK = qw/round rmod/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half = 0.50000000000008;
@@ -14,6 +14,12 @@ my $half = 0.50000000000008;
 sub round {
     $_[0] >= 0 ? int ($_[0] + $half)
                : int ($_[0] - $half)
+}
+
+# real value modulo
+sub rmod {
+    return 0 unless defined $_[1] and $_[1];
+    $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }
 
 1;

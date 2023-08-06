@@ -38,10 +38,6 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
 
 sub delta { # \@hsl, \@hsl --> @delta
     my ($hsl, $hsl2) = @_;
-    return carp  "need two triplets of hsl values in 2 arrays to compute hsl differences"
-        unless $hsl_def->is_array( $hsl ) and $hsl_def->is_array( $hsl2 );
-    check(@$hsl) and return;
-    check(@$hsl2) and return;
     my $delta_h = abs($hsl->[0] - $hsl2->[0]);
     $delta_h = 360 - $delta_h if $delta_h > 180;
     ($delta_h, abs($hsl->[1] - $hsl2->[1]), abs($hsl->[2] - $hsl2->[2]) );
@@ -58,9 +54,8 @@ sub _from_rgb { # float conversion
     my $H = !$delta ? 0 : (2 * $maxi + (($rgb[($maxi+1) % 3] - $rgb[($maxi+2) % 3]) / $delta)) * 60;
     $H += 360 if $H < 0;
     my $S = ($avg == 0) ? 0 : ($avg == 255) ? 0 : $delta / (255 - abs((2 * $avg) - 255));
-    ($H, $S * 100, $avg * 0.392156863 );
+    ($H, $S * 100, $avg * 0.390625 );
 }
-
 sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
     my (@rgb) = @_;
     my $real = '';
@@ -73,12 +68,12 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
     ( round( $hsl[0] ), round( $hsl[1] ), round( $hsl[2] ) );
 }
 
-sub _to_rgb { # float conversion
+sub _to_rgb { # float conversion  255 ?
     my (@hsl) = trim(@_);
     $hsl[0] /= 60;
-    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 255 / 10_000;
+    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 256 / 10_000;
     my $X = $C * (1 - abs($hsl[0] % 2 - 1 + ($hsl[0] - int $hsl[0])));
-    my $m = ($hsl[2] * 2.55) - ($C / 2);
+    my $m = ($hsl[2] * 2.56) - ($C / 2);
     return ($hsl[0] < 1) ? ($C + $m, $X + $m,      $m)
          : ($hsl[0] < 2) ? ($X + $m, $C + $m,      $m)
          : ($hsl[0] < 3) ? (     $m, $C + $m, $X + $m)
@@ -86,7 +81,6 @@ sub _to_rgb { # float conversion
          : ($hsl[0] < 5) ? ($X + $m,      $m, $C + $m)
          :                 ($C + $m,      $m, $X + $m);
 }
-
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     my (@hsl) = @_;
     my $real = '';

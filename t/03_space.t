@@ -106,7 +106,7 @@ is( $d[2],    3, 'third value correctly deconverted');
 is( $d[3],    4, 'fourth value correctly deconverted');
 
 my $res = $space->change_delta_routine(
-    sub {my ($self, $vector1, $vector2) = @_; map {abs($vector1->[$_] + $vector2->[$_]) } $self->iterator}
+    sub {my ($vector1, $vector2) = @_; map {abs($vector1->[$_] + $vector2->[$_]) } $space->iterator}
 );
 is( ref $res, 'CODE', 'delta sub was changed');
 @d = $space->delta([2,3,4,5], [1,5,1,1] );

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 65;
+use Test::More tests => 61;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -13,8 +13,6 @@ is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
 my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSL::check;
-my $tr_hsl         = \&Graphics::Toolkit::Color::Value::HSL::trim;
-my $d_hsl          = \&Graphics::Toolkit::Color::Value::HSL::delta;
 
 ok( !$chk_hsl->(0,0,0),       'check hsl values works on lower bound values');
 ok( !$chk_hsl->(359,100,100), 'check hsl values works on upper bound values');
@@ -55,35 +53,46 @@ is( $hsl[0],   0,     'too high hue value is rotated down');
 is( $hsl[1], 100,     'too high saturation value is trimmed down');
 is( $hsl[2], 100,     'too high lightness value is trimmed down');
 
-@hsl = Graphics::Toolkit::Color::Value::HSL::from_rgb(127, 127, 127);
+@hsl = $def->deconvert( [128, 128, 128], 'RGB');
 is( int @hsl,  3,     'converted color grey has three hsl values');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
 is( $hsl[1],   0,     'converted color grey has computed right saturation');
 is( $hsl[2],  50,     'converted color grey has computed right lightness');
 
-my @rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(0, 0, 50);
+my @rgb = $def->convert( [0, 0, 50], 'RGB');
 is( int @rgb,  3,     'converted back color grey has three rgb values');
-is( $rgb[0], 127,     'converted back color grey has right red value');
-is( $rgb[1], 127,     'converted back color grey has right green value');
-is( $rgb[2], 127,     'converted back color grey has right blue value');
+is( $rgb[0], 128,     'converted back color grey has right red value');
+is( $rgb[1], 128,     'converted back color grey has right green value');
+is( $rgb[2], 128,     'converted back color grey has right blue value');
 
-@rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(360, -10, 50);
+@rgb = $def->convert( [360, -10, 50], 'RGB');
 is( int @rgb,  3,     'trimmed and converted back color grey');
-is( $rgb[0], 127,     'right red value');
-is( $rgb[1], 127,     'right green value');
-is( $rgb[2], 127,     'right blue value');
+is( $rgb[0], 128,     'right red value');
+is( $rgb[1], 128,     'right green value');
+is( $rgb[2], 128,     'right blue value');
 
-@hsl = Graphics::Toolkit::Color::Value::HSL::from_rgb(0, 40, 120);
+@hsl = $def->deconvert( [0, 40, 120], 'RGB');
 is( int @hsl,  3,     'converted nice blue has three hsl values');
 is( $hsl[0], 220,     'converted nice blue has computed right hue value');
 is( $hsl[1], 100,     'converted nice blue has computed right saturation');
-is( $hsl[2],  24,     'converted nice blue has computed right lightness');
+is( $hsl[2],  23,     'converted nice blue has computed right lightness'); # is 23.5 - rounding error
 
-@rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(220, 100, 24);
+@rgb = $def->convert( [220, 100, 24], 'RGB');
 is( int @rgb,  3,     'converted back nice blue has three rgb values');
 is( $rgb[0],   0,     'converted back nice blue has right red value');
 is( $rgb[1],  40,     'converted back nice blue has right green value');
 is( $rgb[2], 122,     'converted back nice blue has right blue value');
 
+my @d = $def->delta([2,2,2],[2,2,2]);
+is( int @d,   3,      'zero delta vector has right length');
+is( $d[0],    0,      'no delta in hue component');
+is( $d[1],    0,      'no delta in saturation component');
+is( $d[2],    0,      'no delta in lightness component');
+
+@d = $def->delta([10,20,20],[350,22,17]);
+is( int @d,   3,      'delta vector has right length');
+is( $d[0],   20,      'computed hue right across the cylindrical border');
+is( $d[1],    2,      'correct delta on saturation');
+is( $d[2],    3,      'correct lightness even it was negative');
 
 exit 0;

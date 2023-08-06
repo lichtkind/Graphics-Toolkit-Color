@@ -774,7 +774,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
         if ref $hsl_center ne 'ARRAY' or @$hsl_center != 3;
     return carp 'second argument has to be a integer < 180 or array ref with 3 integer'
         unless (ref $radius eq 'ARRAY' and @$radius == 3) or (defined $radius and not ref $radius);
-    check_hsl( @$hsl_center ) and return;
+    Graphics::Toolkit::Color::Value::HSL::check( @$hsl_center ) and return;
 
     my @hsl_delta = ref $radius ? @$radius : ($radius, $radius, $radius);
     $hsl_delta[$_] = int abs $hsl_delta[$_] for 0 ..2;

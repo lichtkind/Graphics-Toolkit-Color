@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation lightness/);
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $hsl_def->change_delta_routine( \&delta );
 
 ########################################################################
 
@@ -86,7 +87,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 sub _to_rgb { # float conversion
     my (@hsl) = trim(@_);
     $hsl[0] /= 60;
-    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 0.0255;
+    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 255 / 10_000;
     my $X = $C * (1 - abs($hsl[0] % 2 - 1 + ($hsl[0] - int $hsl[0])));
     my $m = ($hsl[2] * 2.55) - ($C / 2);
     return ($hsl[0] < 1) ? ($C + $m, $X + $m,      $m)
@@ -107,7 +108,7 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     #check( @hsl ) and return unless $real;
     my @rgb = _to_rgb( @hsl );
     return @rgb if $real;
-    ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
+    ( int( $rgb[0] ), int( $rgb[1] ), int( $rgb[2] ) );
 }
 
 $hsl_def;

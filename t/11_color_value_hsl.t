@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 57;
+use Test::More tests => 65;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -63,15 +63,28 @@ is( $hsl[2],  50,     'converted color grey has computed right lightness');
 
 my @rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(0, 0, 50);
 is( int @rgb,  3,     'converted back color grey has three rgb values');
-is( $rgb[0], 128,     'converted back color grey has right red value');
-is( $rgb[1], 128,     'converted back color grey has right green value');
-is( $rgb[2], 128,     'converted back color grey has right blue value');
+is( $rgb[0], 127,     'converted back color grey has right red value');
+is( $rgb[1], 127,     'converted back color grey has right green value');
+is( $rgb[2], 127,     'converted back color grey has right blue value');
 
 @rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(360, -10, 50);
 is( int @rgb,  3,     'trimmed and converted back color grey');
-is( $rgb[0], 128,     'right red value');
-is( $rgb[1], 128,     'right green value');
-is( $rgb[2], 128,     'right blue value');
+is( $rgb[0], 127,     'right red value');
+is( $rgb[1], 127,     'right green value');
+is( $rgb[2], 127,     'right blue value');
+
+@hsl = Graphics::Toolkit::Color::Value::HSL::from_rgb(0, 40, 120);
+is( int @hsl,  3,     'converted nice blue has three hsl values');
+is( $hsl[0], 220,     'converted nice blue has computed right hue value');
+is( $hsl[1], 100,     'converted nice blue has computed right saturation');
+is( $hsl[2],  24,     'converted nice blue has computed right lightness');
+
+@rgb = Graphics::Toolkit::Color::Value::HSL::to_rgb(220, 100, 24);
+is( int @rgb,  3,     'converted back nice blue has three rgb values');
+is( $rgb[0],   0,     'converted back nice blue has right red value');
+is( $rgb[1],  40,     'converted back nice blue has right green value');
+is( $rgb[2], 122,     'converted back nice blue has right blue value');
+
 
 warning_like {$d_hsl->( []) }                     {carped => qr/two triplets/},"can't get distance without hsl values";
 warning_like {$d_hsl->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';

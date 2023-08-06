@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $hsv_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation value/);
    $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $hsv_def->change_delta_routine( \&delta );
 
 ########################################################################
 
@@ -62,7 +63,6 @@ sub _from_rgb { # float conversion
     if    ($rgb[1] > $rgb[0])      { ($maxi, $mini ) = ($mini, $maxi ) }
     if    ($rgb[2] > $rgb[$maxi])  {  $maxi = 2 }
     elsif ($rgb[2] < $rgb[$mini])  {  $mini = 2 }
-
     my $delta = $rgb[$maxi] - $rgb[$mini];
     my $avg = ($rgb[$maxi] + $rgb[$mini]) / 2;
     my $H = !$delta ? 0 : (2 * $maxi + (($rgb[($maxi+1) % 3] - $rgb[($maxi+2) % 3]) / $delta)) * 60;
@@ -78,7 +78,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
         @rgb = @{$rgb[0]};
         $real = $rgb[1] // $real;
     }
-    check_rgb( @rgb ) and return unless $real;
+    #check_rgb( @rgb ) and return unless $real;
     my @hsl = _from_rgb( @rgb );
     return @hsl if $real;
     ( round( $hsl[0] ), round( $hsl[1] ), round( $hsl[2] ) );
@@ -111,7 +111,7 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     check( @hsv ) and return unless $real;
     my @rgb = _to_rgb( @hsv );
     return @rgb if $real;
-    ( round( $rgb[0] ), round( $rgb[1] ), round( $rgb[2] ) );
+    ( int( $rgb[0] ), int( $rgb[1] ), int( $rgb[2] ) );
 }
 
 $hsv_def;

@@ -21,6 +21,7 @@ sub new {
     );
 
     bless { basis => $basis, format => \%formats, deformat => \%deformats, convert => {},
+            trim => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
             delta => sub { my ($self, $vector1, $vector2) = @_;
                            map {abs($vector1->[$_] - $vector2->[$_]) } $self->iterator },
     };
@@ -34,16 +35,30 @@ sub is_partial_hash  { $_[0]{'basis'}->is_partial_hash( $_[1] ) }
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 
+sub change_trim_routine {
+    my ($self, $code) = @_;
+    $self->{'trim'} = $code if ref $code eq 'CODE';
+}
+sub trim {
+    my ($self, @vector) = @_;
+    push @vector, 0 while @vector < $self->dimensions;
+    pop  @vector    while @vector > $self->dimensions;
+    return $self->{'trim'}->( @vector );
+}
+
+########################################################################
+
 sub change_delta_routine {
     my ($self, $code) = @_;
-    return 0 unless ref $code eq 'CODE';
-    $self->{'delta'} = $code;
+    $self->{'delta'} = $code if ref $code eq 'CODE';
 }
 sub delta {
     my ($self, $vector1, $vector2) = @_;
     return unless $self->{'basis'}->is_array( $vector1 ) and $self->{'basis'}->is_array( $vector2 );
     $self->{'delta'}->( @_ );
 }
+
+########################################################################
 
 sub add_formatter {
     my ($self, $format, $code) = @_;
@@ -72,6 +87,7 @@ sub deformat {
     return undef;
 }
 
+########################################################################
 
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code) = @_;

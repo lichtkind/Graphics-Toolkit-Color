@@ -11,6 +11,7 @@ use Graphics::Toolkit::Color::Space;
 my $hsl_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation lightness/);
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
    $hsl_def->change_delta_routine( \&delta );
+   $hsl_def->change_trim_routine( \&trim );
 
 ########################################################################
 
@@ -26,13 +27,9 @@ sub check {
 
 sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
-    return (0,0,0) if @hsl < 1;
-    pop @hsl while @hsl > 3;
-
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
     for (1..2){
-        $hsl[$_] =   0 unless exists $hsl[$_];
         $hsl[$_] =   0 if $hsl[$_] <   0;
         $hsl[$_] = 100 if $hsl[$_] > 100;
     }
@@ -48,13 +45,6 @@ sub delta { # \@hsl, \@hsl --> @delta
     my $delta_h = abs($hsl->[0] - $hsl2->[0]);
     $delta_h = 360 - $delta_h if $delta_h > 180;
     ($delta_h, abs($hsl->[1] - $hsl2->[1]), abs($hsl->[2] - $hsl2->[2]) );
-}
-
-sub distance { # \@hsl, \@hsl --> $d
-    return carp  "need two triplets of hsl values in 2 arrays to compute hsl distance " if @_ != 2;
-    my @delta_hsl = delta( $_[0], $_[1] );
-    return unless @delta_hsl == 3;
-    sqrt($delta_hsl[0] ** 2 + $delta_hsl[1] ** 2 + $delta_hsl[2] ** 2);
 }
 
 sub _from_rgb { # float conversion
@@ -78,7 +68,6 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
         @rgb = @{$rgb[0]};
         $real = $rgb[1] // $real;
     }
-    #check_rgb( @rgb ) and return unless $real;
     my @hsl = _from_rgb( @rgb );
     return @hsl if $real;
     ( round( $hsl[0] ), round( $hsl[1] ), round( $hsl[2] ) );
@@ -105,7 +94,6 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
         @hsl = @{$hsl[0]};
         $real = $hsl[1] // $real;
     }
-    #check( @hsl ) and return unless $real;
     my @rgb = _to_rgb( @hsl );
     return @rgb if $real;
     ( int( $rgb[0] ), int( $rgb[1] ), int( $rgb[2] ) );

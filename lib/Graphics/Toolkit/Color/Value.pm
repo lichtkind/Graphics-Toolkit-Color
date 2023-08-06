@@ -37,18 +37,12 @@ sub format {
     return @values == 1 ? $values[0] : @values;
 }
 
-sub distance {
+sub distance { # \@rgb, \@rgb --> $d
     my ($values, $space_name, $part) = @_;
 
 }
-
-sub delta {
-    my ($vector1, $vector2) = @_;
-    return carp  "need vectors of smae length to compute delta"
-        unless ref $vector1 eq 'ARRAY' and ref $vector2 eq 'ARRAY' and @$vector1 == @$vector2;
-    map { abs($vector1->[$_] - $vector2->[$_]) } 0 .. $#$vector2;
-}
-
+    # my @delta_rgb = delta( $_[0], $_[1] );
+    # sqrt($delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2);
 
 1;
 

@@ -74,12 +74,10 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 
 sub _to_rgb { # float conversion
     my (@hsv) = trim(@_);
-say " HSV @hsv";
     my $H = $hsv[0] / 60;
     my $C = $hsv[1]* $hsv[2] / 100 / 100;
-    my $X = $C * (1 - abs(($H % 2) - 1));
+    my $X = $C * (1 - abs(rmod($H, 2) - 1));
     my $m = ($hsv[2] / 100) - $C;
-say " H $H  --  m $m  X $X  C $C";
     my @rgb = ($H < 1) ? ($C + $m, $X + $m,      $m)
             : ($H < 2) ? ($X + $m, $C + $m,      $m)
             : ($H < 3) ? (     $m, $C + $m, $X + $m)

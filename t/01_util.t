@@ -20,7 +20,6 @@ is( $round->(-0.500000001), -1,     'everything beow -0.5 gets also lowered');
 is( $round->(-0.4999999),    0,     'everything upward from -0.5 gets increased');
 
 my $rmod = \&Graphics::Toolkit::Color::Util::rmod;
-
 is( $rmod->(),               0,     'default to 0 when both values missing');
 is( $rmod->(1),              0,     'default to 0 when a value is missing');
 is( $rmod->(1,0),            0,     'default to 0 when a divisor is zero');
@@ -34,6 +33,5 @@ is( $rmod->(3.1, -2),      1.1,     'real mod with negative divisor');
 is( $rmod->(-3, -2),        -1,     'int mod with negative divisor');
 is( $rmod->(-3.1, -2),    -1.1,     'int mod with negative divisor');
 is( $rmod->(15.3, 4),      3.3,     'real mod with different values');
-
 
 exit 0;

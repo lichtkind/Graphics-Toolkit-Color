@@ -79,8 +79,7 @@ is( $hsv[2],  47,     'converted nice blue has computed right value'); # 46
 is( int @rgb,  3,     'converted back nice blue has three rgb values');
 is( $rgb[0],   0,     'converted back nice blue has right red value');
 is( $rgb[1],  40,     'converted back nice blue has right green value');
-is( $rgb[2], 122,     'converted back nice blue has right blue value');
-exit 0;
+is( $rgb[2], 120,     'converted back nice blue has right blue value');
 
 my @d = $def->delta([2,2,2],[2,2,2]);
 is( int @d,   3,      'zero delta vector has right length');

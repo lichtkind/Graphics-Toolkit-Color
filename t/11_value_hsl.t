@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 61;
+use Test::More tests => 63;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -16,8 +16,8 @@ my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSL::check;
 
 ok( !$chk_hsl->(0,0,0),       'check hsl values works on lower bound values');
 ok( !$chk_hsl->(359,100,100), 'check hsl values works on upper bound values');
-warning_like {$chk_hsl->(0,0)}       {carped => qr/exactly 3/},   "check rgb got too few values";
-warning_like {$chk_hsl->(0,0,0,0)}   {carped => qr/exactly 3/},   "check rgb got too many  values";
+warning_like {$chk_hsl->(0,0)}       {carped => qr/exactly 3/},   "check hsl got too few values";
+warning_like {$chk_hsl->(0,0,0,0)}   {carped => qr/exactly 3/},   "check hsl got too many  values";
 warning_like {$chk_hsl->(-1, 0,0)}   {carped => qr/hue value/},   "hue value is too small";
 warning_like {$chk_hsl->(0.5, 0,0)}  {carped => qr/hue value/},   "hue value is not integer";
 warning_like {$chk_hsl->(360, 0,0)}  {carped => qr/hue value/},   "hue value is too big";
@@ -34,24 +34,31 @@ is( int @hsl,  3,     'default color is set');
 is( $hsl[0],   0,     'default color is black (H) no args');
 is( $hsl[1],   0,     'default color is black (S) no args');
 is( $hsl[2],   0,     'default color is black (L) no args');
+
 @hsl = $def->trim(1,2);
+is( int @hsl,  3,     'added missing value');
 is( $hsl[0],   1,     'default color is black (H) too few args');
 is( $hsl[1],   2,     'default color is black (S) too few args');
 is( $hsl[2],   0,     'default color is black (L) too few args');
+
 @hsl = $def->trim(1,2,3,4);
+is( int @hsl,  3,     'removed superfluous value');
 is( $hsl[0],   1,     'default color is black (H) too many args');
 is( $hsl[1],   2,     'default color is black (S) too many args');
 is( $hsl[2],   3,     'default color is black (L) too many args');;
+
 @hsl = $def->trim(-1,-1,-1);
 is( int @hsl,  3,     'color is trimmed up');
 is( $hsl[0], 359,     'too low hue value is rotated up');
 is( $hsl[1],   0,     'too low green value is trimmed up');
 is( $hsl[2],   0,     'too low blue value is trimmed up');
+
 @hsl = $def->trim(360, 101, 101);
 is( int @hsl,  3,     'color is trimmed up');
 is( $hsl[0],   0,     'too high hue value is rotated down');
 is( $hsl[1], 100,     'too high saturation value is trimmed down');
 is( $hsl[2], 100,     'too high lightness value is trimmed down');
+
 
 @hsl = $def->deconvert( [128, 128, 128], 'RGB');
 is( int @hsl,  3,     'converted color grey has three hsl values');

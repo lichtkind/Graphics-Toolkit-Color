@@ -18,9 +18,9 @@ sub check {
     my $help = 'has to be a floating point value between 0 and 1';
     return carp "need exactly 4 floating point numbers between 0 and 1 for cmy input" unless @cmyk == $cmyk_def->dimensions;
     return carp "cyan value $cmyk[0] $help"    unless $cmyk[0] >= 0 and $cmyk[0] <= 1;
-    return carp "magenty value $cmyk[1] $help" unless $cmyk[1] >= 0 and $cmyk[1] <= 1;
+    return carp "magenta value $cmyk[1] $help" unless $cmyk[1] >= 0 and $cmyk[1] <= 1;
     return carp "yellow value $cmyk[2] $help"  unless $cmyk[2] >= 0 and $cmyk[2] <= 1;
-    return carp "key value $cmyk[3] $help"     unless $cmyk[2] >= 0 and $cmyk[3] <= 1;
+    return carp "key value $cmyk[3] $help"     unless $cmyk[3] >= 0 and $cmyk[3] <= 1;
     0;
 }
 
@@ -51,7 +51,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
-    my ($c, $m, $y, $k) = @_;
+    my ($c, $m, $y, $k) = trim(@_);
     return (
         round( 255 * (1-$c) * (1-$k) ),
         round( 255 * (1-$m) * (1-$k) ),

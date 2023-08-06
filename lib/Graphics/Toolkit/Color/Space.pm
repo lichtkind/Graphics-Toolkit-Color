@@ -103,7 +103,7 @@ sub convert {
 
 sub deconvert {
     my ($self, $values, $space_name) = @_;
-    return unless $self->{'basis'}->is_array( $values ) and defined $space_name;
+    return unless ref $values eq 'ARRAY' and defined $space_name;
     $self->{'convert'}{ uc $space_name }{'from'}->(@$values) if $self->can_convert( $space_name );
 }
 

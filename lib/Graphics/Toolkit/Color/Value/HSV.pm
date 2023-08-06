@@ -52,7 +52,7 @@ sub _from_rgb { # float conversion
     elsif ($rgb[2] < $rgb[$mini])  {  $mini = 2 }
     my $delta = $rgb[$maxi] - $rgb[$mini];
     my $H = $delta ==           0  ?  0                                        :
-                      ($maxi == 0) ? 60 * ( (($rgb[1]-$rgb[2]) / $delta ) % 6) :
+                      ($maxi == 0) ? 60 * rmod( ($rgb[1]-$rgb[2]) / $delta, 6) :
                       ($maxi == 1) ? 60 * ( (($rgb[2]-$rgb[0]) / $delta ) + 2)
                                    : 60 * ( (($rgb[0]-$rgb[1]) / $delta ) + 4) ;
 

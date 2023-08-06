@@ -54,7 +54,7 @@ sub _new_from_scalar {
             return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
         }
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
-        return $color_def;
+        ($name, @rgb) = @$color_def;
     } else {            # define color by numbers in any format
         @rgb = Graphics::Toolkit::Color::Value::deformat( $color_def );
         return carp $new_help unless @rgb == 3;

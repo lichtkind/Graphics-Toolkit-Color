@@ -85,7 +85,11 @@ sub values      {
     Graphics::Toolkit::Color::Value::format( [@$self[1 .. 3]], @_)
 }
 
-## methods ##############################################################
+## measurement methods ##############################################################
+
+sub distance {
+    my ($self, @args) = @_;
+}
 
 sub distance_to {
     my ($self, $c2, $metric) = @_;
@@ -117,6 +121,11 @@ sub distance_to {
     $metric eq 'b' ? $delta_rgb[2] : croak $help;
 }
 
+## single color creation methods #######################################
+
+sub set {
+}
+
 sub add {
     my ($self, @args) = @_;
     my $add_help = 'Graphics::Toolkit::Color->add argument options: 1. a color object with optional factor as second arg, '.
@@ -139,7 +148,7 @@ sub add {
     }
     my @rgb = $self->rgb;
     if (@args == 3) {
-        @rgb = trim_rgb( $rgb[0] + $args[0], $rgb[1] + $args[1], $rgb[2] + $args[2]);
+        @rgb = Graphics::Toolkit::Color::Value::RGB::trim( $rgb[0] + $args[0], $rgb[1] + $args[1], $rgb[2] + $args[2]);
         return new( __PACKAGE__, @rgb );
     }
     return carp $add_help unless @args and ((@args % 2 == 0) or (ref $args[0] eq 'HASH'));
@@ -158,9 +167,13 @@ sub add {
         return carp "wrong number of numerical arguments (only 3 needed)" if @nrkey;
         carp "got unknown hash key starting with", map {' '.$_} keys %named_arg;
     }
-    @hsl = trim_hsl( @hsl );
-    new( __PACKAGE__, { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
+    @hsl = Graphics::Toolkit::Color::Value::HSL::trim( @hsl );
+    color( { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
 }
+
+sub _shrink_key { lc substr( $_[0], 0, 1 ) }
+
+sub blend {}
 
 sub blend_with {
     my ($self, $c2, $pos) = @_;
@@ -175,11 +188,17 @@ sub blend_with {
                 $self->saturation + ($pos * ($c2->saturation - $self->saturation)),
                 $self->lightness  + ($pos * ($c2->lightness  - $self->lightness))
     );
-    @hsl = trim_hsl( @hsl );
-    new( __PACKAGE__, { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
+    @hsl = Graphics::Toolkit::Color::Value::HSL::trim( @hsl );
+    color( H => $hsl[0], S => $hsl[1], L => $hsl[2] );
 }
 
+## color set creation methods ##########################################
+
 # for compatibility
+sub gradient {
+
+}
+
 sub gradient_to { hsl_gradient_to( @_ ) }
 
 sub hsl_gradient_to {
@@ -201,8 +220,8 @@ sub hsl_gradient_to {
         my @hsl = ( $self->hue        + ($pos * $delta_hsl[0]),
                     $self->saturation + ($pos * $delta_hsl[1]),
                     $self->lightness  + ($pos * $delta_hsl[2]));
-        @hsl = trim_hsl( @hsl );
-        push @colors, new( __PACKAGE__, { H => $hsl[0], S => $hsl[1], L => $hsl[2] });
+        @hsl = Graphics::Toolkit::Color::Value::HSL::trim( @hsl );
+        push @colors, color( H => $hsl[0], S => $hsl[1], L => $hsl[2] );
     }
     $self, @colors, $c2;
 }
@@ -223,7 +242,7 @@ sub rgb_gradient_to {
         my @rgb = ( $self->red   + ($pos * $delta_rgb[0]),
                     $self->green + ($pos * $delta_rgb[1]),
                     $self->blue  + ($pos * $delta_rgb[2]));
-        push @colors, new( __PACKAGE__, @rgb);
+        push @colors, color( @rgb);
     }
     $self, @colors, $c2;
 }
@@ -238,7 +257,7 @@ sub complementary {
     $hsl2[1] += $saturation_change;
     $hsl2[2] += $lightness_change;
     @hsl2 = Graphics::Toolkit::Color::Value::HSL::trim( @hsl2 ); # HSL of C2
-    my $c2 = new( __PACKAGE__, { h => $hsl2[0], s => $hsl2[1], l => $hsl2[2] });
+    my $c2 = color( h => $hsl2[0], s => $hsl2[1], l => $hsl2[2] );
     return $c2 if $count < 2;
     my (@colors_r, @colors_l);
     my @delta = (360 / $count, (($hsl2[1] - $hsl_r[1]) * 2 / $count), (($hsl2[2] - $hsl_r[2]) * 2 / $count) );
@@ -248,14 +267,16 @@ sub complementary {
         $hsl_l[$_] = $hsl_r[$_] for 1,2;
         $hsl_l[0] += 360 if $hsl_l[0] <    0;
         $hsl_r[0] -= 360 if $hsl_l[0] >= 360;
-        push @colors_r, new( __PACKAGE__, { H => $hsl_r[0], S => $hsl_r[1], L => $hsl_r[2] });
-        unshift @colors_l, new( __PACKAGE__, { H => $hsl_l[0], S => $hsl_l[1], L => $hsl_l[2] });
+        push @colors_r, color( H => $hsl_r[0], S => $hsl_r[1], L => $hsl_r[2] );
+        unshift @colors_l, color( H => $hsl_l[0], S => $hsl_l[1], L => $hsl_l[2] );
     }
     push @colors_r, $c2 unless $count % 2;
     $self, @colors_r, @colors_l;
 }
 
-sub _shrink_key { lc substr( $_[0], 0, 1 ) }
+sub bowl {
+
+}
 
 1;
 

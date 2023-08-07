@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 53;
+use Test::More tests => 60;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -12,83 +12,97 @@ my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 
-my $chk_rgb        = \&Graphics::Toolkit::Color::Value::RGB::check;
-my $tr_rgb         = \&Graphics::Toolkit::Color::Value::RGB::trim;
-my $d_rgb          = \&Graphics::Toolkit::Color::Value::RGB::distance;
-my $rgb2h          = \&Graphics::Toolkit::Color::Value::RGB::hex_from_rgb;
-
-ok( !$chk_rgb->(0,0,0),       'check rgb values works on lower bound values');
-ok( !$chk_rgb->(255,255,255), 'check rgb values works on upper bound values');
-warning_like {$chk_rgb->(0,0)}       {carped => qr/exactly 3/},   "check rgb got too few values";
-warning_like {$chk_rgb->(0,0,0,0)}   {carped => qr/exactly 3/},   "check rgb got too many  values";
-warning_like {$chk_rgb->(-1, 0,0)}   {carped => qr/red value/},   "red value is too small";
-warning_like {$chk_rgb->(0.5, 0,0)}  {carped => qr/red value/},   "red value is not integer";
-warning_like {$chk_rgb->(256, 0,0)}  {carped => qr/red value/},   "red value is too big";
-warning_like {$chk_rgb->(0, -1, 0)}  {carped => qr/green value/}, "green value is too small";
-warning_like {$chk_rgb->(0, 0.5, 0)} {carped => qr/green value/}, "green value is not integer";
-warning_like {$chk_rgb->(0, 256,0)}  {carped => qr/green value/}, "green value is too big";
-warning_like {$chk_rgb->(0,0, -1 )}  {carped => qr/blue value/},  "blue value is too small";
-warning_like {$chk_rgb->(0,0, 0.5 )} {carped => qr/blue value/},  "blue value is not integer";
-warning_like {$chk_rgb->(0,0, 256)}  {carped => qr/blue value/},  "blue value is too big";
-
-my @rgb = $tr_rgb->();
-is( int @rgb,  3,     'default color is set');
-is( $rgb[0],   0,     'default color is black (R) no args');
-is( $rgb[1],   0,     'default color is black (G) no args');
-is( $rgb[2],   0,     'default color is black (B) no args');
-@rgb = $tr_rgb->(1,2);
-is( $rgb[0],   1,     'default color is black (R) took first arg');
-is( $rgb[1],   2,     'default color is black (G) took second arg');
-is( $rgb[2],   0,     'default color is black (B) gilld in third value');
-@rgb = $tr_rgb->(1,2,3,4);
-is( $rgb[0],   1,     'default color is black (R) took first of too many args');
-is( $rgb[1],   2,     'default color is black (G) took second of too many args');
-is( $rgb[2],   3,     'default color is black (B) too third of too many args');
-is( int @rgb,  3,    'left out the needless argument');
-@rgb = $tr_rgb->(-1,-1,-1);
-is( int @rgb,  3,     'trim do not change number of negative values');
-is( $rgb[0],   0,     'too low red value is trimmed up');
-is( $rgb[1],   0,     'too low green value is trimmed up');
-is( $rgb[2],   0,     'too low blue value is trimmed up');
-@rgb = $tr_rgb->(256, 256, 256);
-is( int @rgb,  3,     'trim do not change number of positive values');
-is( $rgb[0], 255,     'too high red value is trimmed down');
-is( $rgb[1], 255,     'too high green value is trimmed down');
-is( $rgb[2], 255,     'too high blue value is trimmed down');
+my $chk_cmy        = \&Graphics::Toolkit::Color::Value::CMY::check;
+ok( !$chk_cmy->(0,0,0),       'check cmyk values works on lower bound values');
+ok( !$chk_cmy->(1,1,1),       'check cmyk values works on upper bound values');
+warning_like {$chk_cmy->(0,0)}       {carped => qr/exactly 3/},   "check cmy got too few values";
+warning_like {$chk_cmy->(0,0,0,0)}   {carped => qr/exactly 3/},   "check cmy got too many values";
+warning_like {$chk_cmy->(-1, 0,0)}   {carped => qr/cyan value/},   "cyan value is too small";
+warning_like {$chk_cmy->(1.1,0,0)}  {carped => qr/cyan value/},   "cyan value is too big";
+warning_like {$chk_cmy->(0,-1, 0)}   {carped => qr/magenta value/},  "magenta value is too small";
+warning_like {$chk_cmy->(0, 1.1,0)} {carped => qr/magenta value/},  "magenta value is too big";
+warning_like {$chk_cmy->(0, 0, -1)} {carped => qr/yellow value/},   "yellow value is too small";
+warning_like {$chk_cmy->(0, 0,1.1)} {carped => qr/yellow value/},   "yellow value is too big";
 
 
-warning_like {$d_rgb->()}                         {carped => qr/two triplets/},"can't get distance without rgb values";
-warning_like {$d_rgb->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';
-warning_like {$d_rgb->( [1,2],[1,2,3])}           {carped => qr/two triplets/},'first color is missing a value';
-warning_like {$d_rgb->( [1,2,3],[2,3])}           {carped => qr/two triplets/},'second color is missing a value';
-warning_like {$d_rgb->( [-1,2,3],[1,2,3])}        {carped => qr/red value/},   'first red value is too small';
-warning_like {$d_rgb->( [1,2,3],[2,256,3])}       {carped => qr/green value/}, 'second green value is too large';
-warning_like {$d_rgb->( [1,2,-3],[2,25,3])}       {carped => qr/blue value/},  'first blue value is too large';
+my @cmy = $def->trim();
+is( int @cmy,  3,     'default color is set');
+is( $cmy[0],   0,     'default color is black (C) no args');
+is( $cmy[1],   0,     'default color is black (M) no args');
+is( $cmy[2],   0,     'default color is black (Y) no args');
 
-is( Graphics::Toolkit::Color::Value::RGB::distance([1, 2, 3], [  2, 6, 11]), 9,     'compute rgb distance');
+@cmy = $def->trim(0.1, 0.2, 0.3);
+is( int @cmy,  3,     'added missing argument in vector');
+is( $cmy[0], 0.1,     'passed (C) value when too few args');
+is( $cmy[1], 0.2,     'passed (M) value when too few args');
+is( $cmy[2], 0.3,     'passed (Y) value when too few args');
 
-is( $rgb2h->(0,0,0),          '#000000',     'converted black from rgb to hex');
-is( uc $rgb2h->(255,255,255), '#FFFFFF',     'converted white from rgb to hex');
-is( uc $rgb2h->( 10, 20, 30), '#0A141E',     'converted random color from rgb to hex');
+@cmy = $def->trim(0.1, 0.2, 0.3, 0.4, 0.5);
+is( int @cmy,  3,     'removed missing argument in vector');
+is( $cmy[0], 0.1,     'passed (C) value when too few args');
+is( $cmy[1], 0.2,     'passed (M) value when too few args');
+is( $cmy[2], 0.3,     'passed (Y) value when too few args');
 
-@rgb = Graphics::Toolkit::Color::Value::RGB::rgb_from_hex('#000000');
-is( $rgb[0],   0,     'converted black from hex to RGB red is correct');
-is( $rgb[1],   0,     'converted black from hex to RGB green is correct');
-is( $rgb[2],   0,     'converted black from hex to RGB blue is correct');
+@cmy = $def->trim(-1,-1,-1,-1);
+is( int @cmy,  3,     'color is trimmed up but kept vector length');
+is( $cmy[0],   0,     'too low cyan value is trimmed up');
+is( $cmy[1],   0,     'too low magenta value is trimmed up');
+is( $cmy[2],   0,     'too low yellow value is trimmed up');
 
-@rgb = Graphics::Toolkit::Color::Value::RGB::rgb_from_hex('#FFF');
-is( $rgb[0], 255,     'converted white (short form) from hex to RGB red is correct');
-is( $rgb[1], 255,     'converted white (short form) from hex to RGB green is correct');
-is( $rgb[2], 255,     'converted white (short form) from hex to RGB blue is correct');
-
-@rgb = Graphics::Toolkit::Color::Value::RGB::rgb_from_hex('#0a141e');
-is( $rgb[0],  10,     'converted random color (lower case) from hex to RGB red is correct');
-is( $rgb[1],  20,     'converted random color (lower case) from hex to RGB green is correct');
-is( $rgb[2],  30,     'converted random color (lower case) from hex to RGB blue is correct');
+@cmy = $def->trim(1.1, 2, 101, 10E5);
+is( int @cmy,  3,     'color is trimmed down but kept vector length');
+is( $cmy[0],   1,     'too high cyan value is rotated down');
+is( $cmy[1],   1,     'too high magenta value is trimmed down');
+is( $cmy[2],   1,     'too high yellow value is trimmed down');
 
 
-# OO API
+@cmy = $def->deconvert( [128, 128, 128], 'RGB');
+is( int @cmy,   3,     'converted grey has vour cmy values');
+is( $cmy[0],  0.5,     'converted grey has right cyan value');
+is( $cmy[1],  0.5,     'converted grey has right magenta value');
+is( $cmy[2],  0.5,     'converted grey has right yellow value');
 
-my $c = Graphics::Toolkit::Color::Value::RGB->new(10, 20, 1000);
+my @rgb = $def->convert( [0.5, 0.5, 0.5 ], 'RGB');
+is( int @rgb,  3,     'converted back grey has three rgb values');
+is( $rgb[0], 128,     'converted back grey has right red value');
+is( $rgb[1], 128,     'converted back grey has right green value');
+is( $rgb[2], 128,     'converted back grey has right blue value');
+
+@rgb = $def->convert( [-1, -10, 2], 'RGB');
+is( int @rgb,   3,     'trimmed and converted back color black');
+is( $rgb[0],  255,     'right red value');
+is( $rgb[1],  255,     'right green value');
+is( $rgb[2],    0,     'right blue value');
+
+@cmy = $def->deconvert( [0, 40, 120], 'RGB');
+is( int @cmy,   3,     'converted nice blue has four cmyk values');
+is( $cmy[0],   1,     'converted nice blue has computed right C value');
+is( close_enough($cmy[1], 0.84375),   1,  'converted nice blue has computed right M value');
+is( close_enough($cmy[2], 0.53125),   1,  'converted nice blue has computed right Y value');
+
+@rgb = $def->convert( [1, 0.84375, 0.53125], 'RGB');
+is( int @rgb,  3,     'converted back nice blue has three rgb values');
+is( $rgb[0],   0,     'converted back nice blue has right red value');
+is( $rgb[1],  40,     'converted back nice blue has right green value');
+is( $rgb[2], 120,     'converted back nice blue has right blue value');
+
+
+my @d = $def->delta([.2,.2,.2],[.2,.2,.2]);
+is( int @d,   3,      'zero delta vector has right length');
+is( $d[0],    0,      'no delta in C component');
+is( $d[1],    0,      'no delta in M component');
+is( $d[2],    0,      'no delta in Y component');
+
+@d = $def->delta([0.1,0.2,0.4],[0, 0.5, 1]);
+is( int @d,   3,      'delta vector has right length');
+is( $d[0],   0.1,     'C delta');
+is( $d[1],   0.3,     'M delta');
+is( $d[2],   0.6,     'Y delta');
+
+
+sub close_enough {
+    my ($nr, $target) = @_;
+    abs($nr - $target) < 0.01
+}
 
 exit 0;

@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $cmyk_def = Graphics::Toolkit::Color::Space->new(qw/cyan magenta yellow key/);
    $cmyk_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $cmyk_def->change_trim_routine( \&trim );
 
 ########################################################################
 

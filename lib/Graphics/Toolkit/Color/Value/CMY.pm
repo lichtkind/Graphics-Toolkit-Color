@@ -18,7 +18,7 @@ sub check {
     my $help = 'has to be a floating point value between 0 and 1';
     return carp "need exactly 3 floating point numbers between 0 and 1 for cmy input" unless @cmy == $cmy_def->dimensions;
     return carp "cyan value $cmy[0] $help"    unless $cmy[0] >= 0 and $cmy[0] <= 1;
-    return carp "magenty value $cmy[1] $help" unless $cmy[1] >= 0 and $cmy[1] <= 1;
+    return carp "magenta value $cmy[1] $help" unless $cmy[1] >= 0 and $cmy[1] <= 1;
     return carp "yellow value $cmy[2] $help"  unless $cmy[2] >= 0 and $cmy[2] <= 1;
     0;
 }
@@ -33,12 +33,12 @@ sub trim { # cut values into 0 .. 1, 0 .. 1, 0 .. 1
     @cmy;
 }
 
-sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $real
+sub from_rgb { #
     trim( map { 1 - ($_ / 256)} @_ );
 }
 
-sub to_rgb { # convert color value triple
-    map {round(256 * (1 - $_))} trim(@_);
+sub to_rgb { # convert color value triplet
+    map {round(255 * (1 - $_))} trim(@_);
 }
 
 $cmy_def;

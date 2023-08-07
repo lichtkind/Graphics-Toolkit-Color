@@ -15,8 +15,8 @@ is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by load
 my $chk_cmyk        = \&Graphics::Toolkit::Color::Value::CMYK::check;
 ok( !$chk_cmyk->(0,0,0,0),       'check cmyk values works on lower bound values');
 ok( !$chk_cmyk->(1,1,1,1), 'check cmyk values works on upper bound values');
-warning_like {$chk_cmyk->(0,0,0)}       {carped => qr/exactly 4/},   "check rgb got too few values";
-warning_like {$chk_cmyk->(0,0,0,0,0)}   {carped => qr/exactly 4/},   "check rgb got too many  values";
+warning_like {$chk_cmyk->(0,0,0)}       {carped => qr/exactly 4/},   "check cmyk got too few values";
+warning_like {$chk_cmyk->(0,0,0,0,0)}   {carped => qr/exactly 4/},   "check cmyk got too many values";
 warning_like {$chk_cmyk->(-1, 0,0,0)}   {carped => qr/cyan value/},   "cyan value is too small";
 warning_like {$chk_cmyk->(1.1, 0,0,0)}  {carped => qr/cyan value/},   "cyan value is too big";
 warning_like {$chk_cmyk->(0,-1, 0,0)}   {carped => qr/magenta value/},  "magenta value is too small";
@@ -116,6 +116,5 @@ sub close_enough {
     my ($nr, $target) = @_;
     abs($nr - $target) < 0.01
 }
-
 
 exit 0;

@@ -1,13 +1,15 @@
 
-1.10    2023-08-05    lichtkind
+1.50    2023-08-05    lichtkind
 -------
     * = first phase of of 2.0 rewrite
-    * + add CMY, CMYK and HSL support
-    * + new getter: values
+    * + add CMY, CMYK and HSV support
+    * + new universal getter method: values
+    * + new modifier method: set, blend
+    * ~ enhanced and strictened modifier method: add
     * \ deprecate all other numeric getter: rgb, red, green, blue, rgb_hex,
                          rgb_hash, hsl, hue, saturation, lightnss, hsl_hash
     * \ till 2.0 will be also deprecated: rgb_gradient_to, hsl_gradient_to,
-                                          gradient_to, distance_to
+                                          gradient_to, distance_to, blend_with
     * & new getter API
     * & keep complex names like 'SVG:green' to be returned by getter: ->name
     * ? rewritten large part of documentation

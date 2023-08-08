@@ -801,7 +801,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
              }
         }
     }
-    @names = grep {Graphics::Toolkit::Color::Value::HSL::distance( $hsl_center ,[hsl_from_name($_)] ) <= $radius} @names if not ref $radius;
+    @names = grep {Graphics::Toolkit::Color::Value::distance( $hsl_center ,[hsl_from_name($_)], 'HSL' ) <= $radius} @names if not ref $radius;
     @names;
 }
 

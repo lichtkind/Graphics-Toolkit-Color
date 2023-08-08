@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.10';
+our $VERSION = '1.50';
 use v5.12;
 
 use Carp;
@@ -29,7 +29,6 @@ sub new {
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }
-
 sub _new_from_scalar {
     my ($color_def) = shift;
     my (@rgb, $name, $origin);
@@ -57,9 +56,10 @@ sub _new_from_scalar {
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
         ($name, @rgb, $origin) = @$color_def;
     } else {                                  # define color by numbers in any format
-        my ($rgb, $origin) = Graphics::Toolkit::Color::Value::deformat( $color_def );
-        return carp $new_help unless ref $rgb;
-        @rgb = @$rgb;
+        my ($val, $origin) = Graphics::Toolkit::Color::Value::deformat( $color_def );
+        return carp $new_help unless ref $val;
+        @rgb = Graphics::Toolkit::Color::Value::deconvert( $val, $origin );
+        return carp $new_help unless @rgb == 3;
         $name = Graphics::Toolkit::Color::Constant::name_from_rgb( @rgb );
     }
     bless [$name, @rgb, $origin];
@@ -82,54 +82,38 @@ sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
     sub lightness   { $_[0]->values('hsl', 'lightness') }
     sub hsl_hash    { $_[0]->values('hsl', 'hash') }
 
+sub _rgb    { [@{$_[0]}[1 .. 3]] }
+sub _origin {    $_[0][4] }
 sub values      {
     my ($self, $space, @format) = @_;
-    my @val = Graphics::Toolkit::Color::Value::convert( [@$self[1 .. 3]], $space);
+    my @val = Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space);
     Graphics::Toolkit::Color::Value::format( \@val, $space, @format);
 }
 
 ## measurement methods ##############################################################
 
+sub distance_to { distance(@_) }
 sub distance {
-    my ($self, @args) = @_;
-    my ($self, $c2, $space, $metric) = @_;
-
-}
-
-sub distance_to {
-    my ($self, $c2, $metric) = @_;
+    my ($self) = shift;
+    my ($c2, $space, $subspace) = @_;
+    if (ref $c2 eq 'HASH' and exists $c2->{'to'}){
+        ($c2, $space, $subspace) = ($c2->{'to'}, $c2->{'in'}, $c2->{'notice_only'});
+    }
     return croak "missing argument: color object or scalar color definition" unless defined $c2;
     $c2 = color( $c2 );
-    return unless ref $c2 eq __PACKAGE__;
-    #Graphics::Toolkit::Color::Value::distance($self, $c2, $space, $metric);
-
-    return distance_hsl( [$self->hsl], [$c2->hsl] ) unless defined $metric;
-    $metric = lc $metric;
-    return distance_hsl( [$self->hsl], [$c2->hsl] ) if $metric eq 'hsl';
-    return distance_rgb( [$self->rgb], [$c2->rgb] ) if $metric eq 'rgb';
-    my @delta_rgb = delta_rgb( [$self->rgb], [$c2->rgb] );
-    my @delta_hsl = delta_hsl( [$self->hsl], [$c2->hsl] );
-    my $help = "unknown distance metric: $metric. try r, g, b, rg, rb, gb, rgb, h, s, l, hs, hl, sl, hsl (default).";
-    if (length $metric == 2){
-        if    ($metric eq 'hs' or $metric eq 'sh') {return sqrt( $delta_hsl[0] ** 2 + $delta_hsl[1] ** 2 )}
-        elsif ($metric eq 'hl' or $metric eq 'lh') {return sqrt( $delta_hsl[0] ** 2 + $delta_hsl[2] ** 2 )}
-        elsif ($metric eq 'sl' or $metric eq 'ls') {return sqrt( $delta_hsl[1] ** 2 + $delta_hsl[2] ** 2 )}
-        elsif ($metric eq 'rg' or $metric eq 'gr') {return sqrt( $delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 )}
-        elsif ($metric eq 'rb' or $metric eq 'br') {return sqrt( $delta_rgb[0] ** 2 + $delta_rgb[2] ** 2 )}
-        elsif ($metric eq 'gb' or $metric eq 'bg') {return sqrt( $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2 )}
-    }
-    $metric = substr $metric, 0, 1;
-    $metric eq 'h' ? $delta_hsl[0] :
-    $metric eq 's' ? $delta_hsl[1] :
-    $metric eq 'l' ? $delta_hsl[2] :
-    $metric eq 'r' ? $delta_rgb[0] :
-    $metric eq 'g' ? $delta_rgb[1] :
-    $metric eq 'b' ? $delta_rgb[2] : croak $help;
+    return croak "distance: second color badly defined" unless ref $c2 eq __PACKAGE__;
+    $space //= 'HSL';
+    return croak "color space $space is unknown" unless ref Graphics::Toolkit::Color::Value::space( $space );
+    my @rgb1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space );
+    my @rgb2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb, $space );
+    Graphics::Toolkit::Color::Value::distance( \@rgb1, \@rgb2, $space, $subspace);
 }
 
 ## single color creation methods #######################################
 
 sub set {
+    my ($self, @args) = @_;
+
 }
 
 sub add {
@@ -210,7 +194,7 @@ sub gradient_to { hsl_gradient_to( @_ ) }
 sub hsl_gradient_to {
     my ($self, $c2, $steps, $power) = @_;
     return carp "need color object or definition as first argument" unless defined $c2;
-    $c2 = (ref $c2 eq __PACKAGE__) ? $c2 : _new_from_scalar( $c2 );
+    $c2 = color( $c2 );
     return unless ref $c2 eq __PACKAGE__;
     $steps //= 3;
     $power //= 1;
@@ -235,7 +219,7 @@ sub hsl_gradient_to {
 sub rgb_gradient_to {
     my ($self, $c2, $steps, $power) = @_;
     return carp "need color object or definition as first argument" unless defined $c2;
-    $c2 = (ref $c2 eq __PACKAGE__) ? $c2 : _new_from_scalar( $c2 );
+    $c2 = color( $c2 );
     return unless ref $c2 eq __PACKAGE__;
     $steps //= 3;
     $power //= 1;

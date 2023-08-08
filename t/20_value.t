@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 109;
+use Test::More tests => 69;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -11,139 +11,113 @@ my $module = 'Graphics::Toolkit::Color::Value';
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
-my $chk_rgb        = \&Graphics::Toolkit::Color::Value::check_rgb;
-my $chk_hsl        = \&Graphics::Toolkit::Color::Value::check_hsl;
-my $tr_rgb         = \&Graphics::Toolkit::Color::Value::trim_rgb;
-my $tr_hsl         = \&Graphics::Toolkit::Color::Value::trim_hsl;
-my $d_rgb          = \&Graphics::Toolkit::Color::Value::distance_rgb;
-my $d_hsl          = \&Graphics::Toolkit::Color::Value::distance_hsl;
-my $rgb2h          = \&Graphics::Toolkit::Color::Value::hex_from_rgb;
+my $deformat      = \&Graphics::Toolkit::Color::Value::deformat;
+my $format        = \&Graphics::Toolkit::Color::Value::format;
+my $deconvert     = \&Graphics::Toolkit::Color::Value::deconvert;
+my $convert       = \&Graphics::Toolkit::Color::Value::convert;
+my $d             = \&Graphics::Toolkit::Color::Value::distance;
 
 
-ok( !$chk_rgb->(0,0,0),       'check rgb values works on lower bound values');
-ok( !$chk_rgb->(255,255,255), 'check rgb values works on upper bound values');
-warning_like {$chk_rgb->(0,0)}       {carped => qr/exactly 3/},   "check rgb got too few values";
-warning_like {$chk_rgb->(0,0,0,0)}   {carped => qr/exactly 3/},   "check rgb got too many  values";
-warning_like {$chk_rgb->(-1, 0,0)}   {carped => qr/red value/},   "red value is too small";
-warning_like {$chk_rgb->(0.5, 0,0)}  {carped => qr/red value/},   "red value is not integer";
-warning_like {$chk_rgb->(256, 0,0)}  {carped => qr/red value/},   "red value is too big";
-warning_like {$chk_rgb->(0, -1, 0)}  {carped => qr/green value/}, "green value is too small";
-warning_like {$chk_rgb->(0, 0.5, 0)} {carped => qr/green value/}, "green value is not integer";
-warning_like {$chk_rgb->(0, 256,0)}  {carped => qr/green value/}, "green value is too big";
-warning_like {$chk_rgb->(0,0, -1 )}  {carped => qr/blue value/},  "blue value is too small";
-warning_like {$chk_rgb->(0,0, 0.5 )} {carped => qr/blue value/},  "blue value is not integer";
-warning_like {$chk_rgb->(0,0, 256)}  {carped => qr/blue value/},  "blue value is too big";
-
-ok( !$chk_hsl->(0,0,0),       'check hsl values works on lower bound values');
-ok( !$chk_hsl->(359,100,100), 'check hsl values works on upper bound values');
-warning_like {$chk_hsl->(0,0)}       {carped => qr/exactly 3/},   "check rgb got too few values";
-warning_like {$chk_hsl->(0,0,0,0)}   {carped => qr/exactly 3/},   "check rgb got too many  values";
-warning_like {$chk_hsl->(-1, 0,0)}   {carped => qr/hue value/},   "hue value is too small";
-warning_like {$chk_hsl->(0.5, 0,0)}  {carped => qr/hue value/},   "hue value is not integer";
-warning_like {$chk_hsl->(360, 0,0)}  {carped => qr/hue value/},   "hue value is too big";
-warning_like {$chk_hsl->(0, -1, 0)}  {carped => qr/saturation value/}, "saturation value is too small";
-warning_like {$chk_hsl->(0, 0.5, 0)} {carped => qr/saturation value/}, "saturation value is not integer";
-warning_like {$chk_hsl->(0, 101,0)}  {carped => qr/saturation value/}, "saturation value is too big";
-warning_like {$chk_hsl->(0,0, -1 )}  {carped => qr/lightness value/},  "lightness value is too small";
-warning_like {$chk_hsl->(0,0, 0.5 )} {carped => qr/lightness value/},  "lightness value is not integer";
-warning_like {$chk_hsl->(0,0, 101)}  {carped => qr/lightness value/},  "lightness value is too big";
-
-
-
-my @rgb = $tr_rgb->();
-is( int @rgb,  3,     'default color is set');
-is( $rgb[0],   0,     'default color is black (R) no args');
-is( $rgb[1],   0,     'default color is black (G) no args');
-is( $rgb[2],   0,     'default color is black (B) no args');
-@rgb = $tr_rgb->(1,2);
-is( $rgb[0],   1,     'default color is black (R) took first arg');
-is( $rgb[1],   2,     'default color is black (G) took second arg');
-is( $rgb[2],   0,     'default color is black (B) gilld in third value');
-@rgb = $tr_rgb->(1,2,3,4);
-is( $rgb[0],   1,     'default color is black (R) took first of too many args');
-is( $rgb[1],   2,     'default color is black (G) took second of too many args');
-is( $rgb[2],   3,     'default color is black (B) too third of too many args');
-is( int @rgb,  3,    'left out the needless argument');
-@rgb = $tr_rgb->(-1,-1,-1);
-is( int @rgb,  3,     'color is trimmed up');
-is( $rgb[0],   0,     'too low red value is trimmed up');
-is( $rgb[1],   0,     'too low green value is trimmed up');
-is( $rgb[2],   0,     'too low blue value is trimmed up');
-@rgb = $tr_rgb->(256, 256, 256);
-is( int @rgb,  3,     'color is trimmed up');
-is( $rgb[0], 255,     'too high red value is trimmed down');
-is( $rgb[1], 255,     'too high green value is trimmed down');
-is( $rgb[2], 255,     'too high blue value is trimmed down');
-
-my @hsl = $tr_hsl->();
-is( int @hsl,  3,     'default color is set');
-is( $hsl[0],   0,     'default color is black (H) no args');
-is( $hsl[1],   0,     'default color is black (S) no args');
-is( $hsl[2],   0,     'default color is black (L) no args');
-@hsl = $tr_hsl->(1,2);
-is( $hsl[0],   0,     'default color is black (H) too few args');
-is( $hsl[1],   0,     'default color is black (S) too few args');
-is( $hsl[2],   0,     'default color is black (L) too few args');
-@hsl = $tr_hsl->(1,2,3,4);
-is( $hsl[0],   0,     'default color is black (H) too many args');
-is( $hsl[1],   0,     'default color is black (S) too many args');
-is( $hsl[2],   0,     'default color is black (L) too many args');;
-@hsl = $tr_hsl->(-1,-1,-1);
-is( int @rgb,  3,     'color is trimmed up');
-is( $hsl[0], 359,     'too low hue value is rotated up');
-is( $hsl[1],   0,     'too low green value is trimmed up');
-is( $hsl[2],   0,     'too low blue value is trimmed up');
-@hsl = $tr_hsl->(360, 101, 101);
-is( int @rgb,  3,     'color is trimmed up');
-is( $hsl[0],   0,     'too high hue value is rotated down');
-is( $hsl[1], 100,     'too high saturation value is trimmed down');
-is( $hsl[2], 100,     'too high lightness value is trimmed down');
-
-
-warning_like {Graphics::Toolkit::Color::Value::hsl_from_rgb(1,1,1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::hsl_from_rgb(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-warning_like {Graphics::Toolkit::Color::Value::hsl_from_rgb(1,1,-1)} {carped => qr/blue value/},
-                                                      "blue value is too small for conversion";
-warning_like {Graphics::Toolkit::Color::Value::hsl_from_rgb(256,1,0)} {carped => qr/red value/},
-                                                      "red value is too large for conversion";
-warning_like {Graphics::Toolkit::Color::Value::rgb_from_hsl(1,1)} {carped => qr/3 positive integer/},
-                                                      "need 3 values rgb to convert color from rgb to hsl";
-
-@hsl = Graphics::Toolkit::Color::Value::hsl_from_rgb(127, 127, 127);
-is( int @hsl,  3,     'converted color grey has hsl values');
+my @hsl = $convert->([127, 127, 127], 'HSL');
+is( int @hsl,  3,     'converted hsl vector has right length');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
 is( $hsl[1],   0,     'converted color grey has computed right saturation');
 is( $hsl[2],  50,     'converted color grey has computed right lightness');
 
-@rgb = Graphics::Toolkit::Color::Value::rgb_from_hsl(0, 0, 50);
+my @rgb = $deconvert->([0, 0, 50], 'HSL');
 is( int @rgb,  3,     'converted back color grey has rgb values');
-is( $rgb[0], 128,     'converted back color grey has right red value');
-is( $rgb[1], 128,     'converted back color grey has right green value');
-is( $rgb[2], 128,     'converted back color grey has right blue value');
+is( $rgb[0], 127,     'converted back color grey has right red value');
+is( $rgb[1], 127,     'converted back color grey has right green value');
+is( $rgb[2], 127,     'converted back color grey has right blue value');
 
-warning_like {$d_rgb->()}                         {carped => qr/two triplets/},"can't get distance without rgb values";
-warning_like {$d_rgb->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';
-warning_like {$d_rgb->( [1,2],[1,2,3])}           {carped => qr/two triplets/},'first color is missing a value';
-warning_like {$d_rgb->( [1,2,3],[2,3])}           {carped => qr/two triplets/},'second color is missing a value';
-warning_like {$d_rgb->( [-1,2,3],[1,2,3])}        {carped => qr/red value/},   'first red value is too small';
-warning_like {$d_rgb->( [1,2,3],[2,256,3])}       {carped => qr/green value/}, 'second green value is too large';
-warning_like {$d_rgb->( [1,2,-3],[2,25,3])}       {carped => qr/blue value/},  'first blue value is too large';
-warning_like {$d_hsl->( []) }                     {carped => qr/two triplets/},"can't get distance without hsl values";
-warning_like {$d_hsl->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/two triplets/},'too many array arg';
-warning_like {$d_hsl->( [1,2],[1,2,3])}           {carped => qr/two triplets/},'first color is missing a value';
-warning_like {$d_hsl->( [1,2,3],[2,3])}           {carped => qr/two triplets/},'second color is missing a value';
-warning_like {$d_hsl->( [-1,2,3],[1,2,3])}        {carped => qr/hue value/},   'first hue value is too small';
-warning_like {$d_hsl->( [1,2,3],[360,2,3])}       {carped => qr/hue value/},   'second hue value is too large';
-warning_like {$d_hsl->( [1,-1,3],[2,10,3])}       {carped => qr/saturation value/},'first saturation value is too small';
-warning_like {$d_hsl->( [1,2,3],[2,101,3])}       {carped => qr/saturation value/},'second saturation value is too large';
-warning_like {$d_hsl->( [1,1,-1],[2,10,3])}       {carped => qr/lightness value/}, 'first lightness value is too small';
-warning_like {$d_hsl->( [1,2,3],[2,1,101])}       {carped => qr/lightness value/}, 'second lightness value is too large';
 
-is( Graphics::Toolkit::Color::Value::distance_rgb([1, 2, 3], [  2, 6, 11]), 9,     'compute rgb distance');
-is( Graphics::Toolkit::Color::Value::distance_hsl([1, 2, 3], [  2, 6, 11]), 9,     'compute hsl distance');
-is( Graphics::Toolkit::Color::Value::distance_hsl([0, 2, 3], [359, 6, 11]), 9,     'compute hsl distance (test circular property of hsl)');
+warning_like {$format->('112233', 'RGB', 'list')}      {carped => qr/array with right amount of values/},  "dont format none vectors";
+warning_like {$format->([11,22,33,44], 'RGB', 'list')} {carped => qr/array with right amount of values/},  "dont format too long vectors";
+warning_like {$format->([11,22], 'RGB', 'list')}       {carped => qr/array with right amount of values/},  "dont format too short vectors";
+
+my $str = $format->([11,22,33], 'RGB', 'hex');
+is( ref $str,           '',   'RGB string is not a reference');
+is( uc $str,     '#0B1621',   'created a RGB hex string');
+
+@rgb = $format->([11,22,33], 'RGB', 'list');
+is( int @rgb,            3,   'RGB list has right length');
+is( $rgb[0],            11,   'put red value first');
+is( $rgb[1],            22,   'put green value second');
+is( $rgb[2],            33,   'put red value third');
+
+my $h = $format->([1,2,3],'HSL', 'hash');
+is( ref $h,         'HASH',   'created a HSL hash');
+is( $h->{'hue'},         1,   'put hue value under the right key');
+is( $h->{'saturation'},  2,   'put saturation value under the right key');
+is( $h->{'lightness'},   3,   'put lightness value under the right key');
+
+$h = $format->([.2,.3,.4],'CMY', 'char_hash');
+is( ref $h,         'HASH',   'created a CMY hash');
+is( $h->{'c'},          .2,   'put hue value under the right key');
+is( $h->{'m'},          .3,   'put saturation value under the right key');
+is( $h->{'y'},          .4,   'put lightness value under the right key');
+
+my ($rgb, $f) = $deformat->('#010203');
+is( ref $rgb,      'ARRAY',   'deformated values int a list');
+is( int @$rgb,           3,   'deformatted RGB hex string into triplet');
+is( $rgb->[0],           1,   'deformatted red value from RGB hex string');
+is( $rgb->[1],           2,   'deformatted green value from RGB hex string');
+is( $rgb->[2],           3,   'deformatted blue value from RGB hex string');
+is( $f,              'RGB',   'hex string was formatted in RGB');
+
+($rgb, $f) = $deformat->('#FFF');
+is( ref $rgb,      'ARRAY',   'deformated values int a list');
+is( int @$rgb,           3,   'deformatted RGB short hex string into triplet');
+is( $rgb->[0],         255,   'deformatted red value from short RGB hex string');
+is( $rgb->[1],         255,   'deformatted green value from short RGB hex string');
+is( $rgb->[2],         255,   'deformatted blue value from short RGB hex string');
+is( $f,              'RGB',   'short hex string was formatted in RGB');
+
+my($cmy, $for) = $deformat->({c => 0.1, m => 0.5, Y => 1});
+is( ref $cmy,      'ARRAY',   'got cmy key hash deformatted');
+is( int @$cmy,           3,   'deformatted CMY HASH into triplet');
+is( $cmy->[0],         0.1,   'deformatted red value from CMY key HASH');
+is( $cmy->[1],         0.5,   'deformatted green value from CMY key HASH');
+is( $cmy->[2],           1,   'deformatted blue (not trimmed) value from CMY key HASH');
+is( $for,            'CMY',   'key hash was formatted in CMY');
+
+my($cmyk, $form) = $deformat->({c => -0.1, m => 0.5, Y => 2, k => 7});
+is( ref $cmyk,     'ARRAY',   'got cmyk key hash deformatted');
+is( int @$cmyk,          4,   'deformatted CMYK HASH into quadruel');
+is( $cmyk->[0],       -0.1,   'deformatted red value from CMY key HASH');
+is( $cmyk->[1],        0.5,   'deformatted green value from CMY key HASH');
+is( $cmyk->[2],          2,   'deformatted blue (not trimmed) value from CMY key HASH');
+is( $cmyk->[3],          7,   'deformatted blue (not trimmed) value from CMY key HASH');
+is( $form,          'CMYK',   'key hash was formatted in CMY');
+
+
+($rgb, $f) = $deformat->({c => 0.1, n => 0.5, Y => 1});
+is( ref $rgb,           '',   'could not deformat cmy hash due bak key name');
+
+warning_like { $d->([1, 2, 3,4], [  2, 6,11], 'RGB')}  {carped => qr/bad input values/},  "bad distance input: first vector";
+warning_like { $d->([1, 2, 3],  [ 2, 6,11,4], 'RGB')}  {carped => qr/bad input values/},  "bad distance input: second vector";
+warning_like { $d->([1, 2, 3],  [ 6,11,4], 'ABC')}     {carped => qr/unknown color space name/}, "bad distance input: space name";
+warning_like { $d->([1, 2, 3],  [ 6,11,4], 'RGB','acd')} {carped => qr/that does not fit color space/}, "bad distance input: invalid subspace";
+
+
+is( $d->([1, 2, 3], [  2, 6, 11], 'RGB'), 9,     'compute rgb distance');
+is( $d->([1, 2, 3], [  2, 6, 11], 'HSL'), 9,     'compute hsl distance');
+is( $d->([0, 2, 3], [359, 6, 11], 'HSL'), 9,     'compute hsl distance (test circular property of hsl)');
+
+is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'r'),  1, 'compute distance in red subspace');
+is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'R'),  1, 'subspace initials are case insensitive');
+is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'g'),  2, 'compute distance in green subspace');
+is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'b'),  3, 'compute distance in blue subspace');
+is( $d->([1, 1, 1], [  4, 5, 6], 'RGB', 'rg'), 5, 'compute distance in rg subspace');
+is( $d->([1, 1, 1], [  4, 5, 6], 'RGB', 'gr'), 5, 'compute distance in gr subspace');
+is( $d->([1, 1, 1], [  4, 6, 5], 'RGB', 'rb'), 5, 'compute distance in rb subspace');
+is( $d->([1, 1, 1], [ 12, 4, 5], 'RGB', 'gb'), 5, 'compute distance in gb subspace');
+is( $d->([1, 2, 3], [  2, 6,11], 'RGB','rgb'), 9, 'distance in full subspace');
+is( $d->([1, 2, 3], [  2, 6,11],            ), 9, 'default space is RGB');
+
+exit 0;
+
+__END__
 
 
 is( $rgb2h->(0,0,0),          '#000000',     'converted black from rgb to hex');
@@ -164,7 +138,3 @@ is( $rgb[2], 255,     'converted white (short form) from hex to RGB blue is corr
 is( $rgb[0],  10,     'converted random color (lower case) from hex to RGB red is correct');
 is( $rgb[1],  20,     'converted random color (lower case) from hex to RGB green is correct');
 is( $rgb[2],  30,     'converted random color (lower case) from hex to RGB blue is correct');
-
-
-
-exit 0;

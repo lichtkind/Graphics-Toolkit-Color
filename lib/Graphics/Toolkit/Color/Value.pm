@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Value;
 use Carp;
 my $base_package = 'RGB';
-my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL
+my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL HWB
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
 
 sub space { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
@@ -18,8 +18,7 @@ sub deformat { # convert from any format and space into list of values in base s
     for my $space_name (space_names()) {
         my $color_space = space( $space_name );
         my @val = $color_space->deformat( $formated_values );
-        next unless defined $val[0];
-        return [ base_space()->trim( deconvert( \@val, $space_name) ) ], $space_name;
+        return \@val, $space_name if defined $val[0];
     }
 }
 
@@ -48,7 +47,10 @@ sub format { # @tuple --> % | % |~ ...
     my $space = space( $space_name // $base_package );
     return carp "required unknown color space '$space_name', please try one of: "
                 . join ', ', map {lc} space_names() unless ref $space;
-    return carp "got not array with right amount of values to format" unless $space->is_array( $values );
+    unless ($space->is_array( $values )) {
+        carp "need array with right amount of values to format";
+        return ();
+    }
     @format = ('list') unless @format;
     my @values = map { $space->format( $values, $_ ) } @format;
     return @values == 1 ? $values[0] : @values;
@@ -58,14 +60,17 @@ sub distance { # @vector x @vector -- ~color_space_name, ~subspace   --> +d
     my ($values1, $values2, $space_name, $subspace) = @_;
     $space_name //= $base_package;
     my $space = space( $space_name );
-    return carp "called 'distance' with unknown color space name: $space_name!" unless ref $space;
+    return - carp "called 'distance' with unknown color space name: $space_name!" unless ref $space;
     my @delta = $space->delta( $values1, $values2 );
-    return carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
+    return - carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
     if (defined $subspace and $subspace){
         my @components = split( '', $subspace );
-        @components = map { $space->basis->shortcut_pos($_) }
-                      grep {defined $space->basis->shortcut_pos($_) } @components;
-        return carp "called 'distance' with metric $metric that does not fit color space $space_name!" unless @components;
+        my $pos = $space->basis->key_pos( $subspace );
+        @components = defined( $pos )
+                    ? ($pos)
+                    : (map  { $space->basis->shortcut_pos($_) }
+                       grep { defined $space->basis->shortcut_pos($_) } @components);
+        return - carp "called 'distance' for subspace $subspace that does not fit color space $space_name!" unless @components;
         @delta = map { $delta [$_] } @components;
     }
     # Euclidean distance:
@@ -108,14 +113,39 @@ Color space names can be written in any combination of upper and lower case.
 
 =head2 RGB
 
-=head2 HSL
-
-=head2 HSV
-
-=head2 CMYK
+has three integer values: I<red> (0 .. 255), I<green> (0 .. 255) and I<blue> (0 .. 255).
+All are scaling from no (0) to very much (255) light of that color,
+so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
 
 =head2 CMY
 
+is the inverse of RGB but with the range: 0 .. 1. I<cyan> is the inverse
+value of I<red>, I<magenta> is inverse green and I<yellow> is inverse of
+I<blue>. Inverse meaning when a color has the maximal I<red> value,
+it has to have the minimal I<cyan> value.
+
+=head2 CMYK
+
+is an extension of CMY with a fourth value named I<key> (also 0 .. 1),
+which is basically the amount of black mixed into the CMY color.
+
+=head2 HSL
+
+has three integer values: I<hue> (0 .. 359), I<saturation> (0 .. 100)
+and I<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
+15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
+270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
+coordinate. This module only outputs 0, even if accepting 360 as input.
+I<saturation> ranges from 0 = gray to 100 - clearest color set by hue.
+I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
+
+=head2 HSV
+
+Similar to HSL with the difference that the third value in named I<value>
+and in HSL the color white is always achieved when I<lightness> = 100.
+In HSV additionally I<saturation> has to be zero.
+When in HSV I<lightness> is 100 and I<saturation> is also 100, than we
+have the brightest clearest color of whatever I<hue> sets.
 
 =head1 ROUTINES
 

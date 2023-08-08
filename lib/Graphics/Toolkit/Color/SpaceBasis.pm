@@ -50,8 +50,8 @@ sub is_partial_hash {
     return 1;
 }
 
-sub key_pos      { $_[0]->{'key_order'}{ lc $_[1] } if defined $_[1] }
-sub shortcut_pos { $_[0]->{'shortcut_order'}{ lc $_[1] } if defined $_[1] }
+sub key_pos      { defined $_[1] ? $_[0]->{'key_order'}{ lc $_[1] } : undef}
+sub shortcut_pos { defined $_[1] ? $_[0]->{'shortcut_order'}{ lc $_[1] } : undef }
 
 sub list_value_from_key {
     my ($self, $key, @values) = @_;

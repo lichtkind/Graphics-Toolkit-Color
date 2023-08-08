@@ -1129,11 +1129,13 @@ inkwell, ultimategray, buttercream, desertmist, willow
 
 =head1 SEE ALSO
 
+L<Color::Library>
+
 L<Graphics::ColorNamesLite::All>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2022 Herbert Breunung.
+Copyright 2022-23 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

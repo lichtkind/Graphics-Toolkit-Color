@@ -9,7 +9,7 @@ my $base_package = 'RGB';
 my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL
 my %space_def = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
 
-sub space { $space_def{ $_[0] } if exists $space_def{ $_[0] } }
+sub space { $space_def{ uc $_[0] } if exists $space_def{ uc $_[0] } }
 
 sub deformat { # convert from any format / space into list of values in base space
     my ($formated_values) = @_;
@@ -18,31 +18,51 @@ sub deformat { # convert from any format / space into list of values in base spa
         my @val = $color_space->deformat( $formated_values );
         next unless defined $val[0];
         @val = $color_space->convert( \@val, $base_package) unless ($space_name eq $base_package);
-        return Graphics::Toolkit::Color::Value::RGB::trim( @val ); # hardcoded base
+        @val = Graphics::Toolkit::Color::Value::RGB::trim( @val ); # hardcoded base
+        return \@val, $space_name;
     }
 }
 
-sub format {
+sub convert { # @RGB --> @...
+    my ($values, $space_name) = @_;
+    return carp "got not enough values to format"  unless $space_def{ $base_package }->is_array( $values );
+    return @$values if not defined $space_name or uc($space_name) eq $base_package;
+    my $space = space( $space_name );
+    return carp "required unknown color space '$space_name', please try one of: "
+                . join ', ', map {lc} @space_packages unless ref $space;
+    $space->deconvert( $values, $base_package);
+}
+
+sub format { # @tuple --> % | % |~ ...
     my ($values, $space_name, @format) = @_;
-    return carp "got not enough values to format"
-        unless ref $values eq 'ARRAY' and @$values == $space_def{ $base_package }->dimensions;
-    $space_name //= $base_package;
-    $space_name = uc $space_name;
+    my $space = space( $space_name // $base_package );
+    return carp "required unknown color space '$space_name', please try one of: "
+                . join ', ', map {lc} @space_packages unless ref $space;
+    return carp "got not array with right amount of values to format" unless $space->is_array( $values );
     @format = ('list') unless @format;
-    return carp "can not format into unknown color space '$space_name', plaease try on of: "
-                . join ', ', map {lc} @space_packages
-        unless exists $space_def{ $space_name };
-    $values = [ $space_def{ $space_name }->deconvert( $values, $base_package) ] unless $space_name eq $base_package;
-    my @values = map { $space_def{ $space_name }->format( $values, $_ ) } @format;
+    my @values = map { $space->format( $values, $_ ) } @format;
     return @values == 1 ? $values[0] : @values;
 }
 
-sub distance { # \@rgb, \@rgb --> $d
-    my ($values, $space_name, $part) = @_;
-
+sub distance {
+    my ($values1, $values2, $space_name, $metric) = @_;
+    $space_name //= $base_package;
+    my $space = space( $space_name );
+    return carp "called 'distance' with unknown color space name: $space_name!" unless ref $space;
+    my @delta = $space->delta( $values1, $values2 );
+    return carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
+    if (defined $metric and $metric){
+        my @components = split( '', $metric );
+        @components = map { $space->basis->shortcut_pos($_) }
+                      grep {defined $space->basis->shortcut_pos($_) } @components;
+        return carp "called 'distance' with metric $metric that does not fit color space $space_name!" unless @components;
+        @delta = map { $delta [$_] } @components;
+    }
+    @delta = map {$_ * $_ } @delta;
+    my $d = 0;
+    for (@delta) {$d += $_}
+    return sqrt $d;
 }
-    # my @delta_rgb = delta( $_[0], $_[1] );
-    # sqrt($delta_rgb[0] ** 2 + $delta_rgb[1] ** 2 + $delta_rgb[2] ** 2);
 
 1;
 

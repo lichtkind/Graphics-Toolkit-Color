@@ -214,10 +214,10 @@ use Graphics::Toolkit::Color qw/color/;
 use Test::More;
 
 is (ref color('blue'), $module,                    'sub there when imported');
-is (ref color('#ABC'), $module,                    'works also with short hex input');
-is (ref color('#AABBCC'), $module,                 'works also with long hex input');
-is (ref color([1,2,3]),   $module,                 'Array Input');
-is (ref color({r => 1, g => 2, b => 3,}), $module, 'RGB hash');
-is (ref color({h => 1, s => 2, l => 3,}), $module, 'HSL hash');
+is (ref color('#ABC'), $module,                    'created color from short RGB hex string');
+is (ref color('#AABBCC'), $module,                 'created color from long RGB hex string');
+is (ref color([1,2,3]),   $module,                 'created color from Array Input');
+is (ref color({r => 1, g => 2, b => 3,}), $module, 'created color from RGB hash');
+is (ref color({h => 1, s => 2, l => 3,}), $module, 'created color from HSL hash');
 
 exit 0;

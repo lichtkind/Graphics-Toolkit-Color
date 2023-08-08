@@ -27,11 +27,12 @@ sub new {
     };
 }
 
-sub name             { uc $_[0]{'basis'}->name }
-sub dimensions       { $_[0]{'basis'}->count }
-sub iterator         { $_[0]{'basis'}->iterator }
-sub is_array         { $_[0]{'basis'}->is_array( $_[1] ) }
-sub is_partial_hash  { $_[0]{'basis'}->is_partial_hash( $_[1] ) }
+sub basis            { $_[0]{'basis'}}
+sub name             { uc $_[0]->basis->name }
+sub dimensions       { $_[0]->basis->count }
+sub iterator         { $_[0]->basis->iterator }
+sub is_array         { $_[0]->basis->is_array( $_[1] ) }
+sub is_partial_hash  { $_[0]->basis->is_partial_hash( $_[1] ) }
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 
@@ -54,7 +55,7 @@ sub change_delta_routine {
 }
 sub delta {
     my ($self, $vector1, $vector2) = @_;
-    return unless $self->{'basis'}->is_array( $vector1 ) and $self->{'basis'}->is_array( $vector2 );
+    return unless $self->basis->is_array( $vector1 ) and $self->basis->is_array( $vector2 );
     $self->{'delta'}->( $vector1, $vector2 );
 }
 
@@ -68,7 +69,7 @@ sub add_formatter {
 }
 sub format {
     my ($self, $values, $format) = @_;
-    return unless $self->{'basis'}->is_array( $values );
+    return unless $self->basis->is_array( $values );
     $self->{'format'}{ lc $format }->(@$values) if $self->has_format( $format );
 }
 

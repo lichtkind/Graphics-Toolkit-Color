@@ -60,7 +60,7 @@ is( $hsl[1], 100,     'too high saturation value is trimmed down');
 is( $hsl[2], 100,     'too high lightness value is trimmed down');
 
 
-@hsl = $def->deconvert( [128, 128, 128], 'RGB');
+@hsl = $def->deconvert( [127, 127, 127], 'RGB');
 is( int @hsl,  3,     'converted color grey has three hsl values');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
 is( $hsl[1],   0,     'converted color grey has computed right saturation');
@@ -68,15 +68,15 @@ is( $hsl[2],  50,     'converted color grey has computed right lightness');
 
 my @rgb = $def->convert( [0, 0, 50], 'RGB');
 is( int @rgb,  3,     'converted back color grey has three rgb values');
-is( $rgb[0], 128,     'converted back color grey has right red value');
-is( $rgb[1], 128,     'converted back color grey has right green value');
-is( $rgb[2], 128,     'converted back color grey has right blue value');
+is( $rgb[0], 127,     'converted back color grey has right red value');
+is( $rgb[1], 127,     'converted back color grey has right green value');
+is( $rgb[2], 127,     'converted back color grey has right blue value');
 
 @rgb = $def->convert( [360, -10, 50], 'RGB');
 is( int @rgb,  3,     'trimmed and converted back color grey');
-is( $rgb[0], 128,     'right red value');
-is( $rgb[1], 128,     'right green value');
-is( $rgb[2], 128,     'right blue value');
+is( $rgb[0], 127,     'right red value');
+is( $rgb[1], 127,     'right green value');
+is( $rgb[2], 127,     'right blue value');
 
 @hsl = $def->deconvert( [0, 40, 120], 'RGB');
 is( int @hsl,  3,     'converted nice blue has three hsl values');

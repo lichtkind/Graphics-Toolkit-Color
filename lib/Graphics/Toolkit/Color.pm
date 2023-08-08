@@ -32,11 +32,12 @@ sub new {
 
 sub _new_from_scalar {
     my ($color_def) = shift;
-    my (@rgb, $name);
+    my (@rgb, $name, $origin);
     if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/){
         $name = $color_def;
+        $origin = 'name';
         my $i = index( $color_def, ':');
-        if ($i > -1 ){ # resolve pallet:name
+        if ($i > -1 ){                        # resolve pallet:name
             my $pallet_name = substr $color_def, 0, $i;
             my $color_name = Graphics::Toolkit::Color::Constant::_clean_name(substr $color_def, $i+1);
             my $module_base = 'Graphics::ColorNames';
@@ -49,18 +50,19 @@ sub _new_from_scalar {
             my $pallet = Graphics::ColorNames->new( $pallet_name );
             @rgb = $pallet->rgb( $color_name );
             return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-        } else {        # resolve name
+        } else {                              # resolve name ->
             @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name( $color_def );
             return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
         }
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
-        ($name, @rgb) = @$color_def;
-    } else {            # define color by numbers in any format
-        @rgb = Graphics::Toolkit::Color::Value::deformat( $color_def );
-        return carp $new_help unless @rgb == 3;
+        ($name, @rgb, $origin) = @$color_def;
+    } else {                                  # define color by numbers in any format
+        my ($rgb, $origin) = Graphics::Toolkit::Color::Value::deformat( $color_def );
+        return carp $new_help unless ref $rgb;
+        @rgb = @$rgb;
         $name = Graphics::Toolkit::Color::Constant::name_from_rgb( @rgb );
     }
-    bless [$name, @rgb];
+    bless [$name, @rgb, $origin];
 }
 
 ## getter ##############################################################
@@ -81,21 +83,25 @@ sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
     sub hsl_hash    { $_[0]->values('hsl', 'hash') }
 
 sub values      {
-    my $self = shift;
-    Graphics::Toolkit::Color::Value::format( [@$self[1 .. 3]], @_)
+    my ($self, $space, @format) = @_;
+    my @val = Graphics::Toolkit::Color::Value::convert( [@$self[1 .. 3]], $space);
+    Graphics::Toolkit::Color::Value::format( \@val, $space, @format);
 }
 
 ## measurement methods ##############################################################
 
 sub distance {
     my ($self, @args) = @_;
+    my ($self, $c2, $space, $metric) = @_;
+
 }
 
 sub distance_to {
     my ($self, $c2, $metric) = @_;
     return croak "missing argument: color object or scalar color definition" unless defined $c2;
-    $c2 = (ref $c2 eq __PACKAGE__) ? $c2 : new( __PACKAGE__, $c2 );
+    $c2 = color( $c2 );
     return unless ref $c2 eq __PACKAGE__;
+    #Graphics::Toolkit::Color::Value::distance($self, $c2, $space, $metric);
 
     return distance_hsl( [$self->hsl], [$c2->hsl] ) unless defined $metric;
     $metric = lc $metric;

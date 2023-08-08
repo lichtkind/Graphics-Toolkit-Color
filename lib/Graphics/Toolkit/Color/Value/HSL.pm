@@ -69,17 +69,20 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub _to_rgb { # float conversion  255 ?
-    my (@hsl) = trim(@_);
-    $hsl[0] /= 60;
-    my $C = $hsl[1] * (100 - abs($hsl[2] * 2 - 100)) * 256 / 10_000;
-    my $X = $C * (1 - abs($hsl[0] % 2 - 1 + ($hsl[0] - int $hsl[0])));
-    my $m = ($hsl[2] * 2.56) - ($C / 2);
-    return ($hsl[0] < 1) ? ($C + $m, $X + $m,      $m)
-         : ($hsl[0] < 2) ? ($X + $m, $C + $m,      $m)
-         : ($hsl[0] < 3) ? (     $m, $C + $m, $X + $m)
-         : ($hsl[0] < 4) ? (     $m, $X + $m, $C + $m)
-         : ($hsl[0] < 5) ? ($X + $m,      $m, $C + $m)
-         :                 ($C + $m,      $m, $X + $m);
+    my ($H, $S, $L) = trim(@_);
+    $H /= 60;
+    $S /= 100;
+    $L /= 100;
+    my $C = $S * (1 - abs($L * 2 - 1));
+    my $X = $C * (1 - abs( rmod($H, 2) - 1) );
+    my $m = $L - ($C / 2);
+    ($C, $X, $m) = map { $_ * 255 } $C, $X, $m;
+    return ($H < 1) ? ($C + $m, $X + $m,      $m)
+         : ($H < 2) ? ($X + $m, $C + $m,      $m)
+         : ($H < 3) ? (     $m, $C + $m, $X + $m)
+         : ($H < 4) ? (     $m, $X + $m, $C + $m)
+         : ($H < 5) ? ($X + $m,      $m, $C + $m)
+         :            ($C + $m,      $m, $X + $m);
 }
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     my (@hsl) = @_;

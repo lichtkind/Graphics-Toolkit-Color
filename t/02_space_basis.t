@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 81;
+use Test::More tests => 97;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -110,5 +110,28 @@ is( $s3d->list_value_from_shortcut('b', 1,2,3), 2,       'got correct second val
 is( $s3d->list_value_from_shortcut('g', 1,2,3), 3,       'got correct third value from list by shortcut');
 is( $s3d->list_value_from_shortcut('h', 1,2,3), undef,   'get undef when asking with unknown key');
 is( $s3d->list_value_from_key('a ', 1,2), undef,         'get undef when giving not enough values');
+
+
+is( $s3d->deformat_partial_hash(),   undef,       'partial deformat needs an HASH');
+is( $s3d->deformat_partial_hash({}), undef,       'partial deformat needs an not empty HASH');
+is( $s3d->deformat_partial_hash({a=>1,b=>1,g=>1,k=>1}), undef,       'partial HASH is too long');
+is( ref $s3d->deformat_partial_hash({a=>1,b=>2,g=>3}), 'HASH',       'partial HASH has all the keys');
+my $ph = $s3d->deformat_partial_hash({Alpha=>1,b=>2,g=>3});
+is( ref $ph, 'HASH',   'deparse all keys with mixed case and shortcut');
+is( $ph->{0}, 1,       'first key has right value');
+is( $ph->{1}, 2,       'second key has right value');
+is( $ph->{2}, 3,       'third key has right value');
+is( int keys %$ph, 3,  'right amount of keys in deparsed hash');
+
+$ph = $s3d->deformat_partial_hash({gamma => 3});
+is( ref $ph, 'HASH',   'deparse just one key with mixed case and shortcut');
+is( $ph->{2}, 3,       'third and only key has right value');
+is( int keys %$ph, 1,  'right amount of keys in deparsed hash');
+
+$ph = $s5d->deformat_partial_hash({Aleph => 6, h => 5});
+is( ref $ph, 'HASH',   'deparse just two keys with mixed case and shortcut');
+is( $ph->{0}, 6,       'first key aleph has right value');
+is( $ph->{4}, 5,       'ssecond key He has right value');
+is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 exit 0;

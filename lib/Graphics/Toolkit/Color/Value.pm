@@ -6,14 +6,14 @@ use warnings;
 package Graphics::Toolkit::Color::Value;
 use Carp;
 my $base_package = 'RGB';
-my @space_packages = qw/RGB HSL HSV CMYK CMY/; # LAB HCL HWB
+my @space_packages = qw/RGB HSL HSV CMY CMYK/; # TODO: LAB HCL HWB
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
 
 sub space { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
 sub base_space { $space_obj{$base_package} }
 sub space_names { @space_packages }
 
-sub deformat { # convert from any format and space into list of values in base space
+sub deformat { # convert from any format into list of values of any space
     my ($formated_values) = @_;
     for my $space_name (space_names()) {
         my $color_space = space( $space_name );
@@ -22,23 +22,33 @@ sub deformat { # convert from any format and space into list of values in base s
     }
 }
 
+sub partial_hash_deformat { # convert partial hash into
+    my ($value_hash) = @_;
+    return unless ref $value_hash eq 'HASH';
+    for my $space_name (space_names()) {
+        my $color_space = space( $space_name );
+        my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
+        return $pos_hash, $space_name if ref $pos_hash eq 'HASH';
+    }
+}
+
 sub deconvert { # @... --> @RGB
     my ($values, $space_name) = @_;
-    return carp "got not enough values to format"  unless base_space()->is_array( $values );
-    return @$values if not defined $space_name or uc($space_name) eq $base_package;
-    my $space = space( $space_name );
-    return carp "required unknown color space '$space_name', please try one of: "
-                . join ', ', map {lc} @space_packages unless ref $space;
+    return carp "called with unknown space name $space_name, please try one of: "
+                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
+    my $space = space( $space_name // $base_package );
+    return carp "got not right amount of values to format" unless $space->is_array( $values );
+    return base_space()->trim(@$values) if $space->name eq $base_package;
     $space->convert( $values, $base_package);
 }
 
 sub convert { # @RGB --> @...
     my ($values, $space_name) = @_;
-    return carp "got not enough values to format"  unless space( $base_package )->is_array( $values );
-    return @$values if not defined $space_name or uc($space_name) eq $base_package;
-    my $space = space( $space_name );
-    return carp "required unknown color space '$space_name', please try one of: "
-                . join ', ', map {lc} @space_packages unless ref $space;
+    return carp "called with unknown space name $space_name, please try one of: "
+                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
+    my $space = space( $space_name // $base_package );
+    return carp "got not right amount of values to format" unless base_space()->is_array( $values );
+    return $space->trim(@$values) if $space->name eq $base_package;
     $space->deconvert( $values, $base_package);
 }
 
@@ -92,8 +102,11 @@ Graphics::Toolkit::Color::Value - convert, format and measure color values
 
 =head1 SYNOPSIS
 
-    use Graphics::Toolkit::Color::Value;
+Central hub for all color value related math. Can handle vectors of all
+spaces mentioned in next paragraph and translates also into and from
+different formats such as I<RGB> I<hex> ('#AABBCC').
 
+    use Graphics::Toolkit::Color::Value;
 
     my @hsl = G.::T.::C.::Value::convert( [20, 50, 70], 'HSL' );    # convert from RGB to HSL
     my @rgb = G.::T.::C.::Value::deconvert( [220, 50, 70], 'HSL' ); # convert from HSL to RGB
@@ -101,10 +114,9 @@ Graphics::Toolkit::Color::Value - convert, format and measure color values
 
 =head1 DESCRIPTION
 
-Central hub for all color value related math. Can handle vectors of all
-spaces mentioned in next paragraph and translates also into and from
-different formats such as I<RGB> I<hex> ('#AABBCC'). This module is
-supposed to be used by L<Graphics::Toolkit::Color> and not directly.
+This module is supposed to be used by L<Graphics::Toolkit::Color> and not
+directly, thus it exports no symbols and has a much less DWIM API then
+the main module.
 
 
 =head1 COLOR SPACES
@@ -151,25 +163,59 @@ have the brightest clearest color of whatever I<hue> sets.
 
 =head2 deconvert
 
+Converts a value tuple (vector) of any space above into the base space (RGB).
+Takes two arguments the vector (array of numbers) and name of the source space.
+The result is also a vector in for of a list. The result values will
+trimmed (changed) to be valid inside the target color space.
+
+
+    my @rgb = G.::T.::C.::Value::deconvert( [220, 50, 70], 'HSL' ); # convert from HSL to RGB
+
 =head2 convert
+
+Converts a value vector from base space (RGB) into any space above.
+Takes two arguments the vector (array of numbers) and name of the target space.
+The result is also a vector in for of a list. The result values will
+trimmed (changed) to be valid inside the target color space.
+
+    my @hsl = G.::T.::C.::Value::convert( [20, 50, 70], 'HSL' );    # convert from RGB to HSL
 
 =head2 deformat
 
+Transfers values from many formats into a vector (array of numbers - first
+return value). The second return value is the name of a color space which
+supported this format. All spaces support the following format names:
+I<hash>, I<char_hash> and the names and shortcuts of the vector names.
+Additonal formats are implemented by the Graphics::Toolkit::Color::Value::*
+modules. The values themself will not be changed, even if they are outside
+the boundaries of the color space.
+
+    # get [170, 187, 204], 'RGB'
+    my ($rgb, $space) = G.::T.::C.::Value::deformat( '#aabbcc' );
+    # get [12, 34, 54], 'HSL'
+    my ($hsl, $s) = G.::T.::C.::Value::deformat( { h => 12, s => 34, l => 54 } );
+
+
 =head2 format
+
+Reverse function of I<deformat>.
+
+    # get { h => 12, s => 34, l => 54 }
+    my $h = G.::T.::C.::Value::format( [12, 34, 54], 'HSL', 'char_hash' );
+    # get { hue => 12, saturation => 34, lightness => 54 }
+    my $h = G.::T.::C.::Value::format( [12, 34, 54], 'HSL', 'hash' );
+    # '#AABBCC'
+    my $str = G.::T.::C.::Value::format( [170, 187, 204], 'RGB', 'hex' );
+
 
 =head2 distance
 
-
-Distance (real) in (linear) rgb color space between two coordinates.
-
+Computes a real number which designates the distance between two points
+in any color space above. The first two arguments are the two point vectors.
+Third (optional) argument is the name of the color space, which defaults
+to the base space (RGB).
 
     my $d = distance([1,1,1], [2,2,2], 'RGB');  # approx 1.7
-
-
-=head2 distance_hsl
-
-Distance (real) in (cylindrical) hsl color space between two coordinates.
-
     my $d = distance([1,1,1], [356, 3, 2], 'HSL'); # approx 6
 
 

@@ -23,7 +23,7 @@ sub new {
     bless { basis => $basis, format => \%formats, deformat => \%deformats, convert => {},
             trim => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
             delta => sub { my ($vector1, $vector2) = @_;
-                           map {abs($vector1->[$_] - $vector2->[$_]) } $basis->iterator },
+                           map {$vector1->[$_] - $vector2->[$_] } $basis->iterator },
     };
 }
 

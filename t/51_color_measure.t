@@ -2,7 +2,7 @@
 #
 use v5.12;
 use warnings;
-use Test::More tests => 66;
+use Test::More tests => 67;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -79,6 +79,8 @@ is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'b'),    62, 'correct 
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rg'),   41, 'correct rg distance between own hsl blue and blue');
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rb'),   62, 'correct rb distance between own hsl blue and blue');
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'gb'),   73, 'correct gb distance between own hsl blue and blue');
+
+is( close_enough( $blue->distance({h =>230, s => 0, l=>100}, 'CMYK' ), sqrt(2)),   1, 'measure distance between RGB ans HSL in CMYK');
 
 
 sub close_enough {

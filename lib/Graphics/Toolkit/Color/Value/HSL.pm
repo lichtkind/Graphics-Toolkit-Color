@@ -37,10 +37,11 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
 }
 
 sub delta { # \@hsl, \@hsl --> @delta
-    my ($hsl, $hsl2) = @_;
-    my $delta_h = abs($hsl->[0] - $hsl2->[0]);
+    my ($hsl1, $hsl2) = @_;
+    my $delta_h = $hsl1->[0] - $hsl2->[0];
     $delta_h = 360 - $delta_h if $delta_h > 180;
-    ($delta_h, abs($hsl->[1] - $hsl2->[1]), abs($hsl->[2] - $hsl2->[2]) );
+    $delta_h = 360 + $delta_h if $delta_h < -180;
+    ($delta_h, ($hsl1->[1] - $hsl2->[1]), ($hsl1->[2] - $hsl2->[2]) );
 }
 
 sub _from_rgb { # float conversion

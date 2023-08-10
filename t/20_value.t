@@ -116,25 +116,3 @@ is( $d->([1, 2, 3], [  2, 6,11], 'RGB','rgb'), 9, 'distance in full subspace');
 is( $d->([1, 2, 3], [  2, 6,11],            ), 9, 'default space is RGB');
 
 exit 0;
-
-__END__
-
-
-is( $rgb2h->(0,0,0),          '#000000',     'converted black from rgb to hex');
-is( uc $rgb2h->(255,255,255), '#FFFFFF',     'converted white from rgb to hex');
-is( uc $rgb2h->( 10, 20, 30), '#0A141E',     'converted random color from rgb to hex');
-
-@rgb = Graphics::Toolkit::Color::Value::rgb_from_hex('#000000');
-is( $rgb[0],   0,     'converted black from hex to RGB red is correct');
-is( $rgb[1],   0,     'converted black from hex to RGB green is correct');
-is( $rgb[2],   0,     'converted black from hex to RGB blue is correct');
-
-@rgb = Graphics::Toolkit::Color::Value::rgb_from_hex('#FFF');
-is( $rgb[0], 255,     'converted white (short form) from hex to RGB red is correct');
-is( $rgb[1], 255,     'converted white (short form) from hex to RGB green is correct');
-is( $rgb[2], 255,     'converted white (short form) from hex to RGB blue is correct');
-
-@rgb = Graphics::Toolkit::Color::Value::rgb_from_hex('#0a141e');
-is( $rgb[0],  10,     'converted random color (lower case) from hex to RGB red is correct');
-is( $rgb[1],  20,     'converted random color (lower case) from hex to RGB green is correct');
-is( $rgb[2],  30,     'converted random color (lower case) from hex to RGB blue is correct');

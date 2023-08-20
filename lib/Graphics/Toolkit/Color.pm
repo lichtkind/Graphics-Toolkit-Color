@@ -24,8 +24,7 @@ sub color { Graphics::Toolkit::Color->new ( @_ ) }
 sub new {
     my ($pkg, @args) = @_;
     @args = ([@args]) if @args == 3;
-    @args = ({ $args[0] => $args[1], $args[2] => $args[3], $args[4] => $args[5] }) if @args == 6;
-    @args = ({ $args[0] => $args[1], $args[2] => $args[3], $args[4] => $args[5], $args[6] => $args[7] }) if @args == 8;
+    @args = ({ @args }) if @args == 6 or @args == 8;
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }

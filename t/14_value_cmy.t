@@ -95,9 +95,9 @@ is( $d[2],    0,      'no delta in Y component');
 
 @d = $def->delta([0.1,0.2,0.4],[0, 0.5, 1]);
 is( int @d,   3,      'delta vector has right length');
-is( $d[0],   0.1,     'C delta');
-is( $d[1],  -0.3,     'M delta');
-is( $d[2],  -0.6,     'Y delta');
+is( $d[0],  -0.1,     'C delta');
+is( $d[1],   0.3,     'M delta');
+is( $d[2],   0.6,     'Y delta');
 
 
 sub close_enough {

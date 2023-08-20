@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.51';
+our $VERSION = '1.54';
 use v5.12;
 
 use Carp;
@@ -147,7 +147,7 @@ sub add {
 }
 
 
-sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2]) }
+sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2], in => 'HSL') }
 sub blend {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
@@ -156,6 +156,7 @@ sub blend {
     return croak "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
     my $pos = $arg->{'pos'} // 0.5;
     my $space_name = $arg->{'in'} // 'HSL';
+    return carp "color space $space_name is unknown" unless ref Graphics::Toolkit::Color::Value::space( $space_name );
     my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
     my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb,  $space_name );
     my @blend_val = map {((1-$pos) * $val1[ $_ ]) + ($pos * $val2[ $_ ])}
@@ -166,60 +167,34 @@ sub blend {
 ## color set creation methods ##########################################
 
 
+# for compatibility
+sub gradient_to     { hsl_gradient_to( @_ ) }
+sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
+sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
 sub gradient {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';
     my $c2 = _new_from_scalar( $arg->{'to'} );
     return croak "need a second color under the key 'to' ( to => [10, 20, 30])" unless ref $c2;
-}
-
-# for compatibility
-sub gradient_to { hsl_gradient_to( @_ ) }
-sub hsl_gradient_to {
-    my ($self, $c2, $steps, $power) = @_;
-    return carp "need color object or definition as first argument" unless defined $c2;
-    $c2 = _new_from_scalar( $c2 );
-    $steps //= 3;
-    $power //= 1;
-    return unless ref $c2 eq __PACKAGE__;
-    return carp "third argument (dynamics), has to be positive (>= 0)" if $power <= 0;
+    my $space_name = $arg->{'in'} // 'HSL';
+    my $steps = int(abs($arg->{'steps'} // 3));
+    my $power = $arg->{'dynamic'} // 0;
+    $power = ($power >= 0) ? $power + 1 : -(1/($power-1));
     return $self if $steps == 1;
+    my $space = Graphics::Toolkit::Color::Value::space( $space_name );
+    return carp "color space $space_name is unknown" unless ref $space;
+    my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
+    my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb, $space_name );
+    my @delta_val = $space->delta (\@val1, \@val2 );
     my @colors = ();
-    my @delta_hsl = ($c2->hue - $self->hue, $c2->saturation - $self->saturation,
-                                            $c2->lightness - $self->lightness  );
-    $delta_hsl[0] -= 360 if $delta_hsl[0] >  180;
-    $delta_hsl[0] += 360 if $delta_hsl[0] < -180;
-    for my $i (1 .. $steps-2){
-        my $pos = ($i / ($steps-1)) ** $power;
-        my @hsl = ( $self->hue        + ($pos * $delta_hsl[0]),
-                    $self->saturation + ($pos * $delta_hsl[1]),
-                    $self->lightness  + ($pos * $delta_hsl[2]));
-        @hsl = Graphics::Toolkit::Color::Value::HSL::trim( @hsl );
-        push @colors, color( H => $hsl[0], S => $hsl[1], L => $hsl[2] );
+    for my $nr (1 .. $steps-2){
+        my $pos = ($nr / ($steps-1)) ** $power;
+        my @rval = map {$val1[$_] + ($pos * $delta_val[$_])} 0 .. $space->dimensions - 1;
+        my @rgb = Graphics::Toolkit::Color::Value::deconvert( \@rval, $space_name );
+        push @colors, _new_from_scalar( [ @rgb ] );
     }
-    $self, @colors, $c2;
-}
-
-sub rgb_gradient_to {
-    my ($self, $c2, $steps, $power) = @_;
-    return carp "need color object or definition as first argument" unless defined $c2;
-    $c2 = color( $c2 );
-    $steps //= 3;
-    $power //= 1;
-    return unless ref $c2 eq __PACKAGE__;
-    return carp "third argument (dynamics), has to be positive (>= 0)" if $power <= 0;
-    return $self if $steps == 1;
-    my @colors = ();
-    my @delta_rgb = ($c2->red - $self->red, $c2->green - $self->green, $c2->blue - $self->blue );
-    for my $i (1 .. $steps-2){
-        my $pos = ($i / ($steps-1)) ** $power;
-        my @rgb = ( $self->red   + ($pos * $delta_rgb[0]),
-                    $self->green + ($pos * $delta_rgb[1]),
-                    $self->blue  + ($pos * $delta_rgb[2]));
-        push @colors, color( @rgb);
-    }
-    $self, @colors, $c2;
+    return $self, @colors, $c2;
 }
 
 sub complementary {
@@ -250,7 +225,11 @@ sub complementary {
 }
 
 sub bowl {
-
+    my ($self, @args) = @_;
+    my $arg = _get_arg_hash( @args );
+    return unless ref $arg eq 'HASH';
+# radius size in
+# distance | count
 }
 
 1;
@@ -265,11 +244,14 @@ Graphics::Toolkit::Color - color palette creation helper
 
 =head1 SYNOPSIS
 
+    use Graphics::Toolkit::Color qw/color/;
+
     my $red = Graphics::Toolkit::Color->new('red'); # create color object
-    say $red->add('blue')->name;                    # mix in RGB: 'magenta'
-    Graphics::Toolkit::Color->new( 0, 0, 255)->hsl; # 240, 100, 50 = blue
-    $blue->blend_with({H=> 0, S=> 0, L=> 80}, 0.1); # mix blue with a little grey in HSL
-    $red->rgb_gradient_to( '#0000FF', 10);          # 10 colors from red to blue
+    say $red->add( 'blue' => 256 )->name;           # mix in HSL: 'fuchsia'
+    color( 0, 0, 255)->values('HSL');               # 240, 100, 50 = blue
+                                                    # mix blue with a little grey in HSL
+    $blue->blend( with => {H=> 0, S=> 0, L=> 80}, pos => 0.1);
+    $red->gradient( to => '#0000FF', steps => 10);  # 10 colors from red to blue
     $red->complementary( 3 );                       # get fitting red green and blue
 
 
@@ -499,7 +481,7 @@ is also fully (I<Hue>).
     # how close is blue to lapis color?
     my $d = $blue->distance( to => 'lapisblue' );
     # same amount of blue?
-    $d = $blue->distance( to => 'airyblue', in => 'RGB', , notice_only => 'Blue');
+    $d = $blue->distance( to => 'airyblue', in => 'RGB', notice_only => 'Blue');
     # same hue ?
     $d = $color->distance( to => $c2, in => 'HSL', notice_only => 'hue' );
     # same command in hash syntax:
@@ -510,8 +492,8 @@ is also fully (I<Hue>).
 Create a new object that differs in certain values defined in the arguments
 as a hash.
 
-    $black->set( blue => 255 )->name;   #  blue, same as #0000ff
-    $blue->set( saturation => 50 );     # same as $blue->set( s => 50 );
+    $black->set( blue => 255 )->name;   # blue, same as #0000ff
+    $blue->set( saturation => 50 );     # pale blue, same as $blue->set( s => 50 );
 
 =head2 add
 
@@ -557,34 +539,38 @@ It takes three named arguments, only the first is required.
 
 =head1 COLOR SET CREATION METHODS
 
-=head2 rgb_gradient_to
+=head2 gradient
 
 Creates a gradient (a list of colors that build a transition) between
-current (C1) and a second, given color (C2).
+current (C1) and a second, given color (C2) by named argument I<to>.
 
-The first argument is C2. Either as an Graphics::Toolkit::Color object or a
-scalar (name, hex or reference), which is acceptable to a constructor.
+The only required argument you have to give under the name I<to> is C2.
+Either as an Graphics::Toolkit::Color object or a scalar (name, hex, hash
+or reference), which is acceptable to a L</constructor>. This is the same
+behaviour as in L</distance>.
 
-Second argument is the number $n of colors, which make up the gradient
-(including C1 and C2). It defaults to 3. These 3 colors C1, C2 and a
-color in between, which is the same as the result of method blend_with.
+An optional argument under the name I<steps> is the number of colors,
+which make up the gradient (including C1 and C2). It defaults to 3.
+Negative numbers will berectified by C<abs>.
+These 3 color objects: C1, C2 and a color in between, which is the same
+as the result of method L</blend>.
 
-Third argument is also a positive number $p, which defaults to one.
-It defines the dynamics of the transition between the two colors.
-If $p == 1 you get a linear transition - meaning the distance in RGB
-space is equal from one color to the next. If $p != 1,
-the formula $n ** $p starts to create a parabola function, which defines
-a none linear mapping. For values $n > 1 the transition starts by sticking
-to C1 and slowly getting faster and faster toward C2. Values $n < 1 do
-the opposite: starting by moving fastest from C1 to C2 (big distances)
-and becoming slower and slower.
+Another optional argument under the name I<dynamic> is also a float number,
+which defaults to zero. It defines the position of weight of the transition
+between the two colors. If $dynamic == 0 you get a linear transition,
+meaning the L</distance> between neighbouring colors in the gradient.
+If $dynamic > 0, the weight is moved toward C1 and vice versa.
+The greater $dynamic, the slower the color change is in the beginning
+of the gradient and faster at the end (C2).
 
-    my @colors = $c->rgb_gradient_to( $grey, 5 );         # we turn to grey
-    @colors = $c1->rgb_gradient_to( [14,10,222], 10, 3 ); # none linear gradient
+The last optional argument names I<in> defines the color space the changes
+are computed in. It parallels the argument of the same name of the method
+L</blend> and L</distance>.
 
-=head2 hsl_gradient_to
-
-Same as L</rgb_gradient_to> (what you normally want), but in HSL space.
+    # we turn to grey
+    my @colors = $c->gradient( to => $grey, steps => 5, in => 'RGB');
+    # none linear gradient in HSL space :
+    @colors = $c1->gradient( to =>[14,10,222], steps => 10, dynamic => 3 );
 
 =head2 complementary
 

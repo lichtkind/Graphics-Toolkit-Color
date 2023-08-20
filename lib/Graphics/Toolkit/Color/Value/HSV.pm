@@ -38,10 +38,10 @@ sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
 
 sub delta { # \@hsl, \@hsl --> @delta
     my ($hsv1, $hsv2) = @_;
-    my $delta_h = abs($hsv1->[0] - $hsv2->[0]);
-    $delta_h = 360 - $delta_h if $delta_h > 180;
-    $delta_h = 360 + $delta_h if $delta_h < -180;
-    ($delta_h, ($hsv1->[1] - $hsv2->[1]), ($hsv1->[2] - $hsv2->[2]) );
+    my $delta_h = abs($hsv2->[0] - $hsv1->[0]);
+    $delta_h = $delta_h + 360 if $delta_h < -180;
+    $delta_h = $delta_h - 360 if $delta_h >  180;
+    ($delta_h, ($hsv2->[1] - $hsv1->[1]), ($hsv2->[2] - $hsv1->[2]) );
 }
 
 

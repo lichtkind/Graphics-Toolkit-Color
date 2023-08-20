@@ -104,8 +104,8 @@ is( $d[2],    0,      'no delta in lightness component');
 
 @d = $def->delta([10,20,20],[350,22,17]);
 is( int @d,   3,      'delta vector has right length');
-is( $d[0],   20,      'computed hue right across the cylindrical border');
-is( $d[1],   -2,      'correct delta on saturation');
-is( $d[2],    3,      'correct lightness even it was negative');
+is( $d[0],  -20,      'computed hue right across the cylindrical border');
+is( $d[1],    2,      'correct delta on saturation');
+is( $d[2],   -3,      'correct lightness even it was negative');
 
 exit 0;

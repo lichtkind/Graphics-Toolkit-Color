@@ -13,7 +13,7 @@ my $white = Graphics::Toolkit::Color->new('white');
 my $black = Graphics::Toolkit::Color->new('black');
 
 
-is( $black->gradient_to( $white, 1 )->name,             'black',   'shortest gradient is $self');
+is( $black->gradient( to => $white, steps => 1 )->name, 'black','shortest gradient is $self');
 my @g = $black->gradient_to( $white, 2 );
 is( int @g,                                                2,   'gradient with length 2 has only boundary cases');
 is( $g[0]->name,                                     'black',   'gradient with length 2 starts on left boundary');
@@ -22,13 +22,14 @@ is( $g[1]->name,                                     'white',   'gradient with l
 is( int @g,                                                6,   'gradient has right length = 6');
 is( $g[1]->name,                                     'gray20',  'grey20 is between black and white');
 is( $g[2]->name,                                     'gray40',  'grey40 is between black and white');
-@g = $black->gradient_to( $white, 3, 1 );
+@g = $black->gradient_to( $white, 3, 0 );
 is( int @g,                                                3,   'gradient has right length = 3');
 is( $g[1]->name,                                     'gray50',  'grey25 is between black and white in none linear gradient');
-@g = $black->gradient_to( $white, 3, .41 );
+@g = $black->gradient_to( $white, 3, -1.4 );
 is( $g[1]->name,                                     'gray75',  'grey75 is between black and white in none linear gradient');
-@g = $red->gradient_to( '#0000FF', 3 );
-is( $g[1]->name,                                    'fuchsia',  'fuchsia is between red and blue in linear gradient');
+@g = $red->gradient( to=>'#0000FF', steps => 3, in => 'RGB' );
+is( $g[1]->name,                                    'purple',   'purple is between red and blue in RGB');
+
 
 @g = $black->complementary();
 is( int @g,                                                 1,   "default is one complementary color");

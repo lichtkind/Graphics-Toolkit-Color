@@ -100,10 +100,10 @@ is( int @d,   0, 'reject compute delta on too short second  vector');
 
 @d = $space->delta([2,3,4,5], [1,5,1,1] );
 is( int @d,   4, 'delta result has right length');
-is( $d[0],    1, 'first value correctly deconverted');
-is( $d[1],   -2, 'second value correctly deconverted');
-is( $d[2],    3, 'third value correctly deconverted');
-is( $d[3],    4, 'fourth value correctly deconverted');
+is( $d[0],   -1, 'first value correctly deconverted');
+is( $d[1],    2, 'second value correctly deconverted');
+is( $d[2],   -3, 'third value correctly deconverted');
+is( $d[3],   -4, 'fourth value correctly deconverted');
 
 my $res = $space->change_delta_routine(
     sub {my ($vector1, $vector2) = @_; map {abs($vector1->[$_] + $vector2->[$_]) } $space->iterator}

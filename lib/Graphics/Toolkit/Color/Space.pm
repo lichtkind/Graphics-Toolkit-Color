@@ -16,14 +16,12 @@ sub new {
     # which formats we can output
     my %formats = (list => sub {@_}, hash => sub { $basis->key_hash_from_list(@_) },
                                 char_hash => sub { $basis->shortcut_hash_from_list(@_) },
-                   map( { $_ => eval 'sub {$_['.$basis->key_pos($_).']}' } $basis->keys ),
-                   map( { $_ => eval 'sub {$_['.$basis->shortcut_pos($_).']}' } $basis->shortcuts ),
     );
 
     bless { basis => $basis, format => \%formats, deformat => \%deformats, convert => {},
             trim => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
             delta => sub { my ($vector1, $vector2) = @_;
-                           map {$vector1->[$_] - $vector2->[$_] } $basis->iterator },
+                           map {$vector2->[$_] - $vector1->[$_] } $basis->iterator },
     };
 }
 

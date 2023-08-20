@@ -11,7 +11,7 @@ sub new {
     return unless @keys > 0;
     my @iterator = 0 .. $#keys;
     my %key_order = map { $keys[$_] => $_ } @iterator;
-    my @shortcuts = map { color_key_short_cut($_) } @keys;
+    my @shortcuts = map { _color_key_shortcut($_) } @keys;
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
     bless { keys => [@keys], shortcuts => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
@@ -73,7 +73,7 @@ sub list_from_hash {
     return undef unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
     my @values = (0) x $self->{'count'};
     for my $value_key (CORE::keys %$value_hash) {
-        my $shortcut = color_key_short_cut( $value_key );
+        my $shortcut = _color_key_shortcut( $value_key );
         return undef unless exists $self->{'shortcut_order'}{ $shortcut };
         $values[ $self->{'shortcut_order'}{ $shortcut } ] = $value_hash->{ $value_key };
     }
@@ -107,6 +107,6 @@ sub shortcut_hash_from_list {
     return { map {$self->{'shortcuts'}[$_] => $values[$_]} @{$self->{'iterator'}} };
 }
 
-sub color_key_short_cut { lc substr($_[0], 0, 1) if defined $_[0] }
+sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;

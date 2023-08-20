@@ -70,16 +70,16 @@ sub _new_from_scalar {
 sub name        { $_[0][0] }
 sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
 
-    sub rgb         { $_[0]->values('rgb') }
-    sub red         { $_[0]->values('rgb', 'red') }
-    sub green       { $_[0]->values('rgb', 'green') }
-    sub blue        { $_[0]->values('rgb', 'blue') }
+    sub rgb         {  $_[0]->values('rgb') }
+    sub red         {($_[0]->values('rgb'))[0] }
+    sub green       {($_[0]->values('rgb'))[1] }
+    sub blue        {($_[0]->values('rgb'))[2] }
     sub rgb_hex     { $_[0]->values('rgb', 'hex') }
     sub rgb_hash    { $_[0]->values('rgb', 'hash') }
     sub hsl         { $_[0]->values('hsl') }
-    sub hue         { $_[0]->values('hsl', 'hue') }
-    sub saturation  { $_[0]->values('hsl', 'saturation') }
-    sub lightness   { $_[0]->values('hsl', 'lightness') }
+    sub hue         {($_[0]->values('hsl'))[0] }
+    sub saturation  {($_[0]->values('hsl'))[1] }
+    sub lightness   {($_[0]->values('hsl'))[2] }
     sub hsl_hash    { $_[0]->values('hsl', 'hash') }
 
 sub _rgb    { [@{$_[0]}[1 .. 3]] }

@@ -259,7 +259,7 @@ Graphics::Toolkit::Color - color palette creation helper
 ATTENTION: deprecated methods of the old API will be removed on version 2.0.
 
 Graphics::Toolkit::Color, for short GTC, is the top level API of this
-module. It is designed to get a fast access to a set of related colors,
+module. It is designed to get fast access to a set of related colors,
 that serve your need. While it can understand and output many color
 formats, its primary (internal) format is RGB, because this it is
 about colors that can be shown on the screen.
@@ -275,14 +275,13 @@ Access its values via methods from section I<GETTER> or measure differences
 and create related color objects via methods listed under I<METHODS>.
 
 
-
 =head1 CONSTRUCTOR
 
 There are many options to create a color objects.  In short you can
-either use the name of a predefined constant or provide values in RGB
-or HSL color space.
+either use the name of a predefined constant or provide values in several
+L<Graphics::Toolkit::Color::Value/COLOR-SPACES>
 
-=head2 new( 'name' )
+=head2 new('name')
 
 Get a color by providing a name from the X11, HTML (CSS) or SVG standard
 or a Pantone report. UPPER or CamelCase will be normalized to lower case
@@ -293,7 +292,7 @@ L<Graphics::Toolkit::Color::Name::Constant/NAMES>. (See also: L</name>)
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Name::all(); # select from these
 
-=head2 new( 'scheme:color' )
+=head2 new('scheme:color')
 
 Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
@@ -321,9 +320,12 @@ also acceptable.
 Triplet of integer RGB values (red, green and blue : 0 .. 255).
 Out of range values will be corrected to the closest value in range.
 
-
     my $red = Graphics::Toolkit::Color->new( 255, 0, 0 );
-    my $red = Graphics::Toolkit::Color->new([255, 0, 0]); # does the same
+    my $red = Graphics::Toolkit::Color->new([255, 0, 0]);        # does the same
+    my $red = Graphics::Toolkit::Color->new('RGB' => 255, 0, 0);  # named tuple syntax
+    my $red = Graphics::Toolkit::Color->new(['RGB' => 255, 0, 0]); # named ARRAY
+
+The named array syntax of the last example works for nany supported space.
 
 
 =head2 new( {r => $r, g => $g, b => $b} )

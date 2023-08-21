@@ -6,20 +6,20 @@ use Test::More tests => 57;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Constant';
+my $module = 'Graphics::Toolkit::Color::Name';
 
 eval "use $module qw/:all/";
 is( not($@), 1, 'could load the module');
 
-my @names = Graphics::Toolkit::Color::Constant::all_names();
+my @names = Graphics::Toolkit::Color::Name::all();
 is( @names > 700, 1, 'get a large list of names, all_names seems to working');
 
-my $add_rgb        = \&Graphics::Toolkit::Color::Constant::add_rgb;
-my $add_hsl        = \&Graphics::Toolkit::Color::Constant::add_hsl;
-my $taken          = \&Graphics::Toolkit::Color::Constant::name_taken;
-my $get_name_rgb   = \&Graphics::Toolkit::Color::Constant::name_from_rgb;
-my $get_name_hsl   = \&Graphics::Toolkit::Color::Constant::name_from_hsl;
-my $get_name_range = \&Graphics::Toolkit::Color::Constant::names_in_hsl_range;
+my $add_rgb        = \&Graphics::Toolkit::Color::Name::add_rgb;
+my $add_hsl        = \&Graphics::Toolkit::Color::Name::add_hsl;
+my $taken          = \&Graphics::Toolkit::Color::Name::taken;
+my $get_name_rgb   = \&Graphics::Toolkit::Color::Name::name_from_rgb;
+my $get_name_hsl   = \&Graphics::Toolkit::Color::Name::name_from_hsl;
+my $get_name_range = \&Graphics::Toolkit::Color::Name::names_in_hsl_range;
 
 warning_like {$add_rgb->()} {carped => qr/missing first arg/},          "can't get color without name";
 warning_like {$add_rgb->( 'one',1,1)}    {carped => qr/need exactly 3/},'not enough args to add color';
@@ -35,15 +35,15 @@ is( $taken->('One'), 1,                         'even there with different spell
 is( ref $add_hsl->('lucky', 0,100, 50),'ARRAY', 'added red under different name');
 is( ref $add_hsl->('blob', 14, 10, 50),'ARRAY', 'added color by hsl definition');
 
-is( $get_name_rgb->( 255 ,255, 255 ), 'white',       'could get a color def');        
+is( $get_name_rgb->( 255 ,255, 255 ), 'white',       'could get a color def');
 is( scalar $get_name_rgb->( 255, 215,   0 ), 'gold', 'selects shorter name: gold instead of gold1');
 is( scalar $get_name_rgb->( [255, 215,   0]),'gold', 'array ref arg format works too');
 is( scalar $get_name_rgb->( 255,   0,   0 ), 'red',  'selects shorter name red instead of inserted lucky');
 is( $get_name_hsl->(  0, 100,  50 ), 'red',          'found red by hsl');
 is( $get_name_hsl->( 14,  10,  50 ), 'blob',         'found inserted color by hsl');
 
-my @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('white');
-my @hsl = Graphics::Toolkit::Color::Constant::hsl_from_name('white');
+my @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('white');
+my @hsl = Graphics::Toolkit::Color::Name::hsl_from_name('white');
 is( int @rgb,  3,     'white has 3 rgb values');
 is( $rgb[0], 255,     'white has full red value');
 is( $rgb[1], 255,     'white has full green value');
@@ -53,8 +53,8 @@ is( $hsl[0],   0,     'white has zero hue value');
 is( $hsl[1],   0,     'white has zero sat value');
 is( $hsl[2], 100,     'white has full light value');
 
-@rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('one');
-@hsl = Graphics::Toolkit::Color::Constant::hsl_from_name('one');
+@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('one');
+@hsl = Graphics::Toolkit::Color::Name::hsl_from_name('one');
 is( int @rgb,  3,     'self defined color has rgb values');
 is( $rgb[0],   1,     'self defined color has defined red value');
 is( $rgb[1],   2,     'self defined color has defined full green value');
@@ -64,9 +64,9 @@ is( $hsl[0], 210,     'self defined color has computed hue value');
 is( $hsl[1],  50,     'self defined color has computed saturation');
 is( $hsl[2],   1,     'self defined color has computed lightness');
 
-@rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('One');
+@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('One');
 is( int @rgb, 3,     'upper case gets cleaned from color name');
-@rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('O_ne');
+@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('O_ne');
 is( int @rgb, 3,     'under score gets cleaned from color name');
 
 warning_like{ $get_name_range->( []) }                     {carped => qr/two arguments/},"can't get names in range without hsl values";

@@ -6,7 +6,7 @@ our $VERSION = '1.54';
 use v5.12;
 
 use Carp;
-use Graphics::Toolkit::Color::Constant;
+use Graphics::Toolkit::Color::Name;
 use Graphics::Toolkit::Color::Value;
 
 use Exporter 'import';
@@ -23,7 +23,7 @@ sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
 sub new {
     my ($pkg, @args) = @_;
-    @args = ([@args]) if @args == 3;
+    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Value::is_space( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
@@ -37,7 +37,7 @@ sub _new_from_scalar {
         my $i = index( $color_def, ':');
         if ($i > -1 ){                        # resolve pallet:name
             my $pallet_name = substr $color_def, 0, $i;
-            my $color_name = Graphics::Toolkit::Color::Constant::_clean_name(substr $color_def, $i+1);
+            my $color_name = Graphics::Toolkit::Color::Name::_clean(substr $color_def, $i+1);
             my $module_base = 'Graphics::ColorNames';
             eval "use $module_base";
             return carp "$module_base is not installed, but it's needed to load external colors" if $@;
@@ -49,8 +49,8 @@ sub _new_from_scalar {
             @rgb = $pallet->rgb( $color_name );
             return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
         } else {                              # resolve name ->
-            @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name( $color_def );
-            return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Constant::all_names()." unless @rgb == 3;
+            @rgb = Graphics::Toolkit::Color::Name::rgb_from_name( $color_def );
+            return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Name::all()." unless @rgb == 3;
         }
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
         ($name, @rgb, $origin) = @$color_def;
@@ -59,7 +59,7 @@ sub _new_from_scalar {
         return carp $new_help unless ref $val;
         @rgb = Graphics::Toolkit::Color::Value::deconvert( $val, $origin );
         return carp $new_help unless @rgb == 3;
-        $name = Graphics::Toolkit::Color::Constant::name_from_rgb( @rgb );
+        $name = Graphics::Toolkit::Color::Name::name_from_rgb( @rgb );
     }
     bless [$name, @rgb, $origin];
 }
@@ -278,7 +278,6 @@ and create related color objects via methods listed under I<METHODS>.
 
 =head1 CONSTRUCTOR
 
-An GTC object
 There are many options to create a color objects.  In short you can
 either use the name of a predefined constant or provide values in RGB
 or HSL color space.
@@ -289,10 +288,10 @@ Get a color by providing a name from the X11, HTML (CSS) or SVG standard
 or a Pantone report. UPPER or CamelCase will be normalized to lower case
 and inserted underscore letters ('_') will be ignored as perl does in
 numbers (1_000 == 1000). All available names are listed under
-L<Graphics::Toolkit::Color::Constant/NAMES>. (See also: L</name>)
+L<Graphics::Toolkit::Color::Name::Constant/NAMES>. (See also: L</name>)
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
-    my @names = Graphics::Toolkit::Color::Constant::all_names(); # select from these
+    my @names = Graphics::Toolkit::Color::Name::all(); # select from these
 
 =head2 new( 'scheme:color' )
 

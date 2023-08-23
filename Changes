@@ -1,4 +1,10 @@
 
+1.55     2023-08-22    lichtkind
+-------
+    * = API development
+    * + output format named ARRAY
+    * + input and output format STRING
+
 1.54     2023-08-21    lichtkind
 -------
     * = API development
@@ -32,7 +38,7 @@
     * + new modifier method: set, blend
     * ~ enhanced and strictened modifier method: add
     * \ deprecate all other numeric getter: rgb, red, green, blue, rgb_hex,
-                         rgb_hash, hsl, hue, saturation, lightnss, hsl_hash
+                         rgb_hash, hsl, hue, saturation, lightnss, hsl_hash, string
     * \ till 2.0 will be also deprecated: rgb_gradient_to, hsl_gradient_to,
                                           gradient_to, distance_to, blend_with
     * & new getter API

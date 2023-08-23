@@ -29,35 +29,35 @@ warning_like {$chk_hsl->(0,0, 0.5 )} {carped => qr/lightness value/},  "lightnes
 warning_like {$chk_hsl->(0,0, 101)}  {carped => qr/lightness value/},  "lightness value is too big";
 
 
-my @hsl = $def->trim();
-is( int @hsl,  3,     'default color is set');
-is( $hsl[0],   0,     'default color is black (H) no args');
-is( $hsl[1],   0,     'default color is black (S) no args');
-is( $hsl[2],   0,     'default color is black (L) no args');
+my @hsl = $def->clamp();
+is( int @hsl,  3,     'missing values are clamped to black (default color)');
+is( $hsl[0],   0,     'default color is black (H)');
+is( $hsl[1],   0,     'default color is black (S)');
+is( $hsl[2],   0,     'default color is black (L)');
 
-@hsl = $def->trim(1,2);
-is( int @hsl,  3,     'added missing value');
-is( $hsl[0],   1,     'default color is black (H) too few args');
-is( $hsl[1],   2,     'default color is black (S) too few args');
-is( $hsl[2],   0,     'default color is black (L) too few args');
+@hsl = $def->clamp(1,2);
+is( int @hsl,  3,     'clamp added missing value');
+is( $hsl[0],   1,     'carried first value (H)');
+is( $hsl[1],   2,     'carried second value (S)');
+is( $hsl[2],   0,     'set missing value to zero');
 
-@hsl = $def->trim(1,2,3,4);
-is( int @hsl,  3,     'removed superfluous value');
+@hsl = $def->clamp( 1, 2, 3, 4);
+is( int @hsl,  3,     'clamp removed superfluous value');
 is( $hsl[0],   1,     'default color is black (H) too many args');
 is( $hsl[1],   2,     'default color is black (S) too many args');
 is( $hsl[2],   3,     'default color is black (L) too many args');;
 
-@hsl = $def->trim(-1,-1,-1);
-is( int @hsl,  3,     'color is trimmed up');
+@hsl = $def->clamp(-1,-1,-1);
+is( int @hsl,  3,     'color is clamped up');
 is( $hsl[0], 359,     'too low hue value is rotated up');
 is( $hsl[1],   0,     'too low green value is trimmed up');
 is( $hsl[2],   0,     'too low blue value is trimmed up');
 
-@hsl = $def->trim(360, 101, 101);
-is( int @hsl,  3,     'color is trimmed up');
+@hsl = $def->clamp(360, 101, 101);
+is( int @hsl,  3,     'color is clamped up');
 is( $hsl[0],   0,     'too high hue value is rotated down');
-is( $hsl[1], 100,     'too high saturation value is trimmed down');
-is( $hsl[2], 100,     'too high lightness value is trimmed down');
+is( $hsl[1], 100,     'too high saturation value is clamped down');
+is( $hsl[2], 100,     'too high lightness value is clamped down');
 
 
 @hsl = $def->deconvert( [127, 127, 127], 'RGB');
@@ -73,7 +73,7 @@ is( $rgb[1], 127,     'converted back color grey has right green value');
 is( $rgb[2], 127,     'converted back color grey has right blue value');
 
 @rgb = $def->convert( [360, -10, 50], 'RGB');
-is( int @rgb,  3,     'trimmed and converted back color grey');
+is( int @rgb,  3,     'clamped and converted back color grey');
 is( $rgb[0], 127,     'right red value');
 is( $rgb[1], 127,     'right green value');
 is( $rgb[2], 127,     'right blue value');

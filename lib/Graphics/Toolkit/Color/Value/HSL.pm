@@ -11,7 +11,7 @@ use Graphics::Toolkit::Color::Space;
 my $hsl_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation lightness/);
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
    $hsl_def->change_delta_routine( \&delta );
-   $hsl_def->change_trim_routine( \&trim );
+   $hsl_def->change_clamp_routine( \&clamp );
 
 ########################################################################
 
@@ -25,7 +25,7 @@ sub check {
     0;
 }
 
-sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
+sub clamp { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsl) = @_;
     $hsl[0] += 360 while $hsl[0] <    0;
     $hsl[0] -= 360 while $hsl[0] >= 360;
@@ -70,7 +70,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub _to_rgb { # float conversion  255 ?
-    my ($H, $S, $L) = trim(@_);
+    my ($H, $S, $L) = clamp(@_);
     $H /= 60;
     $S /= 100;
     $L /= 100;

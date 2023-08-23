@@ -11,7 +11,7 @@ use Graphics::Toolkit::Color::Space;
 my $hsv_def = Graphics::Toolkit::Color::Space->new(qw/hue saturation value/);
    $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
    $hsv_def->change_delta_routine( \&delta );
-   $hsv_def->change_trim_routine( \&trim );
+   $hsv_def->change_clamp_routine( \&clamp );
 
 ########################################################################
 
@@ -25,7 +25,7 @@ sub check {
     0;
 }
 
-sub trim { # cut values into 0 ..359, 0 .. 100, 0 .. 100
+sub clamp { # cut values into 0 ..359, 0 .. 100, 0 .. 100
     my (@hsv) = @_;
     $hsv[0] += 360 while $hsv[0] <    0;
     $hsv[0] -= 360 while $hsv[0] >= 360;
@@ -74,7 +74,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub _to_rgb { # float conversion
-    my (@hsv) = trim(@_);
+    my (@hsv) = clamp(@_);
     my $H = $hsv[0] / 60;
     my $C = $hsv[1]* $hsv[2] / 100 / 100;
     my $X = $C * (1 - abs(rmod($H, 2) - 1));

@@ -25,31 +25,31 @@ warning_like {$chk_cmy->(0, 0, -1)} {carped => qr/yellow value/},   "yellow valu
 warning_like {$chk_cmy->(0, 0,1.1)} {carped => qr/yellow value/},   "yellow value is too big";
 
 
-my @cmy = $def->trim();
+my @cmy = $def->clamp();
 is( int @cmy,  3,     'default color is set');
 is( $cmy[0],   0,     'default color is black (C) no args');
 is( $cmy[1],   0,     'default color is black (M) no args');
 is( $cmy[2],   0,     'default color is black (Y) no args');
 
-@cmy = $def->trim(0.1, 0.2, 0.3);
+@cmy = $def->clamp(0.1, 0.2, 0.3);
 is( int @cmy,  3,     'added missing argument in vector');
 is( $cmy[0], 0.1,     'passed (C) value when too few args');
 is( $cmy[1], 0.2,     'passed (M) value when too few args');
 is( $cmy[2], 0.3,     'passed (Y) value when too few args');
 
-@cmy = $def->trim(0.1, 0.2, 0.3, 0.4, 0.5);
+@cmy = $def->clamp(0.1, 0.2, 0.3, 0.4, 0.5);
 is( int @cmy,  3,     'removed missing argument in vector');
 is( $cmy[0], 0.1,     'passed (C) value when too few args');
 is( $cmy[1], 0.2,     'passed (M) value when too few args');
 is( $cmy[2], 0.3,     'passed (Y) value when too few args');
 
-@cmy = $def->trim(-1,-1,-1,-1);
+@cmy = $def->clamp(-1,-1,-1,-1);
 is( int @cmy,  3,     'color is trimmed up but kept vector length');
 is( $cmy[0],   0,     'too low cyan value is trimmed up');
 is( $cmy[1],   0,     'too low magenta value is trimmed up');
 is( $cmy[2],   0,     'too low yellow value is trimmed up');
 
-@cmy = $def->trim(1.1, 2, 101, 10E5);
+@cmy = $def->clamp(1.1, 2, 101, 10E5);
 is( int @cmy,  3,     'color is trimmed down but kept vector length');
 is( $cmy[0],   1,     'too high cyan value is rotated down');
 is( $cmy[1],   1,     'too high magenta value is trimmed down');

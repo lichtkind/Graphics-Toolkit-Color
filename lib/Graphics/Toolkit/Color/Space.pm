@@ -12,16 +12,20 @@ sub new {
     return unless ref $basis;
 
     # which formats the constructor will accept, that can be deconverted into list
-    my %deformats = ( hash => sub { $basis->list_from_hash(@_) if $basis->is_hash(@_) },
-               named_array => sub { @{$_[0]}[1 .. $#{$_[0]}]   if $basis->is_named_array(@_) },
+    my %deformats = ( hash => sub { $basis->list_from_hash(@_)   if $basis->is_hash(@_) },
+               named_array => sub { @{$_[0]}[1 .. $#{$_[0]}]     if $basis->is_named_array(@_) },
+                    string => sub { $basis->list_from_string(@_) if $basis->is_string(@_) },
     );
     # which formats we can output
-    my %formats = (list => sub {@_}, hash => sub { $basis->key_hash_from_list(@_) },
-                                char_hash => sub { $basis->shortcut_hash_from_list(@_) },
+    my %formats = (list => sub {@_},
+                   hash => sub { $basis->key_hash_from_list(@_) },
+              char_hash => sub { $basis->shortcut_hash_from_list(@_) },
+                  array => sub { $basis->named_array_from_list(@_) },
+                 string => sub { $basis->named_string_from_list(@_) },
     );
 
     bless { basis => $basis, format => \%formats, deformat => \%deformats, convert => {},
-            trim => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
+            clamp => sub { map {$_ < 0 ? 0 : $_} map {$_ > 1 ? 1 : $_} @_ },
             delta => sub { my ($vector1, $vector2) = @_;
                            map {$vector2->[$_] - $vector1->[$_] } $basis->iterator },
     };
@@ -36,15 +40,15 @@ sub is_partial_hash  { $_[0]->basis->is_partial_hash( $_[1] ) }
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 
-sub change_trim_routine {
+sub change_clamp_routine {
     my ($self, $code) = @_;
-    $self->{'trim'} = $code if ref $code eq 'CODE';
+    $self->{'clamp'} = $code if ref $code eq 'CODE';
 }
-sub trim {
+sub clamp {
     my ($self, @vector) = @_;
     push @vector, 0 while @vector < $self->dimensions;
     pop  @vector    while @vector > $self->dimensions;
-    return $self->{'trim'}->( @vector );
+    return $self->{'clamp'}->( @vector );
 }
 
 ########################################################################

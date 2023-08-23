@@ -27,41 +27,40 @@ warning_like {$chk_cmyk->(0,0, 0, -1 )} {carped => qr/key value/},      "key val
 warning_like {$chk_cmyk->(0,0, 0, 1.1)} {carped => qr/key value/},      "key value is too big";
 
 
-my @cmyk = $def->trim();
-is( int @cmyk,  4,     'default color is set');
-is( $cmyk[0],   0,     'default color is black (C) no args');
-is( $cmyk[1],   0,     'default color is black (M) no args');
-is( $cmyk[2],   0,     'default color is black (Y) no args');
-is( $cmyk[3],   0,     'default color is black (K) no args');
+my @cmyk = $def->clamp();
+is( int @cmyk,  4,     'missing args are clamped down to black (default color)');
+is( $cmyk[0],   0,     'default color is black (C)');
+is( $cmyk[1],   0,     'default color is black (M)');
+is( $cmyk[2],   0,     'default color is black (Y)');
+is( $cmyk[3],   0,     'default color is black (K)');
 
-@cmyk = $def->trim(0.1, 0.2, 0.3);
-is( int @cmyk,  4,     'added missing argument in vector');
+@cmyk = $def->clamp(0.1, 0.2, 0.3);
+is( int @cmyk,  4,     'clamp added missing argument in vector');
 is( $cmyk[0], 0.1,     'passed (C) value when too few args');
 is( $cmyk[1], 0.2,     'passed (M) value when too few args');
 is( $cmyk[2], 0.3,     'passed (Y) value when too few args');
 is( $cmyk[3],   0,     'added zero value (K) when too few args');
 
-@cmyk = $def->trim(0.1, 0.2, 0.3, 0.4, 0.5);
-is( int @cmyk,  4,     'removed missing argument in vector');
+@cmyk = $def->clamp(0.1, 0.2, 0.3, 0.4, 0.5);
+is( int @cmyk,  4,     'clamp removed missing argument in vector');
 is( $cmyk[0], 0.1,     'passed (C) value when too few args');
 is( $cmyk[1], 0.2,     'passed (M) value when too few args');
 is( $cmyk[2], 0.3,     'passed (Y) value when too few args');
 is( $cmyk[3], 0.4,     'added (K) value when too few args');
 
-@cmyk = $def->trim(-1,-1,-1,-1);
-is( int @cmyk,  4,     'color is trimmed up but kept vector length');
-is( $cmyk[0],   0,     'too low cyan value is trimmed up');
-is( $cmyk[1],   0,     'too low magenta value is trimmed up');
-is( $cmyk[2],   0,     'too low yellow value is trimmed up');
-is( $cmyk[3],   0,     'too low key value is trimmed up');
+@cmyk = $def->clamp(-1,-1,-1,-1);
+is( int @cmyk,  4,     'color is clamped up but kept vector length');
+is( $cmyk[0],   0,     'too low cyan value is clamped up');
+is( $cmyk[1],   0,     'too low magenta value is clamped up');
+is( $cmyk[2],   0,     'too low yellow value is clamped up');
+is( $cmyk[3],   0,     'too low key value is clamped up');
 
-@cmyk = $def->trim(1.1, 2, 101, 10E5);
-is( int @cmyk,  4,     'color is trimmed down but kept vector length');
+@cmyk = $def->clamp(1.1, 2, 101, 10E5);
+is( int @cmyk,  4,     'color is clamed down but kept vector length');
 is( $cmyk[0],   1,     'too high cyan value is rotated down');
 is( $cmyk[1],   1,     'too high magenta value is trimmed down');
 is( $cmyk[2],   1,     'too high yellow value is trimmed down');
 is( $cmyk[3],   1,     'too high key value is trimmed down');
-
 
 
 @cmyk = $def->deconvert( [128, 128, 128], 'RGB');

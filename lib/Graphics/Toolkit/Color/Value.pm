@@ -39,7 +39,7 @@ sub deconvert { # @... --> @RGB
                 . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
     my $space = space( $space_name // $base_package );
     return carp "got not right amount of values to format" unless $space->is_array( $values );
-    return base_space()->trim(@$values) if $space->name eq $base_package;
+    return base_space()->clamp(@$values) if $space->name eq $base_package;
     $space->convert( $values, $base_package);
 }
 
@@ -49,7 +49,7 @@ sub convert { # @RGB --> @...
                 . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
     my $space = space( $space_name // $base_package );
     return carp "got not right amount of values to format" unless base_space()->is_array( $values );
-    return $space->trim(@$values) if $space->name eq $base_package;
+    return $space->clamp(@$values) if $space->name eq $base_package;
     $space->deconvert( $values, $base_package);
 }
 
@@ -167,7 +167,8 @@ have the brightest clearest color of whatever I<hue> sets.
 Converts a value tuple (vector) of any space above into the base space (RGB).
 Takes two arguments the vector (array of numbers) and name of the source space.
 The result is also a vector in for of a list. The result values will
-trimmed (changed) to be valid inside the target color space.
+clamped (changed into acceptable range) to be valid inside the target
+color space.
 
 
     my @rgb = G.::T.::C.::Value::deconvert( [220, 50, 70], 'HSL' ); # convert from HSL to RGB
@@ -177,7 +178,7 @@ trimmed (changed) to be valid inside the target color space.
 Converts a value vector from base space (RGB) into any space above.
 Takes two arguments the vector (array of numbers) and name of the target space.
 The result is also a vector in for of a list. The result values will
-trimmed (changed) to be valid inside the target color space.
+clamped (changed) to be valid inside the target color space.
 
     my @hsl = G.::T.::C.::Value::convert( [20, 50, 70], 'HSL' );    # convert from RGB to HSL
 

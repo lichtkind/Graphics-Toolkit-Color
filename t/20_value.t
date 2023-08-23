@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 76;
+use Test::More tests => 83;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -93,6 +93,15 @@ is( $form,          'CMYK',   'key hash was formatted in CMY');
 ($cmyk, $form) = $deformat->([cmyk => -0.1, 0.5, 2, 7]);
 is( ref $cmyk,     'ARRAY',   'got cmyk named ARRAY deformatted');
 is( int @$cmyk,          4,   'deformatted CMYK ARRAY into quadruel');
+is( $cmyk->[0],       -0.1,   'cyan value correct');
+is( $cmyk->[1],        0.5,   'magenta value correct');
+is( $cmyk->[2],          2,   'yellow value is correct');
+is( $cmyk->[3],          7,   'key value got transported correctly');
+is( $form,          'CMYK',   'named array recognized as CMYK');
+
+($cmyk, $form) = $deformat->('CMYK: -0.1, 0.5, 2, 7');
+is( ref $cmyk,     'ARRAY',   'got cmyk STRING deformatted');
+is( int @$cmyk,          4,   'deformatted CMYK STRING into quadruel');
 is( $cmyk->[0],       -0.1,   'cyan value correct');
 is( $cmyk->[1],        0.5,   'magenta value correct');
 is( $cmyk->[2],          2,   'yellow value is correct');

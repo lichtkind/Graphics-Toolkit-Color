@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.54';
+our $VERSION = '1.55';
 use v5.12;
 
 use Carp;
@@ -31,7 +31,8 @@ sub new {
 sub _new_from_scalar {
     my ($color_def) = shift;
     my (@rgb, $name, $origin);
-    if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/){
+    # strings that are not '#112233' or 'rgb: 23,34,56'
+    if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/ and $color_def !~ /,/){
         $name = $color_def;
         $origin = 'name';
         my $i = index( $color_def, ':');
@@ -67,8 +68,8 @@ sub _new_from_scalar {
 ## getter ##############################################################
 
 sub name        { $_[0][0] }
-sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
 
+    sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
     sub rgb         {  $_[0]->values('rgb') }
     sub red         {($_[0]->values('rgb'))[0] }
     sub green       {($_[0]->values('rgb'))[1] }
@@ -205,7 +206,7 @@ sub complementary {
     $hsl2[0] += 180;
     $hsl2[1] += $saturation_change;
     $hsl2[2] += $lightness_change;
-    @hsl2 = Graphics::Toolkit::Color::Value::HSL::trim( @hsl2 ); # HSL of C2
+    @hsl2 = Graphics::Toolkit::Color::Value::HSL::clamp( @hsl2 ); # HSL of C2
     my $c2 = color( h => $hsl2[0], s => $hsl2[1], l => $hsl2[2] );
     return $c2 if $count < 2;
     my (@colors_r, @colors_l);
@@ -246,10 +247,10 @@ Graphics::Toolkit::Color - color palette creation helper
     use Graphics::Toolkit::Color qw/color/;
 
     my $red = Graphics::Toolkit::Color->new('red'); # create color object
-    say $red->add( 'blue' => 256 )->name;           # mix in HSL: 'fuchsia'
+    say $red->add( 'blue' => 255 )->name;           # add blue value: 'fuchsia'
     color( 0, 0, 255)->values('HSL');               # 240, 100, 50 = blue
                                                     # mix blue with a little grey in HSL
-    $blue->blend( with => {H=> 0, S=> 0, L=> 80}, pos => 0.1);
+    $blue->blend( with => { H=> 0, S=> 0, L=> 80 }, pos => 0.1);
     $red->gradient( to => '#0000FF', steps => 10);  # 10 colors from red to blue
     $red->complementary( 3 );                       # get fitting red green and blue
 
@@ -306,7 +307,7 @@ as above.
     my $color = Graphics::Toolkit::Color->new('SVG:green');
     my @s = Graphics::ColorNames::all_schemes();          # look up the installed
 
-=head2 new( '#rgb' )
+=head2 new('#rgb')
 
 Color definitions in hexadecimal format as widely used in the web, are
 also acceptable.
@@ -328,7 +329,7 @@ Out of range values will be corrected to the closest value in range.
 The named array syntax of the last example works for nany supported space.
 
 
-=head2 new( {r => $r, g => $g, b => $b} )
+=head2 new({ r => $r, g => $g, b => $b })
 
 Hash with the keys 'r', 'g' and 'b' does the same as shown in previous
 paragraph, only more declarative. Casing of the keys will be normalised
@@ -338,7 +339,7 @@ and only the first letter of each key is significant.
     my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
     ... Color->new( Red => 255, Green => 0, Blue => 0);   # also fine
 
-=head2 new( {h => $h, s => $s, l => $l} )
+=head2 new({ h => $h, s => $s, l => $l })
 
 To define a color in HSL space, with values for L</hue>, L</saturation> and
 L</lightness>, use the following keys, which will be normalized as decribed
@@ -375,34 +376,45 @@ objects data.
 String with normalized name (lower case without I<'_'>) of the color as
 in X11 or HTML (SVG) standard or the Pantone report.
 The name will be found and filled in, even when the object
-was created with RGB or HSL values.
+was created numerical values.
 If no color is found, C<name> returns an empty string.
 All names are at: L<Graphics::Toolkit::Color::Constant/NAMES>
-(See als: L</new(-'name'-)>)
+(See als: L</new('name')>)
 
 =head2 string
 
+DEPRECATED:
 String that can be serialized back into a color an object
 (recreated by Graphics::Toolkit::Color->new( $string )).
 It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 
 =head2 values
 
-Returns the color values.
+Returns the values of the color in given color space and with given format.
 
-First argument is the name of a color space: The options are:
-'rgb' (default), hsl, cmyk and cmy.
+First argument is the name of a color space (named argument C<in>).
+The options are to be found under: L<Graphics::Toolkit::Color::Value/COLOR-SPACES>
+This is the only argument where the name can be left out.
 
-Second argument is the format. That can vary from space to space but
-generally available are C<list> (default), C<hash>, C<char_hash>
-and names or initials of the value names of that particular space.
-RGB also provides the option C<hex> to get values like '#aabbcc'.
+Second argument is the format (named argument C<as>).
+Not all formats are available under all color spaces, but the alway present
+options are: C<list> (default), C<hash>, C<char_hash> and C<array>.
 
-    say $color->values();                      # get list of rgb : 0, 0, 255
-    say $blue->values('RGB', 'hash');          # { red => 0. green => 0, blue => 255}
-    say $blue->values('RGB', 'char_hash');     # { r => 0. g => 0, b => 255}
-    say $blue->values('RGB', 'hex');           # '#00FFFF'
-    say $color->values('HSL', 'saturation');   # 100
+Third named argument is the upper border of the range inide which the
+numerical values have to be. RGB are normally between 0..255 and
+CMYK between 0 .. 1. If you want to change that order a different range.
+Only a range of C<1> a.k.a. C<normal> displays decimals.
+
+
+    $blue->values();                              # get list of rgb : 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');    # same call
+    $blue->values('RGB', as => 'hash');           # { red => 0. green => 0, blue => 255}
+    $blue->values('RGB', as =>'char_hash');       # { r => 0. g => 0, b => 255}
+    $blue->values('RGB', as => 'hex');            # '#00FFFF'
+    $color->values(in => 'HSL');                  # 240, 100, 50
+    $color->values(in => 'HSL', range => 1);      # 0.6666, 1, 0.5
+    $color->values(in => 'RGB', range => 16);     # values in RGB16
+    $color->values('HSB', as => 'hash')->{'hue'}; # how to get single values
 
 =head2 hue
 
@@ -507,7 +519,7 @@ by which the RGB values will be multiplied before being added. Negative
 values of that factor lead to darkening of result colors, but its not
 subtractive color mixing, since this module does not support CMY color
 space. All RGB operations follow the logic of additive mixing, and the
-result will be rounded (trimmed), to keep it inside the defined RGB space.
+result will be rounded (clamped), to keep it inside the defined RGB space.
 
     my $blue = Graphics::Toolkit::Color->new('blue');
     my $darkblue = $blue->add( Lightness => -25 );
@@ -525,7 +537,7 @@ It takes three named arguments, only the first is required.
 
 2. Blend position is a floating point number, which defaults to 0.5.
    (blending ratio of 1:1 ). 0 represents here C1 and 1 is pure C2.
-   Numbers below 0 and above 1 are possible, butlikely to be trimmed to
+   Numbers below 0 and above 1 are possible, butlikely to be clamped to
    fit inside the color space. Name of the argument is I<pos>.
 
 3. Color space name (default is I<HSL> - all can be seen unter

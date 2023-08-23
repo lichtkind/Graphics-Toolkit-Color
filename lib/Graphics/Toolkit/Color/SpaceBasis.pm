@@ -29,6 +29,11 @@ sub shortcut_pos {  defined $_[1] ? $_[0]->{'shortcut_order'}{ lc $_[1] } : unde
 sub is_key       { (defined $_[1] and exists $_[0]->{'key_order'}{ lc $_[1] }) ? 1 : 0 }
 sub is_shortcut  { (defined $_[1] and exists $_[0]->{'shortcut_order'}{ lc $_[1] }) ? 1 : 0 }
 sub is_key_or_shortcut { $_[0]->is_key($_[1]) or $_[0]->is_shortcut($_[1]) }
+sub is_string {
+    my ($self, $string) = @_;
+    return 0 unless defined $string and not ref $string and index($string, ',') > -1;
+    (index( lc($string), lc($self->name).':') == 0) ? 1 : 0;
+}
 sub is_array {
     my ($self, $value_array) = @_;
     (ref $value_array eq 'ARRAY' and @$value_array == $self->{'count'}) ? 1 : 0;
@@ -99,6 +104,11 @@ sub deformat_partial_hash {
     return $result;
 }
 
+sub list_from_string {
+    my ($self, $string) = @_;
+    my @parts = split(/:/, $string);
+    return map {$_ + 0} split(/,/, $parts[1]);
+}
 
 sub key_hash_from_list {
     my ($self, @values) = @_;
@@ -111,6 +121,18 @@ sub shortcut_hash_from_list {
     return unless @values == $self->{'count'};
     return { map {$self->{'shortcuts'}[$_] => $values[$_]} @{$self->{'iterator'}} };
 }
+
+sub named_array_from_list {
+    my ($self, @values) = @_;
+    return [lc $self->name, @values] unless @values == $self->{'count'};
+}
+
+sub named_string_from_list {
+    my ($self, @values) = @_;
+    return unless @values == $self->{'count'};
+    lc( $self->name).':'.join(', ', @values);
+}
+
 
 sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 

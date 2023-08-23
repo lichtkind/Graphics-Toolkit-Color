@@ -116,30 +116,30 @@ is( $d[1],    8, 'second value correctly deconverted');
 is( $d[2],    5, 'third value correctly deconverted');
 is( $d[3],    6, 'fourth value correctly deconverted');
 
-my @tr = $space->trim(-1,0,1,2);
-is( int @tr,  4, 'trim kept correct vector length');
-is( $tr[0],    0, 'trim raised too low value');
-is( $tr[1],    0, 'trim kept value on lower edge');
-is( $tr[2],    1, 'trim kept value on upper edge');
-is( $tr[3],    1, 'trim lowered too small value');
+my @tr = $space->clamp(-1,0,1,2);
+is( int @tr,   4, 'clamp kept correct vector length');
+is( $tr[0],    0, 'clamp raised too low value');
+is( $tr[1],    0, 'clamp kept value on lower edge');
+is( $tr[2],    1, 'clamp kept value on upper edge');
+is( $tr[3],    1, 'clamp lowered too small value');
 
-@tr = $space->trim(-1,0,1,2, 5);
-is( int @tr,  4, 'trim lowered too largw vector');
-@tr = $space->trim(-1,0,1);
-is( int @tr,  4, 'trim prolonged too short vector');
+@tr = $space->clamp(-1,0,1,2, 5);
+is( int @tr,  4, 'clamp lowered too largw vector');
+@tr = $space->clamp(-1,0,1);
+is( int @tr,  4, 'clamp prolonged too short vector');
 is( $tr[3],   0, 'filled missing values with 0 as it should');
 
-my $tres = $space->change_trim_routine( 'CODE' );
+my $tres = $space->change_clamp_routine( 'CODE' );
 is( $tres,  '', 'trim routine changer method only accepts CODE ref');
-$tres = $space->change_trim_routine( sub { map { $_ < 0 ? 0 : $_} map {$_ > 10 ? 10 : $_}  @_ });
+$tres = $space->change_clamp_routine( sub { map { $_ < 0 ? 0 : $_} map {$_ > 10 ? 10 : $_}  @_ });
 is( ref $tres, 'CODE', 'trim code was changed');
 
-@tr = $space->trim(-1,0,10,11, 5);
+@tr = $space->clamp( -1, 0, 10, 11, 5);
 is( int @tr,  4, 'new trim still lowered vector to right size');
-is( $tr[0],   0, 'trim raised too low value');
-is( $tr[1],   0, 'trim kept value on lower edge');
-is( $tr[2],  10, 'trim kept value on upper edge');
-is( $tr[3],  10, 'trim lowered too small value');
+is( $tr[0],   0, 'clamp raised too low value');
+is( $tr[1],   0, 'clamp kept value on lower edge');
+is( $tr[2],  10, 'clamp kept value on upper edge');
+is( $tr[3],  10, 'clamp lowered too small value');
 
 
 exit 0;

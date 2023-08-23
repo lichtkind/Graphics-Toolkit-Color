@@ -1,4 +1,19 @@
+ATTR
 
+ ~name
+ ~space
+ @values
+ @rgb
+
+
+new: ~name
+     ~standard:name
+     @RGB
+     [ @RGB ]
+     'SPACE' => 1,2,3,4
+     ['SPACE' => 1,2,3,4]
+     k => v, ..
+     {k => v, ..}
 
 name: -- ~standard --> ~name
 

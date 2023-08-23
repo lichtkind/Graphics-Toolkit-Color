@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $cmy_def = Graphics::Toolkit::Color::Space->new(qw/cyan magenta yellow/);
    $cmy_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $cmy_def->change_clamp_routine( \&clamp );
 
 ########################################################################
 
@@ -23,7 +24,7 @@ sub check {
     0;
 }
 
-sub trim { # cut values into 0 .. 1, 0 .. 1, 0 .. 1
+sub clamp { # cut values into 0 .. 1, 0 .. 1, 0 .. 1
     my (@cmy) = @_;
     return (0,0,0) unless @cmy == $cmy_def->dimensions;
     for ($cmy_def->iterator) {
@@ -34,11 +35,11 @@ sub trim { # cut values into 0 .. 1, 0 .. 1, 0 .. 1
 }
 
 sub from_rgb { #
-    trim( map { 1 - ($_ / 256)} @_ );
+    clamp( map { 1 - ($_ / 256)} @_ );
 }
 
 sub to_rgb { # convert color value triplet
-    map {round(255 * (1 - $_))} trim(@_);
+    map {round(255 * (1 - $_))} clamp(@_);
 }
 
 $cmy_def;

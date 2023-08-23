@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $cmyk_def = Graphics::Toolkit::Color::Space->new(qw/cyan magenta yellow key/);
    $cmyk_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-   $cmyk_def->change_trim_routine( \&trim );
+   $cmyk_def->change_clamp_routine( \&clamp );
 
 ########################################################################
 
@@ -25,7 +25,7 @@ sub check {
     0;
 }
 
-sub trim { # cut 4 values into 0 .. 1
+sub clamp { # cut 4 values into 0 .. 1
     my (@cmyk) = @_;
     return (0,0,0,0) unless @cmyk == $cmyk_def->dimensions;
     for ($cmyk_def->iterator) {
@@ -52,7 +52,7 @@ sub from_rgb { # convert color value triplet (int --> int), (real --> real) if $
 }
 
 sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
-    my ($c, $m, $y, $k) = trim(@_);
+    my ($c, $m, $y, $k) = clamp(@_);
     return (
         round( 255 * (1-$c) * (1-$k) ),
         round( 255 * (1-$m) * (1-$k) ),

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 59;
+use Test::More tests => 67;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -29,26 +29,26 @@ warning_like {$chk_rgb->(0,0, -1 )}  {carped => qr/blue value/},  "blue value is
 warning_like {$chk_rgb->(0,0, 0.5 )} {carped => qr/blue value/},  "blue value is not integer";
 warning_like {$chk_rgb->(0,0, 256)}  {carped => qr/blue value/},  "blue value is too big";
 
-my @rgb = $def->trim();
-is( int @rgb,  3,     'default color is set');
-is( $rgb[0],   0,     'default color is black (R) no args');
-is( $rgb[1],   0,     'default color is black (G) no args');
-is( $rgb[2],   0,     'default color is black (B) no args');
-@rgb = $def->trim(1,2);
-is( $rgb[0],   1,     'default color is black (R) took first arg');
-is( $rgb[1],   2,     'default color is black (G) took second arg');
-is( $rgb[2],   0,     'default color is black (B) gilld in third value');
-@rgb = $def->trim(1.1,2,3,4);
-is( $rgb[0],   1,     'default color is black (R) took first of too many args and rounded it down');
-is( $rgb[1],   2,     'default color is black (G) took second of too many args');
+my @rgb = $def->clamp();
+is( int @rgb,  3,     'clamp resets missing color to black');
+is( $rgb[0],   0,     'default color is black (R)');
+is( $rgb[1],   0,     'default color is black (G)');
+is( $rgb[2],   0,     'default color is black (B)');
+@rgb = $def->clamp(1,2);
+is( $rgb[0],   1,     'carry over first arg');
+is( $rgb[1],   2,     'carry over second arg');
+is( $rgb[2],   0,     'set missing color value to zero');
+@rgb = $def->clamp(1.1, 2, 3, 4);
+is( $rgb[0],   1,     'clamped none int value down');
+is( $rgb[1],   2,     'carried color is black (G) took second of too many args');
 is( $rgb[2],   3,     'default color is black (B) too third of too many args');
-is( int @rgb,  3,    'left out the needless argument');
-@rgb = $def->trim(-1,-1,-1);
-is( int @rgb,  3,     'trim do not change number of negative values');
+is( int @rgb,  3,     'left out the needless argument');
+@rgb = $def->clamp(-1,-1,-1);
+is( int @rgb,  3,     'clamp does not change number of negative values');
 is( $rgb[0],   0,     'too low red value is trimmed up');
 is( $rgb[1],   0,     'too low green value is trimmed up');
 is( $rgb[2],   0,     'too low blue value is trimmed up');
-@rgb = $def->trim(256, 256, 256);
+@rgb = $def->clamp(256, 256, 256);
 is( int @rgb,  3,     'trim do not change number of positive values');
 is( $rgb[0], 255,     'too high red value is trimmed down');
 is( $rgb[1], 255,     'too high green value is trimmed down');
@@ -79,16 +79,19 @@ is( $rgb[1],  20,     'OO deformat random color (upper case) from hex to RGB gre
 is( $rgb[2],  30,     'OO deformat random color (upper case) from hex to RGB blue is correct');
 
 @rgb = $def->deformat([ 33, 44, 55]);
+is( int @rgb,  3,     'OO deformat ARRAY: got 3 values');
 is( $rgb[0],  33,     'OO deformat ARRAY to RGB red is correct');
 is( $rgb[1],  44,     'OO deformat ARRAY to RGB green is correct');
 is( $rgb[2],  55,     'OO deformat ARRAY to RGB blue is correct');
 
 @rgb = $def->deformat([rgb => 11, 22, 33]);
+is( int @rgb,  3,     'OO deformat lc named ARRAY: got 3 values');
 is( $rgb[0],  11,     'OO deformat lc named ARRAY to RGB red is correct');
 is( $rgb[1],  22,     'OO deformat lc named ARRAY to RGB green is correct');
 is( $rgb[2],  33,     'OO deformat lc named ARRAY to RGB blue is correct');
 
 @rgb = $def->deformat(['RGB', 11, 22, 33]);
+is( int @rgb,  3,     'OO deformat uc named ARRAY: got 3 values');
 is( $rgb[0],  11,     'OO deformat uc named ARRAY to RGB red is correct');
 is( $rgb[1],  22,     'OO deformat uc named ARRAY to RGB green is correct');
 is( $rgb[2],  33,     'OO deformat uc named ARRAY to RGB blue is correct');
@@ -96,5 +99,13 @@ is( $rgb[2],  33,     'OO deformat uc named ARRAY to RGB blue is correct');
 @rgb = $def->deformat(['CMY', 11, 22, 33]);
 is( $rgb[0],  undef,  'OO deformat reacts only to right name');
 
+@rgb = $def->deformat('rgb: 1,2,3.3');
+is( int @rgb,  3,     'OO deformat STRING: got 3 values');
+is( $rgb[0],   1,     'OO deformat STRING to RGB red is correct');
+is( $rgb[1],   2,     'OO deformat STRING to RGB green is correct');
+is( $rgb[2], 3.3,     'OO deformat STRING to RGB blue is correct');
+
+@rgb = $def->deformat('cmy: 1,2,3.3');
+is( $rgb[0],  undef,  'OO deformat STRING reacts only to right space name');
 
 exit 0;

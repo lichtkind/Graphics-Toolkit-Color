@@ -13,7 +13,7 @@ is( not($@), 1, 'could load the module');
 
 my $fspace = Graphics::Toolkit::Color::Space->new();
 is( ref $fspace, '', 'need vector names to create color space');
-my $space = Graphics::Toolkit::Color::Space->new(qw/AAA BBB CCC DDD/);
+my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => 20);
 is( ref $space, $module, 'could create a space object');
 is( $space->name,  'ABCD', 'space has right name');
 is( $space->dimensions, 4, 'space has four dimension');

@@ -1,14 +1,16 @@
 use v5.12;
 use warnings;
 
-# base logic of every color space
+# common base of all color spaces
 
 package Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::SpaceBasis;
 
 sub new {
     my $pkg = shift;
-    my $basis = Graphics::Toolkit::Color::SpaceBasis->new( @_ );
+    my (undef, $axis, undef, $range, undef, $type) = @_;
+    return unless ref $axis eq 'ARRAY';
+    my $basis = Graphics::Toolkit::Color::SpaceBasis->new( @$axis );
     return unless ref $basis;
 
     # which formats the constructor will accept, that can be deconverted into list
@@ -17,7 +19,7 @@ sub new {
                     string => sub { $basis->list_from_string(@_) if $basis->is_string(@_) },
     );
     # which formats we can output
-    my %formats = (list => sub {@_},
+    my %formats = (list => sub { @_ },
                    hash => sub { $basis->key_hash_from_list(@_) },
               char_hash => sub { $basis->shortcut_hash_from_list(@_) },
                   array => sub { $basis->named_array_from_list(@_) },
@@ -49,6 +51,27 @@ sub clamp {
     push @vector, 0 while @vector < $self->dimensions;
     pop  @vector    while @vector > $self->dimensions;
     return $self->{'clamp'}->( @vector );
+}
+
+sub check_values {
+    my ($self, @vector) = @_;
+
+}
+
+sub delta_values {
+    my ($self, $values1, $values2) = @_;
+
+}
+
+########################################################################
+
+sub normalize_values {
+    my ($self, $values, $range) = @_;
+
+}
+sub denormalize_values {
+    my ($self, $values, $range) = @_;
+
 }
 
 ########################################################################

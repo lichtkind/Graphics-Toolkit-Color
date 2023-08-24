@@ -1,19 +1,20 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSV space
+# check, convert, mormalize and measure color values in HSB space
 
-package Graphics::Toolkit::Color::Value::HSV;
+package Graphics::Toolkit::Color::Value::HSB;
 use Carp;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Value::HSV;
 
-my $hsv_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation value/],
-                                                   range => [359, 100, 100],
-                                                    type => [qw/angle linear linear/]);
-   $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-   $hsv_def->change_delta_routine( \&delta );
-   $hsv_def->change_clamp_routine( \&clamp );
+my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation brightness/],
+                                                   range => [359, 100, 100]);
+
+   $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $hwb_def->change_delta_routine( \&delta );
+   $hwb_def->change_clamp_routine( \&clamp );
 
 ########################################################################
 
@@ -102,4 +103,4 @@ sub to_rgb { # convert color value triplet (int > int), (real > real) if $real
     ( int( $rgb[0] ), int( $rgb[1] ), int( $rgb[2] ) );
 }
 
-$hsv_def;
+$hwb_def;

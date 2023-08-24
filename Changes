@@ -1,9 +1,11 @@
 
-1.55     2023-08-22    lichtkind
+1.60     2023-08-22    lichtkind
 -------
     * = API development
+    * * added color spaces HSB HSW LAB XYZ HCL
     * + output format named ARRAY
     * + input and output format STRING
+    * - deprecated getter method string
 
 1.54     2023-08-21    lichtkind
 -------

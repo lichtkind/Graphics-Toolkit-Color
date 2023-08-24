@@ -6,23 +6,22 @@ package Graphics::Toolkit::Color::Name;
 
 use Carp;
 use Graphics::Toolkit::Color::Value ':all';
-use Graphics::Toolkit::Color::Name::Constant;
 
+my $constants = require Graphics::Toolkit::Color::Name::Constant;
+our (@name_from_rgb, @name_from_hsl); # search caches
+_add_color_to_reverse_search( $_, @{$constants->{$_}} ) for all();
 
-our (@name_from_rgb, @name_from_hsl); # fill them through:
-_add_color_to_reverse_search( $_, @{$Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name{$_}} ) for all();
-
-sub all   { sort keys %Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name }
-sub taken { exists  $Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name{ _clean($_[0]) }}
+sub all   { sort keys %$constants }
+sub taken { exists  $constants->{ _clean($_[0]) } }
 
 sub rgb_from_name {
     my $name = _clean(shift);
-    @{$Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name{$name}}[0..2] if taken( $name );
+    @{$constants->{$name}}[0..2] if taken( $name );
 }
 
 sub hsl_from_name {
     my $name = _clean(shift);
-    @{$Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name{$name}}[3..5] if taken( $name );
+    @{$constants->{$name}}[3..5] if taken( $name );
 }
 
 sub name_from_rgb {
@@ -102,7 +101,7 @@ sub _add_color {
     $name = _clean( $name );
     return carp "there is already a color named '$name' in store of ".__PACKAGE__ if taken( $name );
     _add_color_to_reverse_search( $name, @rgb, @hsl);
-    my $ret = $Graphics::Toolkit::Color::Name::Constant::rgbhsl_from_name{$name} = [@rgb, @hsl]; # add to foreward search
+    my $ret = $constants->{$name} = [@rgb, @hsl]; # add to foreward search
     (ref $ret) ? [@$ret] : '';                         # make returned ref not transparent
 }
 

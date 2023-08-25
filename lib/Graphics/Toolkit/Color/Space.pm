@@ -76,7 +76,7 @@ sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ?
 
 ########################################################################
 
-sub delta {
+sub delta { # values have to be normalized
     my ($self, $values1, $values2) = @_;
     return unless $self->basis->is_array( $values1 ) and $self->basis->is_array( $values2 );
     my @delta = map {$values2->[$_] - $values1->[$_] } $self->basis->iterator;
@@ -93,8 +93,9 @@ sub check {
     my @names = $self->basis->keys;
     for my $i ($self->basis->iterator){
         return carp $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
-        return carp $names[$i]." value is above maximum of ".$range->[$i][2] if $values->[$i] > $range->[$i][2];
-        return carp $names[$i]." value has to be an integer" if $range->[$i][1] > 1 and $values->[$i] != int $values->[$i];
+        return carp $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
+        return carp $names[$i]." value has to be an integer" if ($range->[$i][1] - $range->[$i][0]) > 1
+                                                             and $values->[$i] != int $values->[$i];
     }
 }
 
@@ -106,8 +107,9 @@ sub clamp {
     pop  @$values    while @$values > $self->dimensions;
     for my $i ($self->basis->iterator){
         $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
-        $values->[$i] = $range->[$i][2] if $values->[$i] > $range->[$i][2];
-        $values->[$i] = round($values->[$i]) if $range->[$i][1] > 1 and $values->[$i] != int $values->[$i];
+        $values->[$i] = $range->[$i][1] if $values->[$i] > $range->[$i][1];
+        $values->[$i] = round($values->[$i]) if ($range->[$i][1] - $range->[$i][0]) > 1
+                                             and $values->[$i] != int $values->[$i];
     }
     return @$values;
 }

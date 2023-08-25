@@ -64,7 +64,7 @@ sub is_partial_hash {
 sub is_range_def {
     my ($self, $range) = @_;
     return 0 unless $self->is_array( $range );
-    map {return 0 if ref $_ ne 'ARRAY' or @_ != 3 or $_->[1] != ($_->[2] - $_->[0])} @$range;
+    map {return 0 if ref $_ ne 'ARRAY' or @$_ != 3 or $_->[1] != ($_->[2] - $_->[0])} @$range;
     return 1;
 }
 

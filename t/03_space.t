@@ -38,14 +38,14 @@ is( $space->has_format('str'),   1, 'formatter inserted');
 is( $space->format([1,2,3,4], 'str'),     '1234', 'inserted formatter works');
 
 my @fval = $space->deformat({a => 1, b => 2, c => 3, d => 4});
-is( int @fval,  4, 'deformatter recognized char hash');
+is( int @fval,   4, 'deformatter recognized char hash');
 is( $fval[0],    1, 'first value correctly deformatted');
 is( $fval[1],    2, 'second value correctly deformatted');
 is( $fval[2],    3, 'third value correctly deformatted');
 is( $fval[3],    4, 'fourth value correctly deformatted');
 
 @fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, ddd => 4});
-is( int @fval,  4, 'deformatter recognized hash');
+is( int @fval,   4, 'deformatter recognized hash');
 is( $fval[0],    1, 'first value correctly deformatted');
 is( $fval[1],    2, 'second value correctly deformatted');
 is( $fval[2],    3, 'third value correctly deformatted');

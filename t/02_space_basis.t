@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 97;
+use Test::More tests => 110;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -47,6 +47,21 @@ is( $s3d->is_key_or_shortcut('Alpha'),  1, 'alpha is a key');
 is( $s3d->is_key_or_shortcut('A'),      1, 'a is a shortcut');
 is( $s3d->is_key_or_shortcut('Cen'),    0, 'Cen is not a key');
 is( $s3d->is_key_or_shortcut('C'),      0, 'c is not a shortcut');
+
+is( $s3d->is_array({}),                 0, 'HASH is not an ARRAY');
+is( $s3d->is_array([]),                 0, 'empty ARRAY has not enogh content');
+is( $s3d->is_array([2,2]),              0, 'too small ARRAY');
+is( $s3d->is_array([1,2,3,4]),          0, 'too large ARRAY');
+is( $s3d->is_array([1,2,3]),            1, 'correctly sized value ARRAY');
+
+is( $s3d->is_range_def([[1,2,3],[1,2,3],[1,2,3]]),        1,'correct range definition');
+is( $s3d->is_range_def([[1,2,3],[1,2,3],[1,2,4]]),        0,'range size is wrong in last dimentsion');
+is( $s3d->is_range_def([[1,2,3],[1,2,3],[1,2,3,4]]),      0,'too many values in last dimentsion');
+is( $s3d->is_range_def([[1,2,3],[1,2],[1,2,3]]),          0,'too little values in second dimentsion');
+is( $s3d->is_range_def([[1,2,3],[1,2,3],[1,2,3],[1,2,3]]),0,'too many dimensions');
+is( $s3d->is_range_def([[1,2,3],[1,2,3] ]),               0,'too little dimensions');
+is( $s3d->is_range_def({}),                               0,'not even an ARRAY');
+is( $s3d->is_range_def([[1.1,2,3],[1,2,3],[1,2,3]]),      0,'none int value');
 
 is( $s3d->is_hash([]),        0,      'array is not a hash');
 is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');

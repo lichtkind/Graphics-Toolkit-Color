@@ -4,7 +4,7 @@
 
 ### VERSION
 
-    1.10
+    1.60
 
 [on CPAN](https://metacpan.org/pod/Graphics-Color-Toolkit)
 

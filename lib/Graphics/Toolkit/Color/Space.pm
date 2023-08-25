@@ -31,7 +31,6 @@ sub new {
                      and $drange->[0] < $drange->[1]                   ) {
                 $drange->[0] = int $drange->[0];
                 $drange->[1] = int $drange->[1];
-                splice (@$drange, 1, 1, int($drange->[1] - $drange->[0]));
             } else { return }
         }
     } else { return }
@@ -87,7 +86,7 @@ sub delta { # values have to be normalized
 
 sub check {
     my ($self, $values, $range) = @_;
-    return carp 'value vector in '.$self->name.' needs '.$self->dimensions.' values' if @$values != $self->dimensions;
+    return carp 'color value vector in '.$self->name.' needs '.$self->dimensions.' values' if @$values != $self->dimensions;
     return if defined $range and not $self->basis->is_range_def( $range );
     $range //= $self->{'range'};
     my @names = $self->basis->keys;
@@ -97,6 +96,7 @@ sub check {
         return carp $names[$i]." value has to be an integer" if ($range->[$i][1] - $range->[$i][0]) > 1
                                                              and $values->[$i] != int $values->[$i];
     }
+    return;
 }
 
 sub clamp {
@@ -121,7 +121,7 @@ sub normalize {
     return unless $self->basis->is_array( $values );
     return if defined $range and not $self->basis->is_range_def( $range );
     $range //= $self->{'range'};
-    map { ($values->[$_] - $range->[$_][0]) / $range->[$_][1] } $self->basis->iterator;
+    map { ($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]) } $self->basis->iterator;
 }
 
 sub denormalize {
@@ -129,8 +129,8 @@ sub denormalize {
     return unless $self->basis->is_array( $values );
     return if defined $range and not $self->basis->is_range_def( $range );
     $range //= $self->{'range'};
-    map { my $v = ($values->[$_] * $range->[$_][1]) + $range->[$_][0];
-          $range->[$_][1] == 1 ? $v : round ($v)                      } $self->basis->iterator;
+    map { my $v = ($values->[$_] * ($range->[$_][1]-$range->[$_][0])) + $range->[$_][0];
+          ($range->[$_][1]-$range->[$_][0]) == 1 ? $v : round ($v)                } $self->basis->iterator;
 }
 
 ########################################################################

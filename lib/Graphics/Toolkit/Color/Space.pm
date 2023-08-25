@@ -6,6 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::SpaceBasis;
 use Graphics::Toolkit::Color::Util ':all';
+use Carp;
 
 sub new {
     my $pkg = shift;
@@ -85,32 +86,31 @@ sub delta {
 }
 
 sub check {
-    my ($self, @values) = @_;
-
-}
-#~ sub check { # carp returns 1
-    #~ my (@rgb) = @_;
-    #~ my $range_help = 'has to be an integer between 0 and 255';
-    #~ return carp "need exactly 3 positive integer values 0 <= n < 256 for rgb input" unless $rgb_def->is_array( \@rgb );
-    #~ return carp "red value $rgb[0] ".$range_help   unless int $rgb[0] == $rgb[0] and $rgb[0] >= 0 and $rgb[0] < 256;
-    #~ return carp "green value $rgb[1] ".$range_help unless int $rgb[1] == $rgb[1] and $rgb[1] >= 0 and $rgb[1] < 256;
-    #~ return carp "blue value $rgb[2] ".$range_help  unless int $rgb[2] == $rgb[2] and $rgb[2] >= 0 and $rgb[2] < 256;
-    #~ 0;
-#~ }
-
-sub clamp { # cut values into the domain of definition of 0 .. 255
-    map { round($_) } map {$_ < 0 ? 0 : $_} map {$_ > 255 ? 255 : $_}  @_;
+    my ($self, $values, $range) = @_;
+    return carp 'value vector in '.$self->name.' needs '.$self->dimensions.' values' if @$values != $self->dimensions;
+    return if defined $range and not $self->basis->is_range_def( $range );
+    $range //= $self->{'range'};
+    my @names = $self->basis->keys;
+    for my $i ($self->basis->iterator){
+        return carp $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
+        return carp $names[$i]." value is above maximum of ".$range->[$i][2] if $values->[$i] > $range->[$i][2];
+        return carp $names[$i]." value has to be an integer" if $range->[$i][1] > 1 and $values->[$i] != int $values->[$i];
+    }
 }
 
-
-#~ sub clamp {
-    #~ my ($self, $values, $range) = @_;
-    #~ return if defined $range and not $self->basis->is_range_def( $range );
-    #~ $range //= $self->{'range'};
-    #~ push @$values, 0 while @$values < $self->dimensions;
-    #~ pop  @$values    while @$values > $self->dimensions;
-    #~ # map {} $self->basis->iterator;
-#~ }
+sub clamp {
+    my ($self, $values, $range) = @_;
+    return if defined $range and not $self->basis->is_range_def( $range );
+    $range //= $self->{'range'};
+    push @$values, 0 while @$values < $self->dimensions;
+    pop  @$values    while @$values > $self->dimensions;
+    for my $i ($self->basis->iterator){
+        $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
+        $values->[$i] = $range->[$i][2] if $values->[$i] > $range->[$i][2];
+        $values->[$i] = round($values->[$i]) if $range->[$i][1] > 1 and $values->[$i] != int $values->[$i];
+    }
+    return @$values;
+}
 
 ########################################################################
 
@@ -179,7 +179,5 @@ sub deconvert {
     return unless ref $values eq 'ARRAY' and defined $space_name;
     $self->{'convert'}{ uc $space_name }{'from'}->(@$values) if $self->can_convert( $space_name );
 }
-
-
 
 1;

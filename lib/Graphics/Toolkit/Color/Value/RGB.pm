@@ -12,23 +12,7 @@ my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/]
    $rgb_def->add_formatter(   'hex',   \&hex_from_rgb );
    $rgb_def->add_deformatter( 'hex',   sub { rgb_from_hex(@_) if is_hex(@_) } );
    $rgb_def->add_deformatter( 'array', sub { @{$_[0]} if $rgb_def->is_array($_[0]) and $_[0][0] =~ /\d/} );
-   $rgb_def->change_clamp_routine( \&clamp );
 
-########################################################################
-
-sub check { # carp returns 1
-    my (@rgb) = @_;
-    my $range_help = 'has to be an integer between 0 and 255';
-    return carp "need exactly 3 positive integer values 0 <= n < 256 for rgb input" unless $rgb_def->is_array( \@rgb );
-    return carp "red value $rgb[0] ".$range_help   unless int $rgb[0] == $rgb[0] and $rgb[0] >= 0 and $rgb[0] < 256;
-    return carp "green value $rgb[1] ".$range_help unless int $rgb[1] == $rgb[1] and $rgb[1] >= 0 and $rgb[1] < 256;
-    return carp "blue value $rgb[2] ".$range_help  unless int $rgb[2] == $rgb[2] and $rgb[2] >= 0 and $rgb[2] < 256;
-    0;
-}
-
-sub clamp { # cut values into the domain of definition of 0 .. 255
-    map { round($_) } map {$_ < 0 ? 0 : $_} map {$_ > 255 ? 255 : $_}  @_;
-}
 
 sub hex_from_rgb {  return unless @_ == $rgb_def->dimensions;  sprintf "#%02x%02x%02x", @_ }
 

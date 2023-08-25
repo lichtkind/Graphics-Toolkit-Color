@@ -8,7 +8,7 @@ use Carp;
 use Graphics::Toolkit::Color::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
-my $cmyk_def = Graphics::Toolkit::Color::Space->new( axis => [qw/cyan magenta yellow key/], range => 1);
+my $cmyk_def = Graphics::Toolkit::Color::Space->new( axis => [qw/cyan magenta yellow key/] );
    $cmyk_def->add_converter('RGB', \&to_rgb, \&from_rgb );
    $cmyk_def->change_clamp_routine( \&clamp );
 

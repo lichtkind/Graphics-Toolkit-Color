@@ -15,7 +15,7 @@ sub new {
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
     bless { keys => [@keys], shortcuts => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
-            name => join('', @shortcuts), count => int @keys, iterator => \@iterator }
+            name => uc (join('', @shortcuts)), count => int @keys, iterator => \@iterator }
 }
 
 sub keys     { @{$_[0]{'keys'}} }
@@ -61,6 +61,14 @@ sub is_partial_hash {
     }
     return 1;
 }
+sub is_range_def {
+    my ($self, $range) = @_;
+    return 0 unless $self->is_array( $range );
+    map {return 0 if ref $_ ne 'ARRAY' or @_ != 3 or $_->[1] != ($_->[2] - $_->[0])} @$range;
+    return 1;
+}
+
+########################################################################
 
 sub list_value_from_key {
     my ($self, $key, @values) = @_;

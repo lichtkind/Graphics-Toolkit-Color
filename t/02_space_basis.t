@@ -28,8 +28,8 @@ is( ($s3d->shortcuts)[0],    'a',    'repeat first 3d key shortcut back');
 is( ($s3d->shortcuts)[-1],   'g',    'repeat last 5d key shortcut back');
 is( ($s5d->shortcuts)[0],    'a',    'repeat first 3d key shortcut back');
 is( ($s5d->shortcuts)[-1],   'h',    'repeat last 5d key shortcut back');
-is( $s3d->name,         'abg',       'correct name from 3 initials');
-is( $s5d->name,         'abgdh',     'correct name from 5 initials');
+is( $s3d->name,         'ABG',       'correct name from 3 initials');
+is( $s5d->name,         'ABGDH',     'correct name from 5 initials');
 is( ($s3d->iterator)[-1],   2,       'correct last value of 0..2 iterator');
 is( ($s5d->iterator)[-1],   4,       'correct last value of 0..4 iterator');
 

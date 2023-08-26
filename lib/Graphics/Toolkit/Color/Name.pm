@@ -160,11 +160,11 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Constant - access values of color constants
+Graphics::Toolkit::Color::Name - access values of color constants
 
 =head1 SYNOPSIS
 
-    use Graphics::Toolkit::Color::Constant qw/:all/;
+    use Graphics::Toolkit::Color::Name qw/:all/;
     my @names = Graphics::Toolkit::Color::Name::all();
     my @rgb  = rgb_from_name('darkblue');
     my @hsl  = hsl_from_name('darkblue');
@@ -184,7 +184,7 @@ No symbol is imported by default. The sub symbols: C<rgb_from_name>,
 C<hsl_from_name>, C<name_from_rgb>, C<name_from_hsl> may be imported
 individually or by:
 
-    use Graphics::Toolkit::Color::Constant qw/:all/;
+    use Graphics::Toolkit::Color::Name qw/:all/;
 
 
 =head1 ROUTINES
@@ -194,9 +194,9 @@ individually or by:
 Red, Green and Blue value of the named color.
 These values are integer in 0 .. 255.
 
-    my @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('darkblue');
-    @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('dark_blue'); # same result
-    @rgb = Graphics::Toolkit::Color::Constant::rgb_from_name('DarkBlue');  # still same
+    my @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('darkblue');
+    @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('dark_blue'); # same result
+    @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('DarkBlue');  # still same
 
 =head2 hsl_from_name
 
@@ -205,7 +205,7 @@ These are integer between 0 .. 359 (hue) or 100 (sat. & light.).
 A hue of 360 and 0 (degree in a cylindrical coordinate system) is
 considered to be the same, this modul deals only with the ladder.
 
-    my @hsl = Graphics::Toolkit::Color::Constant::hsl_from_name('darkblue');
+    my @hsl = Graphics::Toolkit::Color::Name::hsl_from_name('darkblue');
 
 =head2 name_from_rgb
 
@@ -214,8 +214,8 @@ Returns empty string if color is not stored. When several names define
 given color, the shortest name will be selected in scalar context.
 In array context all names are given.
 
-    say Graphics::Toolkit::Color::Constant::name_from_rgb( 15, 10, 121 );  # 'darkblue'
-    say Graphics::Toolkit::Color::Constant::name_from_rgb([15, 10, 121]);  # works too
+    say Graphics::Toolkit::Color::Name::name_from_rgb( 15, 10, 121 );  # 'darkblue'
+    say Graphics::Toolkit::Color::Name::name_from_rgb([15, 10, 121]);  # works too
 
 =head2 name_from_hsl
 
@@ -224,9 +224,9 @@ Returns empty string if color is not stored. When several names define
 given color, the shortest name will be selected in scalar context.
 In array context all names are given.
 
-    say scalar Graphics::Toolkit::Color::Constant::name_from_hsl( 0, 100, 50 );  # 'red'
-    scalar Graphics::Toolkit::Color::Constant::name_from_hsl([0, 100, 50]);  # works too
-    say for Graphics::Toolkit::Color::Constant::name_from_hsl( 0, 100, 50 ); # 'red', 'red1'
+    say scalar Graphics::Toolkit::Color::Name::name_from_hsl( 0, 100, 50 );  # 'red'
+    scalar Graphics::Toolkit::Color::Name::name_from_hsl([0, 100, 50]);  # works too
+    say for Graphics::Toolkit::Color::Name::name_from_hsl( 0, 100, 50 ); # 'red', 'red1'
 
 =head2  names_in_hsl_range
 
@@ -250,9 +250,9 @@ in a search of in the range 75 .. 100.
 The results contains only one name per color (the shortest).
 
     # all bright red'ish clors
-    my @names = Graphics::Toolkit::Color::Constant::names_in_hsl_range([0, 90, 50], 5);
+    my @names = Graphics::Toolkit::Color::Name::names_in_hsl_range([0, 90, 50], 5);
     # approximates to :
-    my @names = Graphics::Toolkit::Color::Constant::names_in_hsl_range([0, 90, 50],[ 3, 3, 3]);
+    my @names = Graphics::Toolkit::Color::Name::names_in_hsl_range([0, 90, 50],[ 3, 3, 3]);
 
 
 =head2 all
@@ -269,16 +269,16 @@ argument) is already in use.
 Adding a color to the store under an not taken (not already used) name.
 Arguments are name, red, green and blue value (integer < 256, see rgb).
 
-    Graphics::Toolkit::Color::Constant::add_rgb('nightblue',  15, 10, 121 );
-    Graphics::Toolkit::Color::Constant::add_rgb('nightblue', [15, 10, 121]);
+    Graphics::Toolkit::Color::Name::add_rgb('nightblue',  15, 10, 121 );
+    Graphics::Toolkit::Color::Name::add_rgb('nightblue', [15, 10, 121]);
 
 =head2 add_hsl
 
 Adding a color to the store under an not taken (not already used) name.
 Arguments are name, hue, saturation and lightness value (see hsl).
 
-    Graphics::Toolkit::Color::Constant::add_rgb('lucky',  0, 100, 50 );
-    Graphics::Toolkit::Color::Constant::add_rgb('lucky', [0, 100, 50]);
+    Graphics::Toolkit::Color::Name::add_rgb('lucky',  0, 100, 50 );
+    Graphics::Toolkit::Color::Name::add_rgb('lucky', [0, 100, 50]);
 
 =head1 SEE ALSO
 

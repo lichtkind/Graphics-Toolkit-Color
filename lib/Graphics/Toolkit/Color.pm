@@ -378,7 +378,7 @@ in X11 or HTML (SVG) standard or the Pantone report.
 The name will be found and filled in, even when the object
 was created numerical values.
 If no color is found, C<name> returns an empty string.
-All names are at: L<Graphics::Toolkit::Color::Constant/NAMES>
+All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
 (See als: L</new('name')>)
 
 =head2 string

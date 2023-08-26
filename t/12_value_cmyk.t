@@ -84,7 +84,7 @@ is( $rgb[1],   0.4,   'right green value');
 is( $rgb[2],   0.5,   'right blue value');
 
 @cmyk = $def->deformat([cmyk => 11, 22, 256, -1]);
-is( int @rgb,  3,     'deformat lc named ARRAY: got 4 values');
+is( int @cmyk,  4,     'deformat lc named ARRAY: got 4 values');
 is( $cmyk[0],  11,    'cyan got transported');
 is( $cmyk[1],  22,    'also too large magenta');
 is( $cmyk[2], 256,    'yallow transported, range ignored');

@@ -11,6 +11,8 @@ my $module = 'Graphics::Toolkit::Color::Value::HSV';
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
+is( $def->name,       'HSV',                     'color space has right name');
+is( $def->dimensions,     3,                     'color space has 3 dimensions');
 
 my $chk_hsv        = \&Graphics::Toolkit::Color::Value::HSV::check;
 ok( !$chk_hsv->(0,0,0),       'check hsv values works on lower bound values');

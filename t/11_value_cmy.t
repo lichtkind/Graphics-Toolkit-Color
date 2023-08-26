@@ -26,7 +26,6 @@ warning_like {$def->check([0, 0, -1 ] )} {carped => qr/yellow value/},  "yellow 
 warning_like {$def->check([0, 0, 2] )}   {carped => qr/yellow value/},  "yellow value is too big";
 
 
-
 my @cmy = $def->clamp([]);
 is( int @cmy,  3,     'default color is set by clamp');
 is( $cmy[0],   0,     'default color is black (C) no args');

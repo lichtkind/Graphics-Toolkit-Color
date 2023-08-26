@@ -12,39 +12,6 @@ my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/L* a* b*/],
                                                    range => [100, [-128,127], [-128,127]] ); # green-red, blue-yellow
 
    $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-   $hwb_def->change_delta_routine( \&delta );
-   $hwb_def->change_clamp_routine( \&clamp );
-
-########################################################################
-
-sub check {
-    my (@hsv) = @_;
-    my $help = 'has to be an integer between 0 and';
-    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsv input" unless $hsv_def->is_array( \@hsv );
-    return carp "hue value $hsv[0] $help 359"        unless int $hsv[0] == $hsv[0] and $hsv[0] >= 0 and $hsv[0] < 360;
-    return carp "saturation value $hsv[1] $help 100" unless int $hsv[1] == $hsv[1] and $hsv[1] >= 0 and $hsv[1] < 101;
-    return carp "value value $hsv[2] $help 100"      unless int $hsv[2] == $hsv[2] and $hsv[2] >= 0 and $hsv[2] < 101;
-    0;
-}
-
-sub clamp { # cut values into 0 ..359, 0 .. 100, 0 .. 100
-    my (@hsv) = @_;
-    $hsv[0] += 360 while $hsv[0] <    0;
-    $hsv[0] -= 360 while $hsv[0] >= 360;
-    for (1 .. 2){
-        $hsv[$_] =   0 if $hsv[$_] <   0;
-        $hsv[$_] = 100 if $hsv[$_] > 100;
-    }
-    map {round($_)} @hsv;
-}
-
-sub delta { # \@hsl, \@hsl --> @delta
-    my ($hsv1, $hsv2) = @_;
-    my $delta_h = abs($hsv2->[0] - $hsv1->[0]);
-    $delta_h = $delta_h + 360 if $delta_h < -180;
-    $delta_h = $delta_h - 360 if $delta_h >  180;
-    ($delta_h, ($hsv2->[1] - $hsv1->[1]), ($hsv2->[2] - $hsv1->[2]) );
-}
 
 
 sub _from_rgb { # float conversion

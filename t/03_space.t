@@ -14,6 +14,7 @@ is( not($@), 1, 'could load the module');
 my $fspace = Graphics::Toolkit::Color::Space->new();
 is( ref $fspace, '', 'need vector names to create color space');
 my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => 20);
+
 is( ref $space, $module, 'could create a space object');
 is( $space->name,  'ABCD', 'space has right name');
 is( $space->dimensions, 4, 'space has four dimension');
@@ -117,10 +118,10 @@ is( $tr[1],    0, 'do not touch minimal value');
 is( $tr[2],   20, 'clamp real into int');
 is( $tr[3],   20, 'clamp down value above range max');
 
-@tr = $hspace->clamp( [4000, 100] );
+@tr = $hspace->clamp( [360, 100] );
 is( int @tr,   3, 'clamp added missing value');
-is( $tr[0],  359, 'clamp down too large circular value');
-is( $tr[1],  100, 'value was just max, so it passed');
+is( $tr[0],    1, 'clamp down too large circular value');
+is( $tr[1],    0, 'value was just max, clamped to min');
 is( $tr[2],    0, 'added a zero');
 
 is( $space->check([1,2,3,4]),   undef, 'all values in range');

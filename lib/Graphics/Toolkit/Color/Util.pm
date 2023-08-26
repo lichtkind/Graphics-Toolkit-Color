@@ -40,6 +40,8 @@ sub rmod {
     $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }
 
-sub close_enough { abs($_[0] - $_[1]) < $tolerance if defined $_[1]}
+sub close_enough { abs($_[0] - $_[1]) < 0.01 if defined $_[1]}
 
 1;
+
+# min(floor(val*256),255)

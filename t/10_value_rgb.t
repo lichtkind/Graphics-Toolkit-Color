@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 73;
+use Test::More tests => 77;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -113,5 +113,12 @@ is( int @d,   3,      'delta vector has right length');
 is( $d[0],  256,      'delta in R component');
 is( $d[1],   44,      'delta in G component');
 is( $d[2], -256,      'delta in B component');
+
+@rgb = $def->denormalize( [0.3, 0.4, 0.5], [[0,255],[0,255],[0,255]] );
+is( int @rgb,  3,     'denormalized triplet');
+is( $rgb[0],   77,    'right red value');
+is( $rgb[1],   102,   'right green value');
+is( $rgb[2],   128,   'right blue value');
+
 
 exit 0;

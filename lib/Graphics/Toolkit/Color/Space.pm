@@ -106,10 +106,16 @@ sub clamp {
     push @$values, 0 while @$values < $self->dimensions;
     pop  @$values    while @$values > $self->dimensions;
     for my $i ($self->basis->iterator){
-        $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
-        $values->[$i] = $range->[$i][1] if $values->[$i] > $range->[$i][1];
-        $values->[$i] = round($values->[$i]) if ($range->[$i][1] - $range->[$i][0]) > 1
-                                             and $values->[$i] != int $values->[$i];
+        my $delta = $range->[$i][1] - $range->[$i][0];
+        if ($self->{'type'}[$i]){
+            $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
+            $values->[$i] = $range->[$i][1] if $values->[$i] > $range->[$i][1];
+        } else {
+            $values->[$i] += $delta while $values->[$i] < $range->[$i][0];
+            $values->[$i] -= $delta while $values->[$i] > $range->[$i][1];
+            $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
+        }
+        $values->[$i] = round($values->[$i]) if $delta > 1;
     }
     return @$values;
 }

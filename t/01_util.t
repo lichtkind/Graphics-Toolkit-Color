@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -34,5 +34,13 @@ is( $close->($rmod->(3.1, -2), 1.1), 1,     'real mod with negative divisor');
 is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
 is( $close->($rmod->(-3.1, -2),-1.1),1,     'real mod with negative dividend and divisor');
 is( $close->($rmod->(15.3, 4), 3.3), 1,     'real mod with different values');
+
+my $min = \&Graphics::Toolkit::Color::Util::min;
+my $max = \&Graphics::Toolkit::Color::Util::max;
+
+is( $min->(1,2,3),     1  ,     'simple minimum');
+is( $min->(-1.1,2,3), -1.1,     'negative minimum');
+is( $max->(1,2,3),       3,           'simple maximum');
+is( $max->(-1,2,10E3), 10000,   'any syntax maximum');
 
 exit 0;

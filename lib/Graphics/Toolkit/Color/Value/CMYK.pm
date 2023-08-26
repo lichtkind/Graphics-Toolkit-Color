@@ -15,10 +15,8 @@ my $cmyk_def = Graphics::Toolkit::Color::Space->new( axis => [qw/cyan magenta ye
 sub from_rgb {
     my ($r, $g, $b) = @_;
     return unless defined $b;
-    my $km = $r > $g ? $r : $g;
-    $km = $km > $b ? $km : $b;
+    my $km = max($r, $g, $b);
     return (0,0,0,1) unless $km; # prevent / 0
-
     return ( ($km - $r) / $km,
              ($km - $g) / $km,
              ($km - $b) / $km,

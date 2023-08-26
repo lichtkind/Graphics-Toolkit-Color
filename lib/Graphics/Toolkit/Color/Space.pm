@@ -16,10 +16,10 @@ sub new {
     return unless ref $basis;
 
     if    (not defined $range){                # check range settings
-        $range = [([0,1,1]) x $basis->count];  # no denormal range
+        $range = [([0,1]) x $basis->count];    # normal range
     } elsif (not ref $range and $range > 0) {
         $range = int $range;
-        $range = [([0, $range, $range]) x $basis->count];
+        $range = [([0, $range]) x $basis->count];
     } elsif (ref $range eq 'ARRAY' and @$range == @$axis ) {
         for my $i (0 .. $basis->count-1) {
             my $drange = $range->[$i]; # range def of this dimension

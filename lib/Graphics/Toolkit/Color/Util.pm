@@ -6,11 +6,28 @@ use warnings;
 package Graphics::Toolkit::Color::Util;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/round rmod close_enough/;
+our @EXPORT_OK = qw/round rmod close_enough min max/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half      = 0.50000000000008;
 my $tolerance = 0.00000000000008;
+
+sub rgb_to_hue {
+    my (@rgb) = @_;
+
+}
+
+sub max {
+    my $v = shift;
+    for (@_) { $v = $_ if $v < $_ }
+    $v;
+}
+
+sub min {
+    my $v = shift;
+    for (@_) { $v = $_ if $v > $_ }
+    $v;
+}
 
 sub round {
     $_[0] >= 0 ? int ($_[0] + $half)

@@ -133,13 +133,13 @@ sub shortcut_hash_from_list {
 
 sub named_array_from_list {
     my ($self, @values) = @_;
-    return [lc $self->name, @values] unless @values == $self->{'count'};
+    return [lc $self->name, @values] if @values == $self->{'count'};
 }
 
 sub named_string_from_list {
     my ($self, @values) = @_;
     return unless @values == $self->{'count'};
-    lc( $self->name).':'.join(', ', @values);
+    lc( $self->name).': '.join(', ', @values);
 }
 
 

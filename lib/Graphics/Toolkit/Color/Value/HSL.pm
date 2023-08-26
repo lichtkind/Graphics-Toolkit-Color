@@ -12,39 +12,8 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation l
                                                    range => [ 359, 100, 100 ],
                                                     type => [qw/angle linear linear/]);
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-   $hsl_def->change_delta_routine( \&delta );
-   $hsl_def->change_clamp_routine( \&clamp );
 
-########################################################################
 
-sub check {
-    my (@hsl) = @_;
-    my $help = 'has to be an integer between 0 and';
-    return carp "need exactly 3 positive integer between 0 and 359 or 100 for hsl input" unless $hsl_def->is_array( \@hsl );
-    return carp "hue value $hsl[0] $help 359"        unless int $hsl[0] == $hsl[0] and $hsl[0] >= 0 and $hsl[0] < 360;
-    return carp "saturation value $hsl[1] $help 100" unless int $hsl[1] == $hsl[1] and $hsl[1] >= 0 and $hsl[1] < 101;
-    return carp "lightness value $hsl[2] $help 100"  unless int $hsl[2] == $hsl[2] and $hsl[2] >= 0 and $hsl[2] < 101;
-    0;
-}
-
-sub clamp { # cut values into 0 ..359, 0 .. 100, 0 .. 100
-    my (@hsl) = @_;
-    $hsl[0] += 360 while $hsl[0] <    0;
-    $hsl[0] -= 360 while $hsl[0] >= 360;
-    for (1..2){
-        $hsl[$_] =   0 if $hsl[$_] <   0;
-        $hsl[$_] = 100 if $hsl[$_] > 100;
-    }
-    map {round($_)} @hsl;
-}
-
-sub delta { # \@hsl, \@hsl --> @delta
-    my ($hsl1, $hsl2) = @_;
-    my $delta_h = $hsl2->[0] - $hsl1->[0];
-    $delta_h = $delta_h + 360 if $delta_h < -180;
-    $delta_h = $delta_h - 360 if $delta_h >  180;
-    ($delta_h, ($hsl2->[1] - $hsl1->[1]), ($hsl2->[2] - $hsl1->[2]) );
-}
 
 sub _from_rgb { # float conversion
     my (@rgb) = @_;

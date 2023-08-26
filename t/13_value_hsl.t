@@ -11,8 +11,9 @@ my $module = 'Graphics::Toolkit::Color::Value::HSL';
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
+is( $def->name,       'HSL',                     'color space has right name');
+is( $def->dimensions,     3,                     'color space has 3 dimensions');
 
-my $chk_hsl        = \&Graphics::Toolkit::Color::Value::HSL::check;
 
 ok( !$chk_hsl->(0,0,0),       'check hsl values works on lower bound values');
 ok( !$chk_hsl->(359,100,100), 'check hsl values works on upper bound values');

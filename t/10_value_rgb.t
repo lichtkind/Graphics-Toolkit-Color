@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 77;
+use Test::More tests => 82;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -87,6 +87,7 @@ is( $rgb[0],  -1,     'to small red is not clamped up');
 is( $rgb[1], 256,     'too large green is not clamped down');
 is( $rgb[2], 3.3,     'blue decimals do not get clamped');
 
+
 @rgb = $def->deformat('rgb:0,1,2');
 is( int @rgb,  3,     'deformat STRING format without spaces and lc name: got 3 values');
 is( $rgb[0],   0,     'red is zero');
@@ -97,6 +98,14 @@ is( $rgb[2],   2,     'blue is two');
 is( $rgb[0],  undef,  'OO deformat STRING reacts only to right space name');
 
 is( $def->format([0,256,3.3], 'string'), 'rgb: 0, 256, 3.3', 'formated rgb triplet into value string');
+
+@rgb = $def->deformat('rgb( -1 , 2.3, 4444)');
+is( int @rgb,  3,     'deformat css STRING formatwith all hurdles: got 3 values');
+is( $rgb[0],   -1,    'red is -1');
+is( $rgb[1],   2.3,   'green is one');
+is( $rgb[2],   4444,  'blue is two');
+
+is( $def->format([-1,2.3,4444], 'css_string'), 'rgb(-1,2.3,4444)', 'formated rgb triplet into css string');
 
 my $rgb = $def->format([0,256,3.3], 'array');
 is( ref $rgb,  'ARRAY',  'formated into ARRAY');

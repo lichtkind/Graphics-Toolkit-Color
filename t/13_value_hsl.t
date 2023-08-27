@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 45;
+use Test::More tests => 51;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -74,5 +74,16 @@ is( int @rgb,  3,     'converted back color grey has three rgb values');
 is( close_enough($rgb[0], 0.00784), 1,  'converted back color grey has right red value');
 is( close_enough($rgb[1], 0.7843),  1,  'converted back color grey has right green value');
 is( close_enough($rgb[2], 0.0902),  1,  'converted back color grey has right blue value');
+
+my @d = $def->delta([0.3,0.3,0.3],[0.3,0.4,0.2]);
+is( int @d,   3,      'delta vector has right length');
+is( $d[0],    0,      'no delta in hue component');
+is( $d[1],    0.1,    'positive delta in saturation component');
+is( $d[2],   -0.1,    'negatve delta in lightness component');
+
+@d = $def->delta([0.9,0,0],[0.1,0,0]);
+is( $d[0],   .2,      'negative delta across the cylindrical border');
+@d = $def->delta([0.3,0,0],[0.9,0,0]);
+is( $d[0],  -.4,      'negative delta because cylindrical quality of dimension');
 
 exit 0;

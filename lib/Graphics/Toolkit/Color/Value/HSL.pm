@@ -14,7 +14,6 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation l
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 
-
 sub from_rgb {
     my ($r, $g, $b) = @_;
     my $vmax = max($r, $g, $b),

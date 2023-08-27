@@ -8,7 +8,7 @@ use Test::Warn;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Name';
 
-eval "use $module qw/:all/";
+eval "use $module";
 is( not($@), 1, 'could load the module');
 
 my @names = Graphics::Toolkit::Color::Name::all();

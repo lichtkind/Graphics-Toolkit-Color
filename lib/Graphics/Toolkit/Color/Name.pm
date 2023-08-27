@@ -5,7 +5,7 @@ use v5.12;
 package Graphics::Toolkit::Color::Name;
 
 use Carp;
-use Graphics::Toolkit::Color::Value ':all';
+use Graphics::Toolkit::Color::Value;
 
 my $constants = require Graphics::Toolkit::Color::Name::Constant;
 our (@name_from_rgb, @name_from_hsl); # search caches
@@ -27,7 +27,7 @@ sub hsl_from_name {
 sub name_from_rgb {
     my (@rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
-    Graphics::Toolkit::Color::Value::RGB::check( @rgb ) and return; # return if sub did carp
+    Graphics::Toolkit::Color::Value::space('RGB')->check( [@rgb] ) and return; # return if sub did carp
     my @names = _names_from_rgb( @rgb );
     wantarray ? @names : $names[0];
 }
@@ -35,7 +35,7 @@ sub name_from_rgb {
 sub name_from_hsl {
     my (@hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
-    Graphics::Toolkit::Color::Value::HSL::check( @hsl ) and return;
+    Graphics::Toolkit::Color::Value::space('HSL')->check( [ @hsl ] ) and return;
     my @names = _names_from_hsl( @hsl );
     wantarray ? @names : $names[0];
 }
@@ -49,7 +49,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
         if ref $hsl_center ne 'ARRAY' or @$hsl_center != 3;
     return carp 'second argument has to be a integer < 180 or array ref with 3 integer'
         unless (ref $radius eq 'ARRAY' and @$radius == 3) or (defined $radius and not ref $radius);
-    Graphics::Toolkit::Color::Value::HSL::check( @$hsl_center ) and return;
+    Graphics::Toolkit::Color::Value::space('HSL')->check( [@$hsl_center] ) and return;
 
     my @hsl_delta = ref $radius ? @$radius : ($radius, $radius, $radius);
     $hsl_delta[$_] = int abs $hsl_delta[$_] for 0 ..2;
@@ -84,7 +84,7 @@ sub add_rgb {
     my ($name, @rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
     return carp "missing first argument: color name" unless defined $name and $name;
-    Graphics::Toolkit::Color::Value::RGB::check( @rgb ) and return;
+    Graphics::Toolkit::Color::Value::space('RGB')->check( [@rgb] ) and return;
     _add_color( $name, @rgb, Graphics::Toolkit::Color::Value::HSL::from_rgb( @rgb ) );
 }
 

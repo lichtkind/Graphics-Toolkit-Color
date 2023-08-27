@@ -51,13 +51,15 @@ sub new {
     my %deformats = ( hash => sub { $basis->list_from_hash(@_)   if $basis->is_hash(@_) },
                named_array => sub { @{$_[0]}[1 .. $#{$_[0]}]     if $basis->is_named_array(@_) },
                     string => sub { $basis->list_from_string(@_) if $basis->is_string(@_) },
+                css_string => sub { $basis->list_from_css(@_)    if $basis->is_css_string(@_) },
     );
     # which formats we can output
-    my %formats = (list => sub { @_ },
-                   hash => sub { $basis->key_hash_from_list(@_) },
-              char_hash => sub { $basis->shortcut_hash_from_list(@_) },
-                  array => sub { $basis->named_array_from_list(@_) },
-                 string => sub { $basis->named_string_from_list(@_) },
+    my %formats = (list => sub { @_ },                                 # 1,2,3
+                   hash => sub { $basis->key_hash_from_list(@_) },     # { red => 1, green => 2, blue => 3 }
+              char_hash => sub { $basis->shortcut_hash_from_list(@_) },# { r =>1, g => 2, b => 3 }
+                  array => sub { $basis->named_array_from_list(@_) },  # ['rgb',1,2,3]
+                 string => sub { $basis->named_string_from_list(@_) }, #   rgb: 1, 2, 3
+             css_string => sub { $basis->css_string_from_list(@_) },   #   rgb(1,2,3)
     );
 
     bless { basis => $basis, range => $range, type => $type,

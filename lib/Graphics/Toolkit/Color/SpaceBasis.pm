@@ -31,8 +31,21 @@ sub is_shortcut  { (defined $_[1] and exists $_[0]->{'shortcut_order'}{ lc $_[1]
 sub is_key_or_shortcut { $_[0]->is_key($_[1]) or $_[0]->is_shortcut($_[1]) }
 sub is_string {
     my ($self, $string) = @_;
-    return 0 unless defined $string and not ref $string and index($string, ',') > -1;
-    (index( lc($string), lc($self->name).':') == 0) ? 1 : 0;
+    return 0 unless defined $string and not ref $string;
+    $string = lc $string;
+    my $name = lc $self->name;
+    my $nr = '\s*-?\d+(?:\.\d+)?\s*';
+    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
+    ($string =~ /^$name:$nrs$/) ? 1 : 0;
+}
+sub is_css_string {
+    my ($self, $string) = @_;
+    return 0 unless defined $string and not ref $string;
+    $string = lc $string;
+    my $name = lc $self->name;
+    my $nr = '\s*-?\d+(?:\.\d+)?\s*';
+    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
+    ($string =~ /^$name\($nrs\)$/) ? 1 : 0;
 }
 sub is_array {
     my ($self, $value_array) = @_;
@@ -119,6 +132,13 @@ sub list_from_string {
     return map {$_ + 0} split(/,/, $parts[1]);
 }
 
+sub list_from_css {
+    my ($self, $string) = @_;
+    1 until chop($string) eq ')';
+    my @parts = split(/\(/, $string);
+    return map {$_ + 0} split(/,/, $parts[1]);
+}
+
 sub key_hash_from_list {
     my ($self, @values) = @_;
     return unless @values == $self->{'count'};
@@ -142,6 +162,11 @@ sub named_string_from_list {
     lc( $self->name).': '.join(', ', @values);
 }
 
+sub css_string_from_list {
+    my ($self, @values) = @_;
+    return unless @values == $self->{'count'};
+    lc( $self->name).'('.join(',', @values).')';
+}
 
 sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 

@@ -87,6 +87,7 @@ sub _origin {    $_[0][4] }
 sub values      {
     my ($self, $space, @format) = @_;
     my @val = Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space);
+    # denormalize
     Graphics::Toolkit::Color::Value::format( \@val, $space, @format);
 }
 

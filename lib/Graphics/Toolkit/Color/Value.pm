@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Value;
 use Carp;
 my $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB HCL LAB/); # search order
+my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB/); # search order # HCL LAB LUV XYZ YIQ Ncol ?
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
 
 sub space    { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
@@ -126,26 +126,27 @@ Color space names can be written in any combination of upper and lower case.
 
 =head2 RGB
 
-has three integer values: I<red> (0 .. 255), I<green> (0 .. 255) and I<blue> (0 .. 255).
+has three integer values: B<red> (0 .. 255), B<green> (0 .. 255) and
+B<blue> (0 .. 255).
 All are scaling from no (0) to very much (255) light of that color,
 so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
 
 =head2 CMY
 
-is the inverse of RGB but with the range: 0 .. 1. I<cyan> is the inverse
-value of I<red>, I<magenta> is inverse green and I<yellow> is inverse of
+is the inverse of RGB but with the range: 0 .. 1. B<cyan> is the inverse
+value of I<red>, B<magenta> is inverse green and B<yellow> is inverse of
 I<blue>. Inverse meaning when a color has the maximal I<red> value,
 it has to have the minimal I<cyan> value.
 
 =head2 CMYK
 
-is an extension of CMY with a fourth value named I<key> (also 0 .. 1),
+is an extension of CMY with a fourth value named B<key> (also 0 .. 1),
 which is basically the amount of black mixed into the CMY color.
 
 =head2 HSL
 
-has three integer values: I<hue> (0 .. 359), I<saturation> (0 .. 100)
-and I<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
+has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
+and B<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
 15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
 270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
 coordinate. This module only outputs 0, even if accepting 360 as input.
@@ -154,11 +155,31 @@ I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
 
 =head2 HSV
 
-Similar to HSL with the difference that the third value in named I<value>
-and in HSL the color white is always achieved when I<lightness> = 100.
-In HSV additionally I<saturation> has to be zero.
-When in HSV I<lightness> is 100 and I<saturation> is also 100, than we
+Similar to HSL we have B<hue> and B<saturation>, but the third value in
+named B<value>. In HSL the color white is always achieved when I<lightness> = 100.
+In HSV additionally I<saturation> has to be zero to get white.
+When in HSV I<value> is 100 and I<saturation> is also 100, than we
 have the brightest clearest color of whatever I<hue> sets.
+
+=head2 HSB
+
+It is an alias to HSV, just value being renamed with B<brightness>.
+
+=head2 HWB
+
+An inverted HSV, where the clean colors are inside of the cylinder.
+It still has the circular B<hue> dimension, as described in C<HSL>.
+The other two, linear dimensions (also 0 .. 100 [percent]) are
+B<whiteness> and B<blackness>, desribing how much white or black are mixed in.
+If both are zero, than we have a pure color. I<whiteness> of 100 always
+leads to pure white and I<blackness> of 100 always leads to pure black.
+
+=head2 HCL
+
+=head2 LAB
+
+=head2 XYZ
+
 
 =head1 ROUTINES
 

@@ -6,10 +6,10 @@ use Test::More tests => 51;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value::HSL';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::HSL';
 
 my $def = eval "require $module";
-use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');

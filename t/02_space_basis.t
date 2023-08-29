@@ -2,22 +2,22 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 111;
+use Test::More tests => 102;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::SpaceBasis';
+my $module = 'Graphics::Toolkit::Color::Space::Basis';
 
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
-my $obj = Graphics::Toolkit::Color::SpaceBasis->new();
+my $obj = Graphics::Toolkit::Color::Space::Basis->new();
 is( $obj,  undef,       'constructor needs arguments');
-$obj = Graphics::Toolkit::Color::SpaceBasis->new(1);
+$obj = Graphics::Toolkit::Color::Space::Basis->new(1);
 is( ref $obj, $module,  'one constructor argument is enough');
 
-my $s3d = Graphics::Toolkit::Color::SpaceBasis->new(qw/Alpha beta gamma/);
-my $s5d = Graphics::Toolkit::Color::SpaceBasis->new(qw/Aleph beth gimel daleth he/);
+my $s3d = Graphics::Toolkit::Color::Space::Basis->new(qw/Alpha beta gamma/);
+my $s5d = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth he/);
 is( $s3d->count,         3,     'did count three args');
 is( $s5d->count,         5,     'did count five args');
 is( ($s3d->keys)[0],    'alpha',     'repeat first 3d key back');
@@ -53,16 +53,6 @@ is( $s3d->is_array([]),                 0, 'empty ARRAY has not enogh content');
 is( $s3d->is_array([2,2]),              0, 'too small ARRAY');
 is( $s3d->is_array([1,2,3,4]),          0, 'too large ARRAY');
 is( $s3d->is_array([1,2,3]),            1, 'correctly sized value ARRAY');
-
-is( $s3d->is_range_def([[1,3],[1,3],[1,3]]),          1,'correct range definition');
-is( $s3d->is_range_def([[1,3],[1,3],[5,4]]),          0,'range size is wrong in last dimentsion');
-is( $s3d->is_range_def([[1,3],[1,3],[1,3,4]]),        0,'too many values in last dimentsion');
-is( $s3d->is_range_def([[1,3],[1],  [1,3]]),          0,'too little values in second dimentsion');
-is( $s3d->is_range_def([[1,3],[1,3],[1,3],[1,3]]),    0,'too many dimensions');
-is( $s3d->is_range_def([[1,3],[1,3] ]),               0,'too little dimensions');
-is( $s3d->is_range_def({}),                           0,'not even an ARRAY');
-is( $s3d->is_range_def([[1.1,3],[1,3],[1,3]]),        0,'none int value');
-is( $s3d->is_range_def([[1,3.1],[1,3],[1,3]]),        0,'none int second value');
 
 is( $s3d->is_hash([]),        0,      'array is not a hash');
 is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');

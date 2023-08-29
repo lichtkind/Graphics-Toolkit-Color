@@ -6,7 +6,7 @@ use Test::More tests => 42;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value::CMY';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::CMY';
 
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');

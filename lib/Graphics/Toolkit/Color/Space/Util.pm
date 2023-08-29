@@ -3,7 +3,7 @@ use warnings;
 
 # utilities for any sub module of the distribution
 
-package Graphics::Toolkit::Color::Util;
+package Graphics::Toolkit::Color::Space::Util;
 
 use Exporter 'import';
 our @EXPORT_OK = qw/round rmod close_enough min max/;

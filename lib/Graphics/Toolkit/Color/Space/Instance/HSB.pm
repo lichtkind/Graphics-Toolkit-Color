@@ -3,8 +3,8 @@ use warnings;
 
 # check, convert, mormalize and measure color values in HSB space
 
-package Graphics::Toolkit::Color::Value::HSB;
-use Graphics::Toolkit::Color::Util ':all';
+package Graphics::Toolkit::Color::Space::Instance::HSB;
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
 my $hsb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation brightness/],

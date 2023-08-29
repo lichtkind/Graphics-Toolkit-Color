@@ -3,10 +3,10 @@ use warnings;
 
 # check, convert and measure color values in RGB space
 
-package Graphics::Toolkit::Color::Value::RGB;
+package Graphics::Toolkit::Color::Space::Instance::RGB;
+use Graphics::Toolkit::Color::Space ':all';
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Carp;
-use Graphics::Toolkit::Color::Util ':all';
-use Graphics::Toolkit::Color::Space;
 
 my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/], range => 255 );
    $rgb_def->add_formatter(   'hex',   \&hex_from_rgb );

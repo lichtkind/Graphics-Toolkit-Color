@@ -3,11 +3,11 @@ use warnings;
 
 # check, convert and measure color values
 
-package Graphics::Toolkit::Color::Value;
+package Graphics::Toolkit::Color::Space::Instance;
 use Carp;
 my $base_package = 'RGB';
 my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB/); # search order # HCL LAB LUV XYZ YIQ Ncol ?
-my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
+my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages;
 
 sub space    { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
 sub is_space  { (defined $_[0] and ref space($_[0])) ? 1 : 0 }
@@ -121,7 +121,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Value - convert, format and measure color values
+Graphics::Toolkit::Color::Space::Instance - convert, format and measure color values
 
 =head1 SYNOPSIS
 

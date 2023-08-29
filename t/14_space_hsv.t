@@ -6,8 +6,8 @@ use Test::More tests => 53;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value::HSV';
-use Graphics::Toolkit::Color::Util ':all';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::HSV';
+use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');

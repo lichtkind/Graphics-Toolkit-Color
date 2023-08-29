@@ -3,7 +3,7 @@ use warnings;
 
 # logic of value hash keys for all color spacs
 
-package Graphics::Toolkit::Color::SpaceBasis;
+package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
     my $pkg = shift;
@@ -34,6 +34,7 @@ sub is_string {
     return 0 unless defined $string and not ref $string;
     $string = lc $string;
     my $name = lc $self->name;
+    return 0 unless index($string, $name.':') == 0;
     my $nr = '\s*-?\d+(?:\.\d+)?\s*';
     my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
     ($string =~ /^$name:$nrs$/) ? 1 : 0;
@@ -43,6 +44,7 @@ sub is_css_string {
     return 0 unless defined $string and not ref $string;
     $string = lc $string;
     my $name = lc $self->name;
+    return 0 unless index($string, $name.'(') == 0;
     my $nr = '\s*-?\d+(?:\.\d+)?\s*';
     my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
     ($string =~ /^$name\($nrs\)$/) ? 1 : 0;
@@ -72,13 +74,6 @@ sub is_partial_hash {
     for (CORE::keys %$value_hash) {
         return 0 unless $self->is_key_or_shortcut($_);
     }
-    return 1;
-}
-sub is_range_def {
-    my ($self, $range) = @_;
-    return 0 unless $self->is_array( $range );
-    map {return 0 if ref $_ ne 'ARRAY' or @$_ != 2 or $_->[0] >= $_->[1]
-                                       or int($_->[0]) != $_->[0] or int($_->[1] ) != $_->[1]} @$range;
     return 1;
 }
 

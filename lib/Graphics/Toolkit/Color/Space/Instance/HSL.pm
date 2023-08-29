@@ -3,8 +3,8 @@ use warnings;
 
 # check, convert and measure color values in HSL space
 
-package Graphics::Toolkit::Color::Value::HSL;
-use Graphics::Toolkit::Color::Util ':all';
+package Graphics::Toolkit::Color::Space::Instance::HSL;
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation lightness/],
@@ -42,6 +42,4 @@ sub to_rgb {
          :            ($C + $m,      $m, $X + $m);
 }
 
-
 $hsl_def;
-

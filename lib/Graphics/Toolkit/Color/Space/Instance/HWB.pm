@@ -1,36 +1,44 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSV space
+# check, convert and measure color values in HWB space
 
-package Graphics::Toolkit::Color::Value::HSV;
-use Graphics::Toolkit::Color::Util ':all';
+package Graphics::Toolkit::Color::Space::Instance::HWB;
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
-my $hsv_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation value/],
+my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness blackness/],
                                                    range => [360, 100, 100],
                                                     type => [qw/angle linear linear/]);
 
-   $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 
 sub from_rgb {
     my ($r, $g, $b) = @_;
-    my $vmin = min($r, $g, $b);
-    my $v = my $vmax = max($r, $g, $b);
-    return (0, 0, $v) if $vmax == $vmin;
+    my $vmax = max($r, $g, $b);
+    my $white = my $vmin = min($r, $g, $b);
+    my $black = 1 - ($vmax);
 
     my $d = $vmax - $vmin;
     my $s = $d / $vmax;
-    my $h = ($vmax == $r) ? (($g - $b) / $d + ($g < $b ? 6 : 0)) :
+    my $h =     ($d == 0) ? 0 :
+            ($vmax == $r) ? (($g - $b) / $d + ($g < $b ? 6 : 0)) :
             ($vmax == $g) ? (($b - $r) / $d + 2)
                           : (($r - $g) / $d + 4);
-    return ($h/6, $s, $v);
+    return ($h/6, $white, $black);
 }
 
+
 sub to_rgb {
-    my ($h, $s, $v) = @_;
+    my ($h, $w, $b) = @_;
+    return (0, 0, 0) if $b == 1;
+    return (1, 1, 1) if $w == 1;
+    my $v = 1 - $b;
+    my $s = 1 - ($w / $v);
+    $s = 0 if $s < 0;
     return ($v, $v, $v) if $s == 0;
+
     my $hi = int( $h * 6 );
     my $f = ( $h * 6 ) - $hi;
     my $p = $v * (1 -  $s );
@@ -44,4 +52,4 @@ sub to_rgb {
             :              ($v, $t, $p);
 }
 
-$hsv_def;
+$hwb_def;

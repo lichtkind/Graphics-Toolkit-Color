@@ -4,48 +4,19 @@ use warnings;
 # common base of all color spaces
 
 package Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::SpaceBasis;
-use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::Space::Basis;
+use Graphics::Toolkit::Color::Space::Shape;
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Carp;
 
 sub new {
     my $pkg = shift;
     my (undef, $axis, undef, $range, undef, $type) = @_;
     return unless ref $axis eq 'ARRAY';
-    my $basis = Graphics::Toolkit::Color::SpaceBasis->new( @$axis );
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( @$axis );
     return unless ref $basis;
-
-    if    (not defined $range){                # check range settings
-        $range = [([0,1]) x $basis->count];    # normal range
-    } elsif (not ref $range and $range > 0) {
-        $range = int $range;
-        $range = [([0, $range]) x $basis->count];
-    } elsif (ref $range eq 'ARRAY' and @$range == @$axis ) {
-        for my $i (0 .. $basis->count-1) {
-            my $drange = $range->[$i]; # range def of this dimension
-            if (not ref $drange and $drange > 0){
-                $drange = int $drange;
-                $range->[$i] = [0, $drange, $drange];
-            } elsif (ref $drange eq 'ARRAY' and @$drange == 2
-                     and defined $drange->[0] and defined $drange->[1]
-                     and $drange->[0] < $drange->[1]                   ) {
-                $drange->[0] = int $drange->[0];
-                $drange->[1] = int $drange->[1];
-            } else { return }
-        }
-    } else { return }
-
-    if (not defined $type){ $type = [ (1) x $basis->count ] } # check type settings
-    elsif (ref $type eq 'ARRAY' and @$type == @$axis ) {
-        for my $i (0 .. $basis->count-1) {
-            my $dtype = $type->[$i]; # type def of this dimension
-            return unless defined $dtype;
-            if    ($dtype eq 'angle' or $dtype eq 'circular' or $dtype eq '0') { $type->[$i] = 0 }
-            elsif ($dtype eq 'linear'                        or $dtype eq '1') { $type->[$i] = 1 }
-            else { return }
-        }
-    } else { return }
-
+    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $range, $type );
+    return unless ref $shape;
 
     # which formats the constructor will accept, that can be deconverted into list
     my %deformats = ( hash => sub { $basis->list_from_hash(@_)   if $basis->is_hash(@_) },
@@ -62,14 +33,11 @@ sub new {
              css_string => sub { $basis->css_string_from_list(@_) },   #   rgb(1,2,3)
     );
 
-    bless { basis => $basis, range => $range, type => $type,
-            format => \%formats, deformat => \%deformats, convert => {},
-    };
+    bless { basis => $basis, shape => $shape, format => \%formats, deformat => \%deformats, convert => {} };
 }
 sub basis            { $_[0]{'basis'}}
 sub name             { $_[0]->basis->name }
 sub dimensions       { $_[0]->basis->count }
-sub iterator         { $_[0]->basis->iterator }
 sub is_array         { $_[0]->basis->is_array( $_[1] ) }
 sub is_partial_hash  { $_[0]->basis->is_partial_hash( $_[1] ) }
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
@@ -77,69 +45,11 @@ sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ?
 
 ########################################################################
 
-sub delta { # values have to be normalized
-    my ($self, $values1, $values2) = @_;
-    return unless $self->basis->is_array( $values1 ) and $self->basis->is_array( $values2 );
-    my @delta = map {$values2->[$_] - $values1->[$_] } $self->basis->iterator;
-    map { $self->{'type'}[$_] ? $delta[$_]     :
-            $delta[$_] < -0.5 ? ($delta[$_]+1) :
-            $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->iterator;
-}
-
-sub check {
-    my ($self, $values, $range) = @_;
-    return carp 'color value vector in '.$self->name.' needs '.$self->dimensions.' values' if @$values != $self->dimensions;
-    return if defined $range and not $self->basis->is_range_def( $range );
-    $range //= $self->{'range'};
-    my @names = $self->basis->keys;
-    for my $i ($self->basis->iterator){
-        return carp $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
-        return carp $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
-        return carp $names[$i]." value has to be an integer" if ($range->[$i][1] - $range->[$i][0]) > 1
-                                                             and $values->[$i] != int $values->[$i];
-    }
-    return;
-}
-
-sub clamp {
-    my ($self, $values, $range) = @_;
-    return if defined $range and not $self->basis->is_range_def( $range );
-    $range //= $self->{'range'};
-    push @$values, 0 while @$values < $self->dimensions;
-    pop  @$values    while @$values > $self->dimensions;
-    for my $i ($self->basis->iterator){
-        my $delta = $range->[$i][1] - $range->[$i][0];
-        if ($self->{'type'}[$i]){
-            $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
-            $values->[$i] = $range->[$i][1] if $values->[$i] > $range->[$i][1];
-        } else {
-            $values->[$i] += $delta while $values->[$i] < $range->[$i][0];
-            $values->[$i] -= $delta while $values->[$i] > $range->[$i][1];
-            $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
-        }
-        $values->[$i] = round($values->[$i]) if $delta > 1;
-    }
-    return @$values;
-}
-
-########################################################################
-
-sub normalize {
-    my ($self, $values, $range) = @_;
-    return unless $self->basis->is_array( $values );
-    return if defined $range and not $self->basis->is_range_def( $range );
-    $range //= $self->{'range'};
-    map { ($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]) } $self->basis->iterator;
-}
-
-sub denormalize {
-    my ($self, $values, $range) = @_;
-    return unless $self->basis->is_array( $values );
-    return if defined $range and not $self->basis->is_range_def( $range );
-    $range //= $self->{'range'};
-    map { my $v = ($values->[$_] * ($range->[$_][1]-$range->[$_][0])) + $range->[$_][0];
-          ($range->[$_][1]-$range->[$_][0]) == 1 ? $v : round ($v)                } $self->basis->iterator;
-}
+sub delta { shift->{'shape'}->delta( @_ ) }       # @values -- @vector, @vector --> |@vector # on normalize values
+sub check { shift->{'shape'}->check( @_ ) }       # @values -- @range           -->  ?       # pos if carp
+sub clamp { shift->{'shape'}->clamp( @_ ) }       # @values -- @range           --> |@vector
+sub normalize { shift->{'shape'}->normalize(@_)}  # @values -- @range           --> |@vector
+sub denormalize{shift->{'shape'}->denormalize(@_)}# @values -- @range           --> |@vector
 
 ########################################################################
 

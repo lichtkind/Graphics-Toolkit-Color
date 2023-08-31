@@ -1,117 +1,38 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values
+# value objects with space cache
 
 package Graphics::Toolkit::Color::Value;
 use Carp;
-my $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB/); # search order # HCL LAB LUV XYZ YIQ Ncol ?
-my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Value/$_.pm" } @space_packages;
 
-sub space    { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
-sub is_space  { (defined $_[0] and ref space($_[0])) ? 1 : 0 }
-sub base_space { $space_obj{$base_package} }
-sub space_names { @space_packages }
+sub new {
+    my ($pkg, $color_val) = @_;
 
-sub deformat { # convert from any format into list of values of any space
-    my ($formated_values) = @_;
-    for my $space_name (space_names()) {
-        my $color_space = space( $space_name );
-        my @val = $color_space->deformat( $formated_values );
-        return \@val, $space_name if defined $val[0];
-    }
+    bless {rgb => []};
 }
 
-sub partial_hash_deformat { # convert partial hash into
-    my ($value_hash) = @_;
-    return unless ref $value_hash eq 'HASH';
-    for my $space_name (space_names()) {
-        my $color_space = space( $space_name );
-        my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
-        return $pos_hash, $space_name if ref $pos_hash eq 'HASH';
-    }
+sub get {
+    my ($self, $space, $format, $range) = @_;
 }
 
-sub format { # @tuple --> % | % |~ ...
-    my ($values, $space_name, @format) = @_;
-    my $space = space( $space_name // $base_package );
-    return carp "required unknown color space '$space_name', please try one of: "
-                . join ', ', map {lc} space_names() unless ref $space;
-    unless ($space->is_array( $values )) {
-        carp "need array with right amount of values to format";
-        return ();
-    }
-    @format = ('list') unless @format;
-    my @values = map { $space->format( $values, $_ ) } @format;
-    return @values == 1 ? $values[0] : @values;
+sub set {
+    my ($self, $val_hash) = @_;
 }
 
-sub deconvert { # @... --> @RGB (base color space)
-    my ($values, $space_name) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
-    return carp "got not right amount of values to format" unless $space->is_array( $values );
-    return base_space()->clamp(@$values) if $space->name eq $base_package;
-    $space->convert( $values, $base_package);
+sub add {
+    my ($self, $val_hash) = @_;
 }
 
-sub convert { # @RGB --> @...
-    my ($values, $space_name) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
-    return carp "got not right amount of values to format" unless base_space()->is_array( $values );
-    return $space->clamp(@$values) if $space->name eq $base_package;
-    $space->deconvert( $values, $base_package);
+sub blend {
+    my ($self, $c2, $factor, $space ) = @_;
 }
 
-sub denormalize {
-    my ($values, $space_name, $range) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
-    return carp "got not right amount of values to format" unless $space->is_array( $values );
-    my @values = $space->clamp($values, $range);
-    # $space->basis->is_range_def( $range );
-    $space->denormalize( \@values, $range);
+sub distance {
+    my ($self, $c2, $space, $subspace, $range) = @_;
+    my $self = shift;
 }
 
-sub normalize {
-    my ($values, $space_name, $range) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
-    return carp "got not right amount of values to format" unless base_space()->is_array( $values );
-    return $space->clamp(@$values) if $space->name eq $base_package;
-    $space->deconvert( $values, $base_package);
-}
-
-
-sub distance { # @vector x @vector -- ~color_space_name, ~subspace   --> +d
-    my ($values1, $values2, $space_name, $subspace) = @_;
-    $space_name //= $base_package;
-    my $space = space( $space_name );
-    return - carp "called 'distance' with unknown color space name: $space_name!" unless ref $space;
-    my @delta = $space->delta( $values1, $values2 );
-    return - carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
-    if (defined $subspace and $subspace){
-        my @components = split( '', $subspace );
-        my $pos = $space->basis->key_pos( $subspace );
-        @components = defined( $pos )
-                    ? ($pos)
-                    : (map  { $space->basis->shortcut_pos($_) }
-                       grep { defined $space->basis->shortcut_pos($_) } @components);
-        return - carp "called 'distance' for subspace $subspace that does not fit color space $space_name!" unless @components;
-        @delta = map { $delta [$_] } @components;
-    }
-    # Euclidean distance:
-    @delta = map {$_ * $_} @delta;
-    my $d = 0;
-    for (@delta) {$d += $_}
-    return sqrt $d;
-}
 
 1;
 
@@ -121,7 +42,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Value - convert, format and measure color values
+Graphics::Toolkit::Color::Value - single color related numerical methods
 
 =head1 SYNOPSIS
 
@@ -142,68 +63,8 @@ directly, thus it exports no symbols and has a much less DWIM API then
 the main module.
 
 
-=head1 COLOR SPACES
 
-Color space names can be written in any combination of upper and lower case.
-
-=head2 RGB
-
-has three integer values: B<red> (0 .. 255), B<green> (0 .. 255) and
-B<blue> (0 .. 255).
-All are scaling from no (0) to very much (255) light of that color,
-so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
-
-=head2 CMY
-
-is the inverse of RGB but with the range: 0 .. 1. B<cyan> is the inverse
-value of I<red>, B<magenta> is inverse green and B<yellow> is inverse of
-I<blue>. Inverse meaning when a color has the maximal I<red> value,
-it has to have the minimal I<cyan> value.
-
-=head2 CMYK
-
-is an extension of CMY with a fourth value named B<key> (also 0 .. 1),
-which is basically the amount of black mixed into the CMY color.
-
-=head2 HSL
-
-has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
-and B<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
-15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
-270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
-coordinate. This module only outputs 0, even if accepting 360 as input.
-I<saturation> ranges from 0 = gray to 100 - clearest color set by hue.
-I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
-
-=head2 HSV
-
-Similar to HSL we have B<hue> and B<saturation>, but the third value in
-named B<value>. In HSL the color white is always achieved when I<lightness> = 100.
-In HSV additionally I<saturation> has to be zero to get white.
-When in HSV I<value> is 100 and I<saturation> is also 100, than we
-have the brightest clearest color of whatever I<hue> sets.
-
-=head2 HSB
-
-It is an alias to HSV, just value being renamed with B<brightness>.
-
-=head2 HWB
-
-An inverted HSV, where the clean colors are inside of the cylinder.
-It still has the circular B<hue> dimension, as described in C<HSL>.
-The other two, linear dimensions (also 0 .. 100 [percent]) are
-B<whiteness> and B<blackness>, desribing how much white or black are mixed in.
-If both are zero, than we have a pure color. I<whiteness> of 100 always
-leads to pure white and I<blackness> of 100 always leads to pure black.
-
-=head2 HCL
-
-=head2 LAB
-
-=head2 XYZ
-
-
-=head1 ROUTINES
+=head1 METHODS
 
 =head2 deconvert
 

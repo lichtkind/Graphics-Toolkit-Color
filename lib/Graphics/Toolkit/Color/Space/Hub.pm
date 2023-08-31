@@ -3,21 +3,27 @@ use warnings;
 
 # check, convert and measure color values
 
-package Graphics::Toolkit::Color::Space::Instance;
+package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
 my $base_package = 'RGB';
 my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB/); # search order # HCL LAB LUV XYZ YIQ Ncol ?
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages;
 
-sub space    { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
-sub is_space  { (defined $_[0] and ref space($_[0])) ? 1 : 0 }
+sub get_space { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
+sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 sub base_space { $space_obj{$base_package} }
 sub space_names { @space_packages }
+sub check_space_name {
+    my $error = "called with unknown color space name $_[0], please try one of: " . join (', ', @space_packages);
+    carp $error if defined $_[0] and not is_space( $_[0] );
+}
+
+########################################################################
 
 sub deformat { # convert from any format into list of values of any space
     my ($formated_values) = @_;
     for my $space_name (space_names()) {
-        my $color_space = space( $space_name );
+        my $color_space = get_space( $space_name );
         my @val = $color_space->deformat( $formated_values );
         return \@val, $space_name if defined $val[0];
     }
@@ -27,17 +33,17 @@ sub partial_hash_deformat { # convert partial hash into
     my ($value_hash) = @_;
     return unless ref $value_hash eq 'HASH';
     for my $space_name (space_names()) {
-        my $color_space = space( $space_name );
+        my $color_space = get_space( $space_name );
         my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
+        # decode hash, normalize
         return $pos_hash, $space_name if ref $pos_hash eq 'HASH';
     }
 }
 
 sub format { # @tuple --> % | % |~ ...
     my ($values, $space_name, @format) = @_;
-    my $space = space( $space_name // $base_package );
-    return carp "required unknown color space '$space_name', please try one of: "
-                . join ', ', map {lc} space_names() unless ref $space;
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     unless ($space->is_array( $values )) {
         carp "need array with right amount of values to format";
         return ();
@@ -49,9 +55,8 @@ sub format { # @tuple --> % | % |~ ...
 
 sub deconvert { # @... --> @RGB (base color space)
     my ($values, $space_name) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless $space->is_array( $values );
     return base_space()->clamp(@$values) if $space->name eq $base_package;
     $space->convert( $values, $base_package);
@@ -59,9 +64,8 @@ sub deconvert { # @... --> @RGB (base color space)
 
 sub convert { # @RGB --> @...
     my ($values, $space_name) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless base_space()->is_array( $values );
     return $space->clamp(@$values) if $space->name eq $base_package;
     $space->deconvert( $values, $base_package);
@@ -69,9 +73,8 @@ sub convert { # @RGB --> @...
 
 sub denormalize {
     my ($values, $space_name, $range) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless $space->is_array( $values );
     my @values = $space->clamp($values, $range);
     # $space->basis->is_range_def( $range );
@@ -80,9 +83,8 @@ sub denormalize {
 
 sub normalize {
     my ($values, $space_name, $range) = @_;
-    return carp "called with unknown space name $space_name, please try one of: "
-                . join (', ', @space_packages) if defined $space_name and not ref space( $space_name );
-    my $space = space( $space_name // $base_package );
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless base_space()->is_array( $values );
     return $space->clamp(@$values) if $space->name eq $base_package;
     $space->deconvert( $values, $base_package);
@@ -92,8 +94,8 @@ sub normalize {
 sub distance { # @vector x @vector -- ~color_space_name, ~subspace   --> +d
     my ($values1, $values2, $space_name, $subspace) = @_;
     $space_name //= $base_package;
-    my $space = space( $space_name );
-    return - carp "called 'distance' with unknown color space name: $space_name!" unless ref $space;
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
     my @delta = $space->delta( $values1, $values2 );
     return - carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
     if (defined $subspace and $subspace){

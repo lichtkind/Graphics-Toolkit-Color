@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 102;
+use Test::More tests => 105;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -13,11 +13,18 @@ is( not($@), 1, 'could load the module');
 
 my $obj = Graphics::Toolkit::Color::Space::Basis->new();
 is( $obj,  undef,       'constructor needs arguments');
-$obj = Graphics::Toolkit::Color::Space::Basis->new(1);
+
+$obj = Graphics::Toolkit::Color::Space::Basis->new([1]);
 is( ref $obj, $module,  'one constructor argument is enough');
 
-my $s3d = Graphics::Toolkit::Color::Space::Basis->new(qw/Alpha beta gamma/);
-my $s5d = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth he/);
+my $bad = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth he/);
+is( $bad,  undef,     'need as els axis name array as argument');
+
+my $s3d = Graphics::Toolkit::Color::Space::Basis->new([qw/Alpha beta gamma/]);
+my $s5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/]);
+is( ref $s3d,  $module,   'created 3d space');
+is( ref $s5d,  $module,   'created 5d space');
+
 is( $s3d->count,         3,     'did count three args');
 is( $s5d->count,         5,     'did count five args');
 is( ($s3d->keys)[0],    'alpha',     'repeat first 3d key back');

@@ -6,8 +6,9 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my $pkg = shift;
-    my @keys = map {lc} @_;
+    my ($pkg, $axis, $prefix) = @_;
+    return unless ref $axis eq 'ARRAY';
+    my @keys = map {lc} @$axis;
     return unless @keys > 0;
     my @iterator = 0 .. $#keys;
     my %key_order = map { $keys[$_] => $_ } @iterator;
@@ -116,7 +117,7 @@ sub deformat_partial_hash {
     for my $key (@keys_got) {
         if    ($self->is_key( $key ))     { $result->{ int $self->key_pos( $key ) } = $value_hash->{ $key } }
         elsif ($self->is_shortcut( $key )){ $result->{ int $self->shortcut_pos( $key ) } = $value_hash->{ $key } }
-        else                              { return }
+        else                              { return undef }
     }
     return $result;
 }

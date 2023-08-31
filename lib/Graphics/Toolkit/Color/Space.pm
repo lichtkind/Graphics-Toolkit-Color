@@ -11,11 +11,10 @@ use Carp;
 
 sub new {
     my $pkg = shift;
-    my (undef, $axis, undef, $range, undef, $type) = @_;
-    return unless ref $axis eq 'ARRAY';
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( @$axis );
+    my %args = @_;
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'} );
     return unless ref $basis;
-    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $range, $type );
+    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'range'}, $args{'type'} );
     return unless ref $shape;
 
     # which formats the constructor will accept, that can be deconverted into list

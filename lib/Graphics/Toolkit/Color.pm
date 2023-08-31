@@ -64,6 +64,9 @@ sub _new_from_scalar {
     }
     bless [$name, @rgb, $origin];
 }
+sub _new_from_value_obj {
+
+}
 
 ## getter ##############################################################
 
@@ -281,7 +284,7 @@ and create related color objects via methods listed under I<METHODS>.
 
 There are many options to create a color objects.  In short you can
 either use the name of a predefined constant or provide values in several
-L<Graphics::Toolkit::Color::Value/COLOR-SPACES>
+L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
 
 =head2 new('name')
 
@@ -394,7 +397,7 @@ It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 Returns the values of the color in given color space and with given format.
 
 First argument is the name of a color space (named argument C<in>).
-The options are to be found under: L<Graphics::Toolkit::Color::Value/COLOR-SPACES>
+The options are to be found under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
 This is the only argument where the name can be left out.
 
 Second argument is the format (named argument C<as>).
@@ -484,7 +487,7 @@ It takes three arguments, only the first is required.
 1. Second color (C2) in any scalar definition as I<new> would accept
 (see chapter L</CONSTRUCTOR>).
 
-2. The color space the difference is measured in. (see L<Graphics::Toolkit::Color::Value/COLOR-SPACES>)
+2. The color space the difference is measured in. (see L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>)
 
 3. The subspace as a string. For instance you want to ignore lightness
 in HSL, then you subspace would be I<'hs'> (initials of the other two dimensions).
@@ -542,7 +545,7 @@ It takes three named arguments, only the first is required.
    fit inside the color space. Name of the argument is I<pos>.
 
 3. Color space name (default is I<HSL> - all can be seen unter
-   L<Graphics::Toolkit::Color::Value/COLOR-SPACES>). Name of the argument
+   L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>). Name of the argument
    is I<in>.
 
     # a little more silver than $color in the mix

@@ -6,30 +6,30 @@ use Test::More tests => 83;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Value';
+my $module = 'Graphics::Toolkit::Color::Space::Hub';
 
 eval "use $module";
+use Graphics::Toolkit::Color::Space::Util ':all';
 is( not($@), 1, 'could load the module');
 
-my $deformat      = \&Graphics::Toolkit::Color::Value::deformat;
-my $format        = \&Graphics::Toolkit::Color::Value::format;
-my $deconvert     = \&Graphics::Toolkit::Color::Value::deconvert;
-my $convert       = \&Graphics::Toolkit::Color::Value::convert;
-my $d             = \&Graphics::Toolkit::Color::Value::distance;
+my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
+my $format        = \&Graphics::Toolkit::Color::Space::Hub::format;
+my $deconvert     = \&Graphics::Toolkit::Color::Space::Hub::deconvert;
+my $convert       = \&Graphics::Toolkit::Color::Space::Hub::convert;
+my $d             = \&Graphics::Toolkit::Color::Space::Hub::distance;
 
 
-my @hsl = $convert->([127, 127, 127], 'HSL');
+my @hsl = $convert->([.5, .5, .5], 'HSL');
 is( int @hsl,  3,     'converted hsl vector has right length');
 is( $hsl[0],   0,     'converted color grey has computed right hue value');
 is( $hsl[1],   0,     'converted color grey has computed right saturation');
-is( $hsl[2],  50,     'converted color grey has computed right lightness');
+is( $hsl[2],  .5,     'converted color grey has computed right lightness');
 
-my @rgb = $deconvert->([0, 0, 50], 'HSL');
+my @rgb = $deconvert->([0, 0, .5], 'hsl');
 is( int @rgb,  3,     'converted back color grey has rgb values');
-is( $rgb[0], 127,     'converted back color grey has right red value');
-is( $rgb[1], 127,     'converted back color grey has right green value');
-is( $rgb[2], 127,     'converted back color grey has right blue value');
-
+is( $rgb[0], .5,     'converted back color grey has right red value');
+is( $rgb[1], .5,     'converted back color grey has right green value');
+is( $rgb[2], .5,     'converted back color grey has right blue value');
 
 warning_like {$format->('112233', 'RGB', 'list')}      {carped => qr/array with right amount of values/},  "dont format none vectors";
 warning_like {$format->([11,22,33,44], 'RGB', 'list')} {carped => qr/array with right amount of values/},  "dont format too long vectors";
@@ -92,7 +92,7 @@ is( $form,          'CMYK',   'key hash was formatted in CMY');
 
 ($cmyk, $form) = $deformat->([cmyk => -0.1, 0.5, 2, 7]);
 is( ref $cmyk,     'ARRAY',   'got cmyk named ARRAY deformatted');
-is( int @$cmyk,          4,   'deformatted CMYK ARRAY into quadruel');
+is( int @$cmyk,          4,   'deformatted CMYK ARRAY into quadrupel');
 is( $cmyk->[0],       -0.1,   'cyan value correct');
 is( $cmyk->[1],        0.5,   'magenta value correct');
 is( $cmyk->[2],          2,   'yellow value is correct');
@@ -119,8 +119,8 @@ warning_like { $d->([1, 2, 3],  [ 6,11,4], 'RGB','acd')} {carped => qr/that does
 
 
 is( $d->([1, 2, 3], [  2, 6, 11], 'RGB'), 9,     'compute rgb distance');
-is( $d->([1, 2, 3], [  2, 6, 11], 'HSL'), 9,     'compute hsl distance');
-is( $d->([0, 2, 3], [359, 6, 11], 'HSL'), 9,     'compute hsl distance (test circular property of hsl)');
+is( $d->([0, 2, 3], [  1, 5,  7], 'HSL'), 5,     'test normalized circular property of hsl');
+is( $d->([0.2, 0, 0], [0.8, 0, 0], 'HSL'), .4,   'test circular property - only one dimensional delta');
 
 is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'r'),  1, 'compute distance in red subspace');
 is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'R'),  1, 'subspace initials are case insensitive');
@@ -132,5 +132,8 @@ is( $d->([1, 1, 1], [  4, 6, 5], 'RGB', 'rb'), 5, 'compute distance in rb subspa
 is( $d->([1, 1, 1], [ 12, 4, 5], 'RGB', 'gb'), 5, 'compute distance in gb subspace');
 is( $d->([1, 2, 3], [  2, 6,11], 'RGB','rgb'), 9, 'distance in full subspace');
 is( $d->([1, 2, 3], [  2, 6,11],            ), 9, 'default space is RGB');
+
+
+# test partial_hash_deformat
 
 exit 0;

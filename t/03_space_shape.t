@@ -15,7 +15,7 @@ is( not($@), 1, 'could load the module');
 my $obj = Graphics::Toolkit::Color::Space::Shape->new();
 is( $obj,  undef,       'constructor needs arguments');
 
-my $basis = Graphics::Toolkit::Color::Space::Basis->new( qw/AAA BBB CCC/);
+my $basis = Graphics::Toolkit::Color::Space::Basis->new( [qw/AAA BBB CCC/] );
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, {}), undef, 'range definition needs to be an ARRAY');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3] ]), undef, 'not enough dimensions');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,3],[1,3] ]), undef, 'too many dimensions');

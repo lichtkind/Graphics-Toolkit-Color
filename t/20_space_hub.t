@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 83;
+use Test::More tests => 89;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -16,7 +16,6 @@ my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
 my $format        = \&Graphics::Toolkit::Color::Space::Hub::format;
 my $deconvert     = \&Graphics::Toolkit::Color::Space::Hub::deconvert;
 my $convert       = \&Graphics::Toolkit::Color::Space::Hub::convert;
-my $d             = \&Graphics::Toolkit::Color::Space::Hub::distance;
 
 
 my @hsl = $convert->([.5, .5, .5], 'HSL');
@@ -112,28 +111,53 @@ is( $form,          'CMYK',   'named array recognized as CMYK');
 ($rgb, $f) = $deformat->({c => 0.1, n => 0.5, Y => 1});
 is( ref $rgb,           '',   'could not deformat cmy hash due bak key name');
 
-warning_like { $d->([1, 2, 3,4], [  2, 6,11], 'RGB')}  {carped => qr/bad input values/},  "bad distance input: first vector";
-warning_like { $d->([1, 2, 3],  [ 2, 6,11,4], 'RGB')}  {carped => qr/bad input values/},  "bad distance input: second vector";
-warning_like { $d->([1, 2, 3],  [ 6,11,4], 'ABC')}     {carped => qr/unknown color space name/}, "bad distance input: space name";
-warning_like { $d->([1, 2, 3],  [ 6,11,4], 'RGB','acd')} {carped => qr/that does not fit color space/}, "bad distance input: invalid subspace";
-
-
-is( $d->([1, 2, 3], [  2, 6, 11], 'RGB'), 9,     'compute rgb distance');
-is( $d->([0, 2, 3], [  1, 5,  7], 'HSL'), 5,     'test normalized circular property of hsl');
-is( $d->([0.2, 0, 0], [0.8, 0, 0], 'HSL'), .4,   'test circular property - only one dimensional delta');
-
-is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'r'),  1, 'compute distance in red subspace');
-is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'R'),  1, 'subspace initials are case insensitive');
-is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'g'),  2, 'compute distance in green subspace');
-is( $d->([1, 1, 1], [  2, 3, 4], 'RGB', 'b'),  3, 'compute distance in blue subspace');
-is( $d->([1, 1, 1], [  4, 5, 6], 'RGB', 'rg'), 5, 'compute distance in rg subspace');
-is( $d->([1, 1, 1], [  4, 5, 6], 'RGB', 'gr'), 5, 'compute distance in gr subspace');
-is( $d->([1, 1, 1], [  4, 6, 5], 'RGB', 'rb'), 5, 'compute distance in rb subspace');
-is( $d->([1, 1, 1], [ 12, 4, 5], 'RGB', 'gb'), 5, 'compute distance in gb subspace');
-is( $d->([1, 2, 3], [  2, 6,11], 'RGB','rgb'), 9, 'distance in full subspace');
-is( $d->([1, 2, 3], [  2, 6,11],            ), 9, 'default space is RGB');
-
-
 # test partial_hash_deformat
+
+my $ph_deformat  = \&Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat;
+my $lp_hash      = \&Graphics::Toolkit::Color::Space::Hub::list_from_pos_hash;
+
+my ($pos_hash, $space_name) = $ph_deformat->();
+is( $pos_hash, undef, 'got no HASH');
+($pos_hash, $space_name) = $ph_deformat->({});
+is( $pos_hash, undef, 'HASH was empty');
+
+my @list = $lp_hash->();
+is( int @list, 0, 'list_from_pos_hash: no result on no input');
+is( $list[0], undef, 'undef is there');
+
+@list = $lp_hash->({0 => 1,1 => 1,2 => 1,3 =>1}, 'RGB');
+is( int @list, 3, 'took only three values of too large hash');
+
+
+($pos_hash, $space_name) = $ph_deformat->({red => 255});
+is( ref $pos_hash, 'HASH', 'partial hash could be deformated');
+is( keys %$pos_hash,    1,    'there was only one key');
+is( $pos_hash->{0},   255,    'red value belongs on first position');
+is( $space_name,    'RGB',    'found keys in RGB');
+
+@list = $lp_hash->($pos_hash, 'RGB');
+is( int @list,      3,    'result of complete deformat to list has right length');
+is( $list[0],     255,    'red landed on right position');
+is( $list[1],       0,    'none red was set to zero');
+is( $list[2],       0,    'other none red was set to zero');
+
+($pos_hash, $space_name) = $ph_deformat->({H => 2, vAlue => 3});
+is( ref $pos_hash, 'HASH', 'partial hash could be deformated, even one key was shortcut');
+is( keys %$pos_hash,    2,    'there were two keys');
+is( $pos_hash->{2},     3,    'value is on third position in HSV');
+is( $space_name,    'HSV',    'found keys in HSV');
+
+@list = $lp_hash->($pos_hash, 'HSV');
+is( int @list,      3,    'deformat result has right length');
+is( $list[0],       2,    'hue value landed on right position');
+is( $list[1],       0,    'middle value got filled in with zero');
+is( $list[2],       3,    'value landed right');
+
+($pos_hash, $space_name) = $ph_deformat->({ whiteness => 1});
+is( $pos_hash->{1},     1,    'value is on second position in HWB');
+is( $space_name,    'HWB',    'found keys in HWB');
+
+# normalize and denormalize
+
 
 exit 0;

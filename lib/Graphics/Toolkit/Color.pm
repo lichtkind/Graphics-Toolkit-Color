@@ -7,7 +7,7 @@ use v5.12;
 
 use Carp;
 use Graphics::Toolkit::Color::Name;
-use Graphics::Toolkit::Color::Value;
+use Graphics::Toolkit::Color::Values;
 
 use Exporter 'import';
 our @EXPORT_OK = qw/color/;
@@ -23,14 +23,14 @@ sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
 sub new {
     my ($pkg, @args) = @_;
-    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Value::is_space( $args[0]);
+    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
     return carp $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }
 sub _new_from_scalar {
     my ($color_def) = shift;
-    my (@rgb, $name, $origin);
+    my ($value_obj, @rgb, $name, $origin);
     # strings that are not '#112233' or 'rgb: 23,34,56'
     if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/ and $color_def !~ /,/){
         $name = $color_def;
@@ -53,45 +53,46 @@ sub _new_from_scalar {
             @rgb = Graphics::Toolkit::Color::Name::rgb_from_name( $color_def );
             return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Name::all()." unless @rgb == 3;
         }
+        $value_obj = Graphics::Toolkit::Color::Values->new( [@rgb] );
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
-        ($name, @rgb, $origin) = @$color_def;
+        $name = $color_def->{'name'};
+        $value_obj = Graphics::Toolkit::Color::Values->new( $color_def->string );
     } else {                                  # define color by numbers in any format
-        my ($val, $origin) = Graphics::Toolkit::Color::Value::deformat( $color_def );
-        return carp $new_help unless ref $val;
-        @rgb = Graphics::Toolkit::Color::Value::deconvert( $val, $origin );
-        return carp $new_help unless @rgb == 3;
-        $name = Graphics::Toolkit::Color::Name::name_from_rgb( @rgb );
+        my $value_obj = Graphics::Toolkit::Color::Values->new( $color_def );
+        return unless ref $value_obj;
+        return _new_from_value_obj($value_obj);
     }
-    bless [$name, @rgb, $origin];
+    bless {name => $name, values => $value_obj};
 }
 sub _new_from_value_obj {
-
+    my ($value_obj) = @_;
+    return unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
+    bless {name => Graphics::Toolkit::Color::Name::name_from_rgb( $value_obj->get() ), values => $value_obj};
 }
 
 ## getter ##############################################################
 
-sub name        { $_[0][0] }
+sub name        { $_[0]{'name'} }
 
-    sub string      { $_[0]->name ? $_[0]->name : $_[0]->values('rgb', 'hex') }
-    sub rgb         {  $_[0]->values('rgb') }
-    sub red         {($_[0]->values('rgb'))[0] }
-    sub green       {($_[0]->values('rgb'))[1] }
-    sub blue        {($_[0]->values('rgb'))[2] }
-    sub rgb_hex     { $_[0]->values('rgb', 'hex') }
-    sub rgb_hash    { $_[0]->values('rgb', 'hash') }
-    sub hsl         { $_[0]->values('hsl') }
-    sub hue         {($_[0]->values('hsl'))[0] }
-    sub saturation  {($_[0]->values('hsl'))[1] }
-    sub lightness   {($_[0]->values('hsl'))[2] }
-    sub hsl_hash    { $_[0]->values('hsl', 'hash') }
+    sub string      { $_[0]->{'values'}->string }
+    sub rgb         { $_[0]->values( ) }
+    sub red         {($_[0]->values( in => 'rgb'))[0] }
+    sub green       {($_[0]->values( in => 'rgb'))[1] }
+    sub blue        {($_[0]->values( in => 'rgb'))[2] }
+    sub rgb_hex     { $_[0]->values( in => 'rgb', as => 'hex') }
+    sub rgb_hash    { $_[0]->values( in => 'rgb', as => 'hash') }
+    sub hsl         { $_[0]->values( in => 'hsl') }
+    sub hue         {($_[0]->values( in => 'hsl'))[0] }
+    sub saturation  {($_[0]->values( in => 'hsl'))[1] }
+    sub lightness   {($_[0]->values( in => 'hsl'))[2] }
+    sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
 
-sub _rgb    { [@{$_[0]}[1 .. 3]] }
-sub _origin {    $_[0][4] }
 sub values      {
-    my ($self, $space, @format) = @_;
-    my @val = Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space);
-    # denormalize
-    Graphics::Toolkit::Color::Value::format( \@val, $space, @format);
+    my ($self) = shift;
+    my %args = (not @_ % 2) ? @_ :
+               (@_ == 1)    ? (in => $_[0])
+                            : return carp "accept three optional, named arguments: in => 'HSL', as => 'css_string', range => 16";
+    $self->{'values'}->get( $args{'in'}, $args{'as'}, $args{'range'} );
 }
 
 ## measurement methods ##############################################################
@@ -111,6 +112,7 @@ sub distance {
     my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
     my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb, $space_name );
     Graphics::Toolkit::Color::Value::distance( \@val1, \@val2, $space_name, $subspace);
+    # _new_from_value_obj(  );
 }
 
 ## single color creation methods #######################################
@@ -125,47 +127,28 @@ sub _get_arg_hash {
 sub set {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
-    return unless ref $arg eq 'HASH';
-
-    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Value::partial_hash_deformat( $arg );
-    return carp "Given keywords do not match any known color space!! Please check the documentation of " unless ref $pos_hash;
-    my @val = Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
-    for my $pos (keys %$pos_hash) {
-        $val[ $pos ] = $pos_hash->{ $pos };
-    }
-    _new_from_scalar( [ Graphics::Toolkit::Color::Value::deconvert( \@val, $space_name ) ] );
+    return unless ref $arg;
+    _new_from_value_obj( $self->{'values'}->set( $arg ) );
 }
 
 sub add {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
-    return unless ref $arg eq 'HASH';
-
-    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Value::partial_hash_deformat( $arg );
-    return carp "Given keywords do not match any known color space!! Please check the documentation of " unless ref $pos_hash;
-    my @val = Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
-    for my $pos (keys %$pos_hash) {
-        $val[ $pos ] += $pos_hash->{ $pos };
-    }
-    _new_from_scalar( [ Graphics::Toolkit::Color::Value::deconvert( \@val, $space_name ) ] );
+    return unless ref $arg;
+    _new_from_value_obj( $self->{'values'}->add( $arg ) );
 }
-
 
 sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2], in => 'HSL') }
 sub blend {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
-    return unless ref $arg eq 'HASH';
+    return unless ref $arg;
     my $c2 = _new_from_scalar( $arg->{'with'} );
     return croak "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
-    my $pos = $arg->{'pos'} // 0.5;
+    my $pos = $arg->{'pos'} // $arg->{'position'} // 0.5;
     my $space_name = $arg->{'in'} // 'HSL';
-    return carp "color space $space_name is unknown" unless ref Graphics::Toolkit::Color::Value::space( $space_name );
-    my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
-    my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb,  $space_name );
-    my @blend_val = map {((1-$pos) * $val1[ $_ ]) + ($pos * $val2[ $_ ])}
-                         0 .. Graphics::Toolkit::Color::Value::space( $space_name )->dimensions - 1;
-    _new_from_scalar( [ Graphics::Toolkit::Color::Value::deconvert( \@blend_val, $space_name ) ] );
+    return carp "color space $space_name is unknown" unless Graphics::Toolkit::Color::Space::Hub::is_space( $space_name );
+    _new_from_value_obj( $self->{'values'}->blend( $c2->{'values'}, $pos, $space_name ) );
 }
 
 ## color set creation methods ##########################################
@@ -180,7 +163,7 @@ sub gradient {
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';
     my $c2 = _new_from_scalar( $arg->{'to'} );
-    return croak "need a second color under the key 'to' ( to => [10, 20, 30])" unless ref $c2;
+    return croak "need a second color under the key 'to' : ( to => ['HSL', 10, 20, 30])" unless ref $c2;
     my $space_name = $arg->{'in'} // 'HSL';
     my $steps = int(abs($arg->{'steps'} // 3));
     my $power = $arg->{'dynamic'} // 0;
@@ -201,7 +184,7 @@ sub gradient {
     return $self, @colors, $c2;
 }
 
-sub complementary {
+sub complementary { # steps => +,  delta => {}
     my ($self) = shift;
     my ($count) = int ((shift // 1) + 0.5);
     my ($saturation_change) = shift // 0;
@@ -283,8 +266,9 @@ and create related color objects via methods listed under I<METHODS>.
 =head1 CONSTRUCTOR
 
 There are many options to create a color objects.  In short you can
-either use the name of a predefined constant or provide values in several
-L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+either use the name of a constant or provide values in several
+L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES> and many formats
+as described in this paragraph.
 
 =head2 new('name')
 
@@ -330,7 +314,8 @@ Out of range values will be corrected to the closest value in range.
     my $red = Graphics::Toolkit::Color->new('RGB' => 255, 0, 0);  # named tuple syntax
     my $red = Graphics::Toolkit::Color->new(['RGB' => 255, 0, 0]); # named ARRAY
 
-The named array syntax of the last example works for nany supported space.
+The named array syntax of the last example, as any here following,
+work for any supported color space.
 
 
 =head2 new({ r => $r, g => $g, b => $b })
@@ -341,19 +326,23 @@ and only the first letter of each key is significant.
 
     my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
     my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
-    ... Color->new( Red => 255, Green => 0, Blue => 0);   # also fine
+                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
+              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
+                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
 
-=head2 new({ h => $h, s => $s, l => $l })
+=head2 new('rgb: $r, $g, $b')
 
-To define a color in HSL space, with values for L</hue>, L</saturation> and
-L</lightness>, use the following keys, which will be normalized as decribed
-in previous paragraph. Out of range values will be corrected to the
-closest value in range. Since L</hue> is a polar coordinate,
-it will be rotated into range, e.g. 361 = 1.
+String format (good for serialisation) that maximizes readability.
 
-    my $red = Graphics::Toolkit::Color->new( h =>   0, s => 100, l => 50 );
-    my $red = Graphics::Toolkit::Color->new({h =>   0, s => 100, l => 50}); # good too
-    ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # also fine
+    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
+    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
+
+=head2 new('rgb($r,$g,$b)')
+
+Variant of string format that is supported by CSS.
+
+    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
 
 =head2 color
 
@@ -363,7 +352,6 @@ If writing
 
 is too much typing for you or takes to much space, import the subroutine
 C<color>, which takes all the same arguments as described above.
-
 
     use Graphics::Toolkit::Color qw/color/;
     my $green = color('green');
@@ -395,6 +383,8 @@ It is either the color L</name> (if color has one) or result of L</rgb_hex>.
 =head2 values
 
 Returns the values of the color in given color space and with given format.
+In short any format acceptable by the constructor can also be reproduce
+by a getter method and in most cases by this one.
 
 First argument is the name of a color space (named argument C<in>).
 The options are to be found under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>

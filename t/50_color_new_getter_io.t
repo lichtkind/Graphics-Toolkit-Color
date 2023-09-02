@@ -13,7 +13,7 @@ is( not( $@), 1, 'could load the module');
 warning_like {Graphics::Toolkit::Color->new()}                    {carped => qr/constructor of/},  "need argument to create object";
 warning_like {Graphics::Toolkit::Color->new('weirdcolorname')}    {carped => qr/unknown color/},   "accept only known color names";
 warning_like {Graphics::Toolkit::Color->new('CHIMNEY:red')}       {carped => qr/ not installed/},  "accept only known palletes";
-warning_like {Graphics::Toolkit::Color->new('#23232')       }     {carped => qr/constructor of/},  "hex definition too short";
+warning_like {Graphics::Toolkit::Color->new('#23232')       }     {carped => qr/could not recognize/},  "hex definition too short";
 warning_like {Graphics::Toolkit::Color->new('#232321f')     }     {carped => qr/constructor of/},  "hex definition too long";
 warning_like {Graphics::Toolkit::Color->new('#23232g')       }    {carped => qr/constructor of/},  "hex definition has forbidden chars";
 warning_like {Graphics::Toolkit::Color->new('#2322%E')       }    {carped => qr/constructor of/},  "hex definition has forbidden special chars";

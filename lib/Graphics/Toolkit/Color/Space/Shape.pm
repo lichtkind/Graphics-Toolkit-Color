@@ -13,7 +13,7 @@ sub new {
     my ($basis, $range, $type) = @_;
     return unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
-    if    (not defined $range){                # check range settings
+    if    (not defined $range or $range eq 'normal'){       # check range settings
         $range = [([0,1]) x $basis->count];    # default range = normal range
 
     } elsif (not ref $range and $range > 0) {  # single int range def

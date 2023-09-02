@@ -5,7 +5,7 @@ use warnings;
 
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
-my $base_package = 'RGB';
+our $base_package = 'RGB';
 my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB/); # search order # HCL LAB LUV XYZ YIQ Ncol ?
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages;
 
@@ -14,11 +14,36 @@ sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 sub base_space { $space_obj{$base_package} }
 sub space_names { @space_packages }
 sub check_space_name {
+    return unless defined $_[0];
     my $error = "called with unknown color space name $_[0], please try one of: " . join (', ', @space_packages);
-    carp $error if defined $_[0] and not is_space( $_[0] );
+    is_space( $_[0] ) ? 0 : carp $error;
 }
 
 ########################################################################
+
+sub partial_hash_deformat { # convert partial hash into
+    my ($value_hash) = @_;
+    return unless ref $value_hash eq 'HASH';
+    for my $space_name (space_names()) {
+        my $color_space = get_space( $space_name );
+        my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
+        return $pos_hash, $color_space->name if ref $pos_hash eq 'HASH';
+    }
+    return undef;
+}
+
+sub list_from_pos_hash { # convert result of partial_hash_deformat to regular value list
+    my ($pos_hash, $space_name) = @_;
+    return unless ref $pos_hash eq 'HASH';
+    check_space_name( $space_name ) and return;
+    my $space = get_space( $space_name // $base_package);
+    my @values = (0) x $space->dimensions;
+    for my $pos (keys %$pos_hash){
+        next if $pos >= @values;
+        $values[$pos] = $pos_hash->{ $pos };
+    }
+    return @values;
+}
 
 sub deformat { # convert from any format into list of values of any space
     my ($formated_values) = @_;
@@ -29,27 +54,19 @@ sub deformat { # convert from any format into list of values of any space
     }
 }
 
-sub partial_hash_deformat { # convert partial hash into
-    my ($value_hash) = @_;
-    return unless ref $value_hash eq 'HASH';
-    for my $space_name (space_names()) {
-        my $color_space = get_space( $space_name );
-        my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
-        # decode hash, normalize
-        return $pos_hash, $space_name if ref $pos_hash eq 'HASH';
-    }
-}
-
 sub format { # @tuple --> % | % |~ ...
-    my ($values, $space_name, @format) = @_;
+    my ($values, $space_name, $format) = @_;
     check_space_name( $space_name ) and return;
     my $space = get_space( $space_name // $base_package);
     unless ($space->is_array( $values )) {
         carp "need array with right amount of values to format";
         return ();
     }
-    @format = ('list') unless @format;
-    my @values = map { $space->format( $values, $_ ) } @format;
+    my @values = $space->format( $values, $format // 'list' );
+    unless ( defined $values[0]){
+        carp "got unknown format name: '$format'";
+        return undef;
+    }
     return @values == 1 ? $values[0] : @values;
 }
 
@@ -76,8 +93,7 @@ sub denormalize {
     check_space_name( $space_name ) and return;
     my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless $space->is_array( $values );
-    my @values = $space->clamp($values, $range);
-    # $space->basis->is_range_def( $range );
+    my @values = $space->clamp($values, 'normal');
     $space->denormalize( \@values, $range);
 }
 
@@ -86,34 +102,11 @@ sub normalize {
     check_space_name( $space_name ) and return;
     my $space = get_space( $space_name // $base_package);
     return carp "got not right amount of values to format" unless base_space()->is_array( $values );
-    return $space->clamp(@$values) if $space->name eq $base_package;
-    $space->deconvert( $values, $base_package);
+    my @values = $space->clamp(@$values, $range);
+    return unless defined $values[0];
+    $space->normalize( $values, $range);
 }
 
-
-sub distance { # @vector x @vector -- ~color_space_name, ~subspace   --> +d
-    my ($values1, $values2, $space_name, $subspace) = @_;
-    $space_name //= $base_package;
-    check_space_name( $space_name ) and return;
-    my $space = get_space( $space_name // $base_package);
-    my @delta = $space->delta( $values1, $values2 );
-    return - carp "called 'distance' with bad input values!" unless @delta == $space->dimensions;
-    if (defined $subspace and $subspace){
-        my @components = split( '', $subspace );
-        my $pos = $space->basis->key_pos( $subspace );
-        @components = defined( $pos )
-                    ? ($pos)
-                    : (map  { $space->basis->shortcut_pos($_) }
-                       grep { defined $space->basis->shortcut_pos($_) } @components);
-        return - carp "called 'distance' for subspace $subspace that does not fit color space $space_name!" unless @components;
-        @delta = map { $delta [$_] } @components;
-    }
-    # Euclidean distance:
-    @delta = map {$_ * $_} @delta;
-    my $d = 0;
-    for (@delta) {$d += $_}
-    return sqrt $d;
-}
 
 1;
 

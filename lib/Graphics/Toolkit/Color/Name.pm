@@ -3,7 +3,7 @@ use v5.12;
 # named colors from X11, HTML (SVG) standard and Pantone report
 
 package Graphics::Toolkit::Color::Name;
-use Graphics::Toolkit::Color::Space::Hub;
+use Graphics::Toolkit::Color::Values;
 use Carp;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
@@ -72,7 +72,8 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
              }
         }
     }
-    @names = grep {Graphics::Toolkit::Color::Space::Hub::distance( $hsl_center ,[hsl_from_name($_)], 'HSL' ) <= $radius} @names if not ref $radius;
+    @names = grep {Graphics::Toolkit::Color::Values->new(['HSL',@$hsl_center])->distance(
+                   Graphics::Toolkit::Color::Values->new(['HSL',hsl_from_name($_)])     ) <= $radius} @names if not ref $radius;
     @names;
 }
 

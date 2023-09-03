@@ -15,7 +15,7 @@ my $black = color('black');
 
 warning_like {$red->set()}           {carped => qr/need arguments as hash/},    "set method needs arguments";
 warning_like {$red->set([1,2,3])}    {carped => qr/need arguments as hash/},    "input has to be a HASH not ARRAY";
-warning_like {$red->set(fox => 4)}   {carped => qr/not match any known/},       "no color value keys detected";
+warning_like {$red->set(fox => 4)}   {carped => qr/to any supported color/},    "no color value keys detected";
 
 is( $black->set( blue => 255   )->name, 'blue', 'could set the blue value' );
 is( $black->set({blue => 255} )->name,  'blue', 'could set the blue value with HASH syntax' );

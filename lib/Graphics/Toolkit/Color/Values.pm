@@ -38,7 +38,7 @@ sub string { $_[0]->get( $_[0]->{'origin'}, 'string' ) }
 
 ########################################################################
 
-sub set {
+sub set { # %val --> _
     my ($self, $val_hash) = @_;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $val_hash );
     return carp 'key names: '.join(', ', keys %$val_hash). 'no not correlate to any supported color space' unless defined $space_name;
@@ -49,7 +49,7 @@ sub set {
     __PACKAGE__->new([$space_name, @values]);
 }
 
-sub add {
+sub add { # %val --> _
     my ($self, $val_hash) = @_;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $val_hash );
     return carp 'key names: '.join(', ', keys %$val_hash). 'no not correlate to any supported color space' unless defined $space_name;
@@ -60,7 +60,7 @@ sub add {
     __PACKAGE__->new([$space_name, @values]);
 }
 
-sub blend {
+sub blend { # _c1 _c2 -- +factor ~space --> _
     my ($self, $c2, $factor, $space_name ) = @_;
     return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
     $factor //= 0.5;
@@ -74,7 +74,7 @@ sub blend {
 
 ########################################################################
 
-sub distance {
+sub distance { # _c1 _c2 -- ~space ~metric @range --> +
     my ($self, $c2, $space_name, $metric, $range) = @_;
     return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
     $space_name //= 'HSL';

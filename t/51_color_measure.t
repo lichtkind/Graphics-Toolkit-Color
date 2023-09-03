@@ -72,12 +72,12 @@ is( int $blue->distance({h =>230, s => 90, l=>40}, 'HSL', 'sl'),   14, 'correct 
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'rgb'),         74, 'correct rgb distance between own hsl blue and blue');
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'Red'),  10, 'correct red distance between own hsl blue and blue, long name');
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'r'),    10, 'correct red distance between own hsl blue and blue');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'Green'),40, 'correct green distance between own hsl blue and blue, long name');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'g'),    40, 'correct green distance between own hsl blue and blue');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'Blue'), 62, 'correct blue distance between own hsl blue and blue, long name');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'b'),    62, 'correct blue distance between own hsl blue and blue');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rg'),   41, 'correct rg distance between own hsl blue and blue');
-is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rb'),   62, 'correct rb distance between own hsl blue and blue');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'Green'),41, 'correct green distance between own hsl blue and blue, long name');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'g'),    41, 'correct green distance between own hsl blue and blue');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'Blue'), 61, 'correct blue distance between own hsl blue and blue, long name');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'b'),    61, 'correct blue distance between own hsl blue and blue');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rg'),   42, 'correct rg distance between own hsl blue and blue');
+is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'rb'),   61, 'correct rb distance between own hsl blue and blue');
 is( int $blue->distance({h =>230, s => 90, l=>40}, 'RGB', 'gb'),   73, 'correct gb distance between own hsl blue and blue');
 
 is( close_enough( $blue->distance({h =>230, s => 0, l=>100}, 'CMYK' ), sqrt(2)),   1, 'measure distance between RGB ans HSL in CMYK');

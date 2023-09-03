@@ -55,8 +55,8 @@ sub _new_from_scalar {
         }
         $value_obj = Graphics::Toolkit::Color::Values->new( [@rgb] );
     } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
-        $name = $color_def->{'name'};
-        $value_obj = Graphics::Toolkit::Color::Values->new( $color_def->string );
+        $name = $color_def->name;
+        $value_obj = Graphics::Toolkit::Color::Values->new( $color_def->{'values'}->string );
     } else {                                  # define color by numbers in any format
         my $value_obj = Graphics::Toolkit::Color::Values->new( $color_def );
         return unless ref $value_obj;
@@ -67,14 +67,14 @@ sub _new_from_scalar {
 sub _new_from_value_obj {
     my ($value_obj) = @_;
     return unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
-    bless {name => Graphics::Toolkit::Color::Name::name_from_rgb( $value_obj->get() ), values => $value_obj};
+    bless {name => scalar Graphics::Toolkit::Color::Name::name_from_rgb( $value_obj->get() ), values => $value_obj};
 }
 
 ## getter ##############################################################
 
 sub name        { $_[0]{'name'} }
 
-    sub string      { $_[0]->{'values'}->string }
+    sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
     sub rgb         { $_[0]->values( ) }
     sub red         {($_[0]->values( in => 'rgb'))[0] }
     sub green       {($_[0]->values( in => 'rgb'))[1] }
@@ -106,13 +106,8 @@ sub distance {
     }
     return carp "missing argument: color object or scalar color definition" unless defined $c2;
     $c2 = _new_from_scalar( $c2 );
-    return carp "distance: second color is badly defined" unless ref $c2 eq __PACKAGE__;
-    $space_name //= 'HSL';
-    return carp "color space $space_name is unknown" unless ref Graphics::Toolkit::Color::Value::space( $space_name );
-    my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
-    my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb, $space_name );
-    Graphics::Toolkit::Color::Value::distance( \@val1, \@val2, $space_name, $subspace);
-    # _new_from_value_obj(  );
+    return carp "second color for distance calculation (named argument 'to') is badly defined" unless ref $c2 eq __PACKAGE__;
+    $self->{'values'}->distance( $c2->{'values'}, $space_name, $subspace );
 }
 
 ## single color creation methods #######################################

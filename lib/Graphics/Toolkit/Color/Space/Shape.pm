@@ -88,7 +88,7 @@ sub check {
 sub clamp {
     my ($self, $values, $range) = @_;
     $range = $self->_range( $range );
-    return carp "bad range definition" unless ref $range;
+    return undef, carp "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;
     $values = [] unless ref $values eq 'ARRAY';
     push @$values, 0 while @$values < $self->basis->count;
     pop  @$values    while @$values > $self->basis->count;

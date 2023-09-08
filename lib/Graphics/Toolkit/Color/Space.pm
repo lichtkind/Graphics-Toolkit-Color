@@ -1,13 +1,11 @@
 use v5.12;
 use warnings;
 
-# common base of all color spaces
+# common code of Graphics::Toolkit::Color::Space::Instance::*
 
 package Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
-use Graphics::Toolkit::Color::Space::Util ':all';
-use Carp;
 
 sub new {
     my $pkg = shift;
@@ -49,6 +47,7 @@ sub check { shift->{'shape'}->check( @_ ) }       # @values -- @range           
 sub clamp { shift->{'shape'}->clamp( @_ ) }       # @values -- @range           --> |@vector
 sub normalize { shift->{'shape'}->normalize(@_)}  # @values -- @range           --> |@vector
 sub denormalize{shift->{'shape'}->denormalize(@_)}# @values -- @range           --> |@vector
+sub suppress_normalisation { shift->{'shape'}->suppress_normalisation }
 
 ########################################################################
 
@@ -82,10 +81,10 @@ sub deformat {
 ########################################################################
 
 sub add_converter {
-    my ($self, $space_name, $to_code, $from_code) = @_;
+    my ($self, $space_name, $to_code, $from_code, $mode) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
     return 0 if $self->can_convert( $space_name );
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code };
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, mode => $mode };
 }
 sub convert {
     my ($self, $values, $space_name) = @_;

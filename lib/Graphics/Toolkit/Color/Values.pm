@@ -41,7 +41,7 @@ sub string { $_[0]->get( $_[0]->{'origin'}, 'string' ) }
 sub set { # %val --> _
     my ($self, $val_hash) = @_;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $val_hash );
-    return carp 'key names: '.join(', ', keys %$val_hash). 'no not correlate to any supported color space' unless defined $space_name;
+    return carp 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my @values = $self->get( $space_name );
     for my $pos (keys %$pos_hash){
         $values[$pos] = $pos_hash->{ $pos };
@@ -52,7 +52,7 @@ sub set { # %val --> _
 sub add { # %val --> _
     my ($self, $val_hash) = @_;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $val_hash );
-    return carp 'key names: '.join(', ', keys %$val_hash). 'no not correlate to any supported color space' unless defined $space_name;
+    return carp 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my @values = $self->get( $space_name );
     for my $pos (keys %$pos_hash){
         $values[$pos] += $pos_hash->{ $pos };

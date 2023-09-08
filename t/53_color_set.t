@@ -24,7 +24,7 @@ is( $g[1]->name,                                     'gray20',  'grey20 is betwe
 is( $g[2]->name,                                     'gray40',  'grey40 is between black and white');
 @g = $black->gradient_to( $white, 3, 0 );
 is( int @g,                                                3,   'gradient has right length = 3');
-is( $g[1]->name,                                     'gray50',  'grey25 is between black and white in none linear gradient');
+is( $g[1]->name,                                     'gray',    'gray aka grey50  is between black and white in none linear gradient');
 @g = $black->gradient_to( $white, 3, -1.4 );
 is( $g[1]->name,                                     'gray75',  'grey75 is between black and white in none linear gradient');
 @g = $red->gradient( to=>'#0000FF', steps => 3, in => 'RGB' );
@@ -48,7 +48,7 @@ is( $g[1]->name,                                       'lime',   "complementary 
 is( $g[2]->name,                                       'blue',   "complementary circle ends with blue");
 
 @g = Graphics::Toolkit::Color->new(15,12,13)->complementary(3);
-is( $g[0]->saturation,                       $g[1]->saturation-1,  "saturation is equal on complementary circle of random color");
+is( $g[0]->saturation,                       $g[1]->saturation,  "saturation is equal on complementary circle of random color");
 is( $g[1]->saturation,                       $g[2]->saturation,  "saturation is equal on complementary circle 2");
 is( $g[0]->lightness,                        $g[1]->lightness,   "lightness is equal on complementary circle of random color");
 is( $g[1]->lightness,                        $g[2]->lightness,   "lightness is equal on complementary circle 2");

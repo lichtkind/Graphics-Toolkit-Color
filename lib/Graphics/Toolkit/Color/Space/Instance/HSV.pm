@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in HSV space
+# HSV color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HSV;
 use Graphics::Toolkit::Color::Space::Util ':all';

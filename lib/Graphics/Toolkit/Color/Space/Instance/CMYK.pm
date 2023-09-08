@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in CMYK space
+# CMYK color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::CMYK;
 use Graphics::Toolkit::Color::Space;

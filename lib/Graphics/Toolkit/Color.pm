@@ -164,17 +164,17 @@ sub gradient {
     my $power = $arg->{'dynamic'} // 0;
     $power = ($power >= 0) ? $power + 1 : -(1/($power-1));
     return $self if $steps == 1;
-    my $space = Graphics::Toolkit::Color::Value::space( $space_name );
+    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return carp "color space $space_name is unknown" unless ref $space;
-    my @val1 =  Graphics::Toolkit::Color::Value::convert( $self->_rgb, $space_name );
-    my @val2 =  Graphics::Toolkit::Color::Value::convert( $c2->_rgb, $space_name );
+    my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );
+    my @val2 =  $c2->{'values'}->get( $space_name, 'list', 'normal' );
     my @delta_val = $space->delta (\@val1, \@val2 );
     my @colors = ();
     for my $nr (1 .. $steps-2){
         my $pos = ($nr / ($steps-1)) ** $power;
         my @rval = map {$val1[$_] + ($pos * $delta_val[$_])} 0 .. $space->dimensions - 1;
-        my @rgb = Graphics::Toolkit::Color::Value::deconvert( \@rval, $space_name );
-        push @colors, _new_from_scalar( [ @rgb ] );
+        @rval = $space->denormalize ( \@rval );
+        push @colors, _new_from_scalar( [ $space_name, @rval ] );
     }
     return $self, @colors, $c2;
 }
@@ -185,11 +185,11 @@ sub complementary { # steps => +,  delta => {}
     my ($saturation_change) = shift // 0;
     my ($lightness_change) = shift // 0;
     my @hsl2 = my @hsl_l = my @hsl_r = $self->values('HSL');
+    my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
     $hsl2[0] += 180;
     $hsl2[1] += $saturation_change;
     $hsl2[2] += $lightness_change;
-    @hsl2 = Graphics::Toolkit::Color::Value::HSL::clamp( @hsl2 ); # HSL of C2
-    my $c2 = color( h => $hsl2[0], s => $hsl2[1], l => $hsl2[2] );
+    my $c2 = _new_from_scalar( [ 'HSL', @hsl2 ] );
     return $c2 if $count < 2;
     my (@colors_r, @colors_l);
     my @delta = (360 / $count, (($hsl2[1] - $hsl_r[1]) * 2 / $count), (($hsl2[2] - $hsl_r[2]) * 2 / $count) );
@@ -199,8 +199,8 @@ sub complementary { # steps => +,  delta => {}
         $hsl_l[$_] = $hsl_r[$_] for 1,2;
         $hsl_l[0] += 360 if $hsl_l[0] <    0;
         $hsl_r[0] -= 360 if $hsl_l[0] >= 360;
-        push @colors_r, color( H => $hsl_r[0], S => $hsl_r[1], L => $hsl_r[2] );
-        unshift @colors_l, color( H => $hsl_l[0], S => $hsl_l[1], L => $hsl_l[2] );
+        push    @colors_r, _new_from_scalar( [ 'HSL', @hsl_r ] );
+        unshift @colors_l, _new_from_scalar( [ 'HSL', @hsl_l ] );
     }
     push @colors_r, $c2 unless $count % 2;
     $self, @colors_r, @colors_l;

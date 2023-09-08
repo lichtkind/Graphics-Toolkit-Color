@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in CMY space
+# CMY color space specific code
 
 package Graphics::Toolkit::Color::Value::CMY;
 use Graphics::Toolkit::Color::Space;

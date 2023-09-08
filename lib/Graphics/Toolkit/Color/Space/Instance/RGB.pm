@@ -1,10 +1,10 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values in RGB space
+# RGB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::RGB;
-use Graphics::Toolkit::Color::Space ':all';
+use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Carp;
 

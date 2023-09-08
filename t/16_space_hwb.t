@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 33;
+use Test::More tests => 37;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -57,4 +57,12 @@ is( close_enough( $rgb[0], 210/255), 1,   'right red value');
 is( close_enough( $rgb[1], 20/255) , 1,   'right green value');
 is( close_enough( $rgb[2], 70/255) , 1,   'right blue value');
 
+@rgb = $def->convert( [0.83333, 0, 1], 'RGB'); # should become black despite color value
+is( int @rgb,  3,     'converted black');
+is( $rgb[0],   0,     'right red value');
+is( $rgb[1],   0,     'right green value');
+is( $rgb[2],   0,     'right blue value');
+
+
 exit 0;
+

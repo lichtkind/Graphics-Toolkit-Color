@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -37,9 +37,13 @@ is( $v->get('hsl','string'), 'hsl: 240, 100, 50', 'got all original values back 
 is( $v->string(),            'hsl: 240, 100, 50', 'string method works');
 is( uc $v->get('RGB','HEX'), '#0000FF', 'got values in RGB hex format');
 
-my $violet = $v->set({red => 255}) ;
+my $violet = $v->set({red => 255});
 is( ref $violet,     $module,             'created related color by set method');
 is( uc $violet->get('RGB','HEX'), '#FF00FF', 'red value got boosted');
+
+my $black = $violet->set({blackness => 100});
+is( $black->get('RGB','HEX'), '#000000', 'made color black');
+
 
 my $vn = $v->add({green => -10}) ;
 is( ref $violet,     $module,             'added negative green value');

@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert, mormalize and measure color values in HSB space
+# HSB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HSB;
 use Graphics::Toolkit::Color::Space::Util ':all';

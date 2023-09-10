@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space::Shape;
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'} );
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'} );
     return unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'range'}, $args{'type'} );
     return unless ref $shape;
@@ -47,7 +47,6 @@ sub check { shift->{'shape'}->check( @_ ) }       # @values -- @range           
 sub clamp { shift->{'shape'}->clamp( @_ ) }       # @values -- @range           --> |@vector
 sub normalize { shift->{'shape'}->normalize(@_)}  # @values -- @range           --> |@vector
 sub denormalize{shift->{'shape'}->denormalize(@_)}# @values -- @range           --> |@vector
-sub suppress_normalisation { shift->{'shape'}->suppress_normalisation }
 
 ########################################################################
 

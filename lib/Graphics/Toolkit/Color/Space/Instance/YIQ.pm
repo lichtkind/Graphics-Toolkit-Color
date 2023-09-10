@@ -6,12 +6,12 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Instance::YIQ;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util ':all';
-
-my  $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/luminance in-phase quadrature/], # Cyan-Orange Balance Magenta-Grün Balance
+                                                                    # Cyan-Orange Balance, Magenta-Grün Balance
+my  $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/luminance in-phase quadrature/],
+                                                     short => [qw/Y I Q/]
                                                      range => [1, [-0.5959,0.5959], [-0.5227,0.5227]] );
 
     $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-    $hwb_def->suppress_normalisation;
 
 sub from_rgb {
     my ($r, $g, $b) = @_;

@@ -57,7 +57,6 @@ sub _range {
     $external_range = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $external_range, $self->{'type'});
     return (ref $external_range) ? $external_range->{'range'} : undef ;
 }
-sub suppress_normalisation { $_[0]{'anormal'} = 1 }
 
 ########################################################################
 
@@ -112,7 +111,6 @@ sub clamp {
 
 sub normalize {
     my ($self, $values, $range) = @_;
-    return if exists $self->{'anormal'};
     return unless $self->basis->is_array( $values );
     $range = $self->_range( $range );
     return carp "bad range definition" unless ref $range;
@@ -121,7 +119,6 @@ sub normalize {
 
 sub denormalize {
     my ($self, $values, $range) = @_;
-    return if exists $self->{'anormal'};
     return unless $self->basis->is_array( $values );
     $range = $self->_range( $range );
     return carp "bad range definition" unless ref $range;

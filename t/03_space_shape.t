@@ -8,10 +8,8 @@ use Test::Warn;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
 
-use Graphics::Toolkit::Color::Space::Basis;
-eval "use $module";
+eval "use $module;";
 is( not($@), 1, 'could load the module');
-
 my $obj = Graphics::Toolkit::Color::Space::Shape->new();
 is( $obj,  undef,       'constructor needs arguments');
 

@@ -6,13 +6,14 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my ($pkg, $axis, $prefix) = @_;
-    return unless ref $axis eq 'ARRAY';
-    my @keys = map {lc} @$axis;
+    my ($pkg, $axis_names, $shortcuts, $prefix) = @_;
+    return unless ref $axis_names eq 'ARRAY';
+    return if defined $shortcuts and (ref $shortcuts ne 'ARRAY' or @$axis_names != @$shortcuts);
+    my @keys      = map {lc} @$axis_names;
+    my @shortcuts = map { _color_key_shortcut($_) } (defined $shortcuts) ? @$shortcuts : @keys;
     return unless @keys > 0;
     my @iterator = 0 .. $#keys;
-    my %key_order = map { $keys[$_] => $_ } @iterator;
-    my @shortcuts = map { _color_key_shortcut($_) } @keys;
+    my %key_order      = map { $keys[$_] => $_ } @iterator;
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
     bless { keys => [@keys], shortcuts => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
@@ -101,9 +102,9 @@ sub list_from_hash {
     return undef unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
     my @values = (0) x $self->{'count'};
     for my $value_key (CORE::keys %$value_hash) {
-        my $shortcut = _color_key_shortcut( $value_key );
-        return undef unless exists $self->{'shortcut_order'}{ $shortcut };
-        $values[ $self->{'shortcut_order'}{ $shortcut } ] = $value_hash->{ $value_key };
+        if    ($self->is_key( $value_key ))      { $values[ $self->{'key_order'}{ lc $value_key } ] = $value_hash->{ $value_key } }
+        elsif ($self->is_shortcut( $value_key )) { $values[ $self->{'shortcut_order'}{ lc $value_key } ] = $value_hash->{ $value_key } }
+        else                                     { return }
     }
     return @values;
 }
@@ -167,3 +168,9 @@ sub css_string_from_list {
 sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;
+
+__END__
+    my $caller_package = (caller(1))[0];
+    return unless defined $caller_package and $caller_package and $caller_package ne 'main';
+    my @package_path_parts = split '::', $caller_package;
+    my @shortcuts = map {lc} split '', $package_path_parts[-1];

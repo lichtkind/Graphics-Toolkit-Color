@@ -23,12 +23,12 @@ sub new {
     } elsif (ref $range eq 'ARRAY' and @$range == $basis->count ) { # full range def
         for my $i ($basis->iterator) {
             my $drange = $range->[$i]; # range def of this dimension
+
             if (not ref $drange and $drange > 0){
                 $drange = int $drange;
                 $range->[$i] = [0, $drange];
             } elsif (ref $drange eq 'ARRAY' and @$drange == 2
-                     and defined $drange->[0] and defined $drange->[1] and $drange->[0] < $drange->[1]
-                     and $drange->[0] == int $drange->[0] and $drange->[1] == int $drange->[1]) { # full valid def
+                     and defined $drange->[0] and defined $drange->[1] and $drange->[0] < $drange->[1]) { # full valid def
             } else { return }
         }
     } else { return }
@@ -49,6 +49,16 @@ sub new {
 }
 
 sub basis            { $_[0]{'basis'}}
+sub dimension_is_int {
+    my ($self, $dnr, $range) = @_;
+    $range //= $self->{'range'};
+    return undef unless ref $range eq 'ARRAY' and exists $range->[$dnr];
+    my $r = $range->[$dnr];
+    return 0 if $r->[0] == 0 and $r->[1] == 1; #normal
+    return 0 if int($r->[0]) != $r->[0];
+    return 0 if int($r->[1]) != $r->[1];
+    1;
+}
 sub _range {
     my ($self, $external_range) = @_;
     return $self->{'range'} unless defined $external_range;
@@ -79,8 +89,8 @@ sub check {
     for my $i ($self->basis->iterator){
         return carp $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
         return carp $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
-        return carp $names[$i]." value has to be an integer" if ($range->[$i][1] - $range->[$i][0]) > 1
-                                                             and $values->[$i] != int $values->[$i];
+        return carp $names[$i]." value has to be an integer" if $self->dimension_is_int($i, $range)
+                                                            and int $values->[$i] != $values->[$i];
     }
     return;
 }
@@ -102,7 +112,7 @@ sub clamp {
             $values->[$i] -= $delta while $values->[$i] > $range->[$i][1];
             $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
         }
-        $values->[$i] = round($values->[$i]) if $delta > 1;
+        $values->[$i] = round($values->[$i]) if $self->dimension_is_int($i, $range);
     }
     return @$values;
 }
@@ -122,8 +132,9 @@ sub denormalize {
     return unless $self->basis->is_array( $values );
     $range = $self->_range( $range );
     return carp "bad range definition" unless ref $range;
-    map { my $v = ($values->[$_] * ($range->[$_][1]-$range->[$_][0])) + $range->[$_][0];
-          ($range->[$_][1]-$range->[$_][0]) == 1 ? $v : round ($v)                } $self->basis->iterator;
+    my @val = map { $values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0] } $self->basis->iterator;
+    @val    = map { $self->dimension_is_int($_, $range) ? round ($val[$_]) : $val[$_] } $self->basis->iterator;
+    return @val;
 }
 
 1;

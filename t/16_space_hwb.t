@@ -47,9 +47,9 @@ is( $rgb[2],   0.5,   'converted back color grey has right blue value');
 
 @hwb = $def->deconvert( [210/255, 20/255, 70/255], 'RGB');
 is( int @hwb,  3,     'converted nice magents has three hwb values');
-is( close_enough( $hwb[0], 0.95555), 1,  'converted nice magents has computed right hue value');
-is( close_enough( $hwb[1], 0.08,   ), 1,  'converted nice magents has computed right whiteness');
-is( close_enough( $hwb[2], 0.18,   ), 1,  'converted nice magents has computed right blackness');
+is( close_enough( $hwb[0], 0.95555), 1,   'converted nice magenta has computed right hue value');
+is( close_enough( $hwb[1], 0.08,   ), 1,  'converted nice magenta has computed right whiteness');
+is( close_enough( $hwb[2], 0.18,   ), 1,  'converted nice magenta has computed right blackness');
 
 @rgb = $def->convert( [0.95555, 0.08, 0.18], 'RGB');
 is( int @rgb,  3,     'converted back nice magenta');

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 76;
+use Test::More tests => 75;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -20,7 +20,6 @@ is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,3],[1,3
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1] ]), undef, 'one dimension had too short def');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2,3] ]), undef, 'one dimension had too long def');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[2,2] ]), undef, 'range min is not smaller than max');
-is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2.1] ]), undef, 'none int max value');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],{}), undef, 'type def has to be array too');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],[1,1]), undef, 'type def too short');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],[1,1,1,1]), undef, 'type def too long');

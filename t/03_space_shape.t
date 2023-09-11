@@ -6,6 +6,7 @@ use Test::More tests => 75;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
+use Graphics::Toolkit::Color::Space::Basis;
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
 
 eval "use $module;";

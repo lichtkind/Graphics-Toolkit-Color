@@ -191,6 +191,12 @@ B<whiteness> and B<blackness>, desribing how much white or black are mixed in.
 If both are zero, than we have a pure color. I<whiteness> of 100 always
 leads to pure white and I<blackness> of 100 always leads to pure black.
 
+=head2 YIQ
+
+Has the linear dimensions I<luminance> (sort of brightness, range 0..1),
+I<in-phase> (cyan - orange - balance, range -0.5959 .. 0.5959)
+and I<quadrature> (magenta - green - balance, range: -0.5227 .. 0.5227).
+
 =head1 FORMATS
 
 These formats are available in all color spaces.

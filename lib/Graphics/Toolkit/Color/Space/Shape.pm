@@ -137,4 +137,12 @@ sub denormalize {
     return @val;
 }
 
+sub denormalize_range {
+    my ($self, $values, $range) = @_;
+    return unless $self->basis->is_array( $values );
+    $range = $self->_range( $range );
+    return carp "bad range definition" unless ref $range;
+    map { $values->[$_] * ($range->[$_][1]-$range->[$_][0]) } $self->basis->iterator;
+}
+
 1;

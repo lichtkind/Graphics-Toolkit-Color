@@ -82,6 +82,12 @@ sub is_partial_hash {
 
 ########################################################################
 
+sub key_shortcut {
+    my ($self, $key) = @_;
+    return unless $self->is_key( $key );
+    ($self->shortcuts)[ $self->{'key_order'}{ lc $key } ];
+}
+
 sub list_value_from_key {
     my ($self, $key, @values) = @_;
     $key = lc $key;

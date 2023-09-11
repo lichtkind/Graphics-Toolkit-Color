@@ -42,11 +42,12 @@ sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ?
 
 ########################################################################
 
-sub delta { shift->{'shape'}->delta( @_ ) }       # @values -- @vector, @vector --> |@vector # on normalize values
-sub check { shift->{'shape'}->check( @_ ) }       # @values -- @range           -->  ?       # pos if carp
-sub clamp { shift->{'shape'}->clamp( @_ ) }       # @values -- @range           --> |@vector
-sub normalize { shift->{'shape'}->normalize(@_)}  # @values -- @range           --> |@vector
-sub denormalize{shift->{'shape'}->denormalize(@_)}# @values -- @range           --> |@vector
+sub delta      { shift->{'shape'}->delta( @_ ) }    # @values -- @vector, @vector --> |@vector # on normalize values
+sub check      { shift->{'shape'}->check( @_ ) }    # @values -- @range           -->  ?       # pos if carp
+sub clamp      { shift->{'shape'}->clamp( @_ ) }    # @values -- @range           --> |@vector
+sub normalize  { shift->{'shape'}->normalize(@_)}   # @values -- @range           --> |@vector
+sub denormalize{ shift->{'shape'}->denormalize(@_)} # @values -- @range           --> |@vector
+sub denormalize_range{ shift->{'shape'}->denormalize_range(@_)} # @values -- @range           --> |@vector
 
 ########################################################################
 

@@ -76,18 +76,25 @@ sub blend { # _c1 _c2 -- +factor ~space --> _
 
 sub distance { # _c1 _c2 -- ~space ~metric @range --> +
     my ($self, $c2, $space_name, $metric, $range) = @_;
+#say "distance ";
     return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
     $space_name //= 'HSL';
     Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
+    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    $metric = $space->basis->key_shortcut($metric) if $space->basis->is_key( $metric );
     my @values1 = $self->get( $space_name, 'list', 'normal' );
     my @values2 = $c2->get( $space_name, 'list', 'normal' );
+#say "values: @values1   @values2 $space_name";
     return unless defined $values1[0] and defined $values2[0];
-    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     my @delta = $space->delta( \@values1, \@values2 );
-    @delta = $space->denormalize( \@delta, $range);
+#say "normalized:  @delta $metric" if defined $metric;
+
+    @delta = $space->denormalize_range( \@delta, $range);
+#say "denormal :  @delta " if defined $metric;
     return unless defined $delta[0] and @delta == $space->dimensions;
 
-    if (defined $metric and $metric){ # individual metric / subspace distance
+    # grep values for individual metric / subspace distance
+    if (defined $metric and $metric){
         my @components = split( '', $metric );
         my $pos = $space->basis->key_pos( $metric );
         @components = defined( $pos )
@@ -97,6 +104,7 @@ sub distance { # _c1 _c2 -- ~space ~metric @range --> +
         return - carp "called 'distance' for metric $metric that does not fit color space $space_name!" unless @components;
         @delta = map { $delta [$_] } @components;
     }
+
     # Euclidean distance:
     @delta = map {$_ * $_} @delta;
     my $d = 0;
@@ -116,12 +124,9 @@ Graphics::Toolkit::Color::Value - single color related high level methods
 
 =head1 SYNOPSIS
 
-Readonly object that holds values of a color and provides all the methods
-to get or measure them or produce one related color values object.
-
-for all color value related math. Can handle vectors of all
-spaces mentioned in next paragraph and translates also into and from
-different formats such as I<RGB> I<hex> ('#AABBCC').
+Readonly object that holds values of a color. It provides methods to get
+the values back in different formats, to measure difference to other colors
+or to create value objects of related colors.
 
     use Graphics::Toolkit::Color::Value;
 
@@ -132,84 +137,106 @@ different formats such as I<RGB> I<hex> ('#AABBCC').
 
 =head1 DESCRIPTION
 
-The object that holds the normalized original values of the color
-definition and the normalized RGB tripled if it was not defined by RGB
-values. This way we omit conversion and rounding errors.
+The object that holds the normalized values of the original color
+definition (getter argument) and the normalized RGB tripled, if the color
+was not defined in RGB values. This way we omit conversion and rounding
+errors as much as possible.
 
-This package is a mediation layer between C<Graphics::Toolkit::Color::Space::Hub>
+This package is a mediation layer between L<Graphics::Toolkit::Color::Space::Hub>
 below, where its just about number crunching of value vectors and the user
-API above in C<Graphics::Toolkit::Color> where it's mainly about producing
-sets of colors.
+API above in L<Graphics::Toolkit::Color>, where it's mainly about producing
+sets of colors and handling the arguments. This module is not meant to be
+used as an public API since it has much less comfort than I<Graphics::Toolkit::Color>.
 
 =head1 METHODS
 
 =head2 new
 
+The constructor takes only one required argument, a scalar that completely
+and numerically defines a color. Inside color definitions are color
+space names case insensitive. Some possible formats are
+
+    [ 1, 2, 3 ]                  # RGB triplet
+    [ HSL => 220, 100, 3 ]       # named HSL vector
+    { h => 220, s =>100, l => 3} # char hash
+    { cyan => 1, magenta => 0.5, yellow => 0} # hash
+    'hwb: 20, 60, 30'            # string
+    'hwb(20,60,30)'              # css_string
+    '#2211FF'                    # rgb hex string
+
+
 =head2 get
+
+Universal getter method -almost reverse function to new: It can return
+the colors values in all supported color spaces (first argument)
+(see: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>)
+and all mentioned formats above (second argument). Additionally a third
+arguments can convert the numerical values into different ranges.
+The default name space is RGB, default format is a list and every color
+space has its default range.
+
+    my @rgb = $val_object->get();
+    my @cmyk = $val_object->get('CMYK', 'list', 255);
+    my $YIQ = $val_object->get('YIQ', 'string');
 
 =head2 set
 
+Constructs a new C<Graphics::Toolkit::Color::Value> object by absolutely
+changing some values of the current object and keeping others. (I<add>
+changes some values relatively.) The only and required argument is a
+I<HASH> reference which has keys that match only one of the supported
+color spaces
+(see: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>).
+Values outside of the defined limits will be clamped to an acceptable
+value (or rotated in case of circular dimensions).
+
+
+    my $more_blend_color = $val_object->set( {saturation => 40} );
+    my $bright_color = $val_object->set( {saturation => 2240} ); #saturation will be 100
+
 =head2 add
+
+This method takes also a HASH reference as input and also produces a related
+color object as previous I<set>. Only difference is: the hash values
+will be added to the current. If they go outside of the defined limits,
+they will be clamped (or rotated in case of circular dimensions).
+
+    my $darker_color = $val_object->set( {lightness => -10} );
 
 =head2 blend
 
-=head2 distance
+Creates a color value object by mixing two colors.
+First and only required argument is the second color value object.
+Second argument is the mixing ratio. Zero would result in the original
+color and one to the second color. Default value is 0.5 (1:1 mix). Values
+outside the 0..1 rande are possible and values will be clamped if they
+leave the defined bounds of the required color space.
 
-Converts a value tuple (vector) of any space above into the base space (RGB).
-Takes two arguments the vector (array of numbers) and name of the source space.
-The result is also a vector in for of a list. The result values will
-clamped (changed into acceptable range) to be valid inside the target
-color space.
+Third optional argument is the name of the color space the mix will be
+calculated in - it defaults to I<'HSL'>.
 
-
-    my @rgb = G.::T.::C.::Value::deconvert( [220, 50, 70], 'HSL' ); # convert from HSL to RGB
-
-=head2 convert
-
-Converts a value vector from base space (RGB) into any space above.
-Takes two arguments the vector (array of numbers) and name of the target space.
-The result is also a vector in for of a list. The result values will
-clamped (changed) to be valid inside the target color space.
-
-    my @hsl = G.::T.::C.::Value::convert( [20, 50, 70], 'HSL' );    # convert from RGB to HSL
-
-=head2 deformat
-
-Transfers values from many formats into a vector (array of numbers - first
-return value). The second return value is the name of a color space which
-supported this format. All spaces support the following format names:
-I<hash>, I<char_hash> and the names and shortcuts of the vector names.
-Additonal formats are implemented by the Graphics::Toolkit::Color::Value::*
-modules. The values themself will not be changed, even if they are outside
-the boundaries of the color space.
-
-    # get [170, 187, 204], 'RGB'
-    my ($rgb, $space) = G.::T.::C.::Value::deformat( '#aabbcc' );
-    # get [12, 34, 54], 'HSL'
-    my ($hsl, $s) = G.::T.::C.::Value::deformat( { h => 12, s => 34, l => 54 } );
-
-
-=head2 format
-
-Reverse function of I<deformat>.
-
-    # get { h => 12, s => 34, l => 54 }
-    my $h = G.::T.::C.::Value::format( [12, 34, 54], 'HSL', 'char_hash' );
-    # get { hue => 12, saturation => 34, lightness => 54 }
-    my $h = G.::T.::C.::Value::format( [12, 34, 54], 'HSL', 'hash' );
-    # '#AABBCC'
-    my $str = G.::T.::C.::Value::format( [170, 187, 204], 'RGB', 'hex' );
+    my $green = Graphics::Toolkit::Color::Values->new( '#00ff00' );
+    my $cyan = $blue->blend( $green, 0.6, 'YIQ' );
 
 
 =head2 distance
 
-Computes a real number which designates the distance between two points
-in any color space above. The first two arguments are the two point vectors.
-Third (optional) argument is the name of the color space, which defaults
-to the base space (RGB).
+Computes a real number which designates the (Euclidean) distance between
+two points in a color space (a.k.a. colors).
 
-    my $d = distance([1,1,1], [2,2,2], 'RGB');  # approx 1.7
-    my $d = distance([1,1,1], [356, 3, 2], 'HSL'); # approx 6
+The first and only required argument is the second color as an
+I<Graphics::Toolkit::Color::Value> object. Second and optional argument
+is the name of the color space, where the distance is calculated in
+(default is I<'HSL'>). Third argument is the metric, which currently is
+just the subset of dimension in the chosen space that should be observed.
+One can also mention the shortcut name of a dimension several times to
+increase their weight in the calculation. Fourth optional argument are
+the numeric ranges of the dimensions. If none are given, the method
+only uses normalised (range: 0..1) values.
+
+    my $blue = Graphics::Toolkit::Color::Values->new( '#0000ff' );
+    my $green = Graphics::Toolkit::Color::Values->new( '#00ff00' );
+    my $d = $blue->distance( $green, 'HSV', 's', 255); # 0 : both have same saturation
 
 
 =head1 SEE ALSO

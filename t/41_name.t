@@ -85,7 +85,7 @@ is( int @names, 1,          'only one color has distance of 0 to white');
 is( $names[0], 'white',     'only white has distance of 0 to white');
 
 @names = sort $get_name_range->( [0, 0, 100], 5);
-is( int @names, 6,             '6 colors are in short distance to white');
+is( int @names, 5,             '5 colors are in short distance to white');
 @names = grep { /whitesmoke/ } @names;
 is( int @names, 1,  'whitesmoke is near to white');
 

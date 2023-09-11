@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.55';
+our $VERSION = '1.60';
 use v5.12;
 
 use Carp;
@@ -100,14 +100,14 @@ sub values      {
 sub distance_to { distance(@_) }
 sub distance {
     my ($self) = shift;
-    my ($c2, $space_name, $subspace) = @_;
-    if (ref $c2 eq 'HASH' and exists $c2->{'to'}){
-        ($c2, $space_name, $subspace) = ($c2->{'to'}, $c2->{'in'}, $c2->{'notice_only'});
-    }
+    my %args = (not @_ % 2) ? @_ :
+               (@_ == 1)    ? (to => $_[0])
+                            : return carp "accept four optional, named arguments: to => 'color or color definition', in => 'RGB', metric => 'r', range => 16";
+    my ($c2, $space_name, $metric, $range) = ($args{'to'}, $args{'in'}, $args{'metric'}, $args{'range'});
     return carp "missing argument: color object or scalar color definition" unless defined $c2;
     $c2 = _new_from_scalar( $c2 );
     return carp "second color for distance calculation (named argument 'to') is badly defined" unless ref $c2 eq __PACKAGE__;
-    $self->{'values'}->distance( $c2->{'values'}, $space_name, $subspace );
+    $self->{'values'}->distance( $c2->{'values'}, $space_name, $metric );
 }
 
 ## single color creation methods #######################################
@@ -464,29 +464,25 @@ create new, related color (objects) or compute similarity of colors
 
 =head2 distance
 
-A floating pointnumber that measures the distance (difference) between
-two colors (color of the calling object and C2, first argument).
-The I<distance> is  measured in HSL space unless told otherwise.
-It takes three arguments, only the first is required.
+Is a floating point number that measures the Euclidean distance between
+two colors. One color is the calling object itself and the second (C2)
+has to provided as a named argument (I<to>), which is the only required one.
+It ca come in the form of a second GTC object or any scalar color definition
+I<new> would accept. The I<distance> is measured in HSL color space unless
+told otherwise by the argument I<in>. The third argument is named I<metric>.
+It's useful if you want to notice only certain dimensions. Metric is the
+long or short name of that dimension or the short names of several dimensions.
+They all have to come from one color space and one shortcut letter can be
+used several times to heighten the weight of this dimension. The last
+argument in named I<range> and is a range definition, unless you don't
+want to compute the distance with the default ranges of the selected color
+space.
 
-1. Second color (C2) in any scalar definition as I<new> would accept
-(see chapter L</CONSTRUCTOR>).
-
-2. The color space the difference is measured in. (see L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>)
-
-3. The subspace as a string. For instance you want to ignore lightness
-in HSL, then you subspace would be I<'hs'> (initials of the other two dimensions).
-If you want to observe only one dimension of a color space you can name
-is also fully (I<Hue>).
-
-    # how close is blue to lapis color?
-    my $d = $blue->distance( to => 'lapisblue' );
-    # same amount of blue?
-    $d = $blue->distance( to => 'airyblue', in => 'RGB', notice_only => 'Blue');
-    # same hue ?
-    $d = $color->distance( to => $c2, in => 'HSL', notice_only => 'hue' );
-    # same command in hash syntax:
-    $d = $color->distance( {to => $c2, in => 'HSL', notice_only => 'Hue' });
+    my $d = $blue->distance( to => 'lapisblue' );              # how close is blue to lapis color?
+    $d = $blue->distance( to => 'airyblue', in => 'RGB', metric => 'Blue'); # same amount of blue?
+    $d = $color->distance( to => $c2, in => 'HSL', metric => 'hue' );                  # same hue?
+    # compute distance when with all value ranges 0 .. 1
+    $d = $color->distance( to => $c2, in => 'HSL', metric => 'hue', range => 'normal' );
 
 =head2 set
 

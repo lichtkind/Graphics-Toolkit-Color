@@ -175,9 +175,3 @@ sub css_string_from_list {
 sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;
-
-__END__
-    my $caller_package = (caller(1))[0];
-    return unless defined $caller_package and $caller_package and $caller_package ne 'main';
-    my @package_path_parts = split '::', $caller_package;
-    my @shortcuts = map {lc} split '', $package_path_parts[-1];

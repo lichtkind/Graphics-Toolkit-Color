@@ -5,7 +5,7 @@ use warnings;
 
 package Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Basis;
-use Graphics::Toolkit::Color::Util ':all';
+use Graphics::Toolkit::Color::Space::Util ':all';
 use Carp;
 
 sub new {

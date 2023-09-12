@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.60';
+our $VERSION = '1.61';
 use v5.12;
 
 use Carp;
@@ -179,11 +179,8 @@ sub gradient {
     return $self, @colors, $c2;
 }
 
-sub complement {
-    my ($self) = shift;
-}
-
-sub complementary { # steps => +,  delta => {}
+sub complementary { complement(@_) }
+sub complement { # steps => +,  delta => {}
     my ($self) = shift;
     my ($count) = int ((shift // 1) + 0.5);
     my ($saturation_change) = shift // 0;
@@ -238,7 +235,7 @@ Graphics::Toolkit::Color - color palette creation helper
                                                     # mix blue with a little grey in HSL
     $blue->blend( with => { H=> 0, S=> 0, L=> 80 }, pos => 0.1);
     $red->gradient( to => '#0000FF', steps => 10);  # 10 colors from red to blue
-    $red->complementary( 3 );                       # get fitting red green and blue
+    $red->complement( 3 );                          # get fitting red green and blue
 
 
 =head1 DESCRIPTION
@@ -573,7 +570,7 @@ L</blend> and L</distance>.
     # none linear gradient in HSL space :
     @colors = $c1->gradient( to =>[14,10,222], steps => 10, dynamic => 3 );
 
-=head2 complementary
+=head2 complement
 
 Creates a set of complementary colors.
 It accepts 3 numerical arguments: n, delta_S and delta_L.
@@ -596,7 +593,7 @@ and the complementary colors differ in saturation. (C1 stays unmoved. )
 The third argument moves C2 along the L axis (vertical), which gives the
 circle a tilt, so that the complementary colors will differ in lightness.
 
-    my @colors = $c->complementary( 3, +20, -10 );
+    my @colors = $c->complement( 3, +20, -10 );
 
 =head1 SEE ALSO
 

@@ -1,6 +1,8 @@
 1.61     2023-09-12    lichtkind
 -------
-    * = test fix
+    * = fix tests
+    * + renamed complementary method => complement
+    * - deprecated complementary, will be removed at 2.0
 
 1.60     2023-09-11    lichtkind
 -------

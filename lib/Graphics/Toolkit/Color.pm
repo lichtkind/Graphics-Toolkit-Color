@@ -179,6 +179,10 @@ sub gradient {
     return $self, @colors, $c2;
 }
 
+sub complement {
+    my ($self) = shift;
+}
+
 sub complementary { # steps => +,  delta => {}
     my ($self) = shift;
     my ($count) = int ((shift // 1) + 0.5);

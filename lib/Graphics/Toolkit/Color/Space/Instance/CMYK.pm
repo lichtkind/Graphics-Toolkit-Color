@@ -5,12 +5,9 @@ use warnings;
 
 package Graphics::Toolkit::Color::Space::Instance::CMYK;
 use Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $cmyk_def = Graphics::Toolkit::Color::Space->new( axis => [qw/cyan magenta yellow key/] );
-
    $cmyk_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-
 
 sub from_rgb {
     my ($r, $g, $b) = @_;

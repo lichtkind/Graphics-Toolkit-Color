@@ -1,3 +1,11 @@
+1.71     2023-09-21    lichtkind
+-------
+    * = doc fixes
+    * ? typos mispellings, boken sentence
+    * ? added range def explanation
+    * ? simplified HEADINGS
+    * ? removed doc of deprecated methods
+
 1.70     2023-09-20    lichtkind
 -------
     * = mid level improvements, completed API change
@@ -128,8 +136,6 @@
     * ~ small POD fixes
 
 
-1.70     2023-09-15    lichtkind
--------
     * = new feature release
     * * added color set method: bowl
     * + added color spaces: XYZ, LAB

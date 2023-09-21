@@ -2,8 +2,9 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.70';
+our $VERSION = '1.71';
 use v5.12;
+use warnings;
 
 use Carp;
 use Graphics::Toolkit::Color::Name;
@@ -321,7 +322,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color - color palette creation helper
+Graphics::Toolkit::Color - color palette constructor
 
 =head1 SYNOPSIS
 
@@ -349,16 +350,17 @@ Its main purpose is the creation of sets of related colors, such as
 gradients, complements and others.
 
 GTC are read only color holding objects with no additional dependencies.
-Create them in many different ways (see section I<CONSTRUCTOR>).
-Access its values via methods from section I<GETTER>.
-Measure differences with the I<distance> method. I<COLOR RELATION METHODS>
-create one color object that is related to the current one and
-I<COLOR SET CREATION METHODS> will create a host of color that are not
+Create them in many different ways (see section L</CONSTRUCTOR>).
+Access its values via methods from section L</GETTER>.
+Measure differences with the I<distance> method. L</SINGLE-COLOR>
+methods create one a object that is related to the current one and
+L</COLOR-SETS> methods will create a host of color that are not
 only related to the current color but also have relations between each other.
 
 While this module can understand and output color values in many spaces,
-such as RGB, HSL and many more, RGB is the (internal) primal one,
-because GTC is about colors that can be shown on the screen.
+such as YIQ, HSL and many more, RGB is the (internal) primal one,
+because GTC is about colors that can be shown on the screen, and these
+are usually encoded in RGB.
 
 Humans access colors on hardware level (eye) in RGB, on cognition level
 in HSL (brain) and on cultural level (language) with names.
@@ -460,10 +462,9 @@ C<color>, which takes all the same arguments as described above.
     my $darkblue = color([20, 20, 250]);
 
 
-=head1 GETTER / ATTRIBUTES
+=head1 GETTER
 
-are read only methods - giving access to different parts of the
-objects data.
+giving access to different parts of the objects data.
 
 =head2 name
 
@@ -475,99 +476,44 @@ If no color is found, C<name> returns an empty string.
 All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
 (See als: L</new('name')>)
 
-=head2 string
-
-DEPRECATED:
-String that can be serialized back into a color an object
-(recreated by Graphics::Toolkit::Color->new( $string )).
-It is either the color L</name> (if color has one) or result of L</rgb_hex>.
-
 =head2 values
 
-Returns the values of the color in given color space and with given format.
-In short any format acceptable by the constructor can also be reproduce
-by a getter method and in most cases by this one.
+Returns the values of the color in given color space and format.
+It accepts three named, optional arguments.
 
 First argument is the name of a color space (named argument C<in>).
-The options are to be found under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
-This is the only argument where the name can be left out.
+All options are under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+The order of named arguments is of course chosen by the user, but I call
+it the first (most important) argument, because if you give the method
+only one value, it is assumed to be the color space.
 
-Second argument is the format (named argument C<as>).
-Not all formats are available under all color spaces, but the alway present
-options are: C<list> (default), C<hash>, C<char_hash> and C<array>.
+Second argument is the format (name: C<as>).
+In short any SCALAR format acceptable to the L</CONSTRUCTOR> can also be
+reproduced by a getter method and the numerical cases by this one.
+Not all formats are available under all color spaces, but the always
+present options are: C<list> (default), C<hash>, C<char_hash> and C<array>.
 
-Third named argument is the upper border of the range inide which the
-numerical values have to be. RGB are normally between 0..255 and
-CMYK between 0 .. 1. If you want to change that order a different range.
-Only a range of C<1> a.k.a. C<normal> displays decimals.
+Third named argument is the range inside which the numerical values have
+to be. RGB are normally between 0 .. 255 and CMYK between 0 .. 1 ('normal').
+Only a range of C<1> a.k.a. C<'normal'> displays decimals.
+There are three syntax option to set the ranges. One value will be
+understood as upper limit of all dimensions and zero being the lower one.
+If you want to set the upper limits of all dimensions separately, you
+have to  deliver an ARRAY ref with the 3 or 4 upper limits. To also
+define the lower boundary, you replace the number with an ARRAY ref containing
+the lower and then the upper limit.
 
+    $blue->values();                               # get list in RGB: 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');     # same call
+    $blue->values( in => 'RGB', as => 'hash');     # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');# { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'hex');      # '#00FFFF'
+    $color->values('HSL');                         # 240, 100, 50
+    $color->values( in => 'HSL', range => 1);      # 0.6666, 1, 0.5
+    $color->values( in => 'RGB', range => 2**16);  # values in RGB16
+    $color->values( in => 'HSB', as => 'hash')->{'hue'};  # how to get single values
+   ($color->values( 'HSB'))[0];                           # same, but shorter
 
-    $blue->values();                              # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');    # same call
-    $blue->values('RGB', as => 'hash');           # { red => 0, green => 0, blue => 255}
-    $blue->values('RGB', as =>'char_hash');       # { r => 0, g => 0, b => 255}
-    $blue->values('RGB', as => 'hex');            # '#00FFFF'
-    $color->values(in => 'HSL');                  # 240, 100, 50
-    $color->values(in => 'HSL', range => 1);      # 0.6666, 1, 0.5
-    $color->values(in => 'RGB', range => 16);     # values in RGB16: 0, 0, 16
-    $color->values('HSB', as => 'hash')->{'hue'}; # how to get single values
-
-=head2 hue
-
-DEPRECATED:
-Integer between 0 .. 359 describing the angle (in degrees) of the
-circular dimension in HSL space named hue.
-0 approximates red, 30 - orange, 60 - yellow, 120 - green, 180 - cyan,
-240 - blue, 270 - violet, 300 - magenta, 330 - pink.
-0 and 360 point to the same coordinate. This module only outputs 0,
-even if accepting 360 as input.
-
-=head2 saturation
-
-DEPRECATED:
-Integer between 0 .. 100 describing percentage of saturation in HSL space.
-0 is grey and 100 the most colorful (except when lightness is 0 or 100).
-
-=head2 lightness
-
-DEPRECATED:
-Integer between 0 .. 100 describing percentage of lightness in HSL space.
-0 is always black, 100 is always white and 50 the most colorful
-(depending on L</hue> value) (or grey - if saturation = 0).
-
-=head2 rgb
-
-DEPRECATED:
-List (no I<ARRAY> reference) with values of L</red>, L</green> and L</blue>.
-
-=head2 hsl
-
-DEPRECATED:
-List (no I<ARRAY> reference) with values of L</hue>, L</saturation> and L</lightness>.
-
-=head2 rgb_hex
-
-DEPRECATED:
-String starting with character '#', followed by six hexadecimal lower case figures.
-Two digits for each of L</red>, L</green> and L</blue> value -
-the format used in CSS (#rrggbb).
-
-=head2 rgb_hash
-
-DEPRECATED:
-Reference to a I<HASH> containing the keys C<'red'>, C<'green'> and C<'blue'>
-with their respective values as defined above.
-
-=head2 hsl_hash
-
-DEPRECATED:
-Reference to a I<HASH> containing the keys C<'hue'>, C<'saturation'> and C<'lightness'>
-with their respective values as defined above.
-
-
-=head1 COLOR RELATION METHODS
-
-create new, related color (objects) or compute similarity of colors
 
 =head2 distance
 
@@ -590,6 +536,10 @@ space.
     $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );                  # same hue?
     # compute distance when with all value ranges 0 .. 1
     $d = $color->distance( to => $c2, in => 'HSL', select => 'hue', range => 'normal' );
+
+=head1 SINGLE COLOR
+
+construct colors that are related to the current object.
 
 =head2 set
 
@@ -641,7 +591,10 @@ It takes three named arguments, only the first is required.
     $color->blend({ with => 'silver', pos => 0.6 });             # works too!
     $blue->blend( with => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
 
-=head1 COLOR SET CREATION METHODS
+=head1 COLOR SETS
+
+construct many interrelated color objects at once.
+
 
 =head2 gradient
 

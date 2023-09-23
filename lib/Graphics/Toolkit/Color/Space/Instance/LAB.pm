@@ -9,11 +9,11 @@ use Graphics::Toolkit::Color::Space;
 my ($i_max, $q_max)   = (0.5959, 0.5227);
 my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
                                                                     # cyan-orange balance, magenta-green balance
-my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/L* a* b*/],
-                                                   prefix  => 'CIE',
-                                                     range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
+my  $lab_def = Graphics::Toolkit::Color::Space->new( axis => [qw/L* a* b*/],
+                                                   prefix => 'CIE',
+                                                    range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
 
-    $yiq_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+    $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
     my ($r, $g, $b) = @_;
@@ -34,4 +34,4 @@ sub to_rgb {
     return ($r, $g, $b);
 }
 
-$yiq_def;
+$lab_def;

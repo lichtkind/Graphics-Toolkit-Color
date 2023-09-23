@@ -2,7 +2,7 @@
 #
 use v5.12;
 use warnings;
-use Test::More tests => 173;
+use Test::More tests => 170;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -30,31 +30,38 @@ warning_like {Graphics::Toolkit::Color->new(r=>1,g=>1,t=>1)}      {carped => qr/
 
 
 my $red = Graphics::Toolkit::Color->new('red');
+my @rgb = $red->values;
 is( ref $red,        $module, 'could create object by name');
-is( $red->red,           255, 'named red has correct red component value');
-is( $red->green,           0, 'named red has correct green component value');
-is( $red->blue,            0, 'named red has correct blue component value');
-is( $red->hue,             0, 'named red has correct hue component value');
-is( $red->saturation,    100, 'named red has correct saturation component value');
-is( $red->lightness,      50, 'named red has correct lightness component value');
+is( $rgb[0],           255, 'named red has correct red component value');
+is( $rgb[1],             0, 'named red has correct green component value');
+is( $rgb[2],             0, 'named red has correct blue component value');
+@rgb = $red->values( as => 'list' );
+is( $rgb[0],           255, 'correct red in explicit list format');
+is( $rgb[1],             0, 'correct green in explicit list format');
+is( $rgb[2],             0, 'correct blue in explicit list format');
+my @hsl = $red->values( 'HSL' );
+is( $hsl[0],               0, 'named red has correct hue component value');
+is( $hsl[1],             100, 'named red has correct saturation component value');
+is( $hsl[2],              50, 'named red has correct lightness component value');
 is( $red->name,        'red', 'named red has correct name');
-is( $red->rgb_hex, '#ff0000', 'named red has correct hex value');
-is(($red->rgb)[0],       255, 'named red has correct rgb red component value');
-is(($red->rgb)[1],         0, 'named red has correct rgb green component value');
-is(($red->rgb)[2],         0, 'named red has correct rgb blue component value');
-is(($red->hsl)[0],         0, 'named red has correct hsl hue component value');
-is(($red->hsl)[1],       100, 'named red has correct hsl saturation component value');
-is(($red->hsl)[2],        50, 'named red has correct hsl lightness component value');
-is(ref $red->rgb_hash,'HASH', 'named red has correct rgb HASH');
-is(ref $red->hsl_hash,'HASH', 'named red has correct hsl HASH');
-is( $red->rgb_hash->{'red'},  255, 'named red has correct red value in rgb HASH');
-is( $red->rgb_hash->{'green'},  0, 'named red has correct green value in rgb HASH');
-is( $red->rgb_hash->{'blue'},   0, 'named red has correct blue value in rgb HASH');
-is( $red->hsl_hash->{'hue'},          0, 'named red has correct hue value in hsl HASH');
-is( $red->hsl_hash->{'saturation'}, 100, 'named red has correct saturation value in hsl HASH');
-is( $red->hsl_hash->{'lightness'},   50, 'named red has correct lightness value in hsl HASH');
-is( $red->string,    'red', 'named red does stringify correctly');
-is( Graphics::Toolkit::Color->new(15,12,13)->string, 'rgb: 15, 12, 13', 'random color does stringify correctly');
+my $hex = $red->values(as => 'hex');
+is( ref $hex, '', 'hex format has no ref value');
+is( $hex, '#ff0000', 'named red has correct hex value');
+
+my $rgb_hash = $red->values(as=>'HASH');
+is(ref $rgb_hash, 'HASH', 'get HASH ref in HASH format');
+is( $rgb_hash->{'red'},  255, 'named red has correct red value in rgb HASH');
+is( $rgb_hash->{'green'},  0, 'named red has correct green value in rgb HASH');
+is( $rgb_hash->{'blue'},   0, 'named red has correct blue value in rgb HASH');
+
+my $hsl_hash = $red->values(in => 'HSL', as=>'HASH');
+is(ref $hsl_hash, 'HASH', 'named red has correct hsl HASH');
+is( $hsl_hash->{'hue'},          0, 'named red has correct hue value in hsl HASH');
+is( $hsl_hash->{'saturation'}, 100, 'named red has correct saturation value in hsl HASH');
+is( $hsl_hash->{'lightness'},   50, 'named red has correct lightness value in hsl HASH');
+my $cc = Graphics::Toolkit::Color->new(15,12,13);
+is( $cc->new(15,12,13)->values(as => 'string'), 'rgb: 15, 12, 13', 'random color does stringify correctly');
+is( $cc->new(15,12,13)->values(as => 'css_string'), 'rgb(15,12,13)', 'random color does stringify correctly');
 
 
 $red = Graphics::Toolkit::Color->new('#FF0000');

@@ -1,3 +1,9 @@
+1.8     2023-09-25    lichtkind
+-------
+    * = minor feature release
+    * * added color space support: XYZ LAB HCL
+    * ? added documantation for color space object
+
 1.71     2023-09-21    lichtkind
 -------
     * = doc fixes
@@ -135,7 +141,4 @@
     * \ created own distro
     * ~ small POD fixes
 
-
-    * = new feature release
     * * added color set method: bowl
-    * + added color spaces: XYZ, LAB

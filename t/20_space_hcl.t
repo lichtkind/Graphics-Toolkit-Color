@@ -34,8 +34,8 @@ warning_like {$def->check([0, 0, 0, 0])} {carped => qr/needs 3 values/}, "check 
 is( $def->check([0,0,0]),  undef,     'checked neutral values');
 warning_like {$def->check([-0.1, 0, 0])}  {carped => qr/luminance value is below/},  "luminance value is too small";
 warning_like {$def->check([ 1.1, 0,0])}  {carped => qr/luminance value is above/},   "luminance value is too big";
-warning_like {$def->check([0, -0.6, 0])}  {carped => qr/in_phase value is below/},   "in_phase value is too small";
-warning_like {$def->check([0, 0.6,0])}  {carped => qr/in_phase value is above/},     "in_phase value is too big";
+warning_like {$def->check([0, -0.6, 0])}  {carped => qr/in-phase value is below/},   "whiteness value is too small";
+warning_like {$def->check([0, 0.6,0])}  {carped => qr/in-phase value is above/},     "whiteness value is too big";
 warning_like {$def->check([0,0, -0.53 ])}  {carped => qr/quadrature value is below/},"quadrature value is too small";
 warning_like {$def->check([0,0, 0.53])}  {carped => qr/quadrature value is above/},  "quadrature value is too big";
 

@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space;
 my ($i_max, $q_max)   = (0.5959, 0.5227);
 my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
                                                                     # cyan-orange balance, magenta-green balance
-my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in-phase quadrature/],
+my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in_phase quadrature/],
                                                      short => [qw/Y I Q/],
                                                      range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
 

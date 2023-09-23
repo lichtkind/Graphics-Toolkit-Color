@@ -22,12 +22,12 @@ sub new {
                 css_string => sub { $basis->list_from_css(@_)    if $basis->is_css_string(@_) },
     );
     # which formats we can output
-    my %formats = (list => sub { @_ },                                 # 1,2,3
+    my %formats = (list => sub { @_ },                                 #   1, 2, 3
                    hash => sub { $basis->key_hash_from_list(@_) },     # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->shortcut_hash_from_list(@_) },# { r =>1, g => 2, b => 3 }
                   array => sub { $basis->named_array_from_list(@_) },  # ['rgb',1,2,3]
-                 string => sub { $basis->named_string_from_list(@_) }, #   rgb: 1, 2, 3
-             css_string => sub { $basis->css_string_from_list(@_) },   #   rgb(1,2,3)
+                 string => sub { $basis->named_string_from_list(@_) }, #  'rgb: 1, 2, 3'
+             css_string => sub { $basis->css_string_from_list(@_) },   #  'rgb(1,2,3)'
     );
 
     bless { basis => $basis, shape => $shape, format => \%formats, deformat => \%deformats, convert => {} };
@@ -99,3 +99,82 @@ sub deconvert {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Space - color space constructor
+
+=head1 SYNOPSIS
+
+Color spaces are objects( instances ) of this class, who provide property
+details via the constructor and formatter and converters via CODE ref.
+
+    use Graphics::Toolkit::Color::Space;
+
+    my  $def = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/],
+                                                    short => [qw/1 2 3/],
+                                                   prefix => 'demo',
+                                                    range => [1, [-2, 2], [-3, 3]] );
+
+    $def->add_converter('RGB', \&to_rgb, \&from_rgb );
+    $def->add_formatter(   'name',   sub {...} );
+    $def->add_deformatter( 'name',   sub {...} );
+
+
+=head1 DESCRIPTION
+
+This package provides the API for color space authors.
+This module is supposed to be used by L<Graphics::Toolkit::Color> and not
+directly, thus it exports no symbols and has a much less DWIM API then
+the main module.
+
+
+=head1 METHODS
+
+Color space names can be written in any combination of upper and lower case.
+
+=head2 new
+
+has three integer values: B<red> (0 .. 255), B<green> (0 .. 255) and
+B<blue> (0 .. 255).
+All are scaling from no (0) to very much (255) light of that color,
+so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
+
+=head2 add_converter
+
+is the inverse of RGB but with the range: 0 .. 1. B<cyan> is the inverse
+value of I<red>, B<magenta> is inverse green and B<yellow> is inverse of
+I<blue>. Inverse meaning when a color has the maximal I<red> value,
+it has to have the minimal I<cyan> value.
+
+=head2 add_formatter
+
+is an extension of CMY with a fourth value named B<key> (also 0 .. 1),
+which is basically the amount of black mixed into the CMY color.
+
+=head2 add_deformatter
+
+has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
+and B<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
+15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
+270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
+coordinate. This module only outputs 0, even if accepting 360 as input.
+I<saturation> ranges from 0 = gray to 100 - clearest color set by hue.
+I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2023 Herbert Breunung.
+
+This program is free software; you can redistribute it and/or modify it
+under same terms as Perl itself.
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=cut

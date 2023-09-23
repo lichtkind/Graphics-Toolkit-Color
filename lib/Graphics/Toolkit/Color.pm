@@ -482,7 +482,7 @@ Returns the values of the color in given color space and format.
 It accepts three named, optional arguments.
 
 First argument is the name of a color space (named argument C<in>).
-All options are under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+All options are under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
 The order of named arguments is of course chosen by the user, but I call
 it the first (most important) argument, because if you give the method
 only one value, it is assumed to be the color space.
@@ -503,14 +503,17 @@ have to  deliver an ARRAY ref with the 3 or 4 upper limits. To also
 define the lower boundary, you replace the number with an ARRAY ref containing
 the lower and then the upper limit.
 
-    $blue->values();                               # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');     # same call
-    $blue->values( in => 'RGB', as => 'hash');     # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');# { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'hex');      # '#00FFFF'
-    $color->values('HSL');                         # 240, 100, 50
-    $color->values( in => 'HSL', range => 1);      # 0.6666, 1, 0.5
-    $color->values( in => 'RGB', range => 2**16);  # values in RGB16
+    $blue->values();                                # get list in RGB: 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');      # same call
+    $blue->values( in => 'RGB', as => 'hash');      # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash'); # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'hex');       # '#00FFFF'
+    $blue->values( in => 'RGB', as => 'string');    # 'rgb: 255, 0, 0'
+    $blue->values( in => 'RGB', as => 'css_string');# 'rgb(255, 0, 0)'
+    $blue->values( in => 'RGB', as => 'hex');       # '#00ffff'
+    $color->values('HSL');                          # 240, 100, 50
+    $color->values( in => 'HSL', range => 1);       # 0.6666, 1, 0.5
+    $color->values( in => 'RGB', range => 2**16);   # values in RGB16
     $color->values( in => 'HSB', as => 'hash')->{'hue'};  # how to get single values
    ($color->values( 'HSB'))[0];                           # same, but shorter
 

@@ -2,7 +2,7 @@
 # read only color holding object with methods for relation, mixing and transitions
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.71';
+our $VERSION = '1.8';
 use v5.12;
 use warnings;
 
@@ -407,6 +407,19 @@ also acceptable.
     my $color = Graphics::Toolkit::Color->new('#FF0000');
     my $color = Graphics::Toolkit::Color->new('#f00');    # works too
 
+=head2 new('rgb($r,$g,$b)')
+
+Variant of string format that is supported by CSS.
+
+    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
+
+=head2 new('rgb: $r, $g, $b')
+
+String format (good for serialisation) that maximizes readability.
+
+    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
+    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
 
 =head2 new( [$r, $g, $b] )
 
@@ -433,20 +446,6 @@ and only the first letter of each key is significant.
                         ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
               ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
                   ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
-
-=head2 new('rgb: $r, $g, $b')
-
-String format (good for serialisation) that maximizes readability.
-
-    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
-    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
-
-=head2 new('rgb($r,$g,$b)')
-
-Variant of string format that is supported by CSS.
-
-    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
-    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
 
 =head2 color
 

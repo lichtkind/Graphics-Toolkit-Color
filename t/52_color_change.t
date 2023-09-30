@@ -39,12 +39,12 @@ is( $black->blend( with => $white )->name,                   'gray',   "blend bl
 is( $black->blend( with => $white, pos => 0 )->name,        'black',  "blend nothing, keep color");
 is( $black->blend( with => $white, pos => 1 )->name,        'white',   "blend nothing, take c2");
 is( $black->blend( with => $white, pos => 2 )->name,        'white',   "RGB limits kept");
-is( $red->blend( with => 'blue')->name,                      'lime',   "blending with name");
-is( $blue->blend( with => 'red')->name,                      'lime',   "flip the ingredients");
+is( $red->blend( with => 'blue')->name,                    'purple',   "blending with name");
+is( $blue->blend( with => 'red')->name,                    'purple',   "flip the ingredients");
 is( $red->blend( with => 'blue', in => 'RGB')->name,       'purple',   "blending in RGB");
 is( $red->blend( with => 'blue', in => 'CMYK')->name,      'purple',   "blending in CMYK");
-is( $red->blend( with => '#0000ff')->name,                   'lime',   "blending with hex def");
-is( $red->blend( with => [0,0,255])->name,                   'lime',   "blending with array ref color def");
+is( $red->blend( with => '#0000ff')->name,                 'purple',   "blending with hex def");
+is( $red->blend( with => [0,0,255])->name,                 'purple',   "blending with array ref color def");
 my $purple = $red->blend( with => {C => 1, M =>1, Y =>0}, in =>'CMY');
 my @rgb = $purple->values('RGB');
 is( $rgb[0],                                                    128,   "blending with RGB hash ref color def in CMY, red value");

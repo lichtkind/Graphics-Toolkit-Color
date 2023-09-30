@@ -64,7 +64,7 @@ sub blend { # _c1 _c2 -- +factor ~space --> _
     my ($self, $c2, $factor, $space_name ) = @_;
     return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
     $factor //= 0.5;
-    $space_name //= 'HSL';
+    $space_name //= 'RGB';
     Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
     my @values1 = $self->get( $space_name );
     my @values2 = $c2->get( $space_name );
@@ -77,7 +77,7 @@ sub blend { # _c1 _c2 -- +factor ~space --> _
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($self, $c2, $space_name, $select, $range) = @_;
     return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
-    $space_name //= 'HSL';
+    $space_name //= 'RGB';
     Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     $select = $space->basis->key_shortcut($select) if $space->basis->is_key( $select );

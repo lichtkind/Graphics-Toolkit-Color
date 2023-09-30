@@ -108,8 +108,4 @@ is( int @names, 1,           'purple is near red because hue is circular');
 @names = grep { /chartreuse/ } @names;
 is( @names > 0, 1,           'chartreuse is near purple because hue is circular');
 
-#say for @names;
-#say scalar  $get_name_hsl->(240, 100, 50);
-
 exit 0;
-

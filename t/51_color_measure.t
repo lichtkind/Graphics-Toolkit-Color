@@ -2,7 +2,7 @@
 #
 use v5.12;
 use warnings;
-use Test::More tests => 66;
+use Test::More tests => 64;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -12,7 +12,6 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 my $red = Graphics::Toolkit::Color->new('red');
 my $blue = Graphics::Toolkit::Color->new('blue');
 
-is( $blue->distance( $red ),            120, 'correct default hsl distance between red and blue');
 is( $blue->distance( to => $red, in => 'HSL' ),     120, 'calling name space explicitly');
 is( $blue->distance( to => $red, in => 'HSL', select => 'hsl'), 120, 'same in HASH syntax with full subspace');
 is( $blue->distance( to => $red, in => 'HSL', select => 'HSL'), 120, 'same in list syntax with full subspace');
@@ -25,6 +24,8 @@ is( $blue->distance( to => $red, in => 'HSL', select => 'Lightness'),  0, 'corre
 is( $blue->distance( to => $red, in => 'HSL', select => 'hs'),       120, 'correct hs distance between red and blue');
 is( $blue->distance( to => $red, in => 'HSL', select => 'hl'),       120, 'correct hl distance between red and blue');
 is( $blue->distance( to => $red, in => 'HSL', select => 'sl'),         0, 'correct sl distance between red and blue');
+
+is( close_enough($blue->distance( $red), 360.624458405 ), 1, 'correct default RGB distance between red and blue');
 is( close_enough($blue->distance( to => $red, in => 'rgb'), 360.624458405 ), 1, 'correct rgb distance between red and blue');
 is( $blue->distance( to => $red, in => 'rgb', select => 'Red'),     255, 'correct red distance between red and blue, long name');
 is( $blue->distance( to => $red, in => 'rgb', select => 'r'),       255, 'correct red distance between red and blue');
@@ -36,7 +37,6 @@ is( $blue->distance( to => $red, in => 'rgb', select => 'rg'),      255, 'correc
 is( int $blue->distance( to => $red, in => 'rgb', select => 'rb'),  360, 'correct rb distance between red and blue');
 is( $blue->distance(to => $red, in => 'rgb', select => 'gb'),      255, 'correct gb distance between red and blue');
 
-is( int $blue->distance( to=> [10, 10, 245],      ),   7, 'correct default hsl  distance between own rgb blue and blue');
 is( int $blue->distance( to=> [10, 10, 245], in => 'HSL'),   7, 'correct hsl distance between own rgb blue and blue');
 is(     $blue->distance( to=> [10, 10, 245], in => 'HSL', select => 'Hue'),   0, 'correct hue distance between own rgb blue and blue, long name');
 is(     $blue->distance( to=> [10, 10, 245], in => 'HSL', select => 'h'),     0, 'correct hue distance between own rgb blue and blue');
@@ -58,7 +58,6 @@ is( int $blue->distance( to => [10, 10, 245], in => 'rgb', select => 'rg'),   14
 is( int $blue->distance( to => [10, 10, 245], in => 'rgb', select => 'rb'),   14, 'correct rb distance between own rgb blue and blue');
 is( int $blue->distance( to => [10, 10, 245], in => 'rgb', select => 'gb'),   14, 'correct gb distance between own rgb blue and blue');
 
-is( int $blue->distance( to => {h =>230, s => 90, l=>40}),                17, 'correct default hsl distance between own hsl blue and blue');
 is( int $blue->distance( to => {h =>230, s => 90, l=>40}, in => 'HSL'),         17, 'correct hsl distance between own hsl blue and blue');
 is(     $blue->distance( to => {h =>230, s => 90, l=>40}, in => 'HSL', select => 'Hue'),  10, 'correct hue distance between own hsl blue and blue, long name');
 is(     $blue->distance( to => {h =>230, s => 90, l=>40}, in => 'HSL', select => 'h'),    10, 'correct hue distance between own hsl blue and blue');

@@ -142,7 +142,7 @@ sub blend {
     my $c2 = _new_from_scalar( $arg->{'with'} );
     return croak "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
     my $pos = $arg->{'pos'} // $arg->{'position'} // 0.5;
-    my $space_name = $arg->{'in'} // 'HSL';
+    my $space_name = $arg->{'in'} // 'RGB';
     return carp "color space $space_name is unknown" unless Graphics::Toolkit::Color::Space::Hub::is_space( $space_name );
     _new_from_value_obj( $self->{'values'}->blend( $c2->{'values'}, $pos, $space_name ) );
 }
@@ -160,7 +160,7 @@ sub gradient { # $to ~in + steps +dynamic +variance --> @_
     return unless ref $arg eq 'HASH';
     my $c2 = _new_from_scalar( $arg->{'to'} );
     return croak "need a second color under the key 'to' : ( to => ['HSL', 10, 20, 30])" unless ref $c2;
-    my $space_name = $arg->{'in'} // 'HSL';
+    my $space_name = $arg->{'in'} // 'RGB';
     my $steps = int(abs($arg->{'steps'} // 3));
     my $power = $arg->{'dynamic'} // 0;
     $power = ($power >= 0) ? $power + 1 : -(1/($power-1));
@@ -505,6 +505,7 @@ the lower and then the upper limit.
 
     $blue->values();                                # get list in RGB: 0, 0, 255
     $blue->values( in => 'RGB', as => 'list');      # same call
+    $blue->values( in => 'RGB', as => 'array');     # ['rgb', 0, 0, 255]
     $blue->values( in => 'RGB', as => 'hash');      # { red => 0, green => 0, blue => 255}
     $blue->values( in => 'RGB', as => 'char_hash'); # { r => 0, g => 0, b => 255}
     $blue->values( in => 'RGB', as => 'hex');       # '#00FFFF'
@@ -524,7 +525,7 @@ Is a floating point number that measures the Euclidean distance between
 two colors. One color is the calling object itself and the second (C2)
 has to provided as a named argument (I<to>), which is the only required one.
 It ca come in the form of a second GTC object or any scalar color definition
-I<new> would accept. The I<distance> is measured in HSL color space unless
+I<new> would accept. The I<distance> is measured in RGB color space unless
 told otherwise by the argument I<in>. The third argument is named I<metric>.
 It's useful if you want to notice only certain dimensions. Metric is the
 long or short name of that dimension or the short names of several dimensions.
@@ -585,7 +586,7 @@ It takes three named arguments, only the first is required.
    Numbers below 0 and above 1 are possible, butlikely to be clamped to
    fit inside the color space. Name of the argument is I<pos>.
 
-3. Color space name (default is I<HSL> - all can be seen unter
+3. Color space name (default is I<RGB> - all can be seen unter
    L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>). Name of the argument
    is I<in>.
 

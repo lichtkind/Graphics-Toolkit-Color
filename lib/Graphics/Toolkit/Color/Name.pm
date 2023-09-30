@@ -1,4 +1,5 @@
 use v5.12;
+use warnings;
 
 # named colors from X11, HTML (SVG) standard and Pantone report
 
@@ -73,7 +74,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
         }
     }
     @names = grep {Graphics::Toolkit::Color::Values->new(['HSL',@$hsl_center])->distance(
-                   Graphics::Toolkit::Color::Values->new(['HSL',hsl_from_name($_)])     ) <= $radius} @names if not ref $radius;
+                   Graphics::Toolkit::Color::Values->new(['HSL',hsl_from_name($_)]), 'HSL' ) <= $radius} @names if not ref $radius;
     @names;
 }
 

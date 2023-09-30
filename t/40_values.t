@@ -70,11 +70,11 @@ my $blue = val( '#0000FF' );
 my $yellow = val( '#FFFF00' );
 warning_like { $one->distance()}               {carped => qr/need value object/},  "need at least second color";
 warning_like { $one->distance([RGB =>1,2,3])}  {carped => qr/need value object/},  "need value object, not a definition";
-is( close_enough( $one->distance( val( [ 2, 3, 4] ), 'RGB', undef, 255), sqrt(3)), 1,   'computed simple rgb distance');
+is( close_enough( $one->distance( val( [ 2, 3, 4] ),  undef, undef, 255), sqrt(3)), 1,   'computed simple rgb distance');
 is(               $one->distance( val( [ 2, 3, 4] ), 'RGB', 'b', 255),             1,   'only blue metric');
 is( close_enough( $one->distance( val( [ 2, 3, 4] ), 'RGB', 'rrgb', 255), 2),      1,   'double red metric');
-is( close_enough( $blue->distance( $yellow, undef, 'h', 'normal'), 0.5),           1,   'complement color has maximal hue distance, 0.5 normalized');
-is(               $blue->distance( $yellow, undef, 'h'),                         180,   'complement has maximal hue distance');
-is(               $blue->distance( $yellow, undef, 'h', [[-100,100],1,1,]),      100,   'maximal hue distance with special range');
+is( close_enough( $blue->distance( $yellow, 'HSL', 'h', 'normal'), 0.5),           1,   'complement color has maximal hue distance, 0.5 normalized');
+is(               $blue->distance( $yellow, 'HSL', 'h'),                         180,   'complement has maximal hue distance');
+is(               $blue->distance( $yellow, 'HSL', 'h', [[-100,100],1,1,]),      100,   'maximal hue distance with special range');
 
 exit 0;

@@ -16,9 +16,10 @@ sub new {
     my @iterator = 0 .. $#keys;
     my %key_order      = map { $keys[$_] => $_ } @iterator;
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
+    my $name = uc join('', @shortcuts);
     bless { keys => [@keys], shortcuts => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
-            name => uc (join('', @shortcuts)), count => int @keys, iterator => \@iterator }
+            name => $name, count => int @keys, iterator => \@iterator }
 }
 
 sub keys     { @{$_[0]{'keys'}} }

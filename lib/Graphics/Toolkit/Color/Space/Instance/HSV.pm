@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space;
 
 my $hsv_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation value/],
                                                    range => [360, 100, 100],
-                                                    type => [qw/angle linear linear/]);
+                                                    type => [qw/angular linear linear/]);
 
    $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

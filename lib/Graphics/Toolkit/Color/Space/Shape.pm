@@ -39,8 +39,8 @@ sub new {
         for my $i ($basis->iterator) {
             my $dtype = $type->[$i]; # type def of this dimension
             return unless defined $dtype;
-            if    ($dtype eq 'angle' or $dtype eq 'circular' or $dtype eq '0') { $type->[$i] = 0 }
-            elsif ($dtype eq 'linear'                        or $dtype eq '1') { $type->[$i] = 1 }
+            if    ($dtype eq 'angular' or $dtype eq 'circular' or $dtype eq '0') { $type->[$i] = 0 }
+            elsif ($dtype eq 'linear'                          or $dtype eq '1') { $type->[$i] = 1 }
             else { return }
         }
     } else { return }

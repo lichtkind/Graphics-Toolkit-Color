@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space::Shape;
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'} );
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'} );
     return unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'range'}, $args{'type'} );
     return unless ref $shape;
@@ -118,7 +118,8 @@ details via the constructor and formatter and converters via CODE ref.
     my  $def = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/],
                                                     short => [qw/1 2 3/],
                                                    prefix => 'demo',
-                                                    range => [1, [-2, 2], [-3, 3]] );
+                                                    range => [1, [-2, 2], [-3, 3]],
+                                                     type => [qw/linear linear angular/]);
 
     $def->add_converter('RGB', \&to_rgb, \&from_rgb );
     $def->add_formatter(   'name',   sub {...} );
@@ -128,43 +129,54 @@ details via the constructor and formatter and converters via CODE ref.
 =head1 DESCRIPTION
 
 This package provides the API for color space authors.
-This module is supposed to be used by L<Graphics::Toolkit::Color> and not
-directly, thus it exports no symbols and has a much less DWIM API then
-the main module.
-
+The module is supposed to be used by L<Graphics::Toolkit::Color::Space::Hub>
+and L<Graphics::Toolkit::Color::Values> and not directly, thus it exports
+no symbols and has a much less DWIM API then the main module.
 
 =head1 METHODS
 
-Color space names can be written in any combination of upper and lower case.
-
 =head2 new
 
-has three integer values: B<red> (0 .. 255), B<green> (0 .. 255) and
-B<blue> (0 .. 255).
-All are scaling from no (0) to very much (255) light of that color,
-so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
+The constructor takes five named arguments. Only I<axis>, which takes
+an ARRAY ref with the names of the axis, is required. The first letter
+of each axis name becomes the name shortcut for each axis, unless
+separate shortcut names are provided under the named argument I<short>.
+The name of a color space is derived from the combined axis shortcuts.
+If that would lead to an already taken name, you can provide an additional
+I<prefix>, which will pasted in front of the space name.
+
+Under the argument I<range> you can set the limits of each dimension.
+If none are provided, normal ranges (0 .. 1) are assumed. One number
+is understood as the upper limit of all dimensions and the lower bound
+being zero. An ARRAY ref with two number set the lower and upper bound of
+each dimension, but you can also provide an ARRAY ref filled with numbers
+or ARRAY ref defining the bounds for each dimension. If no argument under
+the name L<type> is provided, then all dimensions will be I<linear> (Euclidean).
+But you might want to change that for some to I<circular> or I<angular>
+which both means that this dimension is not measured in length but
+with an angle from the origin.
 
 =head2 add_converter
 
-is the inverse of RGB but with the range: 0 .. 1. B<cyan> is the inverse
-value of I<red>, B<magenta> is inverse green and B<yellow> is inverse of
-I<blue>. Inverse meaning when a color has the maximal I<red> value,
-it has to have the minimal I<cyan> value.
+Takes three arguments:
+
+1. A name of a space the values will be converter from and to
+(usually just 'RGB').
+
+2. & 3. Two CODE refs of the actual converter methods, which have to take
+the normalized values as a list and return normalized values as a list.
+The first CODE converts to the named (by first argument) space and
+the second from the named into the name space the objects implements.
 
 =head2 add_formatter
 
-is an extension of CMY with a fourth value named B<key> (also 0 .. 1),
-which is basically the amount of black mixed into the CMY color.
+Takes two arguments: name of the format and CODE ref that takes the
+denormalized values as a list and returns whatever the formatter wishes
+to provide.
 
 =head2 add_deformatter
 
-has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
-and B<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
-15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
-270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
-coordinate. This module only outputs 0, even if accepting 360 as input.
-I<saturation> ranges from 0 = gray to 100 - clearest color set by hue.
-I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
+Same as I<add_formatter> but the CODE does here the opposite transformation.
 
 =head1 COPYRIGHT & LICENSE
 

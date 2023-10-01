@@ -30,7 +30,7 @@ is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],[1
 
 my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, 20);
 is( ref $shape,  $module, 'created shape with 0..20 range');
-my $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [[-5,5],[-5,5],[-5,5]], ['angle', 'circular', 0]);
+my $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [[-5,5],[-5,5],[-5,5]], ['angular', 'circular', 0]);
 is( ref $bshape,  $module, 'created 3D bowl shape with -5..5 range');
 
 my @d = $shape->delta(1, [1,5,4,5] );

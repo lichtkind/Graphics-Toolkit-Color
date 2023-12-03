@@ -197,9 +197,25 @@ Has the linear dimensions I<luminance> (sort of brightness, range 0..1),
 I<in-phase> (cyan - orange - balance, range -0.5959 .. 0.5959)
 and I<quadrature> (magenta - green - balance, range: -0.5227 .. 0.5227).
 
+=head2 XYZ
+
+=head2 LAB
+
+=head2 LUV
+
+=head2 HCL
+
+
 =head1 FORMATS
 
 These formats are available in all color spaces.
+
+=head2 list
+
+Is the default format and the only one not containing the name of th
+color space.
+
+    (10, 20, 30)
 
 =head2 string
 

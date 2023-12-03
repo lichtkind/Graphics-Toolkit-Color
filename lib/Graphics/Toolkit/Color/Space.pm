@@ -42,12 +42,12 @@ sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ?
 
 ########################################################################
 
-sub delta      { shift->{'shape'}->delta( @_ ) }    # @values -- @vector, @vector --> |@vector # on normalize values
-sub check      { shift->{'shape'}->check( @_ ) }    # @values -- @range           -->  ?       # pos if carp
-sub clamp      { shift->{'shape'}->clamp( @_ ) }    # @values -- @range           --> |@vector
-sub normalize  { shift->{'shape'}->normalize(@_)}   # @values -- @range           --> |@vector
-sub denormalize{ shift->{'shape'}->denormalize(@_)} # @values -- @range           --> |@vector
-sub denormalize_range{ shift->{'shape'}->denormalize_range(@_)} # @values -- @range           --> |@vector
+sub delta             { shift->{'shape'}->delta( @_ ) }      # @values -- @vector, @vector --> |@vector # on normalize values
+sub check             { shift->{'shape'}->check( @_ ) }      # @values -- @range           -->  ?       # pos if carp
+sub clamp             { shift->{'shape'}->clamp( @_ ) }      # @values -- @range           --> |@vector
+sub normalize         { shift->{'shape'}->normalize(@_)}     # @values -- @range           --> |@vector
+sub denormalize       { shift->{'shape'}->denormalize(@_)}   # @values -- @range           --> |@vector
+sub denormalize_range { shift->{'shape'}->denormalize_range(@_)}#@values -- @range         --> |@vector
 
 ########################################################################
 
@@ -172,11 +172,13 @@ the second from the named into the name space the objects implements.
 
 Takes two arguments: name of the format and CODE ref that takes the
 denormalized values as a list and returns whatever the formatter wishes
-to provide.
+to provide, which then the GTC method I<values> can provide.
 
 =head2 add_deformatter
 
-Same as I<add_formatter> but the CODE does here the opposite transformation.
+Same as I<add_formatter> but the CODE does here the opposite transformation,
+providing a format reading ability for the GTC constructor.
+
 
 =head1 COPYRIGHT & LICENSE
 

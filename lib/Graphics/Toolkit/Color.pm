@@ -490,7 +490,8 @@ Second argument is the format (name: C<as>).
 In short any SCALAR format acceptable to the L</CONSTRUCTOR> can also be
 reproduced by a getter method and the numerical cases by this one.
 Not all formats are available under all color spaces, but the always
-present options are: C<list> (default), C<hash>, C<char_hash> and C<array>.
+present options are: C<list> (default), C<hash>, C<char_hash>, C<array>,
+C<string> and C<css_string>.
 
 Third named argument is the range inside which the numerical values have
 to be. RGB are normally between 0 .. 255 and CMYK between 0 .. 1 ('normal').

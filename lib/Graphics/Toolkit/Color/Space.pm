@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# common code of Graphics::Toolkit::Color::Space::Instance::*
+# common code of Graphics::Toolkit::Color::Space::Instance::* packages
 
 package Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Basis;
@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space::Shape;
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'} );
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'prefix'} );
     return unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'range'}, $args{'type'} );
     return unless ref $shape;

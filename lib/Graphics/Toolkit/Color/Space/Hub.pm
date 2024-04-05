@@ -227,7 +227,7 @@ color space.
 
 =head2 array
 
-    [RGB, 10, 20, 30]
+    [RGB => 10, 20, 30]
 
 =head2 hash
 

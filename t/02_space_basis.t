@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 105;
+use Test::More tests => 110;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -21,7 +21,7 @@ my $bad = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth
 my $s3d = Graphics::Toolkit::Color::Space::Basis->new([qw/Alpha beta gamma/]);
 my $s5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/]);
 
-is( $bad,  undef,     'need as els axis name array as argument');
+is( $bad,        undef,   'need as els axis name array as argument');
 is( ref $s3d,  $module,   'created 3d space');
 is( ref $s5d,  $module,   'created 5d space');
 
@@ -146,5 +146,16 @@ is( ref $ph, 'HASH',   'deparse just two keys with mixed case and shortcut');
 is( $ph->{0}, 6,       'first key aleph has right value');
 is( $ph->{4}, 5,       'second key He has right value');
 is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
+
+my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name');
+is( ref $p5d,  $module,  'created space with none rule based name');
+is( $p5d->name, 'name',  'got correct specially set name');
+
+my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef,'pre');
+is( ref $p5p,  $module,  'created space with name prefix');
+is( $p5p->name, 'preMNOPQ',  'got correct name with prefix');
+
+my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name','PRE');
+is( $p5pn->name, 'PREname',  'got correct name with prefix');
 
 exit 0;

@@ -6,17 +6,18 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my ($pkg, $axis_names, $name_shortcuts, $prefix) = @_;
+    my ($pkg, $axis_names, $axis_shortcuts, $space_name, $space_prefix) = @_;
     return unless ref $axis_names eq 'ARRAY';
-    return if defined $name_shortcuts and (ref $name_shortcuts ne 'ARRAY' or @$axis_names != @$name_shortcuts);
+    return if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_names != @$axis_shortcuts);
     my @keys      = map {lc} @$axis_names;
-    my @shortcuts = map { _color_key_shortcut($_) } (defined $name_shortcuts) ? @$name_shortcuts : @keys;
+    my @shortcuts = map { _color_key_shortcut($_) } (defined $axis_shortcuts) ? @$axis_shortcuts : @keys;
     return unless @keys > 0;
 
     my @iterator = 0 .. $#keys;
     my %key_order      = map { $keys[$_] => $_ } @iterator;
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
-    my $name = uc join('', @shortcuts);
+    my $name = $space_name // uc join('', @shortcuts);
+    $name = $space_prefix.$name if defined $space_prefix and $space_prefix;
     bless { keys => [@keys], shortcuts => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
             name => $name, count => int @keys, iterator => \@iterator }

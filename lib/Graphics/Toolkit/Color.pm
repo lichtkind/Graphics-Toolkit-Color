@@ -9,6 +9,7 @@ use warnings;
 use Carp;
 use Graphics::Toolkit::Color::Name;
 use Graphics::Toolkit::Color::Values;
+use Graphics::Toolkit::Color::Set;
 
 use Exporter 'import';
 our @EXPORT_OK = qw/color/;
@@ -344,8 +345,8 @@ I<lightness>, I<hsl_hash>, I<blend_with>, I<gradient_to>,
 I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
 will be removed on version 2.0.
 
-Graphics::Toolkit::Color, for short GTC, is the top level API of this module
-and the only one a regular user should be concerned with.
+Graphics::Toolkit::Color, for short GTC, is the top level API of this
+release and the only one a regular user should be concerned with.
 Its main purpose is the creation of sets of related colors, such as
 gradients, complements and others.
 
@@ -353,12 +354,12 @@ GTC are read only color holding objects with no additional dependencies.
 Create them in many different ways (see section L</CONSTRUCTOR>).
 Access its values via methods from section L</GETTER>.
 Measure differences with the I<distance> method. L</SINGLE-COLOR>
-methods create one a object that is related to the current one and
-L</COLOR-SETS> methods will create a host of color that are not
+methods create one object that is related to the current one and
+L</COLOR-SETS> methods will create a host of colors, that are not
 only related to the current color but also have relations between each other.
 
 While this module can understand and output color values in many spaces,
-such as YIQ, HSL and many more, RGB is the (internal) primal one,
+such as HSL, YIQ and many more, RGB is the (internal) primal one,
 because GTC is about colors that can be shown on the screen, and these
 are usually encoded in RGB.
 
@@ -369,10 +370,11 @@ get the color palette you desire quickly.
 
 =head1 CONSTRUCTOR
 
-There are many options to create a color objects. In short you can
+There are many options to create a color object. In short you can
 either use the name of a constant or provide values in one of several
 L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>, which also can be
-formatted in many ways as described in this paragraph.
+formatted in many ways as described below and under
+L<Graphics::Toolkit::Color::Space::Hub/FORMATS.
 
 =head2 new('name')
 
@@ -470,7 +472,7 @@ giving access to different parts of the objects data.
 String with normalized name (lower case without I<'_'>) of the color as
 in X11 or HTML (SVG) standard or the Pantone report.
 The name will be found and filled in, even when the object
-was created numerical values.
+was created with numerical values.
 If no color is found, C<name> returns an empty string.
 All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
 (See als: L</new('name')>)

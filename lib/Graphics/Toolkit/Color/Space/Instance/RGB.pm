@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# RGB color space specific code
+# sRGB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::RGB;
 use Graphics::Toolkit::Color::Space;

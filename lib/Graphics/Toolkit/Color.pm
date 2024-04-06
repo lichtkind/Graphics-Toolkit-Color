@@ -140,7 +140,8 @@ sub blend {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg;
-    my $c2 = _new_from_scalar( $arg->{'with'} );
+    return carp "can not use arguments 'to' and 'with' at same time" if exists $arg->{'with'} and exists $arg->{'to'};
+    my $c2 = _new_from_scalar( $arg->{'with'} // $arg->{'to'} );
     return croak "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
     my $pos = $arg->{'pos'} // $arg->{'position'} // 0.5;
     my $space_name = $arg->{'in'} // 'RGB';
@@ -596,6 +597,8 @@ It takes three named arguments, only the first is required.
     $color->blend( with => 'silver', pos => 0.6 );
     $color->blend({ with => 'silver', pos => 0.6 });             # works too!
     $blue->blend( with => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
+
+Instead of I<with> one could also use the alias I<to>, as in other methods.
 
 =head1 COLOR SETS
 

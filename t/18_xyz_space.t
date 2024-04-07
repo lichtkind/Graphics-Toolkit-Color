@@ -64,6 +64,9 @@ is( close_enough($rgb[0],  0.5), 1,   'right red value');
 is( close_enough($rgb[1],  0.5), 1,   'right green value');
 is( close_enough($rgb[2],  0.5), 1,   'right blue value');
 
+say "@rgb";
+
+
 @rgb = $def->convert( [0.95047, 1, 1.08883], 'RGB');
 is( int @rgb,                    3,     'converted back gray with 3 values');
 is( close_enough($rgb[0],  1), 1,   'right red value');

@@ -143,32 +143,35 @@ Color space names can be written in any combination of upper and lower case.
 
 =head2 RGB
 
-has three integer values: B<red> (0 .. 255), B<green> (0 .. 255) and
-B<blue> (0 .. 255).
+has three integer values: B<red> (short I<r>) range: 0 .. 255, B<green>
+(short I<g>) range: 0 .. 255 and B<blue> (short I<b>) range: 0 .. 255.
 All are scaling from no (0) to very much (255) light of that color,
 so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
 
 =head2 CMY
 
-is the inverse of RGB but with the range: 0 .. 1. B<cyan> is the inverse
-value of I<red>, B<magenta> is inverse green and B<yellow> is inverse of
-I<blue>. Inverse meaning when a color has the maximal I<red> value,
-it has to have the minimal I<cyan> value.
+is the inverse of RGB but with the real value range: 0 .. 1. 
+B<cyan> (short I<c>) is the inverse value of I<red>, 
+B<magenta> (short I<m> ) is inverse to I<green> and 
+B<yellow> (short I<y>) is inverse of I<blue>. 
+Inverse meaning when a color has the maximal I<red> value, it has to 
+have the minimal I<cyan> value.
 
 =head2 CMYK
 
-is an extension of CMY with a fourth value named B<key> (also 0 .. 1),
+is an extension of CMY with a fourth value named B<key> (short I<k>) (also 0 .. 1),
 which is basically the amount of black mixed into the CMY color.
 
 =head2 HSL
 
 has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
-and B<lightness> (0 .. 100). Hue stands for a color on a rainbow: 0 = red,
-15 approximates orange, 60 - yellow 120 - green, 180 - cyan, 240 - blue,
-270 - violet, 300 - magenta, 330 - pink. 0 and 360 point to the same
-coordinate. This module only outputs 0, even if accepting 360 as input.
-I<saturation> ranges from 0 = gray to 100 - clearest color set by hue.
-I<lightness> ranges from 0 = black to 50 (hue or gray) to 100 = white.
+and B<lightness> (0 .. 100). Hue (short I<h>) stands for a color on 
+a rainbow: 0 = red, 15 approximates orange, 60 - yellow 120 - green,
+180 - cyan, 240 - blue, 270 - violet, 300 - magenta, 330 - pink. 
+0 and 360 points to the same coordinate. This module only outputs 0, 
+even if accepting 360 as input.
+I<saturation> (short I<s>) ranges from 0 (gray) to 100 (clearest color set by hue).
+I<lightness> (short I<l>) ranges from 0 (black) over 50 (hue or gray) to 100 (white).
 
 =head2 HSV
 
@@ -193,18 +196,37 @@ leads to pure white and I<blackness> of 100 always leads to pure black.
 
 =head2 YIQ
 
-Has the linear dimensions I<luminance> (sort of brightness, range 0..1),
-I<in-phase> (cyan - orange - balance, range -0.5959 .. 0.5959)
-and I<quadrature> (magenta - green - balance, range: -0.5227 .. 0.5227).
+Has three linear dimensions:
+B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
+B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5959 .. 0.5959) and
+B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
 
 =head2 CIEXYZ
+Has three real valued dimension named X, Y and Z, (short names are the same),
+which aim to reflect the chemical activity of the three type of 
+colored light receptors in the human eye. Their ranges span from zero to 
+0.95047, 1 and 1.08883.
 
 =head2 CIELAB
+
+Has three real valued dimension named L, A and B, (short names are the same),
 
 =head2 CIELUV
 
 =head2 CIEHCL
 
+=head1 RANGES
+
+As pointed out in the previous paragraph, each dimension of color space has
+its default range. However, one can demand custom value ranges, if the method
+accepts a range decriptor as argument. If so, the following values are accepted:
+
+    'normal'     real value range from 0 .. 1
+    number       range from zero to that number
+    [min max]    range from min .. max
+
+If both limits are integer (except 0 .. 1), 
+the resulting range will contain only integer values.
 
 =head1 FORMATS
 

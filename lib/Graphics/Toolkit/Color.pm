@@ -594,11 +594,11 @@ It takes three named arguments, only the first is required.
    is I<in>.
 
     # a little more silver than $color in the mix
-    $color->blend( with => 'silver', pos => 0.6 );
-    $color->blend({ with => 'silver', pos => 0.6 });             # works too!
+    $color->blend( to => 'silver', pos => 0.6 );
+    $color->blend({ to => 'silver', pos => 0.6 });             # works too!
     $blue->blend( with => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
 
-Instead of I<with> one could also use the alias I<to>, as in other methods.
+Instead of I<to> one could also use the alias I<with>, which sounds more english.
 
 =head1 COLOR SETS
 

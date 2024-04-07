@@ -4,7 +4,7 @@ use warnings;
 # HWB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HWB;
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 
 my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness blackness/],

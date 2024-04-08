@@ -221,12 +221,17 @@ As pointed out in the previous paragraph, each dimension of color space has
 its default range. However, one can demand custom value ranges, if the method
 accepts a range decriptor as argument. If so, the following values are accepted:
 
-    'normal'     real value range from 0 .. 1
-    number       range from zero to that number
-    [min max]    range from min .. max
+    'normal'          real value range from 0 .. 1 (default)
+    number            integer range from zero to that number
+    [0 1]             real number range from 0 to 1, same as 'normal'
+    [min max]         range from min .. max, int if both numbers are int
+    [min max 'int']   integer range from min .. max
+    [min max 'real']  real number range from min .. max
 
-If both limits are integer (except 0 .. 1), 
-the resulting range will contain only integer values.
+The whole definition has to be an ARRAY ref. Each element is the range definition 
+of one dimension. If the definition is not an ARRAY but a single value it is applied
+as definition of every dimension.
+
 
 =head1 FORMATS
 

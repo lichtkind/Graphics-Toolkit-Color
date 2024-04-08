@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 75;
+use Test::More tests => 91;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -20,7 +20,7 @@ is( Graphics::Toolkit::Color::Space::Shape->new( $basis, {}), undef, 'range defi
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3] ]), undef, 'not enough dimensions');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,3],[1,3] ]), undef, 'too many dimensions');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1] ]), undef, 'one dimension had too short def');
-is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2,3] ]), undef, 'one dimension had too long def');
+is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2,3,4] ]), undef, 'one dimension had too long def');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[2,2] ]), undef, 'range min is not smaller than max');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],{}), undef, 'type def has to be array too');
 is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],[1,1]), undef, 'type def too short');
@@ -30,8 +30,31 @@ is( Graphics::Toolkit::Color::Space::Shape->new( $basis, [[1,3],[1,3],[1,2] ],[1
 
 my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, 20);
 is( ref $shape,  $module, 'created shape with 0..20 range');
+is( $shape->dimension_is_int(0), 1, 'first dimension outputs is int values');
+is( $shape->dimension_is_int(1), 1, 'second dimension outputs is int values');
+is( $shape->dimension_is_int(2), 1, 'third dimension outputs is int values');
+is( $shape->dimension_is_int(3), undef, 'there is no fourth dimension ');
+
 my $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [[-5,5],[-5,5],[-5,5]], ['angular', 'circular', 0]);
 is( ref $bshape,  $module, 'created 3D bowl shape with -5..5 range');
+is( $bshape->dimension_is_int(0), 1, 'first dimension outputs is int values');
+is( $bshape->dimension_is_int(1), 1, 'second dimension outputs is int values');
+is( $bshape->dimension_is_int(2), 1, 'third dimension outputs is int values');
+
+my $nshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, 'normal');
+is( $nshape->dimension_is_int(0), 0, 'first normal dimension outputs is not int');
+is( $nshape->dimension_is_int(1), 0, 'second normal dimension outputs is not int');
+is( $nshape->dimension_is_int(2), 0, 'third normal dimension outputs is not int');
+
+my $mshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['normal', 100, [2, 2.2]]);
+is( $mshape->dimension_is_int(0), 0, 'first particular normal dimension is not int');
+is( $mshape->dimension_is_int(1), 1, 'second dimension defined by int is int');
+is( $mshape->dimension_is_int(2), 0, 'third dimension defined by real range is not int');
+
+my $oshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [[0, 10, 'int'], [0, 10, 'real'], [0, 10, 'r'],]);
+is( $oshape->dimension_is_int(0), 1, 'first dimension outputs is int');
+is( $oshape->dimension_is_int(1), 0, 'second dimension outputs is not int');
+is( $oshape->dimension_is_int(2), 0, 'third dimension outputs is not int');
 
 my @d = $shape->delta(1, [1,5,4,5] );
 is( int @d,   0, 'reject compute delta on none vector on first arg position');

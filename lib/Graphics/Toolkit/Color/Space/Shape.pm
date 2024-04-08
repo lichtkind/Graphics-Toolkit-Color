@@ -24,10 +24,12 @@ sub new {
         for my $i ($basis->iterator) {
             my $drange = $range->[$i]; # range def of this dimension
 
-            if (not ref $drange and $drange > 0){
+            if (not ref $drange and $drange and $drange eq 'normal'){
+                $range->[$i] = [0,1];
+            } elsif (not ref $drange and $drange > 0){
                 $drange = int $drange;
                 $range->[$i] = [0, $drange];
-            } elsif (ref $drange eq 'ARRAY' and @$drange == 2
+            } elsif (ref $drange eq 'ARRAY' and (@$drange == 2 or @$drange == 3)
                      and defined $drange->[0] and defined $drange->[1] and $drange->[0] < $drange->[1]) { # full valid def
             } else { return }
         }
@@ -57,6 +59,7 @@ sub dimension_is_int {
     return 0 if $r->[0] == 0 and $r->[1] == 1; #normal
     return 0 if int($r->[0]) != $r->[0];
     return 0 if int($r->[1]) != $r->[1];
+    return 0 if exists $r->[2] and $r->[2] and lc(substr $r->[2], 0, 1) eq 'r'; # r or real
     1;
 }
 sub _range {

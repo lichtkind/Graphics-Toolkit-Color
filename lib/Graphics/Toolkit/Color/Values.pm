@@ -10,7 +10,7 @@ use Carp;
 sub new {
     my ($pkg, $color_val) = @_;
     my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_val );
-    return carp "could not recognize color values" unless ref $values;
+    return carp "could not recognize color value format" unless ref $values;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     my $std_space = Graphics::Toolkit::Color::Space::Hub::base_space();
     my $self = {};

@@ -1,9 +1,9 @@
 use v5.12;
 use warnings;
 
-# CIE LCh(ab) linear color space specific code
+# CIE LCh(uv) linear color space specific code
 
-package Graphics::Toolkit::Color::Space::Instance::HCL;
+package Graphics::Toolkit::Color::Space::Instance::LCH;
 use Graphics::Toolkit::Color::Space;
 
 my ($i_max, $q_max)   = (0.5959, 0.5227);

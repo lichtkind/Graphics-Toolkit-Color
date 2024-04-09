@@ -1,37 +1,34 @@
 use v5.12;
 use warnings;
 
-# LUV color space specific code
+# CIE LUV color space specific code based on XYZ for Illuminant D65 and Observer 2\x{00b0}
 
 package Graphics::Toolkit::Color::Space::Instance::LUV;
 use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my ($i_max, $q_max)   = (0.5959, 0.5227);
-my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
+
                                                                     # cyan-orange balance, magenta-green balance
 my  $luv_def = Graphics::Toolkit::Color::Space->new( axis => [qw/L* u* v*/],
                                                    prefix => 'CIE',
-                                                    range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
+                                                    range => [1, 1, 1] );
 
     $luv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
     my ($r, $g, $b) = @_;
-    my $y =           (0.299  * $r) + ( 0.587  * $g) + ( 0.114  * $b);
-    my $i = ($i_max + (0.5959 * $r) + (-0.2746 * $g) + (-0.3213 * $b)) / $i_size;
-    my $q = ($q_max + (0.2115 * $r) + (-0.5227 * $g) + ( 0.3112 * $b)) / $q_size;
-    return ($y, $i, $q);
+    return mult_matrix([[0.4124564, 0.2126729, 0.0193339],
+                        [0.3575761, 0.7151522, 0.1191920],
+                        [0.1804375, 0.0721750, 0.9503041]], apply_d65( $r ), apply_d65( $g ), apply_d65( $b ));
 }
 
-
 sub to_rgb {
-    my ($y, $i, $q) = @_;
-    $i = ($i * $i_size) - $i_max;
-    $q = ($q * $q_size) - $q_max;
-    my $r = $y + ( 0.956 * $i) + ( 0.619 * $q);
-    my $g = $y + (-0.272 * $i) + (-0.647 * $q);
-    my $b = $y + (-1.106 * $i) + ( 1.703 * $q);
-    return ($r, $g, $b);
+    my ($x, $y, $z) = @_;
+    my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
+                                   [-1.5371385,  1.8760108, -0.2040259],
+                                   [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
+
+    return ( remove_d65($r), remove_d65($g), remove_d65($b));
 }
 
 $luv_def;

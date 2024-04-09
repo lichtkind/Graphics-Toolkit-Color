@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# LAB color space specific code based on XYZ
+# CIE LAB color space specific code based on XYZ for Illuminant D65 and Observer 2\x{00b0}
 
 package Graphics::Toolkit::Color::Space::Instance::LAB;
 use Graphics::Toolkit::Color::Space;
@@ -31,13 +31,12 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($l, $a, $b) = @_;
-    #~ $i = ($i * $i_size) - $i_max;
-    #~ $q = ($q * $q_size) - $q_max;
-    #~ my $r = $y + ( 0.956 * $i) + ( 0.619 * $q);
-    #~ my $g = $y + (-0.272 * $i) + (-0.647 * $q);
-    #~ my $b = $y + (-1.106 * $i) + ( 1.703 * $q);
-    #~ return ($r, $g, $b);
+    my ($x, $y, $z) = @_;
+    my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
+                                   [-1.5371385,  1.8760108, -0.2040259],
+                                   [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
+
+    return ( remove_d65($r), remove_d65($g), remove_d65($b));
 }
 
 $lab_def;

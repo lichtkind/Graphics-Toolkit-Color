@@ -2,6 +2,7 @@
 -------
     * = minor feature release
     * * added color space support: XYZ LAB HCL LUV
+    * + extended range definitions with explicit type names
     * ? added documentation for color space object and missing formats
     * ~ default space of methods 'distance', 'blend' and 'gradient'
         went from HSL to RGB, consistent with Space::Hub defaults (complement has to be HSL)

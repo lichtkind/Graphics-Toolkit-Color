@@ -6,13 +6,14 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV HCL/); # search order # Ncol ?
-my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages;
+my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV HCL LCH/); # search order ## missing: Ncol
+my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
+my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
 
-sub get_space { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
+sub get_space { $space_lookup{ uc $_[0] } if exists $space_lookup{ uc $_[0] } }
 sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
-sub base_space { $space_obj{$base_package} }
-sub space_names { @space_packages }
+sub base_space { $space_lookup{ $base_package } }
+sub space_names { keys %{%space_lookup} }
 
 ########################################################################
 
@@ -209,11 +210,23 @@ colored light receptors in the human eye. Their ranges span from zero to
 
 =head2 CIELAB
 
-Has three real valued dimension named L, A and B, (short names are the same),
+Has three linear real valued dimension named L*, a* and b*, (short names have only
+the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head2 CIELUV
 
+Has three linear real valued dimension named L*, u* and v*, (short names have only
+the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+
 =head2 CIEHCL
+
+Has three linear real valued dimension named L*, u* and v*, (short names have only
+the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+
+=head2 CIELCH
+
+Has three linear real valued dimension named L*, u* and v*, (short names have only
+the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head1 RANGES
 

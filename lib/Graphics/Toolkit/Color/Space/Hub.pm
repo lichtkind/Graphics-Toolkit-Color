@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV HCL LCH/); # search order ## missing: Ncol
+my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV LCHab LCHuv/); # search order ## missing: Ncol
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
 
@@ -218,15 +218,15 @@ the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 Has three linear real valued dimension named L*, u* and v*, (short names have only
 the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
-=head2 CIEHCL
+=head2 CIELCHab
 
-Has three linear real valued dimension named L*, u* and v*, (short names have only
-the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
+Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
-=head2 CIELCH
+=head2 CIELCHuv
 
-Has three linear real valued dimension named L*, u* and v*, (short names have only
-the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
+Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head1 RANGES
 

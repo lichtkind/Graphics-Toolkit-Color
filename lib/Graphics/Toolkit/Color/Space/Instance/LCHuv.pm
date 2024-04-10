@@ -1,17 +1,18 @@
 use v5.12;
 use warnings;
 
-# CIE LAB color space specific code based on XYZ for Illuminant D65 and Observer 2\x{00b0}
+# CIE LCh(uv) linear color space specific code
 
-package Graphics::Toolkit::Color::Space::Instance::LAB;
+package Graphics::Toolkit::Color::Space::Instance::LCHuv;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( axis => [qw/L* a* b*/], # 
-                                                   prefix => 'CIE',
-                                                    range => [[0, 100, 'r'], [-500, 500, 'r'], [-200, 200, 'r']] );
 
-    $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+my  $hcl_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', name => 'LCHuv',
+                                                       axis => [qw/luminance croma hue/],
+                                                      range => [0.95047, 1, 1.08883] );
+
+    $hcl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
     my ($r, $g, $b) = @_;
@@ -31,15 +32,7 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($l, $a, $b) = @_;
-    my $y = ($l + 16) / 116;
-    my $x = ($a / 500) + $y;
-    my $z = $y - ($b / 200);
-    $x = ($x**3 > 0.008856) ? ($x ** 3) : (($x - 0.137931034) / 7.7870689);
-    $y = ($y**3 > 0.008856) ? ($y ** 3) : (($y - 0.137931034) / 7.7870689);
-    $z = ($z**3 > 0.008856) ? ($z ** 3) : (($z - 0.137931034) / 7.7870689);
-    $x *= 0.95047;
-    $z *= 0.108883;
+    my ($x, $y, $z) = @_;
     my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
                                    [-1.5371385,  1.8760108, -0.2040259],
                                    [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
@@ -47,4 +40,6 @@ sub to_rgb {
     return ( remove_d65($r), remove_d65($g), remove_d65($b));
 }
 
-$lab_def;
+
+$hcl_def;
+

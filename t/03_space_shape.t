@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 107;
+use Test::More tests => 116;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -135,52 +135,55 @@ is( $tr->[1],   1.1, 'rounded in range value to set precision');
 is( $tr->[2],   2.54, 'in range value is kept');
 
 
-exit 0;
-
-is( $shape->values_in_range([1,2,3]),   undef,  'all values in range');
-warning_like {$shape->values_in_range([1,2])}       {carped => qr/value vector/},  "not enough values";
-warning_like {$shape->values_in_range([1,2,3,4])}   {carped => qr/value vector/},  "too much values";
-warning_like {$shape->values_in_range([-11,2,3])} {carped => qr/aaa value is below/},  "too small first value";
-warning_like {$shape->values_in_range([0,21,3])}  {carped => qr/bbb value is above/},  "too large second value";
-warning_like {$shape->values_in_range([0,1,3.1])} {carped => qr/be an integer/},        "third value was not int";
+is( ref $shape->in_range([1,2,3]), 'ARRAY',  'all values in range');
+is( ref $shape->in_range([1,2]),        '',  "not enough values");
+is( ref $shape->in_range([1,2,3,4]),    '',  "too many values");
+is( ref $shape->in_range([1,22,3]),     '',  "too big second value");
+is( ref $shape->in_range([0,1,3.1]),    '',  "too many decimals in third value");
 
 
-my @norm = $shape->normalize([0, 10, 20]);
-is( int @norm,   3, 'normalized 3 into 3 values');
-is( $norm[0],    0, 'normalized first min value');
-is( $norm[1],    0.5, 'normalized second mid value');
-is( $norm[2],    1,   'normalized third max value');
+my $norm = $shape->normalize([-5, 0, 5]);
+is( ref $norm,   'ARRAY', 'normalized values');
+is( int @$norm,   3, 'normalized 3 into 3 values');
+is( $norm->[0],    0, 'normalized first min value');
+is( $norm->[1],    0.5, 'normalized second mid value');
+is( $norm->[2],    1,   'normalized third max value');
 
-@norm = $shape->denormalize([0, 0.5 , 1]);
-is( int @norm,   3, 'denormalized 3 into 3 values');
-is( $norm[0],    0, 'denormalized min value');
-is( $norm[1],   10, 'denormalized second mid value');
-is( $norm[2],   20, 'denormalized third max value');
+$norm = $shape->denormalize([0, 0.5 , 1]);
+is( @$norm,        3, 'denormalized 3 into 3 values');
+is( $norm->[0],   -5, 'denormalized min value');
+is( $norm->[1],    0, 'denormalized second mid value');
+is( $norm->[2],    5, 'denormalized third max value');
 
-@norm = $bshape->normalize([-1, 0, 5]);
-is( int @norm,   3, 'normalize bawl coordinates');
-is( $norm[0],    0.4, 'normalized first min value');
-is( $norm[1],    0.5, 'normalized second mid value');
-is( $norm[2],    1,   'normalized third max value');
+$norm = $bshape->normalize([-1, 0, 5]);
+is( @$norm,   3, 'normalize bawl coordinates');
+is( $norm->[0],    0.4, 'normalized first min value');
+is( $norm->[1],    0.5, 'normalized second mid value');
+is( $norm->[2],    1,   'normalized third max value');
 
-@norm = $bshape->denormalize([0.4, 0.5, 1]);
-is( int @norm,   3, 'denormalized 3 into 3 values');
-is( $norm[0],   -1, 'denormalized small value');
-is( $norm[1],    0, 'denormalized mid value');
-is( $norm[2],    5, 'denormalized max value');
+$norm = $bshape->denormalize([0.4, 0.5, 1]);
+is( @$norm,   3, 'denormalized 3 into 3 values');
+is( $norm->[0],   -1, 'denormalized small value');
+is( $norm->[1],    0, 'denormalized mid value');
+is( $norm->[2],    5, 'denormalized max value');
 
-@norm = $bshape->denormalize([1, 0, 0.5], [[-10,250],[30,50], [-70,70]]);
-is( int @norm,   3, 'denormalized bowl with custom range');
-is( $norm[0],  250, 'denormalized with special ranges max value');
-is( $norm[1],   30, 'denormalized with special ranges min value');
-is( $norm[2],    0, 'denormalized with special ranges mid value');
+$norm = $bshape->denormalize([1, 0, 0.5], [[-10,250],[30,50], [-70,70]]);
+is( @$norm,   3, 'denormalized bowl with custom range');
+is( $norm->[0],  250, 'denormalized with special ranges max value');
+is( $norm->[1],   30, 'denormalized with special ranges min value');
+is( $norm->[2],    0, 'denormalized with special ranges mid value');
 
-@norm = $bshape->normalize([250, 30, 0], [[-10,250],[30,50], [-70,70]]);
-is( int @norm,  3,  'normalized  bowl with custom range');
-is( $norm[0],   1,  'normalized with special ranges max value');
-is( $norm[1],   0,  'normalized with special ranges min value');
-is( $norm[2],   0.5,'normalized with special ranges mid value');
+$norm = $bshape->normalize([250, 30, 0], [[-10,250],[30,50], [-70,70]]);
+is( @$norm,  3,  'normalized  bowl with custom range');
+is( $norm->[0],   1,  'normalized with special ranges max value');
+is( $norm->[1],   0,  'normalized with special ranges min value');
+is( $norm->[2],   0.5,'normalized with special ranges mid value');
 
-#denormalize_delta
+$norm = $shape->denormalize_delta([0, 0.5 , 1]);
+is( @$norm,        3, 'denormalized 3 into 3 values');
+is( $norm->[0],    0, 'denormalized min delta');
+is( $norm->[1],    5, 'denormalized second mid delta');
+is( $norm->[2],   10, 'denormalized third max delta');
+
 
 exit 0;

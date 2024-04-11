@@ -105,18 +105,20 @@ sub delta { # values have to be normalized
 }
 
 sub in_range {
-    my ($self, $values, $range) = @_;
+    my ($self, $values, $range, $precision) = @_;
     return 'color value vector in '.$self->basis->name.' needs '.$self->basis->count.' values'
         unless $self->basis->is_array( $values );
     $range = $self->_range( $range );
     return "got bad range definition" unless ref $range;
+    $precision = $self->_precision( $precision );
+    return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
     my @names = $self->basis->keys;
     for my $i ($self->basis->iterator){
         next unless $self->axis_is_numeric($i);
         return $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
         return $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
-        return $names[$i]." value has to be an integer" if $self->dimension_is_int($i, $range)
-                                                            and int $values->[$i] != $values->[$i];
+        return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0 
+                                                           and pround($values->[$i], $precision->[$i]) != $values->[$i];
     }
     return $values;
 }

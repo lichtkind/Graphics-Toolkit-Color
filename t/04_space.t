@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 52;
+use Test::More tests => 67;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -85,30 +85,27 @@ is( $val[2],    3, 'third value correctly deconverted');
 is( $val[3],    4, 'fourth value correctly deconverted');
 
 
+my $d = $space->delta([2,3,4,5], [1,5,1,1] );
+is( int @$d,   4, 'delta result has right length');
+is( $d->[0],   -1, 'first value correctly deconverted');
+is( $d->[1],    2, 'second value correctly deconverted');
+is( $d->[2],   -3, 'third value correctly deconverted');
+is( $d->[3],   -4, 'fourth value correctly deconverted');
 
-my @d = $space->delta([2,3,4,5], [1,5,1,1] );
-is( int @d,   4, 'delta result has right length');
-exit 0;
-is( $d[0],   -1, 'first value correctly deconverted');
-is( $d[1],    2, 'second value correctly deconverted');
-is( $d[2],   -3, 'third value correctly deconverted');
-is( $d[3],   -4, 'fourth value correctly deconverted');
+my $tr = $space->clamp([-1, 0, 20.1, 21, 1]);
+is( int @$tr,   4, 'clamp kept correct vector length = 4');
+is( $tr->[0],    0, 'clamp up value below minimum');
+is( $tr->[1],    0, 'do not touch minimal value');
+is( $tr->[2],   20, 'clamp real into int');
+is( $tr->[3],   20, 'clamp down value above range max');
 
+is( ref $space->in_range([1,2,3,4]), 'ARRAY', 'all values in range');
 
-my @tr = $space->clamp([-1, 0, 20.1, 21, 1]);
-is( int @tr,   4, 'clamp kept correct vector length = 4');
-is( $tr[0],    0, 'clamp up value below minimum');
-is( $tr[1],    0, 'do not touch minimal value');
-is( $tr[2],   20, 'clamp real into int');
-is( $tr[3],   20, 'clamp down value above range max');
-
-is( $space->check([1,2,3,4]),   undef, 'all values in range');
-
-my @norm = $space->normalize([0, 10, 20, 15]);
-is( int @norm,   4, 'normalized 4 into 4 values');
-is( $norm[0],    0, 'normalized first min value');
-is( $norm[1],    0.5, 'normalized second mid value');
-is( $norm[2],    1,   'normalized third max value');
-is( $norm[3],    0.75, 'normalized fourth value');
+my $norm = $space->normalize([0, 10, 20, 15]);
+is( int @$norm,   4, 'normalized 4 into 4 values');
+is( $norm->[0],    0, 'normalized first min value');
+is( $norm->[1],    0.5, 'normalized second mid value');
+is( $norm->[2],    1,   'normalized third max value');
+is( $norm->[3],    0.75, 'normalized fourth value');
 
 exit 0;

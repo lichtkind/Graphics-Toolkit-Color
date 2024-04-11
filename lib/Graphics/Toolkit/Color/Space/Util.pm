@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Util;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/round rmod min max apply_d65 remove_d65 mult_matrix close_enough/;
+our @EXPORT_OK = qw/round pround rmod min max apply_d65 remove_d65 mult_matrix close_enough is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half      = 0.50000000000008;
@@ -17,10 +17,21 @@ sub round {
                : int ($_[0] - $half)
 }
 
+sub pround {
+    my ($nr, $precision) = @_;
+    return round( $nr ) unless defined $precision and $precision;
+    $precision = 10 ** $precision;
+    round( $nr * $precision ) / $precision;
+}
+sub close_enough { abs($_[0] - $_[1]) < 0.008 if defined $_[1]}
+
+
 sub rmod { # real value modulo
     return 0 unless defined $_[1] and $_[1];
     $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }
+
+sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
 
 sub max {
     my $v = shift;
@@ -46,7 +57,6 @@ sub mult_matrix {
            ($v1 * $mat->[0][2] + $v2 * $mat->[1][2] + $v3 * $mat->[2][2]) ;
 }
 
-sub close_enough { abs($_[0] - $_[1]) < 0.008 if defined $_[1]}
 
 1;
 

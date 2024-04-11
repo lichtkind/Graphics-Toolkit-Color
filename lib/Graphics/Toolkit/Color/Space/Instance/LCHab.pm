@@ -9,7 +9,8 @@ use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
 my  $hcl_def = Graphics::Toolkit::Color::Space->new(prefix => 'CIE', name => 'LCHab', 
                                                       axis => [qw/luminance croma hue/],
-                                                     range => [0.95047, 1, 1.08883] );
+                                                     short => [qw/luminance croma hue/],
+                                                     range => [0,100,'r'], 1, 1.08883] );
 
     $hcl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
@@ -31,7 +32,15 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($x, $y, $z) = @_;
+    my ($l, $a, $b) = @_;
+    my $y = ($l + 16) / 116;
+    my $x = ($a / 500) + $y;
+    my $z = $y - ($b / 200);
+    $x = ($x**3 > 0.008856) ? ($x ** 3) : (($x - 0.137931034) / 7.7870689);
+    $y = ($y**3 > 0.008856) ? ($y ** 3) : (($y - 0.137931034) / 7.7870689);
+    $z = ($z**3 > 0.008856) ? ($z ** 3) : (($z - 0.137931034) / 7.7870689);
+    $x *= 0.95047;
+    $z *= 0.108883;
     my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
                                    [-1.5371385,  1.8760108, -0.2040259],
                                    [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);

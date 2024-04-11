@@ -7,9 +7,8 @@ package Graphics::Toolkit::Color::Space::Instance::LAB;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( axis => [qw/L* a* b*/], # 
-                                                   prefix => 'CIE',
-                                                    range => [[0, 100, 'r'], [-500, 500, 'r'], [-200, 200, 'r']] );
+my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', axis => [qw/L* a* b*/], # 
+                                                     range => [[0, 100, 'r'], [-500, 500, 'r'], [-200, 200, 'r']] );
 
     $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
@@ -40,11 +39,11 @@ sub to_rgb {
     $z = ($z**3 > 0.008856) ? ($z ** 3) : (($z - 0.137931034) / 7.7870689);
     $x *= 0.95047;
     $z *= 0.108883;
-    my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
-                                   [-1.5371385,  1.8760108, -0.2040259],
-                                   [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
+    my ($r, $g, $bl) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
+                                    [-1.5371385,  1.8760108, -0.2040259],
+                                    [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
 
-    return ( remove_d65($r), remove_d65($g), remove_d65($b));
+    return ( remove_d65($r), remove_d65($g), remove_d65($bl));
 }
 
 $lab_def;

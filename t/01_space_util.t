@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 24;
+use Test::More tests => 34;
 use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -16,8 +16,21 @@ is( $round->(0.5),           1,     'round 0.5 upward');
 is( $round->(0.500000001),   1,     'everything above 0.5 gets also increased');
 is( $round->(0.4999999),     0,     'everything below 0.5 gets smaller');
 is( $round->(-0.5),         -1,     'round -0.5 downward');
-is( $round->(-0.500000001), -1,     'everything beow -0.5 gets also lowered');
+is( $round->(-0.500000001), -1,     'everything below -0.5 gets also lowered');
 is( $round->(-0.4999999),    0,     'everything upward from -0.5 gets increased');
+is( $round->( 1.4999999),    1,     'positive rounding works above 1');
+is( $round->(-1.4999999),   -1,     'negative rounding works below 1');
+
+my $r2 = \&Graphics::Toolkit::Color::Space::Util::pround;
+is( $r2->( 1.4999999),    1,     'positive rounding works above 1 with round 2');
+is( $r2->(-1.4999999),   -1,     'negative rounding works below 1 with round 2');
+is( $r2->( 1.4999999, 0),    1,  'positive rounding with no decimals');
+is( $r2->(-1.4999999, 0),   -1,  'negative rounding with no decimals');
+is( $r2->( 1.4999999, 1),  1.5,  'positive rounding with one decimal');
+is( $r2->(-1.4999999, 1), -1.5,  'negative rounding with one decimal');
+is( $r2->( 1.4999999, 2),  1.5,  'positive rounding with one decimal');
+is( $r2->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
+
 
 my $rmod = \&Graphics::Toolkit::Color::Space::Util::rmod;
 my $close = \&Graphics::Toolkit::Color::Space::Util::close_enough;

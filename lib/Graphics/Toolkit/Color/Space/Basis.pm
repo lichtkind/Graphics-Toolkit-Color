@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my ($pkg, $axis_names, $axis_shortcuts, $space_name, $space_prefix) = @_;
+    my ($pkg, $axis_names, $axis_shortcuts, $space_prefix, $space_name ) = @_;
     return unless ref $axis_names eq 'ARRAY';
     return if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_names != @$axis_shortcuts);
     my @keys      = map {lc} @$axis_names;

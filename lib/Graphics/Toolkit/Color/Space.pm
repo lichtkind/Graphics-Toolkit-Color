@@ -10,10 +10,10 @@ use Graphics::Toolkit::Color::Space::Shape;
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'prefix'} );
-    return unless ref $basis;
-    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'range'}, $args{'type'} );
-    return unless ref $shape;
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'}, $args{'name'} );
+    return $basis unless ref $basis;
+    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'}, $args{'suffix'} );
+    return $shape unless ref $shape;
 
     # which formats the constructor will accept, that can be deconverted into list
     my %deformats = ( hash => sub { $basis->list_from_hash(@_)   if $basis->is_hash(@_) },
@@ -43,11 +43,11 @@ sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ?
 ########################################################################
 
 sub delta             { shift->{'shape'}->delta( @_ ) }          # @values -- @vector, @vector --> |@vector # on normalize values
-sub check             { shift->{'shape'}->check( @_ ) }          # @values -- @range           -->  ?       # pos if carp
+sub in_range          { shift->{'shape'}->in_range( @_ ) }       # @values -- @range           --> |!~      # errmsg
 sub clamp             { shift->{'shape'}->clamp( @_ ) }          # @values -- @range           --> |@vector
 sub normalize         { shift->{'shape'}->normalize(@_)}         # @values -- @range           --> |@vector
 sub denormalize       { shift->{'shape'}->denormalize(@_)}       # @values -- @range           --> |@vector
-sub denormalize_range { shift->{'shape'}->denormalize_range(@_)} # @values -- @range           --> |@vector
+sub denormalize_delta { shift->{'shape'}->denormalize_delta(@_)} # @values -- @range           --> |@vector
 
 ########################################################################
 

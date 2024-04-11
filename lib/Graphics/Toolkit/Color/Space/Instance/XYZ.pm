@@ -7,9 +7,10 @@ package Graphics::Toolkit::Color::Space::Instance::XYZ;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $xyz_def = Graphics::Toolkit::Color::Space->new( axis => [qw/X Y Z/], #
-                                                   prefix => 'CIE',
-                                                    range => [0.95047, 1, 1.08883] );
+my  $xyz_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', 
+                                                       axis => [qw/X Y Z/],
+                                                      range => [0.95047, 1, 1.08883],
+                                                  precision => 3, );
 
     $xyz_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

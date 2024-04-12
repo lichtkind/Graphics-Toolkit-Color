@@ -38,51 +38,51 @@ is( ref $c, 'CODE', 'formatter code accepted');
 is( $space->has_format('str'),   1, 'formatter inserted');
 is( $space->format([1,2,3,4], 'str'),     '1234', 'inserted formatter works');
 
-my @fval = $space->deformat({a => 1, b => 2, c => 3, d => 4});
-is( int @fval,   4, 'deformatter recognized char hash');
-is( $fval[0],    1, 'first value correctly deformatted');
-is( $fval[1],    2, 'second value correctly deformatted');
-is( $fval[2],    3, 'third value correctly deformatted');
-is( $fval[3],    4, 'fourth value correctly deformatted');
+my $fval = $space->deformat({a => 1, b => 2, c => 3, d => 4});
+is( int @$fval,    4, 'deformatter recognized char hash');
+is( $fval->[0],    1, 'first value correctly deformatted');
+is( $fval->[1],    2, 'second value correctly deformatted');
+is( $fval->[2],    3, 'third value correctly deformatted');
+is( $fval->[3],    4, 'fourth value correctly deformatted');
 
-@fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, ddd => 4});
-is( int @fval,   4, 'deformatter recognized hash');
-is( $fval[0],    1, 'first value correctly deformatted');
-is( $fval[1],    2, 'second value correctly deformatted');
-is( $fval[2],    3, 'third value correctly deformatted');
-is( $fval[3],    4, 'fourth value correctly deformatted');
+$fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, ddd => 4});
+is( int @$fval,   4, 'deformatter recognized hash');
+is( $fval->[0],    1, 'first value correctly deformatted');
+is( $fval->[1],    2, 'second value correctly deformatted');
+is( $fval->[2],    3, 'third value correctly deformatted');
+is( $fval->[3],    4, 'fourth value correctly deformatted');
 
-@fval = $space->deformat({a => 1, b => 2, c => 3, e => 4});
-is( $fval[0],  undef, 'char hash with bad key got ignored');
-@fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, dd => 4});
-is( $fval[0],  undef, 'char hash with bad key got ignored');
+$fval = $space->deformat({a => 1, b => 2, c => 3, e => 4});
+is( $fval,  undef, 'char hash with bad key got ignored');
+$fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, dd => 4});
+is( $fval,  undef, 'char hash with bad key got ignored');
 
 my $dc = $space->add_deformatter('str', sub { split ':', $_[0] });
 is( ref $dc, 'CODE', 'deformatter code accepted');
-@fval = $space->deformat('1:2:3:4');
-is( int @fval,  4, 'self made deformatter recognized str');
-is( $fval[0],    1, 'first value correctly deformatted');
-is( $fval[1],    2, 'second value correctly deformatted');
-is( $fval[2],    3, 'third value correctly deformatted');
-is( $fval[3],    4, 'fourth value correctly deformatted');
+$fval = $space->deformat('1:2:3:4');
+is( int @$fval,  4, 'self made deformatter recognized str');
+is( $fval->[0],  1, 'first value correctly deformatted');
+is( $fval->[1],  2, 'second value correctly deformatted');
+is( $fval->[2],  3, 'third value correctly deformatted');
+is( $fval->[3],  4, 'fourth value correctly deformatted');
 
 is( $space->can_convert('XYZ'),   0, 'converter not yet inserted');
 my $h = $space->add_converter('XYZ', sub { $_[0]+1, $_[1]+1, $_[2]+1, $_[3]+1},
                                      sub { $_[0]-1, $_[1]-1, $_[2]-1, $_[3]-1} );
 is( ref $h, 'HASH', 'converter code accepted');
 is( $space->can_convert('XYZ'),   1, 'converter inserted');
-my @val = $space->convert([1,2,3,4], 'XYZ');
-is( int @val,   4, 'converter did something');
-is( $val[0],    2, 'first value correctly converted');
-is( $val[1],    3, 'second value correctly converted');
-is( $val[2],    4, 'third value correctly converted');
-is( $val[3],    5, 'fourth value correctly converted');
-@val = $space->deconvert([2,3,4,5], 'xyz');
-is( int @val,   4, 'deconverter did something even if space spelled in lower case');
-is( $val[0],    1, 'first value correctly deconverted');
-is( $val[1],    2, 'second value correctly deconverted');
-is( $val[2],    3, 'third value correctly deconverted');
-is( $val[3],    4, 'fourth value correctly deconverted');
+my $val = $space->convert([1,2,3,4], 'XYZ');
+is( int @$val,   4, 'converter did something');
+is( $val->[0],    2, 'first value correctly converted');
+is( $val->[1],    3, 'second value correctly converted');
+is( $val->[2],    4, 'third value correctly converted');
+is( $val->[3],    5, 'fourth value correctly converted');
+$val = $space->deconvert([2,3,4,5], 'xyz');
+is( int @$val,   4, 'deconverter did something even if space spelled in lower case');
+is( $val->[0],    1, 'first value correctly deconverted');
+is( $val->[1],    2, 'second value correctly deconverted');
+is( $val->[2],    3, 'third value correctly deconverted');
+is( $val->[3],    4, 'fourth value correctly deconverted');
 
 
 my $d = $space->delta([2,3,4,5], [1,5,1,1] );

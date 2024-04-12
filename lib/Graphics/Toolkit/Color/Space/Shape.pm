@@ -104,7 +104,7 @@ sub delta { # values have to be normalized
             $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->iterator ];
 }
 
-sub in_range {
+sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
     return 'color value vector in '.$self->basis->name.' needs '.$self->basis->count.' values'
         unless $self->basis->is_array( $values );

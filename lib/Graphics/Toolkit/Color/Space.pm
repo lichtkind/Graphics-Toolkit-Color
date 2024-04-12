@@ -73,7 +73,7 @@ sub deformat {
     return undef unless defined $values;
     for my $deformatter (values %{$self->{'deformat'}}){
         my @values = $deformatter->($values);
-        return @values if @values == $self->dimensions;
+        return \@values if @values == $self->dimensions;
     }
     return undef;
 }
@@ -88,14 +88,14 @@ sub add_converter {
 }
 sub convert {
     my ($self, $values, $space_name) = @_;
-    return unless $self->{'basis'}->is_array( $values ) and defined $space_name;
-    $self->{'convert'}{ uc $space_name }{'to'}->(@$values) if $self->can_convert( $space_name );
+    return unless $self->{'basis'}->is_array( $values ) and defined $space_name and $self->can_convert( $space_name );
+    return [$self->{'convert'}{ uc $space_name }{'to'}->(@$values)];
 }
 
 sub deconvert {
     my ($self, $values, $space_name) = @_;
-    return unless ref $values eq 'ARRAY' and defined $space_name;
-    $self->{'convert'}{ uc $space_name }{'from'}->(@$values) if $self->can_convert( $space_name );
+    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
+    return [ $self->{'convert'}{ uc $space_name }{'from'}->(@$values) ];
 }
 
 1;

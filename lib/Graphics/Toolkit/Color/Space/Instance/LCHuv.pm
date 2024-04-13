@@ -7,7 +7,6 @@ package Graphics::Toolkit::Color::Space::Instance::LCHuv;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', name => 'LCHuv',
                                                        axis => [qw/luminance croma hue/],
                                                       range => [0.95047, 1, 1.08883] );

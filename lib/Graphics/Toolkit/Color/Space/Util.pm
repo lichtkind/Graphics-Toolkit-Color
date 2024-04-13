@@ -35,13 +35,13 @@ sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
 
 sub max {
     my $v = shift;
-    for (@_) { $v = $_ if $v < $_ }
+    for (@_) { next unless defined $_; $v = $_ if $v < $_ }
     $v;
 }
 
 sub min {
     my $v = shift;
-    for (@_) { $v = $_ if $v > $_ }
+    for (@_) { next unless defined $_; $v = $_ if $v > $_ }
     $v;
 }
 

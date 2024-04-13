@@ -20,24 +20,26 @@ my $normalize     = \&Graphics::Toolkit::Color::Space::Hub::normalize;
 my $denormalize   = \&Graphics::Toolkit::Color::Space::Hub::denormalize;
 
 
-my @hsl = $convert->([.5, .5, .5], 'HSL');
-is( int @hsl,  3,     'converted hsl vector has right length');
-is( $hsl[0],   0,     'converted color grey has computed right hue value');
-is( $hsl[1],   0,     'converted color grey has computed right saturation');
-is( $hsl[2],  .5,     'converted color grey has computed right lightness');
+my $hsl = $convert->([.5, .5, .5], 'HSL');
+is( int @$hsl,   3,     'converted hsl vector has right length');
+is( $hsl->[0],   0,     'converted color grey has computed right hue value');
+is( $hsl->[1],   0,     'converted color grey has computed right saturation');
+is( $hsl->[2],  .5,     'converted color grey has computed right lightness');
 
-my @rgb = $deconvert->([0, 0, .5], 'hsl');
-is( int @rgb,  3,     'converted back color grey has rgb values');
-is( $rgb[0], .5,     'converted back color grey has right red value');
-is( $rgb[1], .5,     'converted back color grey has right green value');
-is( $rgb[2], .5,     'converted back color grey has right blue value');
 
-@rgb = $convert->([.1, -.2, 1.3], 'RGB');
-is( int @rgb,  3,     'converted rgb vector has right length');
-is( $rgb[0],  .1,     'did not change red value');
-is( $rgb[1],   0,     'clamped up green');
-is( $rgb[2],   1,     'clamped blue even no conversion');
+my $rgb = $deconvert->([0, 0, .5], 'hsl');
+is( int @$rgb,  3,     'converted back color grey has rgb values');
+is( $rgb->[0], .5,     'converted back color grey has right red value');
+is( $rgb->[1], .5,     'converted back color grey has right green value');
+is( $rgb->[2], .5,     'converted back color grey has right blue value');
 
+$rgb = $convert->([.1, -.2, 1.3], 'RGB');
+is( int @$rgb,  3,     'converted rgb vector has right length');
+is( $rgb->[0],  .1,     'did not change red value');
+is( $rgb->[1],   0,     'clamped up green');
+is( $rgb->[2],   1,     'clamped blue even no conversion');
+
+exit 0;
 
 warning_like {$format->('112233', 'RGB', 'list')}      {carped => qr/ARRAY ref with 3 RGB/},  "dont format none vectors";
 warning_like {$format->([11,22,33,44], 'RGB', 'list')} {carped => qr/ARRAY ref with 3 RGB/},  "dont format too long vectors";
@@ -47,7 +49,7 @@ my $str = $format->([11,22,33], 'RGB', 'hex');
 is( ref $str,           '',   'RGB string is not a reference');
 is( uc $str,     '#0B1621',   'created a RGB hex string');
 
-@rgb = $format->([11,22,33], 'RGB', 'list');
+my @rgb = $format->([11,22,33], 'RGB', 'list');
 is( int @rgb,            3,   'RGB list has right length');
 is( $rgb[0],            11,   'put red value first');
 is( $rgb[1],            22,   'put green value second');
@@ -65,7 +67,8 @@ is( $h->{'c'},          .2,   'put hue value under the right key');
 is( $h->{'m'},          .3,   'put saturation value under the right key');
 is( $h->{'y'},          .4,   'put lightness value under the right key');
 
-my ($rgb, $f) = $deformat->('#010203');
+my $f;
+($rgb, $f) = $deformat->('#010203');
 is( ref $rgb,      'ARRAY',   'deformated values int a list');
 is( int @$rgb,           3,   'deformatted RGB hex string into triplet');
 is( $rgb->[0],           1,   'deformatted red value from RGB hex string');

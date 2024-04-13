@@ -28,7 +28,7 @@ sub _check_values_and_space {
     check_space_name( $space_name ) and return;
     my $space = get_space($space_name);
     $space->is_array( $values ) ? $space
-                                : carp 'need an ARRAY ref with '.$space->dimensions." $space_name values as first argument of $sub_name";
+                                : 'need an ARRAY ref with '.$space->dimensions." $space_name values as first argument of $sub_name";
 }
 
 ########################################################################
@@ -67,34 +67,34 @@ sub deconvert { # @... --> @RGB (base color space) # normalized values only
     my ($values, $space_name) = @_;
     my $space = _check_values_and_space( 'deconvert', $values, $space_name );
     return unless ref $space;
-    my @values = $space->clamp( $values, 'normal');
-    return @values if $space->name eq base_space->name;
-    $space->convert( \@values, $base_package);
+    $values = $space->clamp( $values, 'normal', -1);
+    return $values if $space->name eq base_space->name;
+    $space->convert( $values, $base_package);
 }
 
-sub convert { # @RGB --> @...                      # normalized values only
+sub convert { # @RGB --> $@...|!~                     # normalized values only
     my ($values, $space_name) = @_;
     my $space = _check_values_and_space( 'convert', $values, $space_name );
-    return unless ref $space;
-    my @values = base_space->clamp( $values, 'normal');
-    return @values if $space->name eq base_space->name;
-    $space->deconvert( \@values, $base_package);
+    return $space unless ref $space;
+    $values = base_space->clamp( $values, 'normal', -1);
+    return $values if $space->name eq base_space->name;
+    $space->deconvert( $values, $base_package);
 }
 
 sub denormalize { # result clamped, alway in space
     my ($values, $space_name, $range) = @_;
     my $space = _check_values_and_space( 'denormalize', $values, $space_name );
     return unless ref $space;
-    my @values = $space->clamp($values, 'normal');
-    $space->denormalize( \@values, $range);
+    $values = $space->clamp($values, 'normal');
+    $space->denormalize( $values, $range);
 }
 
 sub normalize {
     my ($values, $space_name, $range) = @_;
     my $space = _check_values_and_space( 'normalize', $values, $space_name );
     return unless ref $space;
-    my @values = $space->clamp($values, $range);
-    return unless defined $values[0];
+    $values = $space->clamp($values, $range);
+    return $values unless ref $values;
     $space->normalize( $values, $range);
 }
 

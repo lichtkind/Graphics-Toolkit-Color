@@ -85,10 +85,11 @@ sub _range { # check if range def is valid and eval (exapand) it
 }
 
 sub _precision { # check if precision def is valid and eval (exapand) it
-    my ($self, $external_precision) = @_;
+    my ($self, $external_precision, $external_range) = @_;
     return $self->{'precision'} unless defined $external_precision;
-    
-    $external_precision = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $self->{'range'}, $external_precision);
+    my $range = $self->_range($external_range);
+    return $range unless ref $range;
+    $external_precision = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $range, $external_precision);
     return (ref $external_precision) ? $external_precision->{'precision'} : undef ;
 }
 
@@ -127,7 +128,7 @@ sub clamp {
     my ($self, $values, $range, $precision) = @_;
     $range = $self->_range( $range );
     return "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;
-    $precision = $self->_precision( $precision );
+    $precision = $self->_precision( $precision, $range );
     return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
     $values = [] unless ref $values eq 'ARRAY';
     push @$values, 0 while @$values < $self->basis->count;

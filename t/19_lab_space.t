@@ -15,6 +15,19 @@ is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'CIELAB',                  'color space has right name');
 is( $def->dimensions,     3,                     'color space has 3 dimensions');
+
+
+is( ref $def->in_range([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');
+is( ref $def->in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal XYZ values');
+is( ref $def->in_range([0,0]),              '',   "XYZ got too few values");
+is( ref $def->in_range([0, 0, 0, 0]),       '',   "XYZ got too many values");
+is( ref $def->in_range([-0.1, 0, 0]),       '',   "X value is too small");
+is( ref $def->in_range([1, 0, 0]),          '',   "X value is too big");
+is( ref $def->in_range([0, -0.1, 0]),       '',   "Y value is too small");
+is( ref $def->in_range([0, 1.1, 0]),        '',   "Y value is too big");
+is( ref $def->in_range([0, 0, -.1 ] ),      '',   "Z value is too small");
+is( ref $def->in_range([0, 0, 1.2] ),       '',   "Z value is too big");
+
 is( $def->is_array([0,0,0]), 1,                  'vector has 3 elements');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $def->can_convert('RGB'), 1,                 'namespace can be written upper case');
@@ -82,18 +95,3 @@ is( close_enough($rgb[1],  0  ), 1,   'right green value');
 is( close_enough($rgb[2],  0.5), 1,   'right blue value');
 
 exit 0;
-
-
-__END__
-ok( !$def->check([0, -0.5959, -0.5227]),         'check YIO values works on lower bound values');
-ok( !$def->check([1,  0.5959,  0.5227]),         'check YIO values works on upper bound values');
-warning_like {$def->check([0,0])}        {carped => qr/needs 3 values/}, "check YIQ got too few values";
-warning_like {$def->check([0, 0, 0, 0])} {carped => qr/needs 3 values/}, "check YIQ got too many values";
-
-is( $def->check([0,0,0]),  undef,     'checked neutral values');
-warning_like {$def->check([-0.1, 0, 0])}  {carped => qr/luminance value is below/},  "luminance value is too small";
-warning_like {$def->check([ 1.1, 0,0])}  {carped => qr/luminance value is above/},   "luminance value is too big";
-warning_like {$def->check([0, -0.6, 0])}  {carped => qr/in-phase value is below/},   "whiteness value is too small";
-warning_like {$def->check([0, 0.6,0])}  {carped => qr/in-phase value is above/},     "whiteness value is too big";
-warning_like {$def->check([0,0, -0.53 ])}  {carped => qr/quadrature value is below/},"quadrature value is too small";
-warning_like {$def->check([0,0, 0.53])}  {carped => qr/quadrature value is above/},  "quadrature value is too big";

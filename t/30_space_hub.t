@@ -39,11 +39,11 @@ is( $rgb->[0],  .1,     'did not change red value');
 is( $rgb->[1],   0,     'clamped up green');
 is( $rgb->[2],   1,     'clamped blue even no conversion');
 
-exit 0;
 
-warning_like {$format->('112233', 'RGB', 'list')}      {carped => qr/ARRAY ref with 3 RGB/},  "dont format none vectors";
-warning_like {$format->([11,22,33,44], 'RGB', 'list')} {carped => qr/ARRAY ref with 3 RGB/},  "dont format too long vectors";
-warning_like {$format->([11,22], 'RGB', 'list')}       {carped => qr/ARRAY ref with 3 RGB/},  "dont format too short vectors";
+like ($format->('112233', 'RGB', 'list'),      qr/ARRAY ref with 3 RGB/,  "dont format none vectors");
+like ($format->([11,22,33,44], 'RGB', 'list'), qr/ARRAY ref with 3 RGB/,  "dont format too long vectors");
+like ($format->([11,22], 'RGB', 'list'),       qr/ARRAY ref with 3 RGB/,  "dont format too short vectors");
+exit 0;
 
 my $str = $format->([11,22,33], 'RGB', 'hex');
 is( ref $str,           '',   'RGB string is not a reference');

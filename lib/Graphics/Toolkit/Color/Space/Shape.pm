@@ -49,8 +49,9 @@ sub new {
     return 'need an ARRAY as definition of axis value precision' unless ref $precision eq 'ARRAY';
     return 'definition of axis value precision has to have same lengths as basis' unless @$precision == $basis->count;
     for my $i ($basis->iterator) {
-        $precision->[$i] = 0 if $precision->[$i] == -2 and $range->[$i][0] == int($range->[$i][0]) and $range->[$i][1] == int($range->[$i][1])
-                                                       and not ($range->[$i][0] == 0 and $range->[$i][1] == 1);
+        $precision->[$i] = 0 if $precision->[$i] == -2 and $range->[$i][0] == int($range->[$i][0]) 
+                                                       and $range->[$i][1] == int($range->[$i][1])
+                                                       and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
     }
 
     $suffix = [('') x $basis->count] unless defined $suffix;
@@ -89,8 +90,8 @@ sub _precision { # check if precision def is valid and eval (exapand) it
     return $self->{'precision'} unless defined $external_precision;
     my $range = $self->_range($external_range);
     return $range unless ref $range;
-    $external_precision = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $range, $external_precision);
-    return (ref $external_precision) ? $external_precision->{'precision'} : undef ;
+    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $range, $external_precision);
+    return (ref $shape) ? $shape->{'precision'} : undef;
 }
 
 ########################################################################

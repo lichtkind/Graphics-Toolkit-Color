@@ -3,7 +3,6 @@
 use v5.12;
 use warnings;
 use Test::More tests => 62;
-use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color qw/color/;

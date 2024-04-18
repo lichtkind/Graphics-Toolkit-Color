@@ -1,9 +1,8 @@
 #!/usr/bin/perl
- 
+
 use v5.12;
 use warnings;
 use Test::More tests => 53;
-use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSV';
@@ -82,4 +81,3 @@ is( close_enough($hsv->[1],  .83),     1, 'converted nice blue has computed righ
 is( close_enough($hsv->[2],  .24),     1, 'converted nice blue has computed right value');
 
 exit 0;
-

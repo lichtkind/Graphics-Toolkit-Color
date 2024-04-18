@@ -17,6 +17,22 @@ sub space_names { keys %{%space_lookup} }
 
 ########################################################################
 
+sub add_space {
+    my $space = shift;
+    return 'got no Graphics::Toolkit::Color::Space object' unless ref $space eq 'Graphics::Toolkit::Color::Space';
+    my $name = $space->name;
+    return "space objct has no name" unless $name;
+    return "name $name is already taken as color space name" if ref get_space( $name );
+    $space_lookup{ $name } = $space;
+}
+
+sub remove_space {
+    my $name = shift;
+    return "got no name as argument" unless defind $nam and $name;
+    return "no known color space with name $name" unless ref get_space( $name );
+    delete $space_lookup{ $name };
+}
+
 sub check_space_name {
     return unless defined $_[0];
     my $error = "called with unknown color space name '$_[0]', please try one of: " . join (', ', @space_packages);
@@ -151,11 +167,11 @@ so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
 
 =head2 CMY
 
-is the inverse of RGB but with the real value range: 0 .. 1. 
-B<cyan> (short I<c>) is the inverse value of I<red>, 
-B<magenta> (short I<m> ) is inverse to I<green> and 
-B<yellow> (short I<y>) is inverse of I<blue>. 
-Inverse meaning when a color has the maximal I<red> value, it has to 
+is the inverse of RGB but with the real value range: 0 .. 1.
+B<cyan> (short I<c>) is the inverse value of I<red>,
+B<magenta> (short I<m> ) is inverse to I<green> and
+B<yellow> (short I<y>) is inverse of I<blue>.
+Inverse meaning when a color has the maximal I<red> value, it has to
 have the minimal I<cyan> value.
 
 =head2 CMYK
@@ -166,10 +182,10 @@ which is basically the amount of black mixed into the CMY color.
 =head2 HSL
 
 has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
-and B<lightness> (0 .. 100). Hue (short I<h>) stands for a color on 
+and B<lightness> (0 .. 100). Hue (short I<h>) stands for a color on
 a rainbow: 0 = red, 15 approximates orange, 60 - yellow 120 - green,
-180 - cyan, 240 - blue, 270 - violet, 300 - magenta, 330 - pink. 
-0 and 360 points to the same coordinate. This module only outputs 0, 
+180 - cyan, 240 - blue, 270 - violet, 300 - magenta, 330 - pink.
+0 and 360 points to the same coordinate. This module only outputs 0,
 even if accepting 360 as input.
 I<saturation> (short I<s>) ranges from 0 (gray) to 100 (clearest color set by hue).
 I<lightness> (short I<l>) ranges from 0 (black) over 50 (hue or gray) to 100 (white).
@@ -204,8 +220,8 @@ B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227)
 
 =head2 CIEXYZ
 Has three real valued dimension named X, Y and Z, (short names are the same),
-which aim to reflect the chemical activity of the three type of 
-colored light receptors in the human eye. Their ranges span from zero to 
+which aim to reflect the chemical activity of the three type of
+colored light receptors in the human eye. Their ranges span from zero to
 0.95047, 1 and 1.08883.
 
 =head2 CIELAB
@@ -241,7 +257,7 @@ accepts a range decriptor as argument. If so, the following values are accepted:
     [min max 'int']   integer range from min .. max
     [min max 'real']  real number range from min .. max
 
-The whole definition has to be an ARRAY ref. Each element is the range definition 
+The whole definition has to be an ARRAY ref. Each element is the range definition
 of one dimension. If the definition is not an ARRAY but a single value it is applied
 as definition of every dimension.
 
@@ -285,9 +301,9 @@ pairs or routines about 3 essential operations of number values and their
 reversal. The full pipeline for the translation of color values is:
 
     1. deformat (into a value list)
-    2. normalize (into 0..1 range)
+    2. normalize (into 0..1 range), remove sufix
     3. convert/deconvert (into target color space)
-    4. denormalize (into target range)
+    4. denormalize (into target range), add suffix
     5. format (into target format)
 
 

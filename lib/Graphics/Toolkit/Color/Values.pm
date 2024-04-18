@@ -15,10 +15,10 @@ sub new {
     my $std_space = Graphics::Toolkit::Color::Space::Hub::base_space();
     my $self = {};
     $self->{'origin'} = $space->name;
-    $values = [$space->clamp( $values )];
-    $values = [$space->normalize( $values )];
+    $values = $space->clamp( $values );
+    $values = $space->normalize( $values );
     $self->{$space->name} = $values;
-    $self->{$std_space->name} = [$space->convert($values, $std_space->name)] if $space ne $std_space;
+    $self->{$std_space->name} = $space->convert($values, $std_space->name) if $space ne $std_space;
     bless $self;
 }
 
@@ -30,8 +30,8 @@ sub get { # get a value tuple in any color space, range and format
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     my $values = (exists $self->{$space->name})
                ? $self->{$space->name}
-               : [$space->deconvert( $self->{$std_space_name}, $std_space_name)];
-    $values = [ $space->denormalize( $values, $range_def) ];
+               : $space->deconvert( $self->{$std_space_name}, $std_space_name);
+    $values = $space->denormalize( $values, $range_def);
     Graphics::Toolkit::Color::Space::Hub::format( $values, $space_name, $format_name);
 }
 sub string { $_[0]->get( $_[0]->{'origin'}, 'string' ) }
@@ -84,10 +84,10 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my @values1 = $self->get( $space_name, 'list', 'normal' );
     my @values2 = $c2->get( $space_name, 'list', 'normal' );
     return unless defined $values1[0] and defined $values2[0];
-    my @delta = $space->delta( \@values1, \@values2 );
+    my $delta = $space->delta( \@values1, \@values2 );
 
-    @delta = $space->denormalize_range( \@delta, $range);
-    return unless defined $delta[0] and @delta == $space->dimensions;
+    $delta = $space->denormalize_range( $delta, $range);
+    return unless ref $delta and @$delta == $space->dimensions;
 
     # grep values for individual select / subspace distance
     if (defined $select and $select){
@@ -98,13 +98,12 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
                     : (map  { $space->basis->shortcut_pos($_) }
                        grep { defined $space->basis->shortcut_pos($_) } @components);
         return - carp "called 'distance' for select $select that does not fit color space $space_name!" unless @components;
-        @delta = map { $delta [$_] } @components;
+        $delta = [ map { $delta->[$_] } @components ];
     }
 
     # Euclidean distance:
-    @delta = map {$_ * $_} @delta;
     my $d = 0;
-    for (@delta) {$d += $_}
+    map {$d += ($_ * $_)} @$delta;
     return sqrt $d;
 }
 

@@ -6,9 +6,9 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my ($pkg, $axis_names, $axis_shortcuts, $space_prefix, $space_name ) = @_;
-    return unless ref $axis_names eq 'ARRAY';
-    return if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_names != @$axis_shortcuts);
+    my ($pkg, $axis_names, $axis_shortcuts, $space_prefix, $space_name, $suffix ) = @_;
+    return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_names eq 'ARRAY';
+    return 'amount of shortcut names have to match that of full names' if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_names != @$axis_shortcuts);
     my @keys      = map {lc} @$axis_names;
     my @shortcuts = map { _color_key_shortcut($_) } (defined $axis_shortcuts) ? @$axis_shortcuts : @keys;
     return unless @keys > 0;
@@ -18,13 +18,19 @@ sub new {
     my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
     my $name = $space_name // uc join('', @shortcuts);
     $name = $space_prefix.$name if defined $space_prefix and $space_prefix;
-    bless { keys => [@keys], shortcuts => [@shortcuts],
+    my $count = int @keys;
+    $suffix = [('') x $count] unless defined $suffix;
+    $suffix = [($suffix) x $count] unless ref $suffix;
+    return 'need an ARRAY as definition of axis value suffix' unless ref $suffix eq 'ARRAY';
+    return 'definition of axis value suffix has to have same lengths as basis' unless @$suffix == $count;
+
+    bless { axis_names => [@keys], axis_short => [@shortcuts],
             key_order => \%key_order, shortcut_order => \%shortcut_order,
-            name => $name, count => int @keys, iterator => \@iterator }
+            name => $name, count => $count, iterator => \@iterator, suffix => $suffix }
 }
 
-sub keys     { @{$_[0]{'keys'}} }
-sub shortcuts{ @{$_[0]{'shortcuts'}} }
+sub keys     { @{$_[0]{'axis_names'}} }     # axis full names
+sub shortcuts{ @{$_[0]{'axis_short'}} }
 sub iterator { @{$_[0]{'iterator'}} }
 sub count    {   $_[0]{'count'} }
 sub name     {   $_[0]{'name'} }
@@ -34,7 +40,7 @@ sub shortcut_pos {  defined $_[1] ? $_[0]->{'shortcut_order'}{ lc $_[1] } : unde
 sub is_key       { (defined $_[1] and exists $_[0]->{'key_order'}{ lc $_[1] }) ? 1 : 0 }
 sub is_shortcut  { (defined $_[1] and exists $_[0]->{'shortcut_order'}{ lc $_[1] }) ? 1 : 0 }
 sub is_key_or_shortcut { $_[0]->is_key($_[1]) or $_[0]->is_shortcut($_[1]) }
-sub is_string {
+sub is_string { #
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
     $string = lc $string;
@@ -80,6 +86,27 @@ sub is_partial_hash {
         return 0 unless $self->is_key_or_shortcut($_);
     }
     return 1;
+}
+
+########################################################################
+
+sub add_suffix {
+    my ($self, $values, $suffix) = @_;
+    return unless $self->is_array( $values );
+    $suffix //= $self->{'suffix'};
+    $suffix = [($suffix) x $self->count] unless ref $suffix;
+    [ map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) ne $self->{'suffix'}[$_])
+                  ? $values->[$_] . $self->{'suffix'}[$_] : $values->[$_] } $self->iterator ];
+}
+
+sub remove_suffix {
+    my ($self, $values, $suffix) = @_;
+    return unless $self->is_array( $values );
+    $suffix //= $self->{'suffix'};
+    $suffix = [($suffix) x $self->count] unless ref $suffix;
+    [ map { ($self->{'suffix'}[$_] and
+             substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
+          ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_]))) : $values->[$_] } $self->iterator ];
 }
 
 ########################################################################
@@ -135,26 +162,26 @@ sub deformat_partial_hash {
 sub list_from_string {
     my ($self, $string) = @_;
     my @parts = split(/:/, $string);
-    return map {$_ + 0} split(/,/, $parts[1]);
+    return split(/,/, $parts[1]);
 }
 
 sub list_from_css {
     my ($self, $string) = @_;
     1 until chop($string) eq ')';
     my @parts = split(/\(/, $string);
-    return map {$_ + 0} split(/,/, $parts[1]);
+    return split(/,/, $parts[1]);
 }
 
 sub key_hash_from_list {
     my ($self, @values) = @_;
     return unless @values == $self->{'count'};
-    return { map { $self->{'keys'}[$_] => $values[$_]} @{$self->{'iterator'}} };
+    return { map { $self->{'axis_names'}[$_] => $values[$_]} @{$self->{'iterator'}} };
 }
 
 sub shortcut_hash_from_list {
     my ($self, @values) = @_;
     return unless @values == $self->{'count'};
-    return { map {$self->{'shortcuts'}[$_] => $values[$_]} @{$self->{'iterator'}} };
+    return { map {$self->{'axis_short'}[$_] => $values[$_]} @{$self->{'iterator'}} };
 }
 
 sub named_array_from_list {

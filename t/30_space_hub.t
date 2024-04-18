@@ -3,7 +3,6 @@
 use v5.12;
 use warnings;
 use Test::More tests => 106;
-use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
@@ -184,4 +183,3 @@ is( $hsl_n[1],            .2,  'saturation value clamped up');
 is( $hsl_n[2],             0,  'lightness value is correct');
 
 exit 0;
-

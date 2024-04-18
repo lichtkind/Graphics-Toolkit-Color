@@ -3,7 +3,6 @@
 use v5.12;
 use warnings;
 use Test::More tests => 37;
-use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
@@ -62,4 +61,3 @@ is( $rgb->[2],   0,     'right blue value');
 
 
 exit 0;
-

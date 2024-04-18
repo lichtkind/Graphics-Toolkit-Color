@@ -3,7 +3,6 @@
 use v5.12;
 use warnings;
 use Test::More tests => 34;
-use Test::Warn;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Util';
@@ -51,9 +50,9 @@ is( $close->($rmod->(15.3, 4), 3.3), 1,     'real mod with different values');
 my $min = \&Graphics::Toolkit::Color::Space::Util::min;
 my $max = \&Graphics::Toolkit::Color::Space::Util::max;
 
-is( $min->(1,2,3),     1  ,     'simple minimum');
-is( $min->(-1.1,2,3), -1.1,     'negative minimum');
-is( $max->(1,2,3),       3,           'simple maximum');
-is( $max->(-1,2,10E3), 10000,   'any syntax maximum');
+is( $min->(1,2,3),       1  ,        'simple minimum');
+is( $min->(-1.1,2,3),   -1.1,        'negative minimum');
+is( $max->(1,2,3),         3,        'simple maximum');
+is( $max->(-1,2,10E3), 10000,        'any syntax maximum');
 
 exit 0;

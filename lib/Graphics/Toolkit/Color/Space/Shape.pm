@@ -96,7 +96,7 @@ sub delta { # values have to be normalized
     return unless $self->basis->is_array( $values1 ) and $self->basis->is_array( $values2 );
     # ignore none numeric dimensions
     my @delta = map { $self->axis_is_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->iterator;
-    [ map { $self->{'type'}[$_] ? $delta[$_]     :                                      # adapt to circular dimensions
+    [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
             $delta[$_] < -0.5 ? ($delta[$_]+1) :
             $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->iterator ];
 }
@@ -167,11 +167,13 @@ sub denormalize {
 }
 
 sub denormalize_delta {
-    my ($self, $values, $range) = @_;
-    return unless $self->basis->is_array( $values );
+    my ($self, $delta_values, $range) = @_;
+    return unless $self->basis->is_array( $delta_values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
-    [ map { ($self->axis_is_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0])) : $values->[$_]} $self->basis->iterator ];
+    [ map { ($self->axis_is_numeric( $_ ))
+             ? ($delta_values->[$_] * ($range->[$_][1]-$range->[$_][0]))
+             :  $delta_values->[$_]                                       } $self->basis->iterator ];
 }
 
 sub round {
@@ -194,71 +196,70 @@ Graphics::Toolkit::Color::Space::Shape - color space helper for value vectors
 
 =head1 SYNOPSIS
 
-Color spaces are objects( instances ) of this class, who provide property
-details via the constructor and formatter and converters via CODE ref.
+This is for internal usage only, see L<Graphics::Toolkit::Color::Space>.
 
-    use Graphics::Toolkit::Color::Space;
-
-    my  $def = Graphics::Toolkit::Color::Space::Shape->new( $basis, $type, $range, $precision);
-
-    $def->add_converter('RGB', \&to_rgb, \&from_rgb );
-    $def->add_formatter(   'name',   sub {...} );
-    $def->add_deformatter( 'name',   sub {...} );
-
+    use Graphics::Toolkit::Color::Space::Shape;
+    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $type, $range, $precision);
+    $shape->delta( $values1, $values2 );
+    $shape->in_range( $values, $range, $precision );
+    $shape->clamp( $values, $range, $precision );
+    $shape->normalize( $values, $range );
+    $shape->denormalize( $values, $range, $precision );
+    $shape->round( $values, $precision );
 
 =head1 DESCRIPTION
 
-This package provides the API for color space authors.
-The module is supposed to be used by L<Graphics::Toolkit::Color::Space::Hub>
-and L<Graphics::Toolkit::Color::Values> and not directly, thus it exports
-no symbols and has a much less DWIM API then the main module.
+This package provides a core class that encapsulates the most basic
+color value handling functions in a color space. The arguments I<$range>
+and I<$precision> are optional and default to the values set while
+construction of the color space (inside the
+Graphics::Toolkit::Color::Space::Instance::* packages).
 
 =head1 METHODS
 
 =head2 new
 
-The constructor takes five named arguments. Only I<axis>, which takes
-an ARRAY ref with the names of the axis, is required. The first letter
-of each axis name becomes the name shortcut for each axis, unless
-separate shortcut names are provided under the named argument I<short>.
-The name of a color space is derived from the combined axis shortcuts.
-If that would lead to an already taken name, you can provide an additional
-I<prefix>, which will pasted in front of the space name.
+The constructor takes 4 positional arguments.
 
-Under the argument I<range> you can set the limits of each dimension.
-If none are provided, normal ranges (0 .. 1) are assumed. One number
-is understood as the upper limit of all dimensions and the lower bound
-being zero. An ARRAY ref with two number set the lower and upper bound of
-each dimension, but you can also provide an ARRAY ref filled with numbers
-or ARRAY ref defining the bounds for each dimension. If no argument under
-the name L<type> is provided, then all dimensions will be I<linear> (Euclidean).
-But you might want to change that for some to I<circular> or I<angular>
-which both means that this dimension is not measured in length but
-with an angle from the origin.
+    I<$basis> is an L<Graphics::Toolkit::Color::Space::Basis> object.
+    We need mostly needed to know the right size of a color value vector.
 
-=head2 delta
+    I<$type> are the axis types of this space: I<circular>, I<linear> or
+    I<no> (not arithmetic) as set by the values 0, 1 and 2.
 
-Takes three arguments:
+    default I<$range> of this space.
 
-1. A name of a space the values will be converter from and to
-(usually just 'RGB').
-
-2. & 3. Two CODE refs of the actual converter methods, which have to take
-the normalized values as a list and return normalized values as a list.
-The first CODE converts to the named (by first argument) space and
-the second from the named into the name space the objects implements.
+    default I<$precision> of this space.
 
 =head2 in_range
 
-
+Check if a color value vector (first arg) is inside a given range
+(optional second arg) having the needed precision (optional third arg).
+Vector ARRAY ref if yes and error message if no.
 
 =head2 clamp
 
+Clamp a color value vector (first arg) into the given range
+(optional second arg) and with given precision (optional third arg).
+Does this for every numeric axis.
+
 =head2 normalize
+
+Compute color value vector (first arg) into normal range of 0 .. 1 if axis
+is numeric.
 
 =head2 denormalize
 
+Reverse of I<normalize>, optional second arg is the range.
+
 =head2 denormalize_delta
+
+I<denormalize> for results of I<delta>.
+
+=head2 delta
+
+Difference between two normalized color value vectors. Its zero when exis
+is none arithmetic and is more than simple difference in circular dimensions.
 
 =head1 COPYRIGHT & LICENSE
 

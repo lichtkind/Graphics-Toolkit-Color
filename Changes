@@ -1,10 +1,11 @@
 
-1.8     2024-04-12    lichtkind
+1.8     2024-04-22    lichtkind
 -------
     * = mid level feature release
     * * added color space support: XYZ LAB LUV HCL LCH
     * + extended range definitions with explicit type names
     * ? added documentation for color space object and missing formats
+    * & removed Carp and Test::Warn as dependencies
     * & moved color set function into own package
     * ~ default space of methods 'distance', 'blend' and 'gradient'
         went from HSL to RGB, consistent with Space::Hub defaults (complement has to be HSL)

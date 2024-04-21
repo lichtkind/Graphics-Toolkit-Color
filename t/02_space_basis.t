@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 153;
+use Test::More tests => 117;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -106,7 +106,6 @@ is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'gimel'},  3,    'right value unde
 is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'daleth'}, 4,    'right value under "daleth" key in the converted hash');
 is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'he'},     5,    'right value under "he" key in the converted hash');
 is( int keys %{$s5d->long_hash_from_tuple([1,2,3,4,5])}, 5,    'right amount of shortcut keys');
-exit 0;
 
 my $tuple = $s5d->tuple_from_hash( {aleph => 1, beth => 2, gimel => 3, daleth => 4, he => 5} );
 is( ref $tuple,  'ARRAY', 'got ARRAY ref from method tuple_from_hash');
@@ -119,37 +118,39 @@ is( $tuple->[4],   5, 'fifth extracted value is correct');
 $tuple = $s5d->tuple_from_hash( {aleph => 1, beth => 2, O => 3, daleth => 4, y => 5} );
 is( ref $tuple,  '', 'no values extraced because one key was wrong');
 
-is( $s3d->list_value_from_key('alpha', 1,2,3), 1,   'got correct first value from list by key');
-is( $s3d->list_value_from_key('beta', 1,2,3),  2,   'got correct second value from list by key');
-is( $s3d->list_value_from_key('gamma', 1,2,3), 3,   'got correct third value from list by key');
-is( $s3d->list_value_from_key('he', 1,2,3), undef,  'get undef when asking with unknown key');
-is( $s3d->list_value_from_key('alpha', 1,2), undef, 'get undef when giving not enough values');
+is( $s3d->select_tuple_value_from_name('alpha', [1,2,3]), 1,   'got correct first value from list by key');
+is( $s3d->select_tuple_value_from_name('beta',  [1,2,3]), 2,   'got correct second value from list by key');
+is( $s3d->select_tuple_value_from_name('gamma', [1,2,3]), 3,   'got correct third value from list by key');
+is( $s3d->select_tuple_value_from_name('he',    [1,2,3]), undef, 'get undef when asking with unknown key');
+is( $s3d->select_tuple_value_from_name('alpha', [1,2  ]), undef, 'get undef when giving not enough values');
 
-is( $s3d->list_value_from_shortcut('a', 1,2,3), 1,       'got correct first value from list by shortcut');
-is( $s3d->list_value_from_shortcut('b', 1,2,3), 2,       'got correct second value from list by shortcut');
-is( $s3d->list_value_from_shortcut('g', 1,2,3), 3,       'got correct third value from list by shortcut');
-is( $s3d->list_value_from_shortcut('h', 1,2,3), undef,   'get undef when asking with unknown key');
-is( $s3d->list_value_from_key('a ', 1,2), undef,         'get undef when giving not enough values');
-exit 0;
+is( $s3d->select_tuple_value_from_name('a', [1,2,3]), 1,       'got correct first value from list by shortcut');
+is( $s3d->select_tuple_value_from_name('b', [1,2,3]), 2,       'got correct second value from list by shortcut');
+is( $s3d->select_tuple_value_from_name('g', [1,2,3]), 3,       'got correct third value from list by shortcut');
+is( $s3d->select_tuple_value_from_name('h', [1,2,3]), undef,   'get undef when asking with unknown key');
+is( $s3d->select_tuple_value_from_name('a ',[1,2  ]), undef,         'get undef when giving not enough values');
 
 
-is( $s3d->deformat_partial_hash(),   undef,       'partial deformat needs an HASH');
-is( $s3d->deformat_partial_hash({}), undef,       'partial deformat needs an not empty HASH');
-is( $s3d->deformat_partial_hash({a=>1,b=>1,g=>1,k=>1}), undef,       'partial HASH is too long');
-is( ref $s3d->deformat_partial_hash({a=>1,b=>2,g=>3}), 'HASH',       'partial HASH has all the keys');
-my $ph = $s3d->deformat_partial_hash({Alpha=>1,b=>2,g=>3});
+is( ref $s3d->pos_hash_from_partial_hash(),   '',       'partial deformat needs an HASH');
+is( $s3d->pos_hash_from_partial_hash({}),  undef,       'partial deformat needs an not empty HASH');
+is( $s3d->pos_hash_from_partial_hash({a=>1,b=>1,g=>1,k=>1}), undef,       'partial HASH is too long');
+is( ref $s3d->pos_hash_from_partial_hash({a=>1,b=>2,g=>3}), 'HASH',       'partial HASH has all the keys');
+my $ph = $s3d->pos_hash_from_partial_hash({Alpha=>1,b=>2,g=>3});
 is( ref $ph, 'HASH',   'deparse all keys with mixed case and shortcut');
 is( $ph->{0}, 1,       'first key has right value');
 is( $ph->{1}, 2,       'second key has right value');
 is( $ph->{2}, 3,       'third key has right value');
 is( int keys %$ph, 3,  'right amount of keys in deparsed hash');
 
-$ph = $s3d->deformat_partial_hash({gamma => 3});
+$ph = $s3d->pos_hash_from_partial_hash({gamma => 3});
 is( ref $ph, 'HASH',   'deparse just one key with mixed case and shortcut');
 is( $ph->{2}, 3,       'third and only key has right value');
 is( int keys %$ph, 1,  'right amount of keys in deparsed hash');
+$ph = $s3d->pos_hash_from_partial_hash({alda => 3});
+is( ref $ph, '',       'wrong keys to be partial hash');
 
-$ph = $s5d->deformat_partial_hash({Aleph => 6, q => 5});
+
+$ph = $s5d->pos_hash_from_partial_hash({Aleph => 6, q => 5});
 is( ref $ph, 'HASH',   'deparse just two keys with mixed case and shortcut');
 is( $ph->{0}, 6,       'first key aleph has right value');
 is( $ph->{4}, 5,       'second key He has right value');
@@ -157,13 +158,13 @@ is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef, 'name');
 is( ref $p5d,  $module,  'created space with none rule based name');
-is( $p5d->name, 'name',  'got correct specially set name');
+is( $p5d->space_name, 'name',  'got correct specially set name');
 
 my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'pre');
 is( ref $p5p,  $module,  'created space with name prefix');
-is( $p5p->name, 'preMNOPQ',  'got correct name with prefix');
+is( $p5p->space_name, 'preMNOPQ',  'got correct name with prefix');
 
 my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'PRE', 'name');
-is( $p5pn->name, 'PREname',  'got correct name with prefix');
+is( $p5pn->space_name, 'PREname',  'got correct name with prefix');
 
 exit 0;

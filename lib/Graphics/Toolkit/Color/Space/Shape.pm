@@ -22,7 +22,7 @@ sub new {
             elsif ($dtype eq 'no'                              or $dtype eq '2') { $type->[$i] = 2 }
             else  { return 'invalid axis type at element '.$i.'. It has to be "angular", "linear" or "no".' }
         }
-    } else        { return 'invalid axis type definition in color space '.$basis->name }
+    } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
     # check range settings
     if    (not defined $range or $range eq 'normal') { $range = [([0,1]) x $basis->count] }       # default range
@@ -42,7 +42,7 @@ sub new {
                 return 'lower bound is greater or equal than upper bound at element number '.$i if $drange->[0] >= $drange->[1];
             } else { return 'invalid range definition at ARRAY element number '.$i }
         }
-    } else { return 'invalid range definition in color space '.$basis->name }
+    } else { return 'invalid range definition in color space '.$basis->space_name }
 
     $precision = [(-2) x $basis->count] unless defined $precision;
     $precision = [($precision) x $basis->count] unless ref $precision;
@@ -93,7 +93,7 @@ sub _precision { # check if precision def is valid and eval (exapand) it
 
 sub delta { # values have to be normalized
     my ($self, $values1, $values2) = @_;
-    return unless $self->basis->is_array( $values1 ) and $self->basis->is_array( $values2 );
+    return unless $self->basis->is_value_tuple( $values1 ) and $self->basis->is_value_tuple( $values2 );
     # ignore none numeric dimensions
     my @delta = map { $self->axis_is_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->iterator;
     [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
@@ -103,13 +103,13 @@ sub delta { # values have to be normalized
 
 sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
-    return 'color value vector in '.$self->basis->name.' needs '.$self->basis->count.' values'
-        unless $self->basis->is_array( $values );
+    return 'color value vector in '.$self->basis->space_name.' needs '.$self->basis->count.' values'
+        unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "got bad range definition" unless ref $range;
     $precision = $self->_precision( $precision );
     return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
-    my @names = $self->basis->keys;
+    my @names = $self->basis->long_names;
     for my $i ($self->basis->iterator){
         next unless $self->axis_is_numeric($i);
         return $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
@@ -149,7 +149,7 @@ sub clamp {
 
 sub normalize {
     my ($self, $values, $range) = @_;
-    return unless $self->basis->is_array( $values );
+    return unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
     [ map { ($self->axis_is_numeric( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
@@ -158,7 +158,7 @@ sub normalize {
 
 sub denormalize {
     my ($self, $values, $range, $precision) = @_;
-    return unless $self->basis->is_array( $values );
+    return unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
     my @val = map { ($self->axis_is_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
@@ -168,7 +168,7 @@ sub denormalize {
 
 sub denormalize_delta {
     my ($self, $delta_values, $range) = @_;
-    return unless $self->basis->is_array( $delta_values );
+    return unless $self->basis->is_value_tuple( $delta_values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
     [ map { ($self->axis_is_numeric( $_ ))
@@ -178,7 +178,7 @@ sub denormalize_delta {
 
 sub round {
     my ($self, $values, $precision) = @_;
-    return unless $self->basis->is_array( $values );
+    return unless $self->basis->is_value_tuple( $values );
     $precision = $self->_precision( $precision );
     return "bad precision definition" unless ref $precision;
     [ map { ($self->axis_is_numeric( $_ ) and $precision->[$_] >= 0) ? pround ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->iterator ];

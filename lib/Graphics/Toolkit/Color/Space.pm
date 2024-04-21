@@ -22,9 +22,9 @@ sub new {
 ########################################################################
 
 sub basis            { $_[0]{'basis'} }
-sub name             { $_[0]->basis->name }
+sub name             { $_[0]->basis->space_name }
 sub dimensions       { $_[0]->basis->count }
-sub is_vector        { $_[0]->basis->is_vector( $_[1] ) }
+sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) }
 
 ########################################################################
 
@@ -52,6 +52,7 @@ sub add_converter {
     return 0 if $self->can_convert( $space_name );
     $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, mode => $mode };
 }
+
 sub convert {
     my ($self, $values, $space_name) = @_;
     return unless $self->{'basis'}->is_array( $values ) and defined $space_name and $self->can_convert( $space_name );

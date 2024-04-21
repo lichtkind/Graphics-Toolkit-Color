@@ -86,18 +86,23 @@ sub short_hash_from_tuple {
 
 sub tuple_from_hash {
     my ($self, $value_hash) = @_;
-    return $self->tuple_from_partial_hash( $value_hash ) if $self->is_hash( $value_hash );
-}
-sub tuple_from_partial_hash {
-    my ($self, $value_hash) = @_;
-    return unless $self->is_partial_hash( $value_hash );
+    return unless $self->is_hash( $value_hash );
     my @values = (0) x $self->count;
     for my $key (keys %$value_hash) {
         if    ($self->is_long_name( $key ))  { $values[ $self->pos_from_long($key) ] = $value_hash->{ $key } }
         elsif ($self->is_short_name( $key )) { $values[ $self->pos_from_short($key) ] = $value_hash->{ $key } }
-        else                                 { return; }
     }
     return \@values;
+}
+sub pos_hash_from_partial_hash {
+    my ($self, $value_hash) = @_;
+    return unless $self->is_partial_hash( $value_hash );
+    my $values = {};
+    for my $key (keys %$value_hash) {
+        if    ($self->is_long_name( $key ))  { $values->{$self->pos_from_long($key)} = $value_hash->{ $key } }
+        elsif ($self->is_short_name( $key )) { $values->{$self->pos_from_short($key)} = $value_hash->{ $key } }
+    }
+    return $values;
 }
 
 sub select_tuple_value_from_name {
@@ -106,6 +111,7 @@ sub select_tuple_value_from_name {
     return unless $self->is_value_tuple( $values );
     return $values->[ $self->{'long_order'}{$name} ] if exists $self->{'long_order'}{$name};
     return $values->[ $self->{'short_order'}{$name} ] if exists $self->{'short_order'}{$name};
+    undef;
 }
 
 #### util ##############################################################

@@ -6,80 +6,93 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Format;
 
 sub new {
-    my ($pkg, $base, $shape, $suffix ) = @_;
-    return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_names eq 'ARRAY';
-    return 'amount of shortcut names have to match that of full names' if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_names != @$axis_shortcuts);
-    my @keys      = map {lc} @$axis_names;
-    my @shortcuts = map { _color_key_shortcut($_) } (defined $axis_shortcuts) ? @$axis_shortcuts : @keys;
-    return unless @keys > 0;
+    my ($pkg, $basis, $shape, $suffix ) = @_;
+    return 'first argument has to be an Color::Space::Basis reference'
+        unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
+    return 'second argument (axis names) has to be an Color::Space::Shape reference'
+        unless ref $shape eq 'Graphics::Toolkit::Color::Space::Shape';
 
-    my @iterator = 0 .. $#keys;
-    my %key_order      = map { $keys[$_] => $_ } @iterator;
-    my %shortcut_order = map { $shortcuts[$_] => $_ } @iterator;
-    my $name = $space_name // uc join('', @shortcuts);
-    $name = $space_prefix.$name if defined $space_prefix and $space_prefix;
-    my $count = int @keys;
+    my $count = $basis->count;
     $suffix = [('') x $count] unless defined $suffix;
     $suffix = [($suffix) x $count] unless ref $suffix;
     return 'need an ARRAY as definition of axis value suffix' unless ref $suffix eq 'ARRAY';
     return 'definition of axis value suffix has to have same lengths as basis' unless @$suffix == $count;
 
-    bless { axis_names => [@keys], axis_short => [@shortcuts],
-            key_order => \%key_order, shortcut_order => \%shortcut_order,
-            name => $name, count => $count, iterator => \@iterator, suffix => $suffix }
+    # format --> tuple
+    my %deformats = ( hash => sub { $basis->tuple_from_hash(@_)  if $basis->is_hash(@_) },
+               named_array => sub { [ @{$_[0]}[1 .. $#{$_[0]}] ] if is_named_array(@_) },
+                    string => sub { tuple_from_string(@_)        if is_string(@_) },
+                css_string => sub { tuple_from_css(@_)           if is_css_string(@_) },
+    );
+    # tuple --> format
+    my %formats = (list => sub { @$_ },                                #   1, 2, 3
+                   hash => sub { $basis->long_hash_from_tuple(@_) },   # { red => 1, green => 2, blue => 3 }
+              char_hash => sub { $basis->short_hash_from_tuple(@_) },  # { r =>1, g => 2, b => 3 }
+                  array => sub { [$basis->space_name, @$_] },          # ['rgb',1,2,3]
+                 string => sub { named_string_from_list(@_) },         #  'rgb: 1, 2, 3'
+             css_string => sub { css_string_from_list(@_) },           #  'rgb(1,2,3)'
+    );
+    bless { basis => $basis, shape => $shape, suffix => $suffix, format => \%formats, deformat => \%deformats, }
 }
 
-    # which formats the constructor will accept, that can be deconverted into list
-    my %deformats = ( hash => sub { $basis->list_from_hash(@_)   if $basis->is_hash(@_) },
-               named_array => sub { @{$_[0]}[1 .. $#{$_[0]}]     if $basis->is_named_array(@_) },
-                    string => sub { $basis->list_from_string(@_) if $basis->is_string(@_) },
-                css_string => sub { $basis->list_from_css(@_)    if $basis->is_css_string(@_) },
-    );
-    # which formats we can output
-    my %formats = (list => sub { @_ },                                 #   1, 2, 3
-                   hash => sub { $basis->key_hash_from_list(@_) },     # { red => 1, green => 2, blue => 3 }
-              char_hash => sub { $basis->shortcut_hash_from_list(@_) },# { r =>1, g => 2, b => 3 }
-                  array => sub { $basis->named_array_from_list(@_) },  # ['rgb',1,2,3]
-                 string => sub { $basis->named_string_from_list(@_) }, #  'rgb: 1, 2, 3'
-             css_string => sub { $basis->css_string_from_list(@_) },   #  'rgb(1,2,3)'
-    );
-# format => \%formats, deformat => \%deformats,
+########################################################################
+sub basis            { $_[0]{'basis'}}
 
+sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
+sub has_deformat     { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
 sub add_formatter {
     my ($self, $format, $code) = @_;
     return 0 if not defined $format or ref $format or ref $code ne 'CODE';
     return 0 if $self->has_format( $format );
     $self->{'format'}{ $format } = $code;
 }
-sub format {
-    my ($self, $values, $format) = @_;
-    return unless $self->basis->is_array( $values );
-    $self->{'format'}{ lc $format }->(@$values) if $self->has_format( $format );
-}
-
 sub add_deformatter {
     my ($self, $format, $code) = @_;
     return 0 if not defined $format or ref $format or exists $self->{'deformat'}{$format} or ref $code ne 'CODE';
     $self->{'deformat'}{ lc $format } = $code;
 }
+
+########################################################################
+
+sub format {
+    my ($self, $values, $format) = @_;
+    return unless $self->basis->is_value_tuple( $values );
+    $self->{'format'}{ lc $format }->(@$values) if $self->has_format( $format );
+}
+
 sub deformat {
-    my ($self, $values) = @_;
-    return undef unless defined $values;
+    my ($self, $color) = @_;
+    return undef unless defined $color;
     for my $deformatter (values %{$self->{'deformat'}}){
-        my @values = $deformatter->($values);
-        return \@values if @values == $self->dimensions;
+        my $values = $deformatter->( $color );
+        return $values if $self->basis->is_value_tuple( $values );
     }
     return undef;
 }
 
-sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
-sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
+sub add_suffix {
+    my ($self, $values, $suffix) = @_;
+    return unless $self->basis->is_value_tuple( $values );
+    $suffix //= $self->{'suffix'};
+    $suffix = [($suffix) x $self->count] unless ref $suffix;
+    [ map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) ne $self->{'suffix'}[$_])
+                  ? $values->[$_] . $self->{'suffix'}[$_] : $values->[$_] } $self->basis->iterator ];
+}
 
-sub key_pos      {  defined $_[1] ? $_[0]->{'key_order'}{ lc $_[1] } : undef}       # axis pos of given name
-sub shortcut_pos {  defined $_[1] ? $_[0]->{'shortcut_order'}{ lc $_[1] } : undef }
-sub is_key       { (defined $_[1] and exists $_[0]->{'key_order'}{ lc $_[1] }) ? 1 : 0 }
-sub is_shortcut  { (defined $_[1] and exists $_[0]->{'shortcut_order'}{ lc $_[1] }) ? 1 : 0 }
-sub is_key_or_shortcut { $_[0]->is_key($_[1]) or $_[0]->is_shortcut($_[1]) }
+sub remove_suffix {
+    my ($self, $values, $suffix) = @_;
+    return unless $self->basis->is_value_tuple( $values );
+    $suffix //= $self->{'suffix'};
+    $suffix = [($suffix) x $self->basis->count] unless ref $suffix;
+    [ map { ($self->{'suffix'}[$_] and
+             substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
+          ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_]))) : $values->[$_] } $self->iterator ];
+}
+
+########################################################################
+
+########################################################################
+
 sub is_string { #
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
@@ -108,48 +121,7 @@ sub is_named_array {
 
 ########################################################################
 
-sub add_suffix {
-    my ($self, $values, $suffix) = @_;
-    return unless $self->is_array( $values );
-    $suffix //= $self->{'suffix'};
-    $suffix = [($suffix) x $self->count] unless ref $suffix;
-    [ map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) ne $self->{'suffix'}[$_])
-                  ? $values->[$_] . $self->{'suffix'}[$_] : $values->[$_] } $self->iterator ];
-}
-
-sub remove_suffix {
-    my ($self, $values, $suffix) = @_;
-    return unless $self->is_array( $values );
-    $suffix //= $self->{'suffix'};
-    $suffix = [($suffix) x $self->count] unless ref $suffix;
-    [ map { ($self->{'suffix'}[$_] and
-             substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
-          ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_]))) : $values->[$_] } $self->iterator ];
-}
-
 ########################################################################
-
-sub shortcut_of_key {
-    my ($self, $key) = @_;
-    return unless $self->is_key( $key );
-    ($self->shortcuts)[ $self->{'key_order'}{ lc $key } ];
-}
-
-sub list_value_from_key {
-    my ($self, $key, @values) = @_;
-    $key = lc $key;
-    return unless @values == $self->{'count'};
-    return unless exists $self->{'key_order'}{ $key };
-    return $values[ $self->{'key_order'}{ $key } ];
-}
-
-sub list_value_from_shortcut {
-    my ($self, $shortcut, @values) = @_;
-    $shortcut = lc $shortcut;
-    return unless @values == $self->{'count'};
-    return unless exists $self->{'shortcut_order'}{ $shortcut };
-    return $values[ $self->{'shortcut_order'}{ $shortcut } ];
-}
 
 sub list_from_hash {
     my ($self, $value_hash) = @_;
@@ -208,7 +180,5 @@ sub css_string_from_list {
     return unless @values == $self->{'count'};
     lc( $self->name).'('.join(',', @values).')';
 }
-
-sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;

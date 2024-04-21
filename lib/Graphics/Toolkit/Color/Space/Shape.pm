@@ -53,9 +53,10 @@ sub new {
                                                        and $range->[$i][1] == int($range->[$i][1])
                                                        and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
     }
-
     bless { basis => $basis, type => $type, range => $range, precision => $precision }
 }
+
+#### getter (defaults) #################################################
 
 sub basis           { $_[0]{'basis'}}
 sub axis_is_numeric {
@@ -89,17 +90,7 @@ sub _precision { # check if precision def is valid and eval (exapand) it
     return (ref $shape) ? $shape->{'precision'} : undef;
 }
 
-########################################################################
-
-sub delta { # values have to be normalized
-    my ($self, $values1, $values2) = @_;
-    return unless $self->basis->is_value_tuple( $values1 ) and $self->basis->is_value_tuple( $values2 );
-    # ignore none numeric dimensions
-    my @delta = map { $self->axis_is_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->iterator;
-    [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
-            $delta[$_] < -0.5 ? ($delta[$_]+1) :
-            $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->iterator ];
-}
+#### value adaptation methods ##########################################
 
 sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
@@ -145,7 +136,15 @@ sub clamp {
     return $values;
 }
 
-########################################################################
+sub round {
+    my ($self, $values, $precision) = @_;
+    return unless $self->basis->is_value_tuple( $values );
+    $precision = $self->_precision( $precision );
+    return "bad precision definition" unless ref $precision;
+    [ map { ($self->axis_is_numeric( $_ ) and $precision->[$_] >= 0) ? pround ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->iterator ];
+}
+
+#### computation methods ###############################################
 
 sub normalize {
     my ($self, $values, $range) = @_;
@@ -176,12 +175,14 @@ sub denormalize_delta {
              :  $delta_values->[$_]                                       } $self->basis->iterator ];
 }
 
-sub round {
-    my ($self, $values, $precision) = @_;
-    return unless $self->basis->is_value_tuple( $values );
-    $precision = $self->_precision( $precision );
-    return "bad precision definition" unless ref $precision;
-    [ map { ($self->axis_is_numeric( $_ ) and $precision->[$_] >= 0) ? pround ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->iterator ];
+sub delta { # values have to be normalized
+    my ($self, $values1, $values2) = @_;
+    return unless $self->basis->is_value_tuple( $values1 ) and $self->basis->is_value_tuple( $values2 );
+    # ignore none numeric dimensions
+    my @delta = map { $self->axis_is_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->iterator;
+    [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
+            $delta[$_] < -0.5 ? ($delta[$_]+1) :
+            $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->iterator ];
 }
 
 1;

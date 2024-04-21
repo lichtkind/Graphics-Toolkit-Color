@@ -44,7 +44,9 @@ sub add_deformatter   { shift->format->add_deformatter(@_) }
 sub format            { shift->format->format(@_) }
 sub deformat          { shift->format->deformat(@_) }
 
-########################################################################
+#### conversion ########################################################
+
+sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $mode) = @_;
@@ -58,7 +60,6 @@ sub convert {
     return unless $self->{'basis'}->is_array( $values ) and defined $space_name and $self->can_convert( $space_name );
     return [$self->{'convert'}{ uc $space_name }{'to'}->(@$values)];
 }
-
 sub deconvert {
     my ($self, $values, $space_name) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );

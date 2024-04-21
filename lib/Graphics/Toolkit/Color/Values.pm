@@ -80,7 +80,7 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     $space_name //= 'RGB';
     Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    $select = $space->basis->key_shortcut($select) if $space->basis->is_key( $select );
+    $select = $space->basis->shortcut_of_key($select) if $space->basis->is_key( $select );
     my @values1 = $self->get( $space_name, 'list', 'normal' );
     my @values2 = $c2->get( $space_name, 'list', 'normal' );
     return unless defined $values1[0] and defined $values2[0];

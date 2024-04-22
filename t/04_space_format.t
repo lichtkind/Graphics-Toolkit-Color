@@ -5,15 +5,16 @@ use warnings;
 use Test::More tests => 153;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Basis';
+my $module = 'Graphics::Toolkit::Color::Space::Format';
 
-eval "use $module";
-is( not($@), 1, 'could load the module');
+use_ok( $module, 'could load the module');
+use Graphics::Toolkit::Color::Space::Basis;
+my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/]);
 
-my $obj = Graphics::Toolkit::Color::Space::Basis->new();
-like( $obj,   qr/first argument/,      'constructor needs arguments');
+my $obj = Graphics::Toolkit::Color::Space::Format->new( );
+like( $obj,   qr/first argument/,      'constructor needs basis as first argument');
 
-$obj = Graphics::Toolkit::Color::Space::Basis->new([1]);
+$obj = Graphics::Toolkit::Color::Space::Format->new( $basis );
 is( ref $obj, $module,  'one constructor argument is enough');
 
 my $bad = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth he/);

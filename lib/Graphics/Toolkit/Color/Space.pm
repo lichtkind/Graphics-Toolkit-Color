@@ -14,7 +14,7 @@ sub new {
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'} );
     return $shape unless ref $shape;
-    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $shape, $args{'suffix'} );
+    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'} );
     return $format unless ref $format;
     bless { basis => $basis, shape => $shape, format => $format, convert => {} };
 }

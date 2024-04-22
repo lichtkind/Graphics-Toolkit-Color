@@ -6,11 +6,9 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Format;
 
 sub new {
-    my ($pkg, $basis, $shape, $suffix ) = @_;
+    my ($pkg, $basis, $suffix ) = @_;
     return 'first argument has to be an Color::Space::Basis reference'
         unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
-    return 'second argument (axis names) has to be an Color::Space::Shape reference'
-        unless ref $shape eq 'Graphics::Toolkit::Color::Space::Shape';
 
     my $count = $basis->count;
     $suffix = [('') x $count] unless defined $suffix;
@@ -21,7 +19,7 @@ sub new {
     # format --> tuple
     my %deformats = ( hash => sub { $basis->tuple_from_hash(@_)  if $basis->is_hash(@_) },
                named_array => sub { [ @{$_[0]}[1 .. $#{$_[0]}] ] if is_named_array(@_) },
-                    string => sub { tuple_from_string(@_)        if is_string(@_) },
+                    string => sub { tuple_from_string(@_)        if is_named_string(@_) },
                 css_string => sub { tuple_from_css(@_)           if is_css_string(@_) },
     );
     # tuple --> format
@@ -29,15 +27,14 @@ sub new {
                    hash => sub { $basis->long_hash_from_tuple(@_) },   # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->short_hash_from_tuple(@_) },  # { r =>1, g => 2, b => 3 }
                   array => sub { [$basis->space_name, @$_] },          # ['rgb',1,2,3]
-                 string => sub { named_string_from_list(@_) },         #  'rgb: 1, 2, 3'
-             css_string => sub { css_string_from_list(@_) },           #  'rgb(1,2,3)'
+                 string => sub { named_string_from_tuple(@_) },         #  'rgb: 1, 2, 3'
+             css_string => sub { css_string_from_tuple(@_) },           #  'rgb(1,2,3)'
     );
-    bless { basis => $basis, shape => $shape, suffix => $suffix, format => \%formats, deformat => \%deformats, }
+    bless { basis => $basis, suffix => $suffix, format => \%formats, deformat => \%deformats, }
 }
 
 ########################################################################
 sub basis            { $_[0]{'basis'}}
-
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
 sub has_deformat     { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
 sub add_formatter {
@@ -55,17 +52,18 @@ sub add_deformatter {
 ########################################################################
 
 sub format {
-    my ($self, $values, $format) = @_;
+    my ($self, $values, $format, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $values );
+    $values = self->add_suffix($values, $suffix);
     $self->{'format'}{ lc $format }->(@$values) if $self->has_format( $format );
 }
 
 sub deformat {
-    my ($self, $color) = @_;
+    my ($self, $color, $suffix) = @_;
     return undef unless defined $color;
     for my $deformatter (values %{$self->{'deformat'}}){
         my $values = $deformatter->( $color );
-        return $values if $self->basis->is_value_tuple( $values );
+        return self->remove_suffix($values, $suffix) if $self->basis->is_value_tuple( $values );
     }
     return undef;
 }
@@ -86,99 +84,65 @@ sub remove_suffix {
     $suffix = [($suffix) x $self->basis->count] unless ref $suffix;
     [ map { ($self->{'suffix'}[$_] and
              substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
-          ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_]))) : $values->[$_] } $self->iterator ];
+          ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_]))) : $values->[$_] } $self->basis->iterator ];
 }
 
 ########################################################################
 
-########################################################################
-
-sub is_string { #
+sub is_named_string { #
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
     $string = lc $string;
-    my $name = lc $self->name;
+    my $name = lc $self->basis->space_name;
     return 0 unless index($string, $name.':') == 0;
     my $nr = '\s*-?\d+(?:\.\d+)?\s*';
-    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
+    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->basis->count);
     ($string =~ /^$name:$nrs$/) ? 1 : 0;
 }
 sub is_css_string {
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
     $string = lc $string;
-    my $name = lc $self->name;
+    my $name = lc $self->basis->space_name;
     return 0 unless index($string, $name.'(') == 0;
     my $nr = '\s*-?\d+(?:\.\d+)?\s*';
-    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->count);
+    my $nrs = join(',', ('\s*-?\d+(?:\.\d+)?\s*') x $self->basis->count);
     ($string =~ /^$name\($nrs\)$/) ? 1 : 0;
 }
 sub is_named_array {
     my ($self, $value_array) = @_;
-    (ref $value_array eq 'ARRAY' and @$value_array == ($self->{'count'}+1)
-                                 and uc $value_array->[0] eq uc $self->name) ? 1 : 0;
+    (ref $value_array eq 'ARRAY' and @$value_array == ($self->basis->count+1)
+                                 and uc $value_array->[0] eq uc $self->basis->space_name) ? 1 : 0;
 }
 
 ########################################################################
 
-########################################################################
-
-sub list_from_hash {
-    my ($self, $value_hash) = @_;
-    return undef unless ref $value_hash eq 'HASH' and CORE::keys %$value_hash == $self->{'count'};
-    my @values = (0) x $self->{'count'};
-    for my $value_key (CORE::keys %$value_hash) {
-        if    ($self->is_key( $value_key ))      { $values[ $self->{'key_order'}{ lc $value_key } ] = $value_hash->{ $value_key } }
-        elsif ($self->is_shortcut( $value_key )) { $values[ $self->{'shortcut_order'}{ lc $value_key } ] = $value_hash->{ $value_key } }
-        else                                     { return }
-    }
-    return @values;
-}
-
-sub deformat_partial_hash {
-    my ($self, $value_hash) = @_;
-    return unless ref $value_hash eq 'HASH';
-    my @keys_got = CORE::keys %$value_hash;
-    return unless @keys_got and @keys_got <= $self->{'count'};
-    my $result = {};
-    for my $key (@keys_got) {
-        if    ($self->is_key( $key ))     { $result->{ int $self->key_pos( $key ) } = $value_hash->{ $key } }
-        elsif ($self->is_shortcut( $key )){ $result->{ int $self->shortcut_pos( $key ) } = $value_hash->{ $key } }
-        else                              { return undef }
-    }
-    return $result;
-}
-
-########################################################################
-
-sub list_from_string {
+sub tuple_from_string {
     my ($self, $string) = @_;
     my @parts = split(/:/, $string);
-    return split(/,/, $parts[1]);
+    return [split(/,/, $parts[1])];
 }
 
-sub list_from_css {
+sub tuple_from_css {
     my ($self, $string) = @_;
     1 until chop($string) eq ')';
     my @parts = split(/\(/, $string);
-    return split(/,/, $parts[1]);
+    return [split(/,/, $parts[1])];
 }
 
-sub named_array_from_list {
-    my ($self, @values) = @_;
-    return [lc $self->name, @values] if @values == $self->{'count'};
+sub named_array_from_tuple {
+    my ($self, $values) = @_;
+    return [$self->basis->space_name, @$values] unless $self->basis->is_value_tuple( $values );
 }
 
-sub named_string_from_list {
-    my ($self, @values) = @_;
-    return unless @values == $self->{'count'};
-    lc( $self->name).': '.join(', ', @values);
+sub named_string_from_tuple {
+    my ($self, $values) = @_;
+    lc( $self->basis->space_name).': '.join(', ', @$values);
 }
 
-sub css_string_from_list {
-    my ($self, @values) = @_;
-    return unless @values == $self->{'count'};
-    lc( $self->name).'('.join(',', @values).')';
+sub css_string_from_tuple {
+    my ($self, $values) = @_;
+    lc( $self->basis->space_name).'('.join(',', @$values).')';
 }
 
 1;

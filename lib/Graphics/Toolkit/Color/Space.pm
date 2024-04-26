@@ -6,6 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
+use Graphics::Toolkit::Color::Space::Format;
 
 sub new {
     my $pkg = shift;
@@ -14,7 +15,7 @@ sub new {
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'} );
     return $shape unless ref $shape;
-    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'} );
+    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'}, $args{'value_format'} );
     return $format unless ref $format;
     bless { basis => $basis, shape => $shape, format => $format, convert => {} };
 }
@@ -22,27 +23,27 @@ sub new {
 ########################################################################
 
 sub basis            { $_[0]{'basis'} }
-sub name             { $_[0]->basis->space_name }
-sub dimensions       { $_[0]->basis->count }
-sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) }
+sub name             { $_[0]->basis->space_name }              #          --> ~
+sub dimensions       { $_[0]->basis->count }                   #          --> +
+sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) } # @+values --> ?
 
 ########################################################################
 
 sub shape             { $_[0]{'shape'} }
-sub in_range          { shift->shape->in_range( @_ ) }       # @values -- @range           --> |!~      # errmsg
-sub clamp             { shift->shape->clamp( @_ ) }          # @values -- @range           --> |@vector
-sub normalize         { shift->shape->normalize(@_)}         # @values -- @range           --> |@vector
-sub denormalize       { shift->shape->denormalize(@_)}       # @values -- @range           --> |@vector
-sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @values -- @range           --> |@vector
-sub delta             { shift->shape->delta( @_ ) }          # @values -- @vector, @vector --> |@vector # on normalize values
+sub in_range          { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision  --> @+values|!~   # errmsg
+sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision  --> @+rvals       # result values
+sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range               --> @+rvals|!~
+sub denormalize       { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision  --> @+rvals|!~
+sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @+values -- @+range               --> @+rvals|!~
+sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+values2              --> @+rvals|      # on normalized values
 
 ########################################################################
 
 sub format            { $_[0]{'format'} }
-sub add_formatter     { shift->format->add_formatter(@_) }
-sub add_deformatter   { shift->format->add_deformatter(@_) }
-sub format            { shift->format->format(@_) }
-sub deformat          { shift->format->deformat(@_) }
+sub add_formatter     { shift->format->add_formatter(@_) }   # ~format_name, &formatter           --> &|
+sub add_deformatter   { shift->format->add_deformatter(@_) } # ~format_name, &deformatter         --> &|
+sub format            { shift->format->format(@_) }          # @+values, ~format_name -- @~suffix --> $*color
+sub deformat          { shift->format->deformat(@_) }        # $*color-- @~suffix                 --> @+values
 
 #### conversion ########################################################
 

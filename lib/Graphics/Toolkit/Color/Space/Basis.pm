@@ -91,6 +91,7 @@ sub tuple_from_hash {
     for my $key (keys %$value_hash) {
         if    ($self->is_long_name( $key ))  { $values[ $self->pos_from_long($key) ] = $value_hash->{ $key } }
         elsif ($self->is_short_name( $key )) { $values[ $self->pos_from_short($key) ] = $value_hash->{ $key } }
+        else                                 { return "value of $key is mussing" }
     }
     return \@values;
 }

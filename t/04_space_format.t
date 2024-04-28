@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 111;
+use Test::More tests => 101;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
@@ -149,12 +149,37 @@ $string = $pobj->format( [0,2.2,-3], 'css_string');
 is( ref $string,                '', 'could format into CSS string with suffixes');
 is( $string,       'abg(0%,2.2%,-3%)', 'string syntax ist correct');
 
+
+$string = $obj->format( [0,2.2,-3], 'pstring');
+is( $string,                   '0', 'no pstring format found by universal formatter');
+is( $obj->has_format('pstring'), 0, 'there is no pstring format');
+
+my $fref = $obj->add_formatter('pstring', sub {return '%'.join ',',@{$_[1]}});
+is( ref $fref,       'CODE', 'added formatter');
+$string = $obj->format( [0,2.2,-3], 'pstring');
+is( $string,           '%0,2.2,-3', 'formatted into pstring');
+is( $obj->has_format('pstring'), 1, 'there is now a pstring format');
+
+($vals, $name) = $obj->deformat( '%0,2.2,-3' );
+is( $name,                 undef, 'found no deformatter for pstring format');
+is( $obj->has_deformat('pstring'), 0, 'there is no pstring deformatter');
+
+my $fref = $obj->add_deformatter('pstring', sub { $_[0]->match_number_values( [split(',',substr($_[1],1))] ); });
+is( ref $fref,       'CODE', 'added deformatter');
+
+is( $obj->has_deformat('pstring'), 1, 'there is now a pstring deformatter');
+($vals, $name) = $obj->deformat( '%0,2.2,-3' );
+is( $name,                 'pstring', 'now found deformatter for pstring format');
+is( ref $vals,         'ARRAY', 'could deformat values');
+is( @$vals,                  3, 'right amount of values');
+is( $vals->[0],              0, 'first value');
+is( $vals->[1],            2.2, 'second value');
+is( $vals->[2],             -3, 'third value');
+
 exit 0;
 
 __END__
 
-$obj->add_formatter()
-$obj->add_deformatter()
 
    $rgb_def->add_formatter(   'hex',   \&hex_from_rgb );
    $rgb_def->add_deformatter( 'hex',   sub { rgb_from_hex(@_) if is_hex(@_) } );

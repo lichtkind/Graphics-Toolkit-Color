@@ -21,8 +21,8 @@ sub rgb_from_hex { # translate #000000 and #000 --> r, g, b
         unless defined $hex and (length($hex) == 4 or length($hex) == 7)
         and substr($hex, 0, 1) eq '#' and $hex =~ /^#[\da-f]+$/i;
     $hex = substr $hex, 1;
-    (length $hex == 3) ? (map { CORE::hex($_.$_) } unpack( "a1 a1 a1", $hex))
-                       : (map { CORE::hex($_   ) } unpack( "a2 a2 a2", $hex));
+    (length $hex == 3) ? (map { hex($_.$_) } unpack( "a1 a1 a1", $hex))
+                       : (map { hex($_   ) } unpack( "a2 a2 a2", $hex));
 }
 
 # defined $_[0] and ($_[0] =~ /^#[[:xdigit:]]{3}$/ or $_[0] =~ /^#[[:xdigit:]]{6}$/)

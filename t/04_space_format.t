@@ -164,8 +164,8 @@ is( $obj->has_format('pstring'), 1, 'there is now a pstring format');
 is( $name,                 undef, 'found no deformatter for pstring format');
 is( $obj->has_deformat('pstring'), 0, 'there is no pstring deformatter');
 
-my $fref = $obj->add_deformatter('pstring', sub { $_[0]->match_number_values( [split(',',substr($_[1],1))] ); });
-is( ref $fref,       'CODE', 'added deformatter');
+my $dref = $obj->add_deformatter('pstring', sub { $_[0]->match_number_values( [split(',',substr($_[1],1))] ); });
+is( ref $dref,       'CODE', 'added deformatter');
 
 is( $obj->has_deformat('pstring'), 1, 'there is now a pstring deformatter');
 ($vals, $name) = $obj->deformat( '%0,2.2,-3' );

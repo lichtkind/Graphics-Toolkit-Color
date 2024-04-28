@@ -39,11 +39,11 @@ sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+valu
 
 ########################################################################
 
-sub format            { $_[0]{'format'} }
-sub add_formatter     { shift->format->add_formatter(@_) }   # ~format_name, &formatter           --> &|
-sub add_deformatter   { shift->format->add_deformatter(@_) } # ~format_name, &deformatter         --> &|
-sub format            { shift->format->format(@_) }          # @+values, ~format_name -- @~suffix --> $*color
-sub deformat          { shift->format->deformat(@_) }        # $*color-- @~suffix                 --> @+values
+sub form              { $_[0]{'format'} }
+sub add_formatter     { shift->form->add_formatter(@_) }   # ~format_name, &formatter           --> &|
+sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &deformatter         --> &|
+sub format            { shift->form->format(@_) }          # @+values, ~format_name -- @~suffix --> $*color
+sub deformat          { shift->form->deformat(@_) }        # $*color-- @~suffix                 --> @+values
 
 #### conversion ########################################################
 

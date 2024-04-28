@@ -6,7 +6,7 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV LCHab LCHuv/); # search order ## missing: Ncol
+my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV LCHab LCHuv NCol/); # search order ## missing: Ncol
 my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
 
@@ -273,7 +273,7 @@ color space.
 
     (10, 20, 30)
 
-=head2 string
+=head2 named_string
 
     'RGB: 10, 20, 30'
 
@@ -281,7 +281,7 @@ color space.
 
     'rgb(10, 20, 30)'
 
-=head2 array
+=head2 named_array
 
     [RGB => 10, 20, 30]
 

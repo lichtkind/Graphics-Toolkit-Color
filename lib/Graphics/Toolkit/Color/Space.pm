@@ -24,7 +24,7 @@ sub new {
 
 sub basis            { $_[0]{'basis'} }
 sub name             { $_[0]->basis->space_name }              #          --> ~
-sub dimensions       { $_[0]->basis->count }                   #          --> +
+sub axis             { $_[0]->basis->count }                   #          --> +
 sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) } # @+values --> ?
 
 ########################################################################
@@ -40,10 +40,11 @@ sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+valu
 ########################################################################
 
 sub form              { $_[0]{'format'} }
-sub add_formatter     { shift->form->add_formatter(@_) }   # ~format_name, &formatter           --> &|
-sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &deformatter         --> &|
 sub format            { shift->form->format(@_) }          # @+values, ~format_name -- @~suffix --> $*color
-sub deformat          { shift->form->deformat(@_) }        # $*color-- @~suffix                 --> @+values
+sub deformat          { shift->form->deformat(@_) }        # $*color                -- @~suffix --> @+values, ~format_name
+sub has_format        { shift->form->has_format(@_) }      # ~format_name                       --> ?
+sub add_formatter     { shift->form->add_formatter(@_) }   # ~format_name, &formatter           --> &?
+sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &deformatter         --> &?
 
 #### conversion ########################################################
 

@@ -160,9 +160,10 @@ sub denormalize {
     return unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
+
     my @val = map { ($self->axis_is_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
                                                    : $values->[$_]   } $self->basis->iterator;
-    return \@val;
+    return $self->round( \@val, $precision );
 }
 
 sub denormalize_delta {

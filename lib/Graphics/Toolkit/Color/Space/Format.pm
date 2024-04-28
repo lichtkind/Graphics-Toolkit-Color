@@ -24,15 +24,15 @@ sub new {
     # format --> tuple
     my %deformats = ( hash => sub { tuple_from_hash(@_)         },
                named_array => sub { tuple_from_named_array(@_)  },
-                    string => sub { tuple_from_named_string(@_) },
+              named_string => sub { tuple_from_named_string(@_) },
                 css_string => sub { tuple_from_css_string(@_)   },
     );
     # tuple --> format
     my %formats = (list => sub { @{$_[1]} },                              #   1, 2, 3
                    hash => sub { $basis->long_hash_from_tuple($_[1]) },   # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->short_hash_from_tuple($_[1]) },  # { r =>1, g => 2, b => 3 }
-                  array => sub { [$basis->space_name, @{$_[1]}] },        # ['rgb',1,2,3]
-                 string => sub { $_[0]->named_string_from_tuple($_[1]) }, #  'rgb: 1, 2, 3'
+            named_array => sub { [$basis->space_name, @{$_[1]}] },        # ['rgb',1,2,3]
+           named_string => sub { $_[0]->named_string_from_tuple($_[1]) }, #  'rgb: 1, 2, 3'
              css_string => sub { $_[0]->css_string_from_tuple($_[1]) },   #  'rgb(1,2,3)'
     );
     bless { basis => $basis, suffix => $suffix, value_format => $value_format ,

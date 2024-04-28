@@ -7,8 +7,9 @@ package Graphics::Toolkit::Color::Space::Instance::NCol;
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 
-my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness blackness/],
-                                                   range => [ 360, 100, 100 ],  precision => 0
+my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
+                                                    axis => [qw/hue whiteness blackness/],
+                                                   range => [ 360, 100, 100],  precision => 0
                                                   suffix => ['', '%', '%'],
                                                     type => [qw/no linear linear/],
                                                     );

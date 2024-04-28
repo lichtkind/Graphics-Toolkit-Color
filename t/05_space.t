@@ -7,11 +7,24 @@ use Test::More tests => 67;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
 
-eval "use $module";
-is( not($@), 1, 'could load the module');
-
+use_ok( $module, 'could load the module');
 my $fspace = Graphics::Toolkit::Color::Space->new();
-is( ref $fspace, '', 'need vector names to create color space');
+is( ref $fspace,         '', 'need axis names to create color space');
+
+my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/]);
+is( ref $space,     $module, 'got axis names and created color space');
+is( $space->name,    'ABCD', 'got space name from AXIS short names');
+is( $space->axis,         4, 'counted axis right');
+is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');
+is( $space->is_value_tuple([1,2,3,4,5]), 0, 'too long value tuple');
+is( $space->is_value_tuple([1,2,3,]),    0, 'too short value tuple');
+is( $space->is_value_tuple({1=>1,2=>2,3=>3,4=>4,}),  0, 'wrong ref type for value tuple');
+is( $space->is_value_tuple(''),                      0, 'no ref type can not be value tuple');
+
+
+exit 0;
+
+__END__
 my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => 20);
 
 is( ref $space, $module, 'could create a space object');

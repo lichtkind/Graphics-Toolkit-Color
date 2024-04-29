@@ -22,11 +22,11 @@ sub new {
 
 ########################################################################
 
-sub basis            { $_[0]{'basis'} }
-sub name             { $_[0]->basis->space_name }              #          --> ~
-sub axis             { $_[0]->basis->count }                   #          --> +
-sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) } # @+values --> ?
-sub is_partial_hash  { $_[0]->basis->is_partial_hash( $_[1] ) }# %+values --> ?
+sub basis             { $_[0]{'basis'} }
+sub name              { shift->basis->space_name }           #          --> ~
+sub axis              { shift->basis->count }                #          --> +
+sub is_value_tuple    { shift->basis->is_value_tuple(@_) }   # @+values --> ?
+sub is_partial_hash   { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 
 ########################################################################
 
@@ -50,13 +50,11 @@ sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &defo
 #### conversion ########################################################
 
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
-
 sub convert {
     my ($self, $values, $space_name) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
     return [$self->{'convert'}{ uc $space_name }{'to'}->( $values )];
 }
-
 sub deconvert {
     my ($self, $values, $space_name) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );

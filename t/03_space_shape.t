@@ -15,33 +15,33 @@ my $basis = Graphics::Toolkit::Color::Space::Basis->new( [qw/AAA BBB CCC/] );
 my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis);
 is( ref $shape,  $module, 'created shape with default settings');
 
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, {}), qr/invalid axis type/, 'type definition needs to be an ARRAY');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, []), qr/invalid axis type/, 'type definition needs to have same length');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, ['yes','no','maybe']), qr/invalid axis type/, 'undefined values');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, [1,2,3]), qr/invalid axis type/, 'undefined numeric values');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, {}), qr/invalid axis type/, 'type definition needs to be an ARRAY');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, []), qr/invalid axis type/, 'type definition needs to have same length');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, ['yes','no','maybe']), qr/invalid axis type/, 'undefined values');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, [1,2,3]), qr/invalid axis type/, 'undefined numeric values');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, ['linear','circular','no']), $module, 'valid type def');
 
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, {}), qr/invalid range/, 'range definition needs to be an ARRAY');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, {}), qr/invalid range/, 'range definition needs to be an ARRAY');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, 1), $module, 'uniform scalar range');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, 'normal'), $module, 'normal scalar range');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, 'percent'), $module, 'percent scalar range');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, []), qr/invalid range/, 'range definition ARRAY has to have same lngth');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, []), qr/invalid range/, 'range definition ARRAY has to have same lngth');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [1,2,3]), $module, 'ARRAY range with right amount of ints');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2],[1,2]]), $module, 'full ARRAY range');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1.1,1.2],[1,2]]), $module, 'full ARRAY range with decimals');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2]]), qr/invalid range/, 'not enough elements in range def');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2],[1,2],[1,2]]), qr/invalid range/, 'too many elements in range def');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[2,1],[1,2]]), qr/lower bound/, 'one range def element is backward');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1],[1,2]]), qr/two elements/, 'one range def element is too small');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2,3],[1,2]]), qr/two elements/, 'one range def element is too big');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,'-'],[1,2]]), qr/none numeric/, 'one range def element has a none number');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2]]), qr/invalid range/, 'not enough elements in range def');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2],[1,2],[1,2]]), qr/invalid range/, 'too many elements in range def');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[2,1],[1,2]]), qr/lower bound/, 'one range def element is backward');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1],[1,2]]), qr/two elements/, 'one range def element is too small');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2,3],[1,2]]), qr/two elements/, 'one range def element is too big');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,'-'],[1,2]]), qr/none numeric/, 'one range def element has a none number');
 
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, 0), $module, 'accepting third constructor arg - precision zero');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, 2), $module, 'precision 2');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, -1), $module, 'precision -1');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [0,1,-1]), $module, 'full precision def');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2]), qr/value precision/, 'precision def too short');
-like( Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2,3,-1]), qr/value precision/, 'precision def too long');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2]), qr/value precision/, 'precision def too short');
+like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2,3,-1]), qr/value precision/, 'precision def too long');
 
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef,undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
 

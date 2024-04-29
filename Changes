@@ -2,10 +2,13 @@
 1.8     2024-04-22    lichtkind
 -------
     * = mid level feature release
-    * * added color space support: XYZ LAB LUV HCL LCH
+    * * added color space support for: XYZ LAB LUV LCHab LCHuv NCol
     * + extended range definitions with explicit type names
+    * + color spaces can now define value procision,
+                                    value suffix ('%') and
+                                    value parsing regex
     * ? added documentation for color space object and missing formats
-    * & moved code into space::Format attr object class
+    * & moved code into Space::Format space attr object class
     * & removed Carp and Test::Warn as dependencies
     * & moved color set function into own package
     * ~ default space of methods 'distance', 'blend' and 'gradient'

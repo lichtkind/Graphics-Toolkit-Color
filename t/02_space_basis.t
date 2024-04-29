@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 117;
+use Test::More tests => 120;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -80,7 +80,10 @@ is( $s3d->is_hash({a => 1, B => 1, g => 3}),             1, 'shortcut casing get
 is( $s3d->is_hash({a => 1, b => 1, g => 3, h => 4}),     0, 'too many hash key shortcut ');
 is( $s3d->is_hash({alph => 1, beth => 1, gimel => 4, daleth => 2, he => 4}), 0, 'one wrong hash key');
 
-is( $s5d->is_partial_hash([]),   0,      'array is not a partial hash');
+is( $s5d->is_partial_hash(''),             0,      'string is not a partial hash');
+is( $s5d->is_partial_hash([]),             0,      'array is not a partial hash');
+is( $s5d->is_partial_hash({}),             0,      'empty hash is not a partial hash');
+is( $s5d->is_partial_hash({gamma => 1}),   0,      'wrong key for partial hash');
 is( $s5d->is_partial_hash({aleph => 1, beth => 2, gimel => 3, daleth => 4, he => 5}), 1, 'valid hash with right keys is also correct partial hash');
 is( $s5d->is_partial_hash({aleph => 1, beth => 20, gimel => 3, daleth => 4, he => 5, o => 6}), 0, 'partial hash can not have more keys than full hash definition');
 is( $s5d->is_partial_hash({aleph => 1 }),              1, 'valid partial hash to have only one korrect key');

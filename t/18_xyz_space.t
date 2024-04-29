@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'CIEXYZ',                  'color space has right name');
-is( $def->dimensions,     3,                     'color space has 3 dimensions');
+is( $def->axis,              3,                     'color space has 3 axis');
 
 is( ref $def->in_range([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');
 is( ref $def->in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal XYZ values');
@@ -26,7 +26,7 @@ is( ref $def->in_range([0, 1.1, 0]),        '',   "Y value is too big");
 is( ref $def->in_range([0, 0, -.1 ] ),      '',   "Z value is too small");
 is( ref $def->in_range([0, 0, 1.2] ),       '',   "Z value is too big");
 
-is( $def->is_array([0,0,0]), 1,                  'vector has 3 elements');
+is( $def->is_value_tuple([0,0,0]),           1,   'vector has 3 elements');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $def->can_convert('RGB'), 1,                 'namespace can be written upper case');
 is( $def->is_partial_hash({x => 1, y => 0}), 1,  'found hash with some keys');

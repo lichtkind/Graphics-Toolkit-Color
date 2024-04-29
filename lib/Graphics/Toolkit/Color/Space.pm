@@ -26,6 +26,7 @@ sub basis            { $_[0]{'basis'} }
 sub name             { $_[0]->basis->space_name }              #          --> ~
 sub axis             { $_[0]->basis->count }                   #          --> +
 sub is_value_tuple   { $_[0]->basis->is_value_tuple( $_[1] ) } # @+values --> ?
+sub is_partial_hash  { $_[0]->basis->is_partial_hash( $_[1] ) }# %+values --> ?
 
 ########################################################################
 

@@ -16,7 +16,7 @@ my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in_p
     $yiq_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
-    my ($r, $g, $b) = @_;
+    my ($r, $g, $b) = @{$_[0]};
     my $y =           (0.299  * $r) + ( 0.587  * $g) + ( 0.114  * $b);
     my $i = ($i_max + (0.5959 * $r) + (-0.2746 * $g) + (-0.3213 * $b)) / $i_size;
     my $q = ($q_max + (0.2115 * $r) + (-0.5227 * $g) + ( 0.3112 * $b)) / $q_size;
@@ -25,7 +25,7 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($y, $i, $q) = @_;
+    my ($y, $i, $q) = @{$_[0]};
     $i = ($i * $i_size) - $i_max;
     $q = ($q * $q_size) - $q_max;
     my $r = $y + ( 0.956 * $i) + ( 0.619 * $q);

@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'CIELAB',                  'color space has right name');
-is( $def->dimensions,     3,                     'color space has 3 dimensions');
+is( $def->axis,              3,                     'color space has 3 axis');
 
 
 is( ref $def->in_range([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');

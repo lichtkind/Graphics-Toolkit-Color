@@ -7,20 +7,20 @@ package Graphics::Toolkit::Color::Space::Instance::LAB;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', axis => [qw/L* a* b*/], # 
+my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', axis => [qw/L* a* b*/], #
                                                      range => [100, [-500, 500], [-200, 200]], precision => 3 );
 
     $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
-    my ($r, $g, $b) = @_;
+    my ($r, $g, $b) = @{$_[0]};
     my ($x, $y, $z) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
                                    [0.3575761, 0.7151522, 0.1191920],
-                                   [0.1804375, 0.0721750, 0.9503041]], 
+                                   [0.1804375, 0.0721750, 0.9503041]],
                                    apply_d65( $r ), apply_d65( $g ), apply_d65( $b ));
     $x /= 0.95047;
     $z /= 0.108883;
-    
+
     $x = ($x > 0.008856) ? ($x ** (1/3)) : (7.7870689 * $x + 0.137931034);
     $y = ($y > 0.008856) ? ($y ** (1/3)) : (7.7870689 * $y + 0.137931034);
     $z = ($z > 0.008856) ? ($z ** (1/3)) : (7.7870689 * $z + 0.137931034);
@@ -30,7 +30,7 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($l, $a, $b) = @_;
+    my ($l, $a, $b) = @{$_[0]};
     my $y = ($l + 16) / 116;
     my $x = ($a / 500) + $y;
     my $z = $y - ($b / 200);

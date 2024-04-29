@@ -15,7 +15,7 @@ my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness bl
 
 
 sub from_rgb {
-    my ($r, $g, $b) = @_;
+    my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b);
     my $white = my $vmin = min($r, $g, $b);
     my $black = 1 - ($vmax);
@@ -31,7 +31,7 @@ sub from_rgb {
 
 
 sub to_rgb {
-    my ($h, $w, $b) = @_;
+    my ($h, $w, $b) = @{$_[0]};
     return (0, 0, 0) if $b == 1;
     return (1, 1, 1) if $w == 1;
     my $v = 1 - $b;

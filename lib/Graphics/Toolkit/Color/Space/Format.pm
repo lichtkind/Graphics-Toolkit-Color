@@ -96,7 +96,7 @@ sub deformat {
         my $values = $deformatter->( $self, $color );
         next unless $self->basis->is_value_tuple( $values );
         $values = $self->remove_suffix($values, $suffix);
-        return ($values, $name)
+        return wantarray ? ($values, $name) : $values;
     }
     return undef;
 }

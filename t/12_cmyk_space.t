@@ -11,7 +11,7 @@ my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'CMYK',                     'color space has right name');
-is( $def->dimensions,      4,                     'color space has 4 dimensions');
+is( $def->axis,            4,                     'color space has 4 axis');
 
 is( ref $def->in_range([0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
 is( ref $def->in_range([1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
@@ -82,6 +82,7 @@ is( int @$rgb,     3,   'trimmed and converted back color black');
 is( $rgb->[0],   0.3,   'right red value');
 is( $rgb->[1],   0.4,   'right green value');
 is( $rgb->[2],   0.5,   'right blue value');
+
 
 $cmyk = $def->deformat([cmyk => 11, 22, 256, -1]);
 is( int @$cmyk,   4,     'deformat lc named ARRAY: got 4 values');

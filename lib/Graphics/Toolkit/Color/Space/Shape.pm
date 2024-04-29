@@ -161,9 +161,8 @@ sub denormalize {
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
 
-    my @val = map { ($self->axis_is_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
-                                                   : $values->[$_]   } $self->basis->iterator;
-    return $self->round( \@val, $precision );
+    return [ map { ($self->axis_is_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
+                                                   : $values->[$_]   } $self->basis->iterator ];
 }
 
 sub denormalize_delta {

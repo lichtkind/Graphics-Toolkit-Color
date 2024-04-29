@@ -84,8 +84,8 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my @values1 = $self->get( $space_name, 'list', 'normal' );
     my @values2 = $c2->get( $space_name, 'list', 'normal' );
     return unless defined $values1[0] and defined $values2[0];
-    my $delta = $space->delta( \@values1, \@values2 );
 
+    my $delta = $space->delta( \@values1, \@values2 );
     $delta = $space->denormalize_range( $delta, $range);
     return unless ref $delta and @$delta == $space->dimensions;
 

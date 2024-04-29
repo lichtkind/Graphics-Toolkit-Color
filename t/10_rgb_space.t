@@ -137,9 +137,9 @@ is( $d->[2], -256,      'delta in B component');
 
 $rgb = $def->denormalize( [0.3, 0.4, 0.5], 255, 0 );
 is( int @$rgb,    3,     'denormalized triplet, got 3 values');
-is( $rgb->[0],   77,    'right red value');
+is( $rgb->[0], 76.5,    'right red value');
 is( $rgb->[1],   102,   'right green value');
-is( $rgb->[2],   128,   'right blue value');
+is( $rgb->[2], 127.5,   'right blue value');
 exit 0;
 
 exit 0;

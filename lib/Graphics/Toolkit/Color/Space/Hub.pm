@@ -15,7 +15,7 @@ sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 sub base_space { $space_lookup{ $base_package } }
 sub space_names { keys %{%space_lookup} }
 
-########################################################################
+#### space API #########################################################
 
 sub add_space {
     my $space = shift;
@@ -47,7 +47,7 @@ sub _check_values_and_space {
                                 : 'need an ARRAY ref with '.$space->dimensions." $space_name values as first argument of $sub_name";
 }
 
-########################################################################
+#### value API #########################################################
 
 sub partial_hash_deformat { # convert partial hash into
     my ($value_hash) = @_;
@@ -55,7 +55,8 @@ sub partial_hash_deformat { # convert partial hash into
     for my $space_name (space_names()) {
         my $color_space = get_space( $space_name );
         my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
-        return $pos_hash, $color_space->name if ref $pos_hash eq 'HASH';
+        next unless ref $pos_hash eq 'HASH';
+        return wantarray ? ($pos_hash, $color_space->name) : $pos_hash;
     }
     return undef;
 }
@@ -79,24 +80,6 @@ sub format { # @tuple --> % | % |~ ...
     return @values == 1 ? $values[0] : @values;
 }
 
-sub deconvert { # @... --> @RGB (base color space) # normalized values only
-    my ($values, $space_name) = @_;
-    my $space = _check_values_and_space( 'deconvert', $values, $space_name );
-    return unless ref $space;
-    $values = $space->clamp( $values, 'normal', -1);
-    return $values if $space->name eq base_space->name;
-    $space->convert( $values, $base_package);
-}
-
-sub convert { # @RGB --> $@...|!~                     # normalized values only
-    my ($values, $space_name) = @_;
-    my $space = _check_values_and_space( 'convert', $values, $space_name );
-    return $space unless ref $space;
-    $values = base_space->clamp( $values, 'normal', -1);
-    return $values if $space->name eq base_space->name;
-    $space->deconvert( $values, $base_package);
-}
-
 sub denormalize { # result clamped, alway in space
     my ($values, $space_name, $range) = @_;
     my $space = _check_values_and_space( 'denormalize', $values, $space_name );
@@ -114,6 +97,23 @@ sub normalize {
     $space->normalize( $values, $range);
 }
 
+sub deconvert { # @... --> @RGB (base color space) # normalized values only
+    my ($values, $space_name) = @_;
+    my $space = _check_values_and_space( 'deconvert', $values, $space_name );
+    return unless ref $space;
+    $values = $space->clamp( $values, 'normal', -1);
+    return $values if $space->name eq base_space->name;
+    $space->convert( $values, $base_package);
+}
+
+sub convert { # @RGB --> $@...|!~                     # normalized values only
+    my ($values, $space_name) = @_;
+    my $space = _check_values_and_space( 'convert', $values, $space_name );
+    return $space unless ref $space;
+    $values = base_space->clamp( $values, 'normal', -1);
+    return $values if $space->name eq base_space->name;
+    $space->deconvert( $values, $base_package);
+}
 
 1;
 
@@ -211,6 +211,17 @@ B<whiteness> and B<blackness>, desribing how much white or black are mixed in.
 If both are zero, than we have a pure color. I<whiteness> of 100 always
 leads to pure white and I<blackness> of 100 always leads to pure black.
 
+=head2 NCol
+
+Is a human readable derivation of the HWB space with altered B<hue> axis
+that consicts of a letter and nwo digits. The letter demarks one of the
+six areas around the rainbow B<R> (I<Red>), B<Y> (I<Yellow>), B<G> (I<Green),
+B<C> (I<Cyan>), B<B> (I<Blue>), B<M> (I<Magenta). The two digits after this
+letter are a percentual value, pointing to a position on the rainbow,
+between the stated color by the letter and the next. The B<whiteness> and
+B<blackness> axis have values with the suffix I<%>, since they are
+percentual values as well.
+
 =head2 YIQ
 
 Has three linear dimensions:
@@ -243,6 +254,7 @@ Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
 Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+
 
 =head1 RANGES
 

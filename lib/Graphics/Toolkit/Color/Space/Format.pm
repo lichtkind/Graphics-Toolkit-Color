@@ -60,7 +60,7 @@ sub _value_regex {
         ? (map {'\s*('.$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->iterator)
         : (map {'\s*'.$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->iterator);
 }
-#### public formatting API #############################################
+#### public API: formatting value tuples ###############################
 
 sub basis            { $_[0]{'basis'}}
 sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }

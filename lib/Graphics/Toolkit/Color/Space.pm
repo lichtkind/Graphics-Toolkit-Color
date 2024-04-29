@@ -50,23 +50,25 @@ sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &defo
 
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 
+sub convert {
+    my ($self, $values, $space_name) = @_;
+    return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
+    return [$self->{'convert'}{ uc $space_name }{'to'}->( $values )];
+}
+
+sub deconvert {
+    my ($self, $values, $space_name) = @_;
+    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
+    return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];
+}
+
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $mode) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
     return 0 if $self->can_convert( $space_name );
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, mode => $mode };
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, mode => $mode }; # what is mode ?
 }
 
-sub convert {
-    my ($self, $values, $space_name) = @_;
-    return unless $self->{'basis'}->is_array( $values ) and defined $space_name and $self->can_convert( $space_name );
-    return [$self->{'convert'}{ uc $space_name }{'to'}->(@$values)];
-}
-sub deconvert {
-    my ($self, $values, $space_name) = @_;
-    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return [ $self->{'convert'}{ uc $space_name }{'from'}->(@$values) ];
-}
 
 1;
 

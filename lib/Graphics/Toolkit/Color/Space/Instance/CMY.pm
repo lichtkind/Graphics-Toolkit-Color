@@ -7,10 +7,9 @@ package Graphics::Toolkit::Color::Space::Instance::CMY;
 use Graphics::Toolkit::Color::Space;
 
 my $cmy_def = Graphics::Toolkit::Color::Space->new( axis => [qw/cyan magenta yellow/] );
-   $cmy_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+   $cmy_def->add_converter('RGB', \&invert, \&invert );
 
-sub from_rgb { map { 1 - $_} @_ }
-sub to_rgb   { map { 1 - $_} @_ }
+sub invert { map { 1 - $_ } @{$_[0]} }
 
 $cmy_def;
 

@@ -12,7 +12,7 @@ my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'HSV',                     'color space has right name');
-is( $def->dimensions,     3,                     'color space has 3 dimensions');
+is( $def->axis,           3,                     'color space has 3 axis');
 is( ref $def->in_range([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');
 is( ref $def->in_range([360,100,100]), 'ARRAY',   'check HSV values works on upper bound values');
 is( ref $def->in_range([0,0]),              '',   "HSV got too few values");

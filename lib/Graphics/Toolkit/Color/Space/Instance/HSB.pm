@@ -15,7 +15,7 @@ my $hsb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation b
 
 
 sub from_rgb {
-    my ($r, $g, $b) = @_;
+    my ($r, $g, $b) = @{$_[0]};
     my $vmin = min($r, $g, $b);
     my $br = my $vmax = max($r, $g, $b);
     return (0, 0, $br) if $vmax == $vmin;
@@ -29,7 +29,7 @@ sub from_rgb {
 }
 
 sub to_rgb {
-    my ($h, $s, $b) = @_;
+    my ($h, $s, $b) = @{$_[0]};
     return ($b, $b, $b) if $s == 0;
     my $hi = int( $h * 6 );
     my $f = ( $h * 6 ) - $hi;

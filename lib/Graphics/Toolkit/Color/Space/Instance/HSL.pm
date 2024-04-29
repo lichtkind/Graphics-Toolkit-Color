@@ -15,7 +15,7 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation l
 
 
 sub from_rgb {
-    my ($r, $g, $b) = @_;
+    my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b),
     my $vmin = min($r, $g, $b);
     my $l = ($vmax + $vmin) / 2;
@@ -29,7 +29,7 @@ sub from_rgb {
 }
 
 sub to_rgb {
-    my ($h, $s, $l) = @_;
+    my ($h, $s, $l) = @{$_[0]};
     $h *= 6;
     my $C = $s * (1 - abs($l * 2 - 1));
     my $X = $C * (1 - abs( rmod($h, 2) - 1) );

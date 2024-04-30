@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 54;
+use Test::More tests => 59;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
@@ -27,6 +27,13 @@ is( ref $def->in_range([0, 101, 0]),        '',   "whiteness value is too big");
 is( ref $def->in_range([0, 0, -1 ] ),       '',   "blackness value is too small");
 is( ref $def->in_range([0, 0, 1.1] ),       '',   "blackness value is not integer");
 is( ref $def->in_range([0, 0, 101] ),       '',   "blackness value is too big");
+
+my $val = $def->round([1,22.5, 11.111111]);
+is( ref $val,                'ARRAY', 'rounded value tuple int tuple');
+is( int @$val,                     3, 'right amount of values');
+is( $val->[0],                     1, 'first value kept');
+is( $val->[1],                    23, 'second value rounded up');
+is( $val->[2],                    11, 'third value rounded down');
 
 my $hwb = $def->deconvert( [ .5, .5, .5], 'RGB');
 is( int @$hwb,   3,     'converted color grey has three hwb values');
@@ -58,7 +65,7 @@ is( $rgb->[0],   0,     'right red value');
 is( $rgb->[1],   0,     'right green value');
 is( $rgb->[2],   0,     'right blue value');
 
-my $val = $def->form->remove_suffix([qw/360 100% 100%/]);
+$val = $def->form->remove_suffix([qw/360 100% 100%/]);
 is( ref $val,                'ARRAY', 'value tuple without suffixes is a tuple');
 is( int @$val,                     3, 'right amount of values');
 is( $val->[0],                   360, 'first value is right');

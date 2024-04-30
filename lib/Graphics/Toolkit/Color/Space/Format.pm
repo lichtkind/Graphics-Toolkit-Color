@@ -6,20 +6,20 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Format;
 
 sub new {
-    my ($pkg, $basis, $suffix, $value_format ) = @_;
+    my ($pkg, $basis, $suffix, $value_form ) = @_;
     return 'first argument has to be an Color::Space::Basis reference'
         unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
     $suffix = make_suffix( $basis, $suffix ) ;
     return $suffix unless ref $suffix;
 
-    my $number_format = '-?(?:\d+|\d+\.\d+|.\d+)';
+    my $number_form = '-?(?:\d+|\d+\.\d+|.\d+)';
     my $count = $basis->count;
-    $value_format = [($number_format) x $count] unless defined $value_format;
-    $value_format = [($value_format) x $count] unless ref $suffix;
-    $value_format = [ map {(defined $_ and $_) ? $_ : $number_format } @$value_format]; # fill missing defs with default
-    return 'need an ARRAY as definition of value format' unless ref $value_format eq 'ARRAY';
-    return 'definition value format has to have same lengths as basis' unless @$value_format == $count;
+    $value_form = [($number_form) x $count] unless defined $value_form;
+    $value_form = [($value_form) x $count] unless ref $suffix;
+    $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
+    return 'need an ARRAY as definition of value format' unless ref $value_form eq 'ARRAY';
+    return 'definition value format has to have same length as basis (number of axis)' unless @$value_form == $count;
 
     # format --> tuple
     my %deformats = ( hash => sub { tuple_from_hash(@_)         },
@@ -35,8 +35,8 @@ sub new {
            named_string => sub { $_[0]->named_string_from_tuple($_[1]) }, #  'rgb: 1, 2, 3'
              css_string => sub { $_[0]->css_string_from_tuple($_[1]) },   #  'rgb(1,2,3)'
     );
-    bless { basis => $basis, suffix => $suffix, value_format => $value_format ,
-            format => \%formats, deformat => \%deformats, }
+    bless { basis => $basis, suffix => $suffix, value_form => $value_form ,
+            format => \%formats, deformat => \%deformats, pre => '', post => ''}
 }
 
 sub make_suffix {
@@ -57,8 +57,8 @@ sub _suffix {
 sub _value_regex {
     my ($self, $match) = @_;
     (defined $match and $match)
-        ? (map {'\s*('.$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->iterator)
-        : (map {'\s*'.$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->iterator);
+        ? (map {'\s*('.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->iterator)
+        : (map {'\s*'.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->iterator);
 }
 #### public API: formatting value tuples ###############################
 
@@ -76,14 +76,11 @@ sub add_deformatter {
     return if not defined $format or ref $format or exists $self->{'deformat'}{$format} or ref $code ne 'CODE';
     $self->{'deformat'}{ lc $format } = $code;
 }
-
-sub format {
-    my ($self, $values, $format, $suffix) = @_;
-    return unless $self->basis->is_value_tuple( $values );
-    $suffix = $self->_suffix( $suffix );
-    return $suffix unless ref $suffix;
-    $values = $self->add_suffix( $values, $suffix );
-    $self->{'format'}{ lc $format }->($self, $values) if $self->has_format( $format );
+sub set_value_formatter {
+    my ($self, $pre_code, $post_code) = @_;
+    return 0 if ref $pre_code ne 'CODE' or ref $post_code ne 'CODE';
+    $self->{'pre'} = $pre_code;
+    $self->{'post'} = $post_code;
 }
 
 sub deformat {
@@ -100,28 +97,44 @@ sub deformat {
     }
     return undef;
 }
-
-#### helper ############################################################
-
-sub add_suffix {
-    my ($self, $values, $suffix) = @_;
+sub format {
+    my ($self, $values, $format, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $values );
     $suffix = $self->_suffix( $suffix );
     return $suffix unless ref $suffix;
-    [ map { ($suffix->[$_] and substr( $values->[$_], - length $suffix->[$_]) ne $suffix->[$_])
-                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->iterator ];
+    $values = $self->add_suffix( $values, $suffix );
+    $self->{'format'}{ lc $format }->($self, $values) if $self->has_format( $format );
 }
+
+#### helper ############################################################
+
 sub remove_suffix { # and unnecessary white space
     my ($self, $values, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $values );
     $suffix = $self->_suffix( $suffix );
     return $suffix unless ref $suffix;
+    if (ref $self->{'pre'}){
+        $values = $self->{'pre'}->($values);
+        return unless $self->basis->is_value_tuple( $values );
+    }
     local $/ = ' ';
     chomp $values->[$_] for $self->basis->iterator;
     [ map { eval $_ }
       map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
           ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_])))
           : $values->[$_]                                                                     } $self->basis->iterator ];
+}
+sub add_suffix {
+    my ($self, $values, $suffix) = @_;
+    return unless $self->basis->is_value_tuple( $values );
+    $suffix = $self->_suffix( $suffix );
+    return $suffix unless ref $suffix;
+    if (ref $self->{'post'}){
+        $values = $self->{'post'}->($values);
+        return unless $self->basis->is_value_tuple( $values );
+    }
+    [ map { ($suffix->[$_] and substr( $values->[$_], - length $suffix->[$_]) ne $suffix->[$_])
+                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->iterator ];
 }
 
 sub match_number_values {

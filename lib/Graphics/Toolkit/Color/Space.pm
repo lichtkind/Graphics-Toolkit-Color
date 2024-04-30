@@ -15,7 +15,7 @@ sub new {
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'} );
     return $shape unless ref $shape;
-    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'}, $args{'value_format'} );
+    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'}, $args{'value_form'} );
     return $format unless ref $format;
     bless { basis => $basis, shape => $shape, format => $format, convert => {} };
 }
@@ -48,6 +48,7 @@ sub has_format        { shift->form->has_format(@_) }        # ~format_name     
 sub has_deformat      { shift->form->has_deformat(@_) }      # ~format_name                       --> ?
 sub add_formatter     { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
 sub add_deformatter   { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
+sub set_value_formatter{shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
 
 #### conversion ########################################################
 

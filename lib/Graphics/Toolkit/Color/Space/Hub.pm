@@ -44,7 +44,7 @@ sub _check_values_and_space {
     check_space_name( $space_name ) and return;
     my $space = get_space($space_name);
     $space->is_array( $values ) ? $space
-                                : 'need an ARRAY ref with '.$space->dimensions." $space_name values as first argument of $sub_name";
+                                : 'need an ARRAY ref with '.$space->axis." $space_name values as first argument of $sub_name";
 }
 
 #### value API #########################################################

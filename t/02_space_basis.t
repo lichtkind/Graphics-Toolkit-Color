@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 120;
+use Test::More tests => 128;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -65,12 +65,21 @@ is( $s3d->is_value_tuple([2,2]),              0, 'too small ARRAY');
 is( $s3d->is_value_tuple([1,2,3,4]),          0, 'too large ARRAY');
 is( $s3d->is_value_tuple([1,2,3]),            1, 'correctly sized value ARRAY');
 
-is( $s3d->pos_from_long('alpha'),  0,         'alpha is the first key');
-is( $s3d->pos_from_long('beta'),   1,         'beta is the second key');
-is( $s3d->pos_from_long('emma'),   undef,     'emma is not akey');
-is( $s5d->pos_from_long('aleph'),  0,         'aleph is the first key');
-is( $s5d->pos_from_long('he'),     4,         'he is the fourth key');
-is( $s5d->pos_from_long('emma'),   undef,     'emma is not akey');
+is( $s3d->pos_from_long('alpha'),  0,         'alpha name of first axis');
+is( $s3d->pos_from_long('beta'),   1,         'beta is name of second axis');
+is( $s3d->pos_from_long('emma'),   undef,     'emma is not an axis name');
+is( $s5d->pos_from_long('aleph'),  0,         'aleph is the first name');
+is( $s5d->pos_from_long('he'),     4,         'he is the fourth nam');
+is( $s5d->pos_from_long('emma'),   undef,     'emma is not an axis name');
+
+is( $s3d->short_from_long_name('alpha'),  'a',    'a is short for alpha');
+is( $s3d->short_from_long_name('BETA'),   'b',    'upper case axis name recognized');
+is( $s3d->short_from_long_name('emma'),  undef,   'emma is not a an axis name and there fore has no shortcut');
+is( $s5d->short_from_long_name('He'),     'q',    'custom shortcut provided');
+is( $s3d->long_from_short_name('a'),  'alpha',    'alpha is long axis name for shortcut a');
+is( $s3d->long_from_short_name('B'),   'beta',    'upper case shortcut recognized');
+is( $s3d->long_from_short_name('e'),    undef,    'e is not a a shortcut axis name: there is no full name');
+is( $s5d->long_from_short_name('q'),     'he',    'long axis name from custom shortcut');
 
 is( $s3d->is_hash([]),                  0, 'array is not a hash');
 is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');

@@ -31,21 +31,22 @@ sub is_partial_hash   { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 ########################################################################
 
 sub shape             { $_[0]{'shape'} }
-sub in_range          { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision  --> @+values|!~   # errmsg
-sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision  --> @+rvals       # result values
-sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range               --> @+rvals|!~
-sub denormalize       { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision  --> @+rvals|!~
-sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @+values -- @+range               --> @+rvals|!~
-sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+values2              --> @+rvals|      # on normalized values
+sub in_range          { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
+sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
+sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
+sub denormalize       { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision   --> @+rvals|!~
+sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
+sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+values2               --> @+rvals|      # on normalized values
 
 ########################################################################
 
 sub form              { $_[0]{'format'} }
-sub format            { shift->form->format(@_) }          # @+values, ~format_name -- @~suffix --> $*color
-sub deformat          { shift->form->deformat(@_) }        # $*color                -- @~suffix --> @+values, ~format_name
-sub has_format        { shift->form->has_format(@_) }      # ~format_name                       --> ?
-sub add_formatter     { shift->form->add_formatter(@_) }   # ~format_name, &formatter           --> &?
-sub add_deformatter   { shift->form->add_deformatter(@_) } # ~format_name, &deformatter         --> &?
+sub format            { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
+sub deformat          { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
+sub has_format        { shift->form->has_format(@_) }        # ~format_name                       --> ?
+sub has_deformat      { shift->form->has_deformat(@_) }      # ~format_name                       --> ?
+sub add_formatter     { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
+sub add_deformatter   { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
 
 #### conversion ########################################################
 
@@ -62,10 +63,10 @@ sub deconvert {
 }
 
 sub add_converter {
-    my ($self, $space_name, $to_code, $from_code, $mode) = @_;
+    my ($self, $space_name, $to_code, $from_code) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
     return 0 if $self->can_convert( $space_name );
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, mode => $mode }; # what is mode ?
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
 }
 
 

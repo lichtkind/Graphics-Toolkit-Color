@@ -8,11 +8,12 @@ use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/], range => 255 );
-
+   $rgb_def->add_converter('RGB', \&pass, \&pass );
    $rgb_def->add_deformatter( 'array',       sub { $_[1] if $rgb_def->is_value_tuple( $_[1] ) } );
    $rgb_def->add_formatter(   'hex_string',  \&hex_from_rgb );
    $rgb_def->add_deformatter( 'hex_string',  \&rgb_from_hex );
 
+sub pass { @{$_[0]} }
 
 sub hex_from_rgb { sprintf("#%02x%02x%02x", @{$_[1]} ) }
 

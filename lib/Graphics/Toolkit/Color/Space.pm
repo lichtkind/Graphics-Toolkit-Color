@@ -33,6 +33,7 @@ sub is_partial_hash   { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 sub shape             { $_[0]{'shape'} }
 sub in_range          { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
 sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
+sub round             { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
 sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
 sub denormalize       { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision   --> @+rvals|!~
 sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~

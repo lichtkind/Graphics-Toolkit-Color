@@ -156,7 +156,7 @@ sub normalize {
 }
 
 sub denormalize {
-    my ($self, $values, $range, $precision) = @_;
+    my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 126;
+use Test::More tests => 140;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -107,6 +107,28 @@ is( $val->[0],                     4, 'first value correct');
 is( $val->[1],                    19, 'second value correct');
 is( $val->[2],                    -1, 'third value correct');
 is( $val->[3],                    -2, 'fourth value correct - range had none zero min');
+
+$space = Graphics::Toolkit::Color::Space->new(
+   axis => [qw/AAA BBB CCC DDD/], range => 10, precision => [0,1,2,-1],
+);
+is( ref $space,     $module, 'created color space with axis names, ranges and precision');
+is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
+$val = $space->round([ 1.11111, 1.11111, 1.11111, 1.11111]);
+is( ref $val,                'ARRAY', 'rounded value tuple is a tuple');
+is( int @$val,                     4, 'right amount of values');
+is( $val->[0],                     1, 'first value correct');
+is( $val->[1],                   1.1, 'second value correct');
+is( $val->[2],                  1.11, 'third value correct');
+is( $val->[3],               1.11111, 'fourth value correct - range had none zero min');
+
+$val = $space->clamp([ -0.1111, 1.1111, 200, 0.1111]);
+is( ref $val,                'ARRAY', 'clamped value tuple into a tuple');
+is( int @$val,                     4, 'right amount of values');
+is( $val->[0],                     0, 'clamped up to min');
+is( $val->[1],                   1.1, 'second value correct');
+is( $val->[2],                    10, 'third value correct');
+is( $val->[3],                0.1111, 'fourth value correct');
+
 
 is( $space->has_format('bbb'), 0, 'vector name is not a format');
 is( $space->has_format('c'),   0, 'vector sigil is not  a format');

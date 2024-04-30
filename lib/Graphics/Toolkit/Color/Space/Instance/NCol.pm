@@ -1,15 +1,15 @@
 use v5.12;
 use warnings;
 
-# HSL color space specific code
+# NCol color space specific code (HWB with human readable hus values)
 
 package Graphics::Toolkit::Color::Space::Instance::NCol;
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
                                                     axis => [qw/hue whiteness blackness/],
-                                                   range => [ 360, 100, 100],  precision => 0
+                                                   range => [360, 100, 100],  precision => 0
                                                   suffix => ['', '%', '%'],
                                                     type => [qw/no linear linear/],
                                                     );

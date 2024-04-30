@@ -117,7 +117,7 @@ is( $rgb->[0],    -1,   'red is -1');
 is( $rgb->[1],   2.3,   'green is one');
 is( $rgb->[2],   4444,  'blue is two');
 
-is( $def->format([-1,2.3,4444], 'css_string'), 'rgb(-1,2.3,4444)', 'formated rgb triplet into css string');
+is( $def->format([-1,2.3,4444], 'css_string'), 'rgb(-1, 2.3, 4444)', 'formated rgb triplet into css string');
 
 $rgb = $def->format([0,256,3.3], 'named_array');
 is( ref $rgb,  'ARRAY',  'formated into named ARRAY');

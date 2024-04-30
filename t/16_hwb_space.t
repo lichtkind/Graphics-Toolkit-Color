@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 77;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
@@ -27,7 +27,6 @@ is( ref $def->in_range([0, 101, 0]),        '',   "whiteness value is too big");
 is( ref $def->in_range([0, 0, -1 ] ),       '',   "blackness value is too small");
 is( ref $def->in_range([0, 0, 1.1] ),       '',   "blackness value is not integer");
 is( ref $def->in_range([0, 0, 101] ),       '',   "blackness value is too big");
-
 
 my $hwb = $def->deconvert( [ .5, .5, .5], 'RGB');
 is( int @$hwb,   3,     'converted color grey has three hwb values');
@@ -59,5 +58,28 @@ is( $rgb->[0],   0,     'right red value');
 is( $rgb->[1],   0,     'right green value');
 is( $rgb->[2],   0,     'right blue value');
 
+my $val = $def->form->remove_suffix([qw/360 100% 100%/]);
+is( ref $val,                'ARRAY', 'value tuple without suffixes is a tuple');
+is( int @$val,                     3, 'right amount of values');
+is( $val->[0],                   360, 'first value is right');
+is( $val->[1],                   100, 'second value right');
+is( $val->[2],                   100, 'third value right');
+
+$val = $def->deformat('hwb(240, 88%, 22%)');
+is( ref $val,                'ARRAY', 'deformated CSS string into value tuple');
+is( int @$val,                     3, 'right amount of values');
+is( $val->[0],                   240, 'first value is right');
+is( $val->[1],                    88, 'second value right');
+is( $val->[2],                    22, 'third value right');
+
+$val = $def->deformat('hwb(240, 88, 22)');
+is( ref $val,                'ARRAY', 'deformated CSS string without suffix into value tuple');
+is( int @$val,                     3, 'right amount of values');
+is( $val->[0],                   240, 'first value is right');
+is( $val->[1],                    88, 'second value right');
+is( $val->[2],                    22, 'third value right');
+
+my $str = $def->format([240, 88, 22], 'css_string');
+is( $str,         'hwb(240, 88%, 22%)', 'converted tuple into css string');
 
 exit 0;

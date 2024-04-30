@@ -181,7 +181,7 @@ sub named_string_from_tuple {
 }
 sub css_string_from_tuple {
     my ($self, $values) = @_;
-    return  lc( $self->basis->space_name).'('.join(',', @$values).')';
+    return  lc( $self->basis->space_name).'('.join(', ', @$values).')';
 }
 
 1;

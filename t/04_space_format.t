@@ -143,11 +143,11 @@ is( $string,       'abg: 0, 2.2, -3', 'string syntax ist correct');
 
 $string = $obj->format( [0,2.2,-3], 'css_string');
 is( ref $string,                '', 'could format into CSS string');
-is( $string,       'abg(0,2.2,-3)', 'string syntax ist correct');
+is( $string,       'abg(0, 2.2, -3)', 'string syntax ist correct');
 
 $string = $pobj->format( [0,2.2,-3], 'css_string');
 is( ref $string,                '', 'could format into CSS string with suffixes');
-is( $string,       'abg(0%,2.2%,-3%)', 'string syntax ist correct');
+is( $string,       'abg(0%, 2.2%, -3%)', 'string syntax ist correct');
 
 
 $string = $obj->format( [0,2.2,-3], 'pstring');

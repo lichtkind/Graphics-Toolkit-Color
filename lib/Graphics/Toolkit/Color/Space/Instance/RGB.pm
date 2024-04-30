@@ -4,14 +4,14 @@ use warnings;
 # sRGB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::RGB;
-use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space;
 
 my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/], range => 255 );
-   $rgb_def->add_converter('RGB', \&pass, \&pass );
-   $rgb_def->add_deformatter( 'array',       sub { $_[1] if $rgb_def->is_value_tuple( $_[1] ) } );
-   $rgb_def->add_formatter(   'hex_string',  \&hex_from_rgb );
-   $rgb_def->add_deformatter( 'hex_string',  \&rgb_from_hex );
+   $rgb_def->add_converter(          'RGB', \&pass, \&pass );
+   $rgb_def->add_formatter(   'hex_string', \&hex_from_rgb );
+   $rgb_def->add_deformatter( 'hex_string', \&rgb_from_hex );
+   $rgb_def->add_deformatter(      'array', sub { $_[1] if $rgb_def->is_value_tuple( $_[1] ) } );
 
 sub pass { @{$_[0]} }
 

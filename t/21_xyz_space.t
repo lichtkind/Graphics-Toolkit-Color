@@ -38,7 +38,7 @@ is( int @$val,  3,     'deformated value triplet (vector)');
 is( $val->[0], 1,     'first value good');
 is( $val->[1], 0,     'second value good');
 is( $val->[2], -0.1,  'third value good');
-is( $def->format([0,1,0], 'css_string'), 'ciexyz(0,1,0)', 'can format css string');
+is( $def->format([0,1,0], 'css_string'), 'ciexyz(0, 1, 0)', 'can format css string');
 
 my $xyz = $def->deconvert( [ 0, 0, 0], 'RGB');
 is( int @$xyz,  3,  'converted color black has three XYZ values');

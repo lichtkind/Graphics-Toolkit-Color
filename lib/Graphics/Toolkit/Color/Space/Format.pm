@@ -108,8 +108,8 @@ sub add_suffix {
     return unless $self->basis->is_value_tuple( $values );
     $suffix = $self->_suffix( $suffix );
     return $suffix unless ref $suffix;
-    [ map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) ne $self->{'suffix'}[$_])
-                  ? $values->[$_] . $self->{'suffix'}[$_] : $values->[$_] } $self->basis->iterator ];
+    [ map { ($suffix->[$_] and substr( $values->[$_], - length $suffix->[$_]) ne $suffix->[$_])
+                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->iterator ];
 }
 sub remove_suffix { # and unnecessary white space
     my ($self, $values, $suffix) = @_;

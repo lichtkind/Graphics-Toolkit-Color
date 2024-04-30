@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 77;
+use Test::More tests => 54;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
@@ -79,7 +79,7 @@ is( $val->[0],                   240, 'first value is right');
 is( $val->[1],                    88, 'second value right');
 is( $val->[2],                    22, 'third value right');
 
-my $str = $def->format([240, 88, 22], 'css_string');
-is( $str,         'hwb(240, 88%, 22%)', 'converted tuple into css string');
+is( $def->format([240, 88, 22], 'css_string'),  'hwb(240, 88%, 22%)', 'converted tuple into css string');
+is( $def->format([240, 88, 22], 'css_string', ''),  'hwb(240, 88, 22)', 'converted tuple into css string without suffixes');
 
 exit 0;

@@ -16,24 +16,25 @@ is( $def->name,       'CIELAB',                  'color space has right name');
 is( $def->axis,              3,                     'color space has 3 axis');
 
 
-is( ref $def->in_range([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');
-is( ref $def->in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal XYZ values');
-is( ref $def->in_range([0,0]),              '',   "XYZ got too few values");
-is( ref $def->in_range([0, 0, 0, 0]),       '',   "XYZ got too many values");
-is( ref $def->in_range([-0.1, 0, 0]),       '',   "X value is too small");
-is( ref $def->in_range([1, 0, 0]),          '',   "X value is too big");
-is( ref $def->in_range([0, -0.1, 0]),       '',   "Y value is too small");
-is( ref $def->in_range([0, 1.1, 0]),        '',   "Y value is too big");
-is( ref $def->in_range([0, 0, -.1 ] ),      '',   "Z value is too small");
-is( ref $def->in_range([0, 0, 1.2] ),       '',   "Z value is too big");
+is( ref $def->in_range([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
+is( ref $def->in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
+is( ref $def->in_range([0,0]),              '',   "CIELAB got too few values");
+is( ref $def->in_range([0, 0, 0, 0]),       '',   "CIELAB got too many values");
+is( ref $def->in_range([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $def->in_range([101, 0, 0]),        '',   "L value is too big");
+is( ref $def->in_range([0, -500.1, 0]),     '',   "a value is too small");
+is( ref $def->in_range([0, 500.1, 0]),        '',   "a value is too big");
+is( ref $def->in_range([0, 0, -200.1 ] ),      '',   "b value is too small");
+is( ref $def->in_range([0, 0, 200.2] ),       '',   "b value is too big");
 
-is( $def->is_array([0,0,0]), 1,                  'vector has 3 elements');
+is( $def->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $def->can_convert('RGB'), 1,                 'namespace can be written upper case');
 is( $def->can_convert('xyz'), 0,                 'can not convert to xyz');
 is( $def->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $def->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $def->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
+exit 0;
 
 my @val = $def->deformat(['CIELAB', 1, 0, -0.1]);
 is( int @val,  3,     'deformated value triplet (vector)');

@@ -863,10 +863,10 @@ frenchblue, greenash, burntcoral, mint, amethystorchid, raspberrysorbet,
 inkwell, ultimategray, buttercream, desertmist, willow
 
 =for HTML <p>
-<img src="https://raw.githubusercontent.com/lichtkind/Chart/main/dev/function/color/table/color_table0.png" alt="color table 1">
-<img src="https://raw.githubusercontent.com/lichtkind/Chart/main/dev/function/color/table/color_table1.png" alt="color table 2">
-<img src="https://raw.githubusercontent.com/lichtkind/Chart/main/dev/function/color/table/color_table2.png" alt="color table 3">
-<img src="https://raw.githubusercontent.com/lichtkind/Chart/main/dev/function/color/table/color_table3.png" alt="color table 4">
+<img src="https://raw.githubusercontent.com/lichtkind/Graphics-Toolkit-Color/main/dev/POD/color_table0.png" alt="color table 1">
+<img src="https://raw.githubusercontent.com/lichtkind/Graphics-Toolkit-Color/main/dev/POD/color_table1.png" alt="color table 2">
+<img src="https://raw.githubusercontent.com/lichtkind/Graphics-Toolkit-Color/main/dev/POD/color_table2.png" alt="color table 3">
+<img src="https://raw.githubusercontent.com/lichtkind/Graphics-Toolkit-Color/main/dev/POD/color_table3.png" alt="color table 4">
 </p>
 
 =head1 COPYRIGHT & LICENSE

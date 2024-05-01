@@ -7,8 +7,10 @@ package Graphics::Toolkit::Color::Space::Instance::LAB;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', axis => [qw/L* a* b*/], #
-                                                     range => [100, [-500, 500], [-200, 200]], precision => 3 );
+my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB
+                                                       axis => [qw/L* a* b*/],  # short l a b
+                                                      range => [100, [-500, 500], [-200, 200]],
+                                                  precision => 3 );
 
     $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

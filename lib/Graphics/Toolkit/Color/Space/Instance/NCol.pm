@@ -11,7 +11,7 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
                                                     axis => [qw/hue whiteness blackness/],
                                                     type => [qw/angular linear linear/],
                                                    range => [600, 100, 100],  precision => 0,
-                                              value_form => ['[RYGCBM]\d{2}','\d{2}','\d{2}'],
+                                              value_form => ['[RYGCBM]\d{1,2}','\d{1,2}','\d{1,2}'],
                                                   suffix => ['', '%', '%'],
                                                   );
 
@@ -24,13 +24,13 @@ my %pos = (map { $letter[$_] => $_ } 0 .. $#letter);
 sub pre_value {
     my $val = shift;
     my $hue = $pos{ substr($val->[0], 0, 1) } * 100 + substr($val->[0], 1);
-    [$hue, $val->[1], $val->[2]];
+    return [$hue, $val->[1], $val->[2]];
 }
 sub post_value {
     my $val = shift;
     my $h = int($val->[0] / 100);
-    my $hue = $letter[ $h ] . sprintf "%02u", $val->[0] - $h;
-    [$hue, $val->[1], $val->[2]];
+    my $hue = $letter[ $h ] . sprintf( "%02u", ($val->[0] - $h*100));
+    return [$hue, $val->[1], $val->[2]];
 }
 
 sub from_rgb {
@@ -72,4 +72,3 @@ sub to_rgb {
 }
 
 $hsl_def;
-

@@ -71,18 +71,23 @@ sub add_converter {
     $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
 }
 
-sub read {
+#### full pipe ops #####################################################
+
+sub read { # formatted color blob in local space --> normalized RGB
     my ($self, $color, $range, $precision, $suffix) = @_;
-    # my $tuple = $self->deformat($color, $suffix);
-    # $tuple = $self->round($tuple, $precision) if defined $precision;
-    # $tuple = $self->normalize( $tuple, $range);
+    my ($values, $format_name) = $self->deformat( $color, $suffix);
+    $values = $self->round( $values, $precision) if defined $precision;
+    $values = $self->normalize( $values, $range);
+    $values = $self->convert( $values, 'RGB');
+    wantarray ? ($values, $format_name) : $values;
 }
 
-sub write {
-    my ($self, $tuple, $format, $range, $precision, $suffix) = @_;
-    # $tuple = $self->denormalize( $tuple, $range);
-    # $tuple = $self->round($tuple, $precision);
-    # $self->format($tuple, $format, $suffix);
+sub write { # normalized @RGB --> formatted color in local space
+    my ($self, $values, $format_name, $range, $precision, $suffix) = @_;
+    $values = $self->deconvert( $values, 'RGB');
+    $values = $self->denormalize( $values, $range);
+    $values = $self->round( $values, $precision);
+    $self->format( $values, $format_name, $suffix);
 }
 
 

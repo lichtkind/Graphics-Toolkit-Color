@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 140;
+use Test::More tests => 147;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -15,6 +15,7 @@ my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/]);
 is( ref $space,     $module, 'created color space just with axis names');
 is( $space->name,    'ABCD', 'got space name from AXIS short names');
 is( $space->axis,         4, 'counted axis right');
+
 is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');
 is( $space->is_value_tuple([1,2,3,4,5]), 0, 'too long value tuple');
 is( $space->is_value_tuple([1,2,3,]),    0, 'too short value tuple');
@@ -143,11 +144,11 @@ is( $space->format([1,2,3,4], 'c'),             0, 'got no value by shortcut nam
 is( $space->format([1,2,3,4], 'D'),             0, 'got no value by uc shortcut name');
 is( $space->has_format('str'),                  0, 'formatter not yet inserted');
 
-my $c = $space->add_formatter('str', sub { $_[1][0] . $_[1][1] . $_[1][2] . $_[1][3]});
+my $c = $space->add_formatter('str', sub { $_[1][0] .':'. $_[1][1] .':'. $_[1][2] .':'. $_[1][3]});
 is( ref $c,                               'CODE', 'formatter code accepted');
 is( $space->has_format('str'),                 1, 'formatter inserted');
 my $str = $space->format([1,2,3,4], 'str');
-is( $str,                                 '1234', 'inserted formatter works');
+is( $str,                                 '1:2:3:4', 'inserted formatter works');
 
 my $fval = $space->deformat({a => 1, b => 2, c => 3, d => 4});
 is( int @$fval,    4, 'deformatter recognized char hash');
@@ -179,23 +180,33 @@ is( $fval->[1],  2, 'second value correctly deformatted');
 is( $fval->[2],  3, 'third value correctly deformatted');
 is( $fval->[3],  4, 'fourth value correctly deformatted');
 
-is( $space->can_convert('XYZ'),   0, 'converter not yet inserted');
-my $h = $space->add_converter('XYZ', sub { $_[0][0]+1, $_[0][1]+1, $_[0][2]+1, $_[0][3]+1},
-                                     sub { $_[0][0]-1, $_[0][1]-1, $_[0][2]-1, $_[0][3]-1} );
+is( $space->can_convert('RGB'),   0, 'converter not yet inserted');
+my $h = $space->add_converter('RGB', sub { $_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1},
+                                     sub { $_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1} );
 is( ref $h, 'HASH', 'converter code accepted');
-is( $space->can_convert('XYZ'),   1, 'converter inserted');
-$val = $space->convert([1,2,3,4], 'XYZ');
-is( int @$val,    4, 'converter did something');
-is( $val->[0],    2, 'first value correctly converted');
-is( $val->[1],    3, 'second value correctly converted');
-is( $val->[2],    4, 'third value correctly converted');
-is( $val->[3],    5, 'fourth value correctly converted');
-$val = $space->deconvert([2,3,4,5], 'xyz');
-is( int @$val,    4, 'deconverter did something even if space spelled in lower case');
-is( $val->[0],    1, 'first value correctly deconverted');
-is( $val->[1],    2, 'second value correctly deconverted');
-is( $val->[2],    3, 'third value correctly deconverted');
-is( $val->[3],    4, 'fourth value correctly deconverted');
+is( $space->can_convert('RGB'),   1, 'converter inserted');
+$val = $space->convert([0,0.1,0.2,0.3], 'RGB');
+is( int @$val,      4, 'could convert to RGB');
+is( $val->[0],    0.1, 'first value correctly converted');
+is( $val->[1],      0, 'second value correctly converted');
+is( $val->[2],    0.3, 'third value correctly converted');
+is( $val->[3],    0.2, 'fourth value correctly converted');
+$val = $space->deconvert([0.1, 0, 0.3, .2], 'rgb');
+is( int @$val,    4, 'could deconvert from RGB, even if space spelled in lower case');
+is( $val->[0],    0, 'first value correctly deconverted');
+is( $val->[1],  0.1, 'second value correctly deconverted');
+is( $val->[2],  0.2, 'third value correctly deconverted');
+is( $val->[3],  0.3, 'fourth value correctly deconverted');
+
+$val = $space->read( '1:2:3:4');
+is( ref $val,  'ARRAY',  'full pipe read of custom format');
+is( int @$val,       4,  'right amount of values');
+is( $val->[0],     0.2,  'first value good');
+is( $val->[1],      .1,  'second value good');
+is( $val->[2],      .4,  'third value good');
+is( $val->[3],      .3,  'fourth value good');
+
+is( $space->write( [0.2, .1, .4, .3], 'str'),  '1:2:3:4',  'full pipe write back to same string');
 
 exit 0;
 

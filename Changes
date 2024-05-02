@@ -153,3 +153,4 @@
 
 
     * * added color set method: bowl
+    * * added getter method: near_names

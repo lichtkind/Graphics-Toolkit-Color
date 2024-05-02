@@ -71,6 +71,20 @@ sub add_converter {
     $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
 }
 
+sub read {
+    my ($self, $color, $range, $precision, $suffix) = @_;
+    # my $tuple = $self->deformat($color, $suffix);
+    # $tuple = $self->round($tuple, $precision) if defined $precision;
+    # $tuple = $self->normalize( $tuple, $range);
+}
+
+sub write {
+    my ($self, $tuple, $format, $range, $precision, $suffix) = @_;
+    # $tuple = $self->denormalize( $tuple, $range);
+    # $tuple = $self->round($tuple, $precision);
+    # $self->format($tuple, $format, $suffix);
+}
+
 
 1;
 

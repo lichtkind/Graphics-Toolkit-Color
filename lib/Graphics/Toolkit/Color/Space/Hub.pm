@@ -49,6 +49,14 @@ sub _check_values_and_space {
 
 #### value API #########################################################
 
+sub read {
+    my ($color, $range, $precision, $suffix) = @_;
+}
+
+sub write {
+    my ($color, $space, $format, $range, $precision, $suffix) = @_;
+}
+
 sub partial_hash_deformat { # convert partial hash into
     my ($value_hash) = @_;
     return unless ref $value_hash eq 'HASH';

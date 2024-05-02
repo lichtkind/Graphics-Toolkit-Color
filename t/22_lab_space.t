@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 47;
+use Test::More tests => 57;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::LAB';
@@ -34,21 +34,28 @@ is( $def->can_convert('xyz'), 0,                 'can not convert to xyz');
 is( $def->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $def->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $def->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
-exit 0;
 
-my @val = $def->deformat(['CIELAB', 1, 0, -0.1]);
-is( int @val,  3,     'deformated value triplet (vector)');
-is( $val[0], 1,     'first value good');
-is( $val[1], 0,     'second value good');
-is( $val[2], -0.1,  'third value good');
-is( $def->format([0,1,0], 'css_string'), 'cielab(0,1,0)', 'can format css string');
+my $val = $def->deformat(['CIELAB', 0, -1, -0.1]);
+is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
+is( int @$val,   3,     'right amount of values');
+is( $val->[0],   0,     'first value good');
+is( $val->[1],  -1,     'second value good');
+is( $val->[2], -0.1,    'third value good');
+is( $def->format([0,1,0], 'css_string'), 'cielab(0, 1, 0)', 'can format css string');
 
+$val = $def->deconvert( [ 0, 0, 0], 'RGB');
+is( ref $val,                    'ARRAY',  'deconverted tuple of zeros');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 0),      1,  'first value good');
+is( close_enough( $val->[1] , 0),      1,  'second value good');
+is( close_enough( $val->[2] , 0),      1,  'third value good');
 
-my @lab = $def->deconvert( [ 0, 0, 0], 'RGB');
-is( int @lab,  3,  'converted color black has three LAB values');
-is( $lab[0],   0,  'converted color black has computed right L value');
-is( $lab[1],   0,  'converted color black has computed right a value');
-is( $lab[2],   0,  'converted color black has computed right b value');
+$val = $def->convert( [ 0, 0, 0], 'RGB');
+is( ref $val,  'ARRAY',  'converted tuple of zeros');
+is( int @$val,       3,  'right amount of values');
+is( close_enough( $val->[0] , 0),      1,  'first value good');
+is( close_enough( $val->[1] , 0),      1,  'second value good');
+is( close_enough( $val->[2] , 0),      1,  'third value good');
 
 exit 0;
 

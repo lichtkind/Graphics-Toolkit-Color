@@ -2,7 +2,7 @@
 1.8     2024-05-04    lichtkind
 -------
     * = mid level feature release
-    * * added support of 8 color spaces: CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv NCol OKLAB
+    * * added support of 7 color spaces: NCol CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB
     * + extended range definitions with explicit type names
     * + color spaces can now define value procision,
                                     value suffix ('%') and
@@ -17,7 +17,7 @@
 1.71     2023-09-21    lichtkind
 -------
     * = doc fixes
-    * ? typos mispellings, boken sentence
+    * ? typos mispellings, broken sentences
     * ? added range def explanation
     * ? simplified HEADINGS
     * ? removed doc of deprecated methods
@@ -150,5 +150,6 @@
     * = initial release - moved code out of Chart module
     * \ created own distro
     * ~ small POD fixes
+
 
     * * added color set method: bowl

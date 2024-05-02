@@ -187,16 +187,16 @@ a rainbow: 0 = red, 15 approximates orange, 60 - yellow 120 - green,
 180 - cyan, 240 - blue, 270 - violet, 300 - magenta, 330 - pink.
 0 and 360 points to the same coordinate. This module only outputs 0,
 even if accepting 360 as input.
-I<saturation> (short I<s>) ranges from 0 (gray) to 100 (clearest color set by hue).
+I<saturation> (short I<s>) ranges from 0 (White/gray/black) to 100 (clearest color set by hue).
 I<lightness> (short I<l>) ranges from 0 (black) over 50 (hue or gray) to 100 (white).
 
 =head2 HSV
 
 Similar to HSL we have B<hue> and B<saturation>, but the third value in
-named B<value>. In HSL the color white is always achieved when I<lightness> = 100.
+named B<value>. In HSL we always get  white, when I<lightness> is 100.
 In HSV additionally I<saturation> has to be zero to get white.
-When in HSV I<value> is 100 and I<saturation> is also 100, than we
-have the brightest clearest color of whatever I<hue> sets.
+When I<saturation> is 100 and I<value> is 100 we have the brightest,
+clearest color of whatever I<hue> sets.
 
 =head2 HSB
 
@@ -204,12 +204,12 @@ It is an alias to HSV, just value being renamed with B<brightness>.
 
 =head2 HWB
 
-An inverted HSV, where the clean colors are inside of the cylinder.
-It still has the circular B<hue> dimension, as described in C<HSL>.
-The other two, linear dimensions (also 0 .. 100 [percent]) are
-B<whiteness> and B<blackness>, desribing how much white or black are mixed in.
-If both are zero, than we have a pure color. I<whiteness> of 100 always
-leads to pure white and I<blackness> of 100 always leads to pure black.
+An inverted HSV, where the saturated, clean colors are on the center
+column of the cylinder. It still has the circular B<hue> dimension,
+as described in C<HSL>. The other two, linear dimensions (also 0 .. 100)
+are B<whiteness> and B<blackness>, desribing how much white or black are
+mixed in. If both are zero, than we have a pure color. I<whiteness> of 100
+always leads to white and I<blackness> of 100 always leads to black.
 
 =head2 NCol
 

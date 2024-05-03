@@ -57,6 +57,14 @@ is( close_enough( $val->[0] , 0),      1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
+$val = $space->deconvert( [ 1, 1, 1,], 'RGB');
+is( ref $val,                    'ARRAY',  'deconverted tuple of zeros');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 1),      1,  'first value good');
+is( close_enough( $val->[1] , 0),      1,  'second value good');
+is( $val->[2],      1,  'third value good');
+
+
 exit 0;
 
 my @xyz = $space->deconvert( [ 0.5, 0.5, 0.5], 'RGB');

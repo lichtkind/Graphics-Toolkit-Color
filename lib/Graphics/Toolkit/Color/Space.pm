@@ -53,6 +53,13 @@ sub set_value_formatter{shift->form->set_value_formatter(@_)}# &pre_formatter, &
 #### conversion ########################################################
 
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
+sub add_converter {
+    my ($self, $space_name, $to_code, $from_code) = @_;
+    return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
+    return 0 if $self->can_convert( $space_name );
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
+}
+
 sub convert {
     my ($self, $values, $space_name) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
@@ -62,13 +69,6 @@ sub deconvert {
     my ($self, $values, $space_name) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
     return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];
-}
-
-sub add_converter {
-    my ($self, $space_name, $to_code, $from_code) = @_;
-    return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
-    return 0 if $self->can_convert( $space_name );
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
 }
 
 #### full pipe ops #####################################################

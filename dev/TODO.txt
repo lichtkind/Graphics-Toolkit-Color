@@ -1,0 +1,13 @@
+TODO:
+------
+
+ + Color spaces
+   + OKLAB
+   + HunterLAB
+   + HSI
+
+- Set methods
+    + bowl
+
+- Setter Method
+    + near_names

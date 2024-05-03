@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# utilities for any sub module of the distribution
+# utilities for tests
 
 package Test::Color;
 

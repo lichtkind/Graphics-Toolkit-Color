@@ -28,7 +28,7 @@ sub add_space {
 
 sub remove_space {
     my $name = shift;
-    return "got no name as argument" unless defind $nam and $name;
+    return "got no name as argument" unless defined $name and $name;
     return "no known color space with name $name" unless ref get_space( $name );
     delete $space_lookup{ $name };
 }
@@ -43,7 +43,7 @@ sub _check_values_and_space {
     $space_name //= $base_package;
     check_space_name( $space_name ) and return;
     my $space = get_space($space_name);
-    $space->is_array( $values ) ? $space
+    $space->is_value_tuple( $values ) ? $space
                                 : 'need an ARRAY ref with '.$space->axis." $space_name values as first argument of $sub_name";
 }
 

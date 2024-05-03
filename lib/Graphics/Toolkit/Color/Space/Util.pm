@@ -59,5 +59,3 @@ sub mult_matrix {
 
 
 1;
-
-# min(floor(val*256),255)

@@ -5,21 +5,21 @@ use warnings;
 use Test::More tests => 40;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Instance::YIQ';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::LUV';
 
 my $def = eval "require $module";
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $def->name,       'YIQ',                     'color space has right name');
-is( $def->dimensions,     3,                     'color space has 3 dimensions');
+is( $def->name,       'CIELUV',                  'color space has right name');
+is( $def->axis,              3,                  'color space has 3 dimensions');
 is( $def->is_array([0,0,0]), 1,                  'vector has 3 elements');
 is( $def->is_partial_hash({i => 1, quadrature => 0}), 1, 'found hash with some keys');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $def->can_convert('yiq'), 0,                 'can not convert to itself');
 is( $def->format([0,0,0], 'css_string'), 'yiq(0,0,0)', 'can format css string');
-my @val = $def->deformat(['YIQ', 1, 0, -0.1]);
+my @val = $def->deformat(['LUV', 1, 0, -0.1]);
 is( int @val,  3,     'deformated value triplet (vector)');
 is( $val[0], 1,     'first value good');
 is( $val[1], 0,     'second value good');

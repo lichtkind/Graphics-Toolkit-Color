@@ -150,7 +150,3 @@
     * = initial release - moved code out of Chart module
     * \ created own distro
     * ~ small POD fixes
-
-
-    * * added color set method: bowl
-    * * added getter method: near_names

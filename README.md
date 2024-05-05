@@ -6,7 +6,8 @@
 
     1.8
 
-[on CPAN](https://metacpan.org/pod/Graphics::Color::Toolkit)
+[on CPAN](https://metacpan.org/pod/Graphics-Toolkit-Color)
+
 
     This is the landing page for the user documentation.
     There is also a download link on the left side under "Tools".

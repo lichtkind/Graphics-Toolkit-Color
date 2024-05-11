@@ -17,16 +17,16 @@ is( $space->name,       'CIELAB',                  'color space has right name')
 is( $space->axis,              3,                     'color space has 3 axis');
 
 
-is( ref $space->is_tuple_in_range([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
-is( ref $space->is_tuple_in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
-is( ref $space->is_tuple_in_range([0,0]),              '',   "CIELAB got too few values");
-is( ref $space->is_tuple_in_range([0, 0, 0, 0]),       '',   "CIELAB got too many values");
-is( ref $space->is_tuple_in_range([-0.1, 0, 0]),       '',   "L value is too small");
-is( ref $space->is_tuple_in_range([101, 0, 0]),        '',   "L value is too big");
-is( ref $space->is_tuple_in_range([0, -500.1, 0]),     '',   "a value is too small");
-is( ref $space->is_tuple_in_range([0, 500.1, 0]),        '',   "a value is too big");
-is( ref $space->is_tuple_in_range([0, 0, -200.1 ] ),      '',   "b value is too small");
-is( ref $space->is_tuple_in_range([0, 0, 200.2] ),       '',   "b value is too big");
+is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
+is( ref $space->range_check([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
+is( ref $space->range_check([0,0]),              '',   "CIELAB got too few values");
+is( ref $space->range_check([0, 0, 0, 0]),       '',   "CIELAB got too many values");
+is( ref $space->range_check([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $space->range_check([101, 0, 0]),        '',   "L value is too big");
+is( ref $space->range_check([0, -500.1, 0]),     '',   "a value is too small");
+is( ref $space->range_check([0, 500.1, 0]),        '',   "a value is too big");
+is( ref $space->range_check([0, 0, -200.1 ] ),      '',   "b value is too small");
+is( ref $space->range_check([0, 0, 200.2] ),       '',   "b value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');

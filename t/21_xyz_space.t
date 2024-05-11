@@ -15,16 +15,16 @@ is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by load
 is( $def->name,       'CIEXYZ',                  'color space has right name');
 is( $def->axis,              3,                     'color space has 3 axis');
 
-is( ref $def->is_tuple_in_range([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');
-is( ref $def->is_tuple_in_range([95.0, 100, 108.8]),  'ARRAY',   'check maximal XYZ values');
-is( ref $def->is_tuple_in_range([0,0]),              '',   "XYZ got too few values");
-is( ref $def->is_tuple_in_range([0, 0, 0, 0]),       '',   "XYZ got too many values");
-is( ref $def->is_tuple_in_range([-0.1, 0, 0]),       '',   "X value is too small");
-is( ref $def->is_tuple_in_range([96, 0, 0]),         '',   "X value is too big");
-is( ref $def->is_tuple_in_range([0, -0.1, 0]),       '',   "Y value is too small");
-is( ref $def->is_tuple_in_range([0, 100.1, 0]),      '',   "Y value is too big");
-is( ref $def->is_tuple_in_range([0, 0, -.1 ] ),      '',   "Z value is too small");
-is( ref $def->is_tuple_in_range([0, 0, 108.9] ),     '',   "Z value is too big");
+is( ref $def->range_check([0, 0, 0]),              'ARRAY',   'check minimal XYZ values are in bounds');
+is( ref $def->range_check([95.0, 100, 108.8]),  'ARRAY',   'check maximal XYZ values');
+is( ref $def->range_check([0,0]),              '',   "XYZ got too few values");
+is( ref $def->range_check([0, 0, 0, 0]),       '',   "XYZ got too many values");
+is( ref $def->range_check([-0.1, 0, 0]),       '',   "X value is too small");
+is( ref $def->range_check([96, 0, 0]),         '',   "X value is too big");
+is( ref $def->range_check([0, -0.1, 0]),       '',   "Y value is too small");
+is( ref $def->range_check([0, 100.1, 0]),      '',   "Y value is too big");
+is( ref $def->range_check([0, 0, -.1 ] ),      '',   "Z value is too small");
+is( ref $def->range_check([0, 0, 108.9] ),     '',   "Z value is too big");
 
 is( $def->is_value_tuple([0,0,0]),           1,   'vector has 3 elements');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');

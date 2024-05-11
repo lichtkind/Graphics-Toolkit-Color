@@ -29,7 +29,7 @@ sub hsl_from_name {
 sub name_from_rgb {
     my (@rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
-    my $vals = $RGB->in_range( [@rgb] );
+    my $vals = $RGB->range_check( [@rgb] );
     return unless ref $vals;
     my $names = _names_from_rgb( @rgb );
     return unless ref $names;
@@ -39,7 +39,7 @@ sub name_from_rgb {
 sub name_from_hsl {
     my (@hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
-    my $vals = $HSL->check( [ @hsl ] );
+    my $vals = $HSL->range_check( [ @hsl ] );
     return unless ref $vals;
     my $names = _names_from_hsl( @hsl );
     return unless ref $names;
@@ -51,9 +51,9 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
                '2. radius (real number) or array with tolerances in h s l direction';
     return $help if @_ != 2;
     my ($hsl_center, $radius) = @_;
-    $HSL->check( $hsl_center ) and return;
+    $HSL->range_check( $hsl_center ) and return;
     my $hsl_delta = (ref $radius eq 'ARRAY') ? $radius : [$radius, $radius, $radius];
-    $HSL->check( $hsl_delta ) and return;
+    $HSL->range_check( $hsl_delta ) and return;
 
     $hsl_delta->[0] = 180 if $hsl_delta->[0] > 180;        # enough to search complete HSL space (prevent double results)
     my (@min, @max, @names, $minhrange, $maxhrange);
@@ -86,7 +86,7 @@ sub add_rgb {
     my ($name, @rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
     return "missing first argument: color name" unless defined $name and $name;
-    $RGB->check( [@rgb] ) and return;
+    $RGB->range_check( [@rgb] ) and return;
     my @hsl = $HSL->deconvert( [$RGB->normalize( \@rgb )], 'RGB');
     _add_color( $name, @rgb, $HSL->denormalize(\@hsl) );
 }
@@ -95,7 +95,7 @@ sub add_hsl {
     my ($name, @hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
     return "missing first argument: color name" unless defined $name and $name;
-    $HSL->check( \@hsl ) and return;
+    $HSL->range_check( \@hsl ) and return;
     my @rgb = $HSL->convert( [$HSL->normalize( \@hsl )], 'RGB');
     _add_color( $name, $RGB->denormalize( \@rgb ), @hsl );
 }

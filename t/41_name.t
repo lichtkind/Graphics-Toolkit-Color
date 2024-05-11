@@ -7,8 +7,7 @@ use Test::More tests => 57;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Name';
 
-eval "use $module";
-is( not($@), 1, 'could load the module');
+use_ok( $module, 'could load the module');
 
 my @names = Graphics::Toolkit::Color::Name::all();
 is( @names > 700, 1, 'get a large list of names, all_names seems to working');

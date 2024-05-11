@@ -5,47 +5,51 @@ use warnings;
 
 package Graphics::Toolkit::Color::Name;
 use Graphics::Toolkit::Color::Values;
-use Carp;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
+
 my $constants = require Graphics::Toolkit::Color::Name::Constant;
-our (@name_from_rgb, @name_from_hsl); # search caches
+our (@name_from_rgb, @name_from_hsl);       # search caches
 _add_color_to_reverse_search( $_, @{$constants->{$_}} ) for all();
 
 sub all   { sort keys %$constants }
-sub taken { exists  $constants->{ _clean($_[0]) } }
+sub taken { exists  $constants->{ _clean_name($_[0]) } }
 
 sub rgb_from_name {
-    my $name = _clean(shift);
+    my $name = _clean_name(shift);
     @{$constants->{$name}}[0..2] if taken( $name );
 }
 
 sub hsl_from_name {
-    my $name = _clean(shift);
+    my $name = _clean_name(shift);
     @{$constants->{$name}}[3..5] if taken( $name );
 }
 
 sub name_from_rgb {
     my (@rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
-    $RGB->check( [@rgb] ) and return; # return if sub did carp
-    my @names = _names_from_rgb( @rgb );
-    wantarray ? @names : $names[0];
+    my $vals = $RGB->in_range( [@rgb] );
+    return unless ref $vals;
+    my $names = _names_from_rgb( @rgb );
+    return unless ref $names;
+    wantarray ? @$names : $names->[0];
 }
 
 sub name_from_hsl {
     my (@hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
-    $HSL->check( [ @hsl ] ) and return;
-    my @names = _names_from_hsl( @hsl );
-    wantarray ? @names : $names[0];
+    my $vals = $HSL->check( [ @hsl ] );
+    return unless ref $vals;
+    my $names = _names_from_hsl( @hsl );
+    return unless ref $names;
+    wantarray ? @$names : $names->[0];
 }
 
 sub names_in_hsl_range { # @center, (@d | $d) --> @names
     my $help = 'need two arguments: 1. array with h s l values '.
                '2. radius (real number) or array with tolerances in h s l direction';
-    return carp  $help if @_ != 2;
+    return $help if @_ != 2;
     my ($hsl_center, $radius) = @_;
     $HSL->check( $hsl_center ) and return;
     my $hsl_delta = (ref $radius eq 'ARRAY') ? $radius : [$radius, $radius, $radius];
@@ -81,7 +85,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
 sub add_rgb {
     my ($name, @rgb) = @_;
     @rgb  = @{$rgb[0]} if (ref $rgb[0] eq 'ARRAY');
-    return carp "missing first argument: color name" unless defined $name and $name;
+    return "missing first argument: color name" unless defined $name and $name;
     $RGB->check( [@rgb] ) and return;
     my @hsl = $HSL->deconvert( [$RGB->normalize( \@rgb )], 'RGB');
     _add_color( $name, @rgb, $HSL->denormalize(\@hsl) );
@@ -90,7 +94,7 @@ sub add_rgb {
 sub add_hsl {
     my ($name, @hsl) = @_;
     @hsl  = @{$hsl[0]} if (ref $hsl[0] eq 'ARRAY');
-    return carp "missing first argument: color name" unless defined $name and $name;
+    return "missing first argument: color name" unless defined $name and $name;
     $HSL->check( \@hsl ) and return;
     my @rgb = $HSL->convert( [$HSL->normalize( \@hsl )], 'RGB');
     _add_color( $name, $RGB->denormalize( \@rgb ), @hsl );
@@ -98,14 +102,14 @@ sub add_hsl {
 
 sub _add_color {
     my ($name, @rgb, @hsl) = @_;
-    $name = _clean( $name );
-    return carp "there is already a color named '$name' in store of ".__PACKAGE__ if taken( $name );
+    $name = _clean_name( $name );
+    return "there is already a color named '$name' in store of ".__PACKAGE__ if taken( $name );
     _add_color_to_reverse_search( $name, @rgb, @hsl);
     my $ret = $constants->{$name} = [@rgb, @hsl]; # add to foreward search
     (ref $ret) ? [@$ret] : '';                         # make returned ref not transparent
 }
 
-sub _clean {
+sub _clean_name {
     my $name = shift;
     $name =~ tr/_//d;
     lc $name;

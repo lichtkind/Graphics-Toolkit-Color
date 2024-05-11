@@ -6,14 +6,15 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB YIQ XYZ LAB LUV LCHab LCHuv NCol/); # search order ## missing: Ncol
-my %space_obj = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
+my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB NCol YIQ XYZ LAB LUV LCHab LCHuv/); # search order ## missing: Ncol
+my %space_obj     =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
+my @space_names = map { $space_obj{$_}->name } @space_packages;                                      # names in search oder
 
 sub get_space { $space_lookup{ uc $_[0] } if exists $space_lookup{ uc $_[0] } }
 sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 sub base_space { $space_lookup{ $base_package } }
-sub space_names { keys %{%space_lookup} }
+sub space_names { @space_names }
 
 #### space API #########################################################
 
@@ -51,10 +52,20 @@ sub _check_values_and_space {
 
 sub read {
     my ($color, $range, $precision, $suffix) = @_;
+    for my $space_name (space_names()) {
+        my $color_space = get_space( $space_name );
+        my @res = $color_space->read( $color, $range, $precision, $suffix );
+        next unless @res;
+        return wantarray ? ($res[0], $color_space->name, $res[1]) : $res[0];
+    }
+    return undef;
 }
 
 sub write {
-    my ($color, $space, $format, $range, $precision, $suffix) = @_;
+    my ($color, $space_name, $format_name, $range, $precision, $suffix) = @_;
+    my $color_space = get_space( $space_name );
+    return unless ref $color_space;
+    $color_space->write( $color, $format_name, $range, $precision, $suffix );
 }
 
 sub partial_hash_deformat { # convert partial hash into

@@ -14,17 +14,17 @@ is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'YIQ',                     'color space has right name');
 is( $def->axis,           3,                     'color space has 3 axis');
-is( ref $def->in_range([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
-is( ref $def->in_range([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
-is( ref $def->in_range([1, 0.5959, 0.5227]),    'ARRAY',   'check YIQ values works on upper bound values');
-is( ref $def->in_range([0,0]),              '',   "YIQ got too few values");
-is( ref $def->in_range([0, 0, 0, 0]),       '',   "YIQ got too many values");
-is( ref $def->in_range([-1, 0, 0]),         '',   "luminance value is too small");
-is( ref $def->in_range([1.1, 0, 0]),        '',   "luminance value is too big");
-is( ref $def->in_range([0, -1, 0]),         '',   "in_phase value is too small");
-is( ref $def->in_range([0, 1, 0]),          '',   "in_phase value is too big");
-is( ref $def->in_range([0, 0, -1 ] ),       '',   "quadrature value is too small");
-is( ref $def->in_range([0, 0, 1] ),         '',   "quadrature value is too big");
+is( ref $def->is_tuple_in_range([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
+is( ref $def->is_tuple_in_range([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
+is( ref $def->is_tuple_in_range([1, 0.5959, 0.5227]),    'ARRAY',   'check YIQ values works on upper bound values');
+is( ref $def->is_tuple_in_range([0,0]),              '',   "YIQ got too few values");
+is( ref $def->is_tuple_in_range([0, 0, 0, 0]),       '',   "YIQ got too many values");
+is( ref $def->is_tuple_in_range([-1, 0, 0]),         '',   "luminance value is too small");
+is( ref $def->is_tuple_in_range([1.1, 0, 0]),        '',   "luminance value is too big");
+is( ref $def->is_tuple_in_range([0, -1, 0]),         '',   "in_phase value is too small");
+is( ref $def->is_tuple_in_range([0, 1, 0]),          '',   "in_phase value is too big");
+is( ref $def->is_tuple_in_range([0, 0, -1 ] ),       '',   "quadrature value is too small");
+is( ref $def->is_tuple_in_range([0, 0, 1] ),         '',   "quadrature value is too big");
 
 
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');

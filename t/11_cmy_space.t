@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 45;
+use Test::More tests => 46;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CMY';
@@ -13,16 +13,16 @@ is( ref $def, 'Graphics::Toolkit::Color::Space', 'got space object by loading mo
 is( $def->name,       'CMY',                     'color space has right name');
 is( $def->axis,           3,                     'CMY color space has 3 axis');
 
-is( ref $def->in_range([0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');
-is( ref $def->in_range([1, 1, 1]),  'ARRAY',   'check CMY values works on upper bound values');
-is( ref $def->in_range([0,0]),           '',   "CMY got too few values");
-is( ref $def->in_range([0, 0, 0, 0]),    '',   "CMY got too many values");
-is( ref $def->in_range([-1, 0, 0]),      '',   "cyan value is too small");
-is( ref $def->in_range([2, 0, 0]),       '',   "cyan value is too big");
-is( ref $def->in_range([0, -1, 0]),      '', "magenta value is too small");
-is( ref $def->in_range([0, 2, 0]),       '', "magenta value is too big");
-is( ref $def->in_range([0, 0, -1 ] ),    '',  "yellow value is too small");
-is( ref $def->in_range([0, 0, 2] ),      '',  "yellow value is too big");
+is( ref $def->is_tuple_in_range([0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');
+is( ref $def->is_tuple_in_range([1, 1, 1]),  'ARRAY',   'check CMY values works on upper bound values');
+is( ref $def->is_tuple_in_range([0,0]),           '',   "CMY got too few values");
+is( ref $def->is_tuple_in_range([0, 0, 0, 0]),    '',   "CMY got too many values");
+is( ref $def->is_tuple_in_range([-1, 0, 0]),      '',   "cyan value is too small");
+is( ref $def->is_tuple_in_range([2, 0, 0]),       '',   "cyan value is too big");
+is( ref $def->is_tuple_in_range([0, -1, 0]),      '', "magenta value is too small");
+is( ref $def->is_tuple_in_range([0, 2, 0]),       '', "magenta value is too big");
+is( ref $def->is_tuple_in_range([0, 0, -1 ] ),    '',  "yellow value is too small");
+is( ref $def->is_tuple_in_range([0, 0, 2] ),      '',  "yellow value is too big");
 
 
 my $cmy = $def->clamp([]);
@@ -52,7 +52,10 @@ is( $cmy->[0],   1,      'converted to maximal cyan value');
 is( $cmy->[1],   0.9,    'converted to mid magenta value');
 is( $cmy->[2],   0,      'converted to minimal yellow value');
 
-my $rgb = $def->convert( [1, 0.9, 0 ], 'RGB');
+my ($rgb, $name) = $def->deformat([ 33, 44, 55]);
+is( $rgb,   undef,     'array format is RGB only');
+
+$rgb = $def->convert( [1, 0.9, 0 ], 'RGB');
 is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
 is( int @$rgb,   3,      'converted CMY to RGB triplets');
 is( $rgb->[0],   0,      'converted red value');
@@ -71,5 +74,7 @@ is( int @$d,   3,      'delta vector has right length');
 is( $d->[0],  -0.1,     'C delta');
 is( $d->[1],   0.3,     'M delta');
 is( $d->[2],   0.6,     'Y delta');
+
+
 
 exit 0;

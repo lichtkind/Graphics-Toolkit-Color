@@ -7,9 +7,8 @@ use Test::More tests => 106;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 
-eval "use $module";
 use Graphics::Toolkit::Color::Space::Util ':all';
-is( not($@), 1, 'could load the module');
+use_ok( $module, 'could load the module');
 
 my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
 my $format        = \&Graphics::Toolkit::Color::Space::Hub::format;
@@ -17,7 +16,30 @@ my $deconvert     = \&Graphics::Toolkit::Color::Space::Hub::deconvert;
 my $convert       = \&Graphics::Toolkit::Color::Space::Hub::convert;
 my $normalize     = \&Graphics::Toolkit::Color::Space::Hub::normalize;
 my $denormalize   = \&Graphics::Toolkit::Color::Space::Hub::denormalize;
+my $read          = \&Graphics::Toolkit::Color::Space::Hub::read;
+my $write         = \&Graphics::Toolkit::Color::Space::Hub::write;
 
+
+
+is( Graphics::Toolkit::Color::Space::Hub::is_space('RGB'),  1, 'RGB is a color space');
+is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  'Graphics::Toolkit::Color::Space', 'can get RGB space');
+
+
+my ($val, $space, $fmt) = ($read->([255,255,255]));
+is( $space,                        'RGB',  'only RGB has pure ARRAY format');
+is( $fmt,                        'array',  'only RGB has pure ARRAY format');
+is( ref $val,                    'ARRAY',  'deconverted white RGB ARRAYs');
+is( int @$val,                         3,  'right amount of values');
+is( $val->[0],                         1,  'first value good');
+is( $val->[1],                         1,  'second value good');
+is( $val->[2],                         1,  'third value good');
+
+is( $write->([1,1,1], 'rgb','css_string'),    'rgb(255, 255, 255)',  'wrote css string for color black');
+
+
+# add_space
+# remove_space
+exit 0;
 
 my $hsl = $convert->([.5, .5, .5], 'HSL');
 is( int @$hsl,   3,     'converted hsl vector has right length');

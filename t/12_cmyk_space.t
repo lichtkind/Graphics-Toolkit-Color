@@ -13,19 +13,19 @@ is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by load
 is( $def->name,       'CMYK',                     'color space has right name');
 is( $def->axis,            4,                     'color space has 4 axis');
 
-is( ref $def->in_range([0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
-is( ref $def->in_range([1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
-is( ref $def->in_range([0,0,0]),            '',   "CMYK got too few values");
-is( ref $def->in_range([0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
+is( ref $def->is_tuple_in_range([0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
+is( ref $def->is_tuple_in_range([1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
+is( ref $def->is_tuple_in_range([0,0,0]),            '',   "CMYK got too few values");
+is( ref $def->is_tuple_in_range([0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
 
-is( ref $def->in_range([-1, 0, 0, 0]),      '',   "cyan value is too small");
-is( ref $def->in_range([2, 0, 0, 0]),       '',   "cyan value is too big");
-is( ref $def->in_range([0, -1, 0, 0]),      '',   "magenta value is too small");
-is( ref $def->in_range([0, 2, 0, 0]),       '',   "magenta value is too big");
-is( ref $def->in_range([0, 0, -1, 0 ] ),    '',   "yellow value is too small");
-is( ref $def->in_range([0, 0, 2, 0] ),      '',   "yellow value is too big");
-is( ref $def->in_range([0, 0, 0, -1] ),     '',   "key value is too small");
-is( ref $def->in_range([0, 0, 0, 2] ),      '',   "key value is too big");
+is( ref $def->is_tuple_in_range([-1, 0, 0, 0]),      '',   "cyan value is too small");
+is( ref $def->is_tuple_in_range([2, 0, 0, 0]),       '',   "cyan value is too big");
+is( ref $def->is_tuple_in_range([0, -1, 0, 0]),      '',   "magenta value is too small");
+is( ref $def->is_tuple_in_range([0, 2, 0, 0]),       '',   "magenta value is too big");
+is( ref $def->is_tuple_in_range([0, 0, -1, 0 ] ),    '',   "yellow value is too small");
+is( ref $def->is_tuple_in_range([0, 0, 2, 0] ),      '',   "yellow value is too big");
+is( ref $def->is_tuple_in_range([0, 0, 0, -1] ),     '',   "key value is too small");
+is( ref $def->is_tuple_in_range([0, 0, 0, 2] ),      '',   "key value is too big");
 
 
 my $cmyk = $def->clamp([]);
@@ -71,11 +71,11 @@ is( $rgb->[1], 0.5,     'converted back grey has right green value');
 is( $rgb->[2], 0.5,     'converted back grey has right blue value');
 
 $cmyk = $def->deconvert( [0.3, 0.4, 0.5], 'RGB');
-is( int @$cmyk,     4,     'converted color has four cmyk values');
-is( $cmyk->[0],   0.4,     'converted color has right cyan value');
-is( $cmyk->[1],   0.2,   'converted color has right magenta value');
-is( $cmyk->[2],   0 ,   'converted color has right yellow value');
-is( $cmyk->[3],   0.5,   'converted color has right key value');
+is( int @$cmyk,     4,    'converted color has four cmyk values');
+is( $cmyk->[0],   0.4,    'converted color has right cyan value');
+is( $cmyk->[1],   0.2,    'converted color has right magenta value');
+is( $cmyk->[2],   0 ,     'converted color has right yellow value');
+is( $cmyk->[3],   0.5,    'converted color has right key value');
 
 $rgb = $def->convert( [0.4, 0.2, 0, 0.5], 'RGB');
 is( int @$rgb,     3,   'trimmed and converted back color black');

@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# CIE LAB color space specific code based on XYZ for Illuminant D65 and Observer 2\x{00b0}
+# CIE LAB color space specific code based on XYZ for Illuminant D65 and Observer 2degree
 
 package Graphics::Toolkit::Color::Space::Instance::LAB;
 use Graphics::Toolkit::Color::Space;

@@ -5,11 +5,13 @@ use warnings;
 use Test::More tests => 40;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Values';
 
-eval "use $module";
-is( not($@), 1, 'could load the module');
 use Graphics::Toolkit::Color::Space::Util ':all';
+
+my $module = 'Graphics::Toolkit::Color::Values';
+use_ok( $module, 'could load the module');
+
+exit 0;
 
 sub val {Graphics::Toolkit::Color::Values->new( $_[0] )}
 

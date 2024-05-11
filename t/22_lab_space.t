@@ -17,16 +17,16 @@ is( $space->name,       'CIELAB',                  'color space has right name')
 is( $space->axis,              3,                     'color space has 3 axis');
 
 
-is( ref $space->in_range([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
-is( ref $space->in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
-is( ref $space->in_range([0,0]),              '',   "CIELAB got too few values");
-is( ref $space->in_range([0, 0, 0, 0]),       '',   "CIELAB got too many values");
-is( ref $space->in_range([-0.1, 0, 0]),       '',   "L value is too small");
-is( ref $space->in_range([101, 0, 0]),        '',   "L value is too big");
-is( ref $space->in_range([0, -500.1, 0]),     '',   "a value is too small");
-is( ref $space->in_range([0, 500.1, 0]),        '',   "a value is too big");
-is( ref $space->in_range([0, 0, -200.1 ] ),      '',   "b value is too small");
-is( ref $space->in_range([0, 0, 200.2] ),       '',   "b value is too big");
+is( ref $space->is_tuple_in_range([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
+is( ref $space->is_tuple_in_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
+is( ref $space->is_tuple_in_range([0,0]),              '',   "CIELAB got too few values");
+is( ref $space->is_tuple_in_range([0, 0, 0, 0]),       '',   "CIELAB got too many values");
+is( ref $space->is_tuple_in_range([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $space->is_tuple_in_range([101, 0, 0]),        '',   "L value is too big");
+is( ref $space->is_tuple_in_range([0, -500.1, 0]),     '',   "a value is too small");
+is( ref $space->is_tuple_in_range([0, 500.1, 0]),        '',   "a value is too big");
+is( ref $space->is_tuple_in_range([0, 0, -200.1 ] ),      '',   "b value is too small");
+is( ref $space->is_tuple_in_range([0, 0, 200.2] ),       '',   "b value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
@@ -45,7 +45,7 @@ is( $val->[2], -0.1,    'third value good');
 is( $space->format([0,1,0], 'css_string'), 'cielab(0, 1, 0)', 'can format css string');
 
 $val = $space->deconvert( [ 0, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'deconverted tuple of zeros (black)');
+is( ref $val,                    'ARRAY',  'deconverted tuple of zeros (black) from RGB');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 0),      1,  'first value good');
 is( close_enough( $val->[1] , 0.5),    1,  'second value good');

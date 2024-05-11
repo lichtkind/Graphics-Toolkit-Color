@@ -31,7 +31,7 @@ sub is_partial_hash   { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 ########################################################################
 
 sub shape             { $_[0]{'shape'} }
-sub in_range          { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
+sub is_tuple_in_range { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
 sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
 sub round             { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
 sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
@@ -76,10 +76,14 @@ sub deconvert {
 sub read { # formatted color blob in local space --> normalized RGB
     my ($self, $color, $range, $precision, $suffix) = @_;
     my ($values, $format_name) = $self->deformat( $color, $suffix);
+#say "read deformat $values, $format_name ";
     $values = $self->round( $values, $precision) if defined $precision;
     $values = $self->normalize( $values, $range);
+#say "read normalize @$values ";
     $values = $self->convert( $values, 'RGB');
-    wantarray ? ($values, $format_name) : $values;
+#say "read convert @$values ";
+    return (not ref $values) ? $values :
+                   wantarray ? ($values, $format_name) : $values;
 }
 
 sub write { # normalized @RGB --> formatted color in local space

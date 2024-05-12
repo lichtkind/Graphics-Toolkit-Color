@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 107;
+use Test::More tests => 113;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
@@ -19,9 +19,17 @@ is( ref $obj, $module,  'one constructor argument is enough');
 
 my $pobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%' );
 is( ref $pobj, $module,  'used second argument: suffix');
+my $ppobj = Graphics::Toolkit::Color::Space::Format->new( $basis, ['%','%','%','%'] );
+is( ref $ppobj, '',  'too many elements in suffix definition');
 
 my $vobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%', '\d{2}' );
 is( ref $pobj, $module,  'used third argument argument: value format');
+my $vvobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%', [ '\d{2}','\d{2}','\d{2}','\d{2}' ] );
+is( ref $vvobj, '',  'too many elements in value format definition');
+
+my $cobj = Graphics::Toolkit::Color::Space::Format->new( $basis, ['$','@','%'], [ '\d{1}','\d{2}','\d{3}' ] );
+is( ref $cobj, $module, 'fully custom format definition');
+
 
 my ($vals, $name) = $obj->deformat('abg:0,2.2,-3');
 is( ref $vals,        'ARRAY', 'could deformat values');
@@ -42,12 +50,16 @@ is( $name,     'named_string', 'found right format name');
 ($vals, $name) = $pobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string');
 is( $name,     'named_string', 'recognized named string format');
-
 ($vals, $name) = $vobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        '', 'values need to have two digits with custom value format');
 ($vals, $name) = $vobj->deformat(' abg: 11 %, 22 % , 33% ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string with custom value format');
 is( $name,     'named_string', 'recognized named string format with custom value format');
+($vals, $name) = $cobj->deformat(' abg: 1 %, 2 % , 3% ');
+is( ref $vals,        '', 'values custom format is not met');
+($vals, $name) = $cobj->deformat(' abg: 1 $, 22 @ , 333% ');
+is( ref $vals,        'ARRAY', 'recognized custom format');
+is( $name,     'named_string', 'found named string as custom format');
 
 
 ($vals, $name) = $pobj->deformat(' abg( 1 %, 2 % , 3% ) ');

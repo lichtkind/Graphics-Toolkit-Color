@@ -94,7 +94,7 @@ sub _precision { # check if precision def is valid and eval (exapand) it
 
 sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
-    return 'color value vector in '.$self->basis->space_name.' needs '.$self->basis->count.' values'
+    return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->count.' elements'
         unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "got bad range definition" unless ref $range;

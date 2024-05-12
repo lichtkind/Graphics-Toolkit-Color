@@ -16,7 +16,7 @@ sub new {
     my $number_form = '-?(?:\d+|\d+\.\d+|.\d+)';
     my $count = $basis->count;
     $value_form = [($number_form) x $count] unless defined $value_form;
-    $value_form = [($value_form) x $count] unless ref $suffix;
+    $value_form = [($value_form) x $count] unless ref $value_form;
     $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
     return 'need an ARRAY as definition of value format' unless ref $value_form eq 'ARRAY';
     return 'definition value format has to have same length as basis (number of axis)' unless @$value_form == $count;

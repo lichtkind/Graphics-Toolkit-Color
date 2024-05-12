@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 101;
+use Test::More tests => 107;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
@@ -20,6 +20,8 @@ is( ref $obj, $module,  'one constructor argument is enough');
 my $pobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%' );
 is( ref $pobj, $module,  'used second argument: suffix');
 
+my $vobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%', '\d{2}' );
+is( ref $pobj, $module,  'used third argument argument: value format');
 
 my ($vals, $name) = $obj->deformat('abg:0,2.2,-3');
 is( ref $vals,        'ARRAY', 'could deformat values');
@@ -40,6 +42,12 @@ is( $name,     'named_string', 'found right format name');
 ($vals, $name) = $pobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string');
 is( $name,     'named_string', 'recognized named string format');
+
+($vals, $name) = $vobj->deformat(' abg: 1 %, 2 % , 3% ');
+is( ref $vals,        '', 'values need to have two digits with custom value format');
+($vals, $name) = $vobj->deformat(' abg: 11 %, 22 % , 33% ');
+is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string with custom value format');
+is( $name,     'named_string', 'recognized named string format with custom value format');
 
 
 ($vals, $name) = $pobj->deformat(' abg( 1 %, 2 % , 3% ) ');
@@ -106,6 +114,10 @@ is( $name,            'hash', 'recognized hash format with full names');
 is( $name,            'hash', 'recognized hash even when left suffixes');
 ($vals, $name) = $pobj->deformat( {ALPHA =>'1 %', BETA =>'2% ', GAMMA=>' 3%'} );
 is( $name,            'hash', 'recognized hash with suffixes');
+($vals, $name) = $vobj->deformat( {ALPHA =>'1 %', BETA =>'2% ', GAMMA=>' 3%'} );
+is( $name,             undef, 'values needed 2 digits in custom value format');
+($vals, $name) = $vobj->deformat( {ALPHA =>'21 %', BETA =>'92% ', GAMMA=>' 13%'} );
+is( $name,            'hash', 'recognized hash with suffixes and custom value format');
 
 
 

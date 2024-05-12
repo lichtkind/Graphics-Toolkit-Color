@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 116;
+use Test::More tests => 118;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -132,6 +132,8 @@ is( $tr->[1],   1.1, 'rounded in range value to set precision');
 is( $tr->[2],   2.54, 'in range value is kept');
 
 
+is( ref $shape->in_range(1,2,3),        '',  'need array ref, not list');
+is( ref $shape->in_range({}),           '',  'need array, not other ref');
 is( ref $shape->in_range([1,2,3]), 'ARRAY',  'all values in range');
 is( ref $shape->in_range([1,2]),        '',  "not enough values");
 is( ref $shape->in_range([1,2,3,4]),    '',  "too many values");

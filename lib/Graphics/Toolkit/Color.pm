@@ -476,7 +476,7 @@ The name will be found and filled in, even when the object
 was created with numerical values.
 If no color is found, C<name> returns an empty string.
 All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
-(See als: L</new('name')>)
+(See also: L</new('name')>)
 
 =head2 values
 

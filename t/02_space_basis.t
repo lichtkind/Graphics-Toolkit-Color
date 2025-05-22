@@ -99,23 +99,23 @@ is( $s5d->is_partial_hash({aleph => 1 }),              1, 'valid partial hash to
 is( $s5d->is_partial_hash({ALEPH => 1 }),              1, 'ignore casing');
 is( $s5d->is_partial_hash({aleph => 1, bet => 2, }),  0, 'one bad key makes partial invalid');
 
-is( ref $s3d->short_hash_from_tuple([1,2,3]),  'HASH',      'HASH with given values and shortcut keys created');
-is( ref $s3d->short_hash_from_tuple([1,2,3,4]),    '',      'HASH not created because too many arguments');
-is( ref $s3d->short_hash_from_tuple([1,2]),        '',      'HASH not created because not enough arguments');
-is( $s3d->short_hash_from_tuple([1,2,3])->{'a'},  1,        'right value under "a" key in the converted hash');
-is( $s3d->short_hash_from_tuple([1,2,3])->{'b'},  2,        'right value under "b" key in the converted hash');
-is( $s3d->short_hash_from_tuple([1,2,3])->{'g'},  3,        'right value under "g" key in the converted hash');
-is( int keys %{$s3d->short_hash_from_tuple([1,2,3])},  3,   'right amount of shortcut keys');
+is( ref $s3d->short_name_hash_from_tuple([1,2,3]),   'HASH',    'HASH with given values and shortcut keys created');
+is( ref $s3d->short_name_hash_from_tuple([1,2,3,4]),     '',    'HASH not created because too many arguments');
+is( ref $s3d->short_name_hash_from_tuple([1,2]),         '',    'HASH not created because not enough arguments');
+is( $s3d->short_name_hash_from_tuple([1,2,3])->{'a'},     1,    'right value under "a" key in the converted hash');
+is( $s3d->short_name_hash_from_tuple([1,2,3])->{'b'},     2,    'right value under "b" key in the converted hash');
+is( $s3d->short_name_hash_from_tuple([1,2,3])->{'g'},     3,    'right value under "g" key in the converted hash');
+is( int keys %{$s3d->short_name_hash_from_tuple([1,2,3])},3,    'right amount of shortcut keys');
 
-is( ref $s5d->long_hash_from_tuple([1,2,3,4,5]),  'HASH',      'HASH with given values and full name keys created');
-is( ref $s5d->long_hash_from_tuple([1,2,3,4,5,6]),    '',      'HASH not created because too many arguments');
-is( ref $s5d->long_hash_from_tuple([1,2,3,4]),        '',      'HASH not created because not enough arguments');
-is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'aleph'},  1,    'right value under "aleph" key in the converted hash');
-is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'beth'},   2,    'right value under "beta" key in the converted hash');
-is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'gimel'},  3,    'right value under "gimel" key in the converted hash');
-is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'daleth'}, 4,    'right value under "daleth" key in the converted hash');
-is( $s5d->long_hash_from_tuple([1,2,3,4,5])->{'he'},     5,    'right value under "he" key in the converted hash');
-is( int keys %{$s5d->long_hash_from_tuple([1,2,3,4,5])}, 5,    'right amount of shortcut keys');
+is( ref $s5d->long_name_hash_from_tuple([1,2,3,4,5]),'HASH',    'HASH with given values and full name keys created');
+is( ref $s5d->long_name_hash_from_tuple([1,2,3,4,5,6]),  '',    'HASH not created because too many arguments');
+is( ref $s5d->long_name_hash_from_tuple([1,2,3,4]),      '',    'HASH not created because not enough arguments');
+is( $s5d->long_name_hash_from_tuple([1,2,3,4,5])->{'aleph'},   1,    'right value under "aleph" key in the converted hash');
+is( $s5d->long_name_hash_from_tuple([1,2,3,4,5])->{'beth'},    2,    'right value under "beta" key in the converted hash');
+is( $s5d->long_name_hash_from_tuple([1,2,3,4,5])->{'gimel'},   3,    'right value under "gimel" key in the converted hash');
+is( $s5d->long_name_hash_from_tuple([1,2,3,4,5])->{'daleth'},  4,    'right value under "daleth" key in the converted hash');
+is( $s5d->long_name_hash_from_tuple([1,2,3,4,5])->{'he'},      5,    'right value under "he" key in the converted hash');
+is( int keys %{$s5d->long_name_hash_from_tuple([1,2,3,4,5])},  5,    'right amount of shortcut keys');
 
 my $tuple = $s5d->tuple_from_hash( {aleph => 1, beth => 2, gimel => 3, daleth => 4, he => 5} );
 is( ref $tuple,  'ARRAY', 'got ARRAY ref from method tuple_from_hash');

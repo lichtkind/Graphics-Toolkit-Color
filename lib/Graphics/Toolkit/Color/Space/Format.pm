@@ -28,12 +28,12 @@ sub new {
                 css_string => sub { tuple_from_css_string(@_)   },
     );
     # tuple --> format
-    my %formats = (list => sub { @{$_[1]} },                              #   1, 2, 3
-                   hash => sub { $basis->long_hash_from_tuple($_[1]) },   # { red => 1, green => 2, blue => 3 }
-              char_hash => sub { $basis->short_hash_from_tuple($_[1]) },  # { r =>1, g => 2, b => 3 }
-            named_array => sub { [$basis->space_name, @{$_[1]}] },        # ['rgb',1,2,3]
-           named_string => sub { $_[0]->named_string_from_tuple($_[1]) }, #  'rgb: 1, 2, 3'
-             css_string => sub { $_[0]->css_string_from_tuple($_[1]) },   #  'rgb(1,2,3)'
+    my %formats = (list => sub { @{$_[1]} },                                  #   1, 2, 3
+                   hash => sub { $basis->long_name_hash_from_tuple($_[1]) },  # { red => 1, green => 2, blue => 3 }
+              char_hash => sub { $basis->short_name_hash_from_tuple($_[1]) }, # { r =>1, g => 2, b => 3 }
+            named_array => sub { [$basis->space_name, @{$_[1]}] },            # ['rgb',1,2,3]
+           named_string => sub { $_[0]->named_string_from_tuple($_[1]) },     #  'rgb: 1, 2, 3'
+             css_string => sub { $_[0]->css_string_from_tuple($_[1]) },       #  'rgb(1,2,3)'
     );
     bless { basis => $basis, suffix => $suffix, value_form => $value_form ,
             format => \%formats, deformat => \%deformats, pre => '', post => ''}

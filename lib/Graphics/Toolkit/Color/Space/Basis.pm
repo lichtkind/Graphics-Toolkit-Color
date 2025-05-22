@@ -34,15 +34,14 @@ sub short_names { @{$_[0]{'axis_short'}} }     # axis short names
 sub iterator    { @{$_[0]{'iterator'}}   }     # counting all axis 0 .. -1
 sub count       {   $_[0]{'count'}       }     # amount of axis
 
-sub pos_from_long  {  defined $_[1] ? $_[0]->{'long_order'}{ lc $_[1] } : undef }
-sub pos_from_short {  defined $_[1] ? $_[0]->{'short_order'}{ lc $_[1] } : undef }
+sub pos_from_long  {  defined $_[1] ? $_[0]->{'long_order'}{ lc $_[1] } : undef }  # ~long_name  --> +pos
+sub pos_from_short {  defined $_[1] ? $_[0]->{'short_order'}{ lc $_[1] } : undef } # ~short_name --> +pos
 
 #### predicates ########################################################
 
-sub is_long_name   { (defined $_[1] and exists $_[0]->{'long_order'}{ lc $_[1] }) ? 1 : 0 }
-sub is_short_name  { (defined $_[1] and exists $_[0]->{'short_order'}{ lc $_[1] }) ? 1 : 0 }
-sub is_name        { $_[0]->is_long_name($_[1]) or $_[0]->is_short_name($_[1]) }
-
+sub is_long_name   { (defined $_[1] and exists $_[0]->{'long_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
+sub is_short_name  { (defined $_[1] and exists $_[0]->{'short_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
+sub is_name        { $_[0]->is_long_name($_[1]) or $_[0]->is_short_name($_[1]) }            # ~name       --> ?
 sub is_hash {
     my ($self, $value_hash) = @_;
     $self->is_partial_hash( $value_hash ) and (keys %$value_hash == $self->count);
@@ -57,7 +56,6 @@ sub is_partial_hash {
     }
     return 1;
 }
-
 sub is_value_tuple { (ref $_[1] eq 'ARRAY' and @{$_[1]} == $_[0]->count) ? 1 : 0 }
 
 #### converter #########################################################
@@ -73,12 +71,12 @@ sub long_from_short_name {
     ($self->long_names)[ $self->pos_from_short( $name ) ];
 }
 
-sub long_hash_from_tuple {
+sub long_name_hash_from_tuple {
     my ($self, $values) = @_;
     return unless $self->is_value_tuple( $values );
     return { map { $self->{'axis_long'}[$_] => $values->[$_]} $self->iterator };
 }
-sub short_hash_from_tuple {
+sub short_name_hash_from_tuple {
     my ($self, $values) = @_;
     return unless $self->is_value_tuple( $values );
     return { map {$self->{'axis_short'}[$_] => $values->[$_]} $self->iterator };

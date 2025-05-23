@@ -20,15 +20,15 @@ is( $round->(-0.4999999),    0,     'everything upward from -0.5 gets increased'
 is( $round->( 1.4999999),    1,     'positive rounding works above 1');
 is( $round->(-1.4999999),   -1,     'negative rounding works below 1');
 
-my $r2 = \&Graphics::Toolkit::Color::Space::Util::pround;
-is( $r2->( 1.4999999),    1,     'positive rounding works above 1 with round 2');
-is( $r2->(-1.4999999),   -1,     'negative rounding works below 1 with round 2');
-is( $r2->( 1.4999999, 0),    1,  'positive rounding with no decimals');
-is( $r2->(-1.4999999, 0),   -1,  'negative rounding with no decimals');
-is( $r2->( 1.4999999, 1),  1.5,  'positive rounding with one decimal');
-is( $r2->(-1.4999999, 1), -1.5,  'negative rounding with one decimal');
-is( $r2->( 1.4999999, 2),  1.5,  'positive rounding with one decimal');
-is( $r2->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
+my $rd = \&Graphics::Toolkit::Color::Space::Util::round_decimals;
+is( $rd->( 1.4999999),    1,     'positive rounding works above 1 with round 2');
+is( $rd->(-1.4999999),   -1,     'negative rounding works below 1 with round 2');
+is( $rd->( 1.4999999, 0),    1,  'positive rounding with no decimals');
+is( $rd->(-1.4999999, 0),   -1,  'negative rounding with no decimals');
+is( $rd->( 1.4999999, 1),  1.5,  'positive rounding with one decimal');
+is( $rd->(-1.4999999, 1), -1.5,  'negative rounding with one decimal');
+is( $rd->( 1.4999999, 2),  1.5,  'positive rounding with one decimal');
+is( $rd->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
 
 
 my $rmod = \&Graphics::Toolkit::Color::Space::Util::rmod;

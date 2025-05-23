@@ -5,7 +5,7 @@ use warnings;
 
 package Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Basis;
-use Graphics::Toolkit::Color::Space::Util qw/pround is_nr/;
+use Graphics::Toolkit::Color::Space::Util qw/round_decimals is_nr/;
 
 sub new {
     my $pkg = shift;
@@ -106,7 +106,7 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
         return $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
         return $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
         return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0
-                                                           and pround($values->[$i], $precision->[$i]) != $values->[$i];
+                                                           and round_decimals($values->[$i], $precision->[$i]) != $values->[$i];
     }
     return $values;
 }
@@ -131,7 +131,7 @@ sub clamp {
             $values->[$i] -= $delta while $values->[$i] > $range->[$i][1];
             $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
         }
-        $values->[$i] = pround($values->[$i], $precision->[$i]) if $precision->[$i] >= 0;
+        $values->[$i] = round_decimals($values->[$i], $precision->[$i]) if $precision->[$i] >= 0;
     }
     return $values;
 }
@@ -141,7 +141,7 @@ sub round {
     return unless $self->basis->is_value_tuple( $values );
     $precision = $self->_precision( $precision );
     return "bad precision definition" unless ref $precision;
-    [ map { ($self->axis_is_numeric( $_ ) and $precision->[$_] >= 0) ? pround ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->iterator ];
+    [ map { ($self->axis_is_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->iterator ];
 }
 
 #### computation methods ###############################################
@@ -264,7 +264,7 @@ is none arithmetic and is more than simple difference in circular dimensions.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2023-24 Herbert Breunung.
+Copyright 2023-25 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

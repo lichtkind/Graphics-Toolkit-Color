@@ -27,7 +27,7 @@ sub from_rgb {
 
     my $yr = $xyz[1] / $D65[1];
     my $L = ($yr > $eta) ? ((1.16 * ($yr **(1/3)))-.16) : ($kappa * $yr);
-say "XYZ: @xyz $yr";
+#say "XYZ: @xyz $yr";
     return (0,0,0) unless $L;
     my $strich_nenner = $xyz[0] + (15 * $xyz[1]) + (3 * $xyz[2]);
     my $r_nenner      = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
@@ -35,7 +35,7 @@ say "XYZ: @xyz $yr";
     my $v_strich = 9 * $xyz[1] / $strich_nenner;
     my $ur       = 4 * $D65[0] / $r_nenner;
     my $vr       = 9 * $D65[1] / $r_nenner;
-say "Luv ", ($L,',', 13 * ($u_strich - $ur),',', 13 * ($v_strich - $vr)), " :: $u_strich - $ur";
+#say "Luv ", ($L,',', 13 * ($u_strich - $ur),',', 13 * ($v_strich - $vr)), " :: $u_strich - $ur";
     # @{$lab_def->normalize()};
     return ($L, 13 * ($u_strich - $ur), 13 * ($v_strich - $vr)); # Luv
 }
@@ -57,13 +57,13 @@ sub to_rgb {
         my $X = ($d - $b) / ($a + (1/3));
         @xyz = ($X, $Y, $X * $a + $b);
     } else { @xyz = (0,0,0) }
-say "xyz @xyz";
+#say "xyz @xyz";
     # @xyz = map { $xyz[$_] * $D65[$_] } 0 .. 2;
     my (@rgb) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
                              [-1.5371385,  1.8760108, -0.2040259],
                              [-0.4985314,  0.0415560,  1.0572252]], @xyz);
 
-say "rgb @rgb";
+#say "rgb @rgb";
     return ( map { remove_d65($_) } @rgb );
 }
 

@@ -1,12 +1,12 @@
 use v5.12;
 use warnings;
 
-# utilities for any sub module of the distribution
+# utilities for color value calculation
 
 package Graphics::Toolkit::Color::Space::Util;
 
 use Exporter 'import';
-our @EXPORT_OK = qw/round pround rmod min max apply_d65 remove_d65 mult_matrix close_enough is_nr/;
+our @EXPORT_OK = qw/round round_decimals rmod min max apply_d65 remove_d65 mult_matrix close_enough is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half      = 0.50000000000008;
@@ -17,7 +17,7 @@ sub round {
                : int ($_[0] - $half)
 }
 
-sub pround {
+sub round_decimals {
     my ($nr, $precision) = @_;
     return round( $nr ) unless defined $precision and $precision;
     $precision = 10 ** $precision;

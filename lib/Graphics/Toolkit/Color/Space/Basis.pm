@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# store color space name and its axis short and long names, derived core methods
+# names of color space and its axis (short and long), axis count
 
 package Graphics::Toolkit::Color::Space::Basis;
 

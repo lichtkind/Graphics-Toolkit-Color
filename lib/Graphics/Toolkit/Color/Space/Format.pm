@@ -14,7 +14,7 @@ sub new {
     return $suffix unless ref $suffix;
 
     my $number_form = '-?(?:\d+|\d+\.\d+|.\d+)';
-    my $count = $basis->count;
+    my $count = $basis->axis_count;
     $value_form = [($number_form) x $count] unless defined $value_form;
     $value_form = [($value_form) x $count] unless ref $value_form;
     $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
@@ -41,7 +41,7 @@ sub new {
 
 sub create_suffix_list {
     my ($basis, $suffix) = @_;
-    my $count = $basis->count;
+    my $count = $basis->axis_count;
     $suffix = [('') x $count] unless defined $suffix;
     $suffix = [($suffix) x $count] unless ref $suffix;
     return 'need an ARRAY as definition of axis value suffix' unless ref $suffix eq 'ARRAY';
@@ -113,11 +113,11 @@ sub remove_suffix { # and unnecessary white space
         return unless $self->basis->is_value_tuple( $values );
     }
     local $/ = ' ';
-    chomp $values->[$_] for $self->basis->iterator;
+    chomp $values->[$_] for $self->basis->axis_iterator;
     [ map { eval $_ }
       map { ($self->{'suffix'}[$_] and substr( $values->[$_], - length($self->{'suffix'}[$_])) eq $self->{'suffix'}[$_])
           ? (substr( $values->[$_], 0, length($values->[$_]) - length($self->{'suffix'}[$_])))
-          : $values->[$_]                                                                     } $self->basis->iterator ];
+          : $values->[$_]                                                                     } $self->basis->axis_iterator ];
 }
 sub add_suffix {
     my ($self, $values, $suffix) = @_;
@@ -129,13 +129,13 @@ sub add_suffix {
         return unless $self->basis->is_value_tuple( $values );
     }
     [ map { ($suffix->[$_] and substr( $values->[$_], - length $suffix->[$_]) ne $suffix->[$_])
-                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->iterator ];
+                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->axis_iterator ];
 }
 
 sub match_number_values {
     my ($self, $values) = @_;
     my @re = $self->_value_regex();
-    for my $i ($self->basis->iterator){
+    for my $i ($self->basis->axis_iterator){
         return 0 unless $values->[$i] =~ /^$re[$i]$/;
     }
     return $values;
@@ -144,8 +144,8 @@ sub match_number_values {
 sub _value_regex {
     my ($self, $match) = @_;
     (defined $match and $match)
-        ? (map {'\s*('.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->iterator)
-        : (map {'\s*' .$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->iterator);
+        ? (map {'\s*('.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->axis_iterator)
+        : (map {'\s*' .$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->axis_iterator);
 }
 
 #### converter: format --> values ######################################
@@ -171,7 +171,7 @@ sub tuple_from_css_string {
 
 sub tuple_from_named_array {
     my ($self, $array) = @_;
-    return 0 unless ref $array eq 'ARRAY' and @$array == $self->basis->count+1;
+    return 0 unless ref $array eq 'ARRAY' and @$array == $self->basis->axis_count+1;
     return 0 unless uc $array->[0] eq uc $self->basis->space_name;
     shift @$array;
     $self->match_number_values( $array );

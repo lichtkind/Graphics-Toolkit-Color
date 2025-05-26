@@ -34,7 +34,7 @@ is( $space->can_convert('rgb'), 1,                 'do only convert from and to 
 is( $space->can_convert('RGB'), 1,                 'namespace can be written upper case');
 is( $space->can_convert('luv'), 0,                 'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cieluv(0, 0, 0)', 'can format css string');
-
+exit 1;
 
 my $val = $space->deformat(['CIELUV', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');

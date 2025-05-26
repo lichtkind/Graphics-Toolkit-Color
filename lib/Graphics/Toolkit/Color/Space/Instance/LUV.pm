@@ -1,17 +1,16 @@
 use v5.12;
 use warnings;
 
-# CIE LUV color space specific code based on XYZ for Illuminant D65 and Observer 2degree
+# CIE LUV color space specific code based on XYZ for Illuminant D65 and Observer 2 degree
 
 package Graphics::Toolkit::Color::Space::Instance::LUV;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-
-                                                                    # cyan-orange balance, magenta-green balance
 my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',
-                                                       axis => [qw/L* u* v*/],
+                                                       axis => [qw/L* u* v*/], # cyan-orange balance, magenta-green balance
                                                       range => [100, [-100, 175], [-140, 110]] );
+
 
     $luv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

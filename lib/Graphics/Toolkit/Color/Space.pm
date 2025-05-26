@@ -22,33 +22,33 @@ sub new {
 
 ########################################################################
 
-sub basis             { $_[0]{'basis'} }
-sub name              { shift->basis->space_name }           #          --> ~
-sub axis              { shift->basis->axis_count }           #          --> +
-sub is_value_tuple    { shift->basis->is_value_tuple(@_) }   # @+values --> ?
-sub is_partial_hash   { shift->basis->is_partial_hash(@_) }  # %+values --> ?
+sub basis              { $_[0]{'basis'} }
+sub name               { shift->basis->space_name }           #          --> ~
+sub axis               { shift->basis->axis_count }           #          --> +
+sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values --> ?
+sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 
 ########################################################################
 
-sub shape             { $_[0]{'shape'} }
-sub range_check       { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
-sub clamp             { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
-sub round             { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
-sub normalize         { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
-sub denormalize       { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision   --> @+rvals|!~
-sub denormalize_delta { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
-sub delta             { shift->shape->delta( @_ ) }          # @+values1, @+values2               --> @+rvals|      # on normalized values
+sub shape              { $_[0]{'shape'} }
+sub range_check        { shift->shape->in_range( @_ ) }       # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
+sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
+sub round              { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
+sub normalize          { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
+sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision   --> @+rvals|!~
+sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
+sub delta              { shift->shape->delta( @_ ) }          # @+values1, @+values2               --> @+rvals|      # on normalized values
 
 ########################################################################
 
-sub form              { $_[0]{'format'} }
-sub format            { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
-sub deformat          { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
-sub has_format        { shift->form->has_format(@_) }        # ~format_name                       --> ?
-sub has_deformat      { shift->form->has_deformat(@_) }      # ~format_name                       --> ?
-sub add_formatter     { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
-sub add_deformatter   { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
-sub set_value_formatter{shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
+sub form               { $_[0]{'format'} }
+sub format             { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
+sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
+sub has_format         { shift->form->has_format(@_) }        # ~format_name                       --> ?
+sub has_deformat       { shift->form->has_deformat(@_) }      # ~format_name                       --> ?
+sub add_formatter      { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
+sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
+sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
 
 #### conversion ########################################################
 

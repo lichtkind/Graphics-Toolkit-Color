@@ -1,7 +1,7 @@
 use v5.12;
 use warnings;
 
-# check, convert and measure color values
+# check, convert and measure color values # hcg eq hsb ?
 
 package Graphics::Toolkit::Color::Space::Hub;
 use Carp;

@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # named colors from X11, HTML (SVG) standard and Pantone report
 
 package Graphics::Toolkit::Color::Name;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Values;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');

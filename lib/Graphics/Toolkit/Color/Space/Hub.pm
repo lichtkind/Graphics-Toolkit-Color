@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # check, convert and measure color values # hcg eq hsb ?
 
 package Graphics::Toolkit::Color::Space::Hub;
+use v5.12;
+use warnings;
 use Carp;
 our $base_package = 'RGB';
 my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB NCol YIQ XYZ LAB LUV LCHab LCHuv/); # search order ## missing: Ncol

@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # CIE LCh(uv) cylindrical color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::LCHuv;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 

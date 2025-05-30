@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # HWB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HWB;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 

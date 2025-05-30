@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # NCol color space specific code (HWB with human readable hus values)
 
 package Graphics::Toolkit::Color::Space::Instance::NCol;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 

@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # logic of value hash keys for all color spacs
 
 package Graphics::Toolkit::Color::Space::Format;
+use v5.12;
+use warnings;
 
 sub new {
     my ($pkg, $basis, $suffix, $value_form ) = @_;

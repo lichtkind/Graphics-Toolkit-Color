@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # YIQ color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::YIQ;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space;
 
 my ($i_max, $q_max)   = (0.5959, 0.5227);

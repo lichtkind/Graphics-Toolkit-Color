@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # common code of Graphics::Toolkit::Color::Space::Instance::* packages
 
 package Graphics::Toolkit::Color::Space;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Format;

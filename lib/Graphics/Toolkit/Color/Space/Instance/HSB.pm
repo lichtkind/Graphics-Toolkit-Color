@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # HSB color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HSB;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 

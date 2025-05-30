@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # CIE LUV color space specific code based on XYZ for Illuminant D65 and Observer 2 degree
 
 package Graphics::Toolkit::Color::Space::Instance::LUV;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 

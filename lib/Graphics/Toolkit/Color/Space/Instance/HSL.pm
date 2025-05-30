@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # HSL color space specific code
 
 package Graphics::Toolkit::Color::Space::Instance::HSL;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color::Space;
 

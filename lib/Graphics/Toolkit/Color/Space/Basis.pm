@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
 # count and names of color space axis (short and long), space name = prefix + axis initials
 
 package Graphics::Toolkit::Color::Space::Basis;
+use v5.12;
+use warnings;
 
 sub new {
     my ($pkg, $axis_long_names, $axis_short_names, $space_prefix, $space_name, $alias_name) = @_;

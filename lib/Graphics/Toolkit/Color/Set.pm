@@ -1,4 +1,6 @@
 
+# color value operation for color sets
+
 package Graphics::Toolkit::Color::Set;
 use v5.12;
 use warnings;

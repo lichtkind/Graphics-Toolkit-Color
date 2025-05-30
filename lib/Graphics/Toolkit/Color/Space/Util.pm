@@ -1,10 +1,9 @@
-use v5.12;
-use warnings;
 
 # utilities for color value calculation
 
 package Graphics::Toolkit::Color::Space::Util;
-
+use v5.12;
+use warnings;
 use Exporter 'import';
 our @EXPORT_OK = qw/round round_decimals rmod min max apply_d65 remove_d65 mult_matrix close_enough is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);

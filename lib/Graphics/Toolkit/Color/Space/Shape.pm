@@ -1,9 +1,9 @@
-use v5.12;
-use warnings;
 
-# logic of value hash keys for all color spacs
+# geometry of space: value range checks, normalisation and computing distance
 
 package Graphics::Toolkit::Color::Space::Shape;
+use v5.12;
+use warnings;
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Util qw/round_decimals is_nr/;
 
@@ -12,14 +12,14 @@ sub new {
     my ($basis, $type, $range, $precision) = @_;
     return unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
-    if (not defined $type){ $type = [ (1) x $basis->axis_count ] } # default is all linear space
+    if (not defined $type){ $type = [ (1) x $basis->axis_count ] } # set all axis as linear per default
     elsif (ref $type eq 'ARRAY' and @$type == $basis->axis_count ) {
         for my $i ($basis->axis_iterator) {
-            my $dtype = $type->[$i]; # type def of this dimension
-            return unless defined $dtype;
-            if    ($dtype eq 'angular' or $dtype eq 'circular' or $dtype eq '0') { $type->[$i] = 0 }
-            elsif ($dtype eq 'linear'                          or $dtype eq '1') { $type->[$i] = 1 }
-            elsif ($dtype eq 'no'                              or $dtype eq '2') { $type->[$i] = 2 }
+            my $atype = $type->[$i];                              # type def of this axis
+            return unless defined $atype;
+            if    ($atype eq 'angular' or $atype eq 'circular' or $atype eq '0') { $type->[$i] = 0 }
+            elsif ($atype eq 'linear'                          or $atype eq '1') { $type->[$i] = 1 }
+            elsif ($atype eq 'no'                              or $atype eq '2') { $type->[$i] = 2 }
             else  { return 'invalid axis type at element '.$i.'. It has to be "angular", "linear" or "no".' }
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }

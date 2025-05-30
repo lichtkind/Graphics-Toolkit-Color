@@ -8,8 +8,8 @@ use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 
 my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness blackness/],
-                                                    type => [qw/angular linear linear/],
                                                    range => [360, 100, 100], precision => 0,
+                                                    type => [qw/angular linear linear/],
                                                   suffix => ['', '%', '%'],
                                                   );
 

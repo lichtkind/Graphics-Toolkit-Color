@@ -6,41 +6,43 @@ use warnings;
 package Graphics::Toolkit::Color::Space::Basis;
 
 sub new {
-    my ($pkg, $axis_long_names, $axis_shortcuts, $space_prefix, $space_name) = @_;
+    my ($pkg, $axis_long_names, $axis_short_names, $space_prefix, $space_name, $alias_name) = @_;
     return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_long_names eq 'ARRAY';
     return 'amount of shortcut names have to match that of full names'
-        if defined $axis_shortcuts and (ref $axis_shortcuts ne 'ARRAY' or @$axis_long_names != @$axis_shortcuts);
+        if defined $axis_short_names and (ref $axis_short_names ne 'ARRAY' or @$axis_long_names != @$axis_short_names);
 
-    my @axis_long = map {lc} @$axis_long_names;
-    my @axis_short = map { color_key_shortcut($_) } (defined $axis_shortcuts) ? @$axis_shortcuts : @axis_long;
-    return unless @axis_long > 0;
+    my @axis_long_name = map {lc} @$axis_long_names;
+    my @axis_short_name = map { color_key_shortcut($_) } (defined $axis_short_names) ? @$axis_short_names : @axis_long_name;
+    return unless @axis_long_name > 0;
 
-    my @iterator    = 0 .. $#axis_long;
-    my %long_order  = map { $axis_long[$_] => $_ } @iterator;
-    my %short_order = map { $axis_short[$_] => $_ } @iterator;
-    my $name = $space_name // uc join( '', @axis_short );
+    my @iterator         = 0 .. $#axis_long_name;
+    my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
+    my %short_name_order = map { $axis_short_name[$_] => $_ } @iterator;
+    my $name = $space_name // uc join( '', @axis_short_name );
     $name = $space_prefix.$name if defined $space_prefix and $space_prefix;
 
-    bless { axis_long => \@axis_long, axis_short => \@axis_short,
-            long_order => \%long_order, short_order => \%short_order,
-            name => $name, axis_count => int @axis_long, iterator => \@iterator }
+    bless { name => $name, alias_name => $alias_name // '',
+            axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
+            long_name_order => \%long_name_order, short_name_order => \%short_name_order,
+            axis_count => int @axis_long_name, iterator => \@iterator }
 }
 
 #### getter ############################################################
 
-sub space_name       {   $_[0]{'name'}        }     # color space name
-sub long_axis_names  { @{$_[0]{'axis_long'}}  }     # axis full names
-sub short_axis_names { @{$_[0]{'axis_short'}} }     # axis short names
-sub axis_iterator    { @{$_[0]{'iterator'}}   }     # counting all axis 0 .. -1
-sub axis_count       {   $_[0]{'axis_count'}  }     # amount of axis
+sub space_name       {   $_[0]{'name'}        }      # color space name
+sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
+sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
+sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
+sub axis_iterator    { @{$_[0]{'iterator'}}   }      # counting all axis 0 .. -1
+sub axis_count       {   $_[0]{'axis_count'}  }      # amount of axis
 
-sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_order'}{ lc $_[1] } : undef }  # ~long_name  --> +pos
-sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_order'}{ lc $_[1] } : undef } # ~short_name --> +pos
+sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }  # ~long_name  --> +pos
+sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef } # ~short_name --> +pos
 
 #### predicates ########################################################
 
-sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
-sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
+sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
+sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
 sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }  # ~name       --> ?
 sub is_hash {         # with all axis names as keys
     my ($self, $value_hash) = @_;
@@ -73,12 +75,12 @@ sub long_axis_name_from_short {
 sub long_name_hash_from_tuple {
     my ($self, $values) = @_;
     return unless $self->is_value_tuple( $values );
-    return { map { $self->{'axis_long'}[$_] => $values->[$_]} $self->axis_iterator };
+    return { map { $self->{'axis_long_name'}[$_] => $values->[$_]} $self->axis_iterator };
 }
 sub short_name_hash_from_tuple {
     my ($self, $values) = @_;
     return unless $self->is_value_tuple( $values );
-    return { map {$self->{'axis_short'}[$_] => $values->[$_]} $self->axis_iterator };
+    return { map {$self->{'axis_short_name'}[$_] => $values->[$_]} $self->axis_iterator };
 }
 
 sub tuple_from_hash {
@@ -109,8 +111,8 @@ sub select_tuple_value_from_name {
     my ($self, $name, $values) = @_;
     $name = lc $name;
     return unless $self->is_value_tuple( $values );
-    return $values->[ $self->{'long_order'}{$name} ] if exists $self->{'long_order'}{$name};
-    return $values->[ $self->{'short_order'}{$name} ] if exists $self->{'short_order'}{$name};
+    return $values->[ $self->{'long_name_order'}{$name} ] if exists $self->{'long_name_order'}{$name};
+    return $values->[ $self->{'short_name_order'}{$name} ] if exists $self->{'short_name_order'}{$name};
     undef;
 }
 

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 134;
+use Test::More tests => 138;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -42,6 +42,7 @@ is( ($s3d->short_axis_names)[-1],       'g',     'repeat last 5d key shortcut ba
 is( ($s5d->short_axis_names)[0],        'm',     'repeat first 3d key shortcut back');
 is( ($s5d->short_axis_names)[-1],       'q',     'repeat last 5d key shortcut back');
 is( $s3d->space_name,                 'ABG',     'correct name from 3 initials');
+is( $s3d->alias_name,                    '',     'ABG space has no alias, because its not auto generated');
 is( $s5d->space_name,               'MNOPQ',     'correct name from 5 initials');
 
 is( $s3d->is_long_axis_name('Alpha'),     1,     'found key alpha');
@@ -174,14 +175,17 @@ is( $ph->{4}, 5,       'second key He has right value');
 is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef, 'name');
-is( ref $p5d,  $module,  'created space with none rule based name');
+is( ref $p5d,  $module,  'created space with user set name');
 is( $p5d->space_name, 'name',  'got correct specially set name');
+is( $p5d->alias_name,     '',  'set no alias name');
 
 my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'pre');
 is( ref $p5p,  $module,  'created space with name prefix');
 is( $p5p->space_name, 'preMNOPQ',  'got correct name with prefix');
+is( $p5p->alias_name,     '',  'set no alias name');
 
-my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'PRE', 'name');
+my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'PRE', 'name', 'alias');
 is( $p5pn->space_name, 'PREname',  'got correct name with prefix');
+is( $p5pn->alias_name,  'alias',  'got user set alias name');
 
 exit 0;

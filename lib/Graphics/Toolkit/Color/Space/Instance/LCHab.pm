@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 my  $hcl_def = Graphics::Toolkit::Color::Space->new(prefix => 'CIE', name => 'LCHab',
                                                       axis => [qw/luminance croma hue/],
                                                      #short => [qw/luminance croma hue/],
+                                                     #alias => 'LCH',
                                                      range => [100, 539, 360] );
 
     $hcl_def->add_converter('RGB', \&to_rgb, \&from_rgb );

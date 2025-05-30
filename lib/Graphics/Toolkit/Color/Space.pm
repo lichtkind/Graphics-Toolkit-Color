@@ -11,7 +11,7 @@ use Graphics::Toolkit::Color::Space::Format;
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'}, $args{'name'});
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'}, $args{'name'}, $args{'alias'});
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'} );
     return $shape unless ref $shape;

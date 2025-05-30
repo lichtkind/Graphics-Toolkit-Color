@@ -7,7 +7,7 @@ package Graphics::Toolkit::Color::Space::Instance::XYZ;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my @D65 = (0.95047, 1, 1.08883);
+my @D65 = (0.95047, 1, 1.088830);
 my  $xyz_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',
                                                        axis => [qw/X Y Z/],
                                                       range => [map {$D65[$_] * 100} 0 .. 2],

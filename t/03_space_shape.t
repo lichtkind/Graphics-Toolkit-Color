@@ -47,10 +47,10 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef,undef, 
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no'], 20, [-1,0,1]);
 is( ref $shape,  $module, 'created shape with 0..20 range');
-is( $shape->axis_is_numeric(0), 1, 'first dimension is numeric');
-is( $shape->axis_is_numeric(1), 1, 'second dimension is numeric');
-is( $shape->axis_is_numeric(2), 0, 'third dimension is not numeric');
-is( $shape->axis_is_numeric(3), 0, 'there is no fourth dimension ');
+is( $shape->is_axis_nr(0), 1, 'first dimension is numeric');
+is( $shape->is_axis_nr(1), 1, 'second dimension is numeric');
+is( $shape->is_axis_nr(2), 0, 'third dimension is not numeric');
+is( $shape->is_axis_nr(3), 0, 'there is no fourth dimension ');
 is( $shape->axis_value_precision(0), -1, 'first dimension precision');
 is( $shape->axis_value_precision(1), 0, 'second dimension precision');
 is( $shape->axis_value_precision(2), undef, 'third dimension precision does not count (not numeric)');

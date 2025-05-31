@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 148;
+use Test::More tests => 150;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -64,7 +64,10 @@ is( $val->[1],                     1, 'clamped down second value');
 is( $val->[2],                     1, 'passed through third value');
 is( $val->[3],                     0, 'zero is default value');
 
-$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => [10,20,'normal', [-10,10]]);
+$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => [10,20,'normal', [-10,10]],
+                                              name => 'name', alias => 'alias' );
+is( $space->name,    'name', 'got back user set space name');
+is( $space->alias,  'alias', 'got back user set space name alias');
 is( ref $space,     $module, 'created color space with axis names and ranges');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->range_check([10,10,1,10]),                  'ARRAY', 'max values are in range');

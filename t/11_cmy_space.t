@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 46;
+use Test::More tests => 47;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CMY';
@@ -11,6 +11,7 @@ my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
 is( $def->name,       'CMY',                     'color space has right name');
+is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'CMY color space has 3 axis');
 
 is( ref $def->range_check([0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');

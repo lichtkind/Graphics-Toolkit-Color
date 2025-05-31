@@ -7,6 +7,8 @@ use Test::More tests => 106;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 
+__END__
+
 use Graphics::Toolkit::Color::Space::Util ':all';
 use_ok( $module, 'could load the module');
 

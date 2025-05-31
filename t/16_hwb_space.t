@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 59;
+use Test::More tests => 60;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
@@ -12,7 +12,8 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $def->name,       'HWB',                     'color space has right name');
+is( $def->name,       'HWB',                     'color space has axis initials as name');
+is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'color space has 3 axis');
 is( ref $def->range_check([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
 is( ref $def->range_check([360,100,100]), 'ARRAY',   'check HWB values works on upper bound values');

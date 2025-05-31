@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 65;
+use Test::More tests => 66;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CMYK';
@@ -10,8 +10,9 @@ my $module = 'Graphics::Toolkit::Color::Space::Instance::CMYK';
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $def->name,       'CMYK',                     'color space has right name');
-is( $def->axis,            4,                     'color space has 4 axis');
+is( $def->name,       'CMYK',                    'color space has right name');
+is( $def->alias,         '',                     'color space has no alias name');
+is( $def->axis,            4,                    'color space has 4 axis');
 
 is( ref $def->range_check([0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
 is( ref $def->range_check([1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');

@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 29;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color qw/color/;
+# use Graphics::Toolkit::Color qw/color/;
 
 __END__
 

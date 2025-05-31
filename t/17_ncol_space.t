@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 70;
+use Test::More tests => 71;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::NCol';
@@ -12,7 +12,9 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,         'NCol',                  'color space has right name');
+is( $space->name,         'NCol',                  'color space has use set name');
+is( $space->alias,            '',                  'color space has no alias name');
+
 is( $space->axis,              3,                  'color space has 3 axis');
 is( $space->is_value_tuple([0,0,0]), 1,            'value tuple has 3 elements');
 is( $space->is_partial_hash({whiteness => 1, blackness => 0}), 1, 'found hash with some axis name');

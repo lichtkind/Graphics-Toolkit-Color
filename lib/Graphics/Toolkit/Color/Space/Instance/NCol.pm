@@ -7,7 +7,7 @@ use warnings;
 use Graphics::Toolkit::Color::Space::Util qw/min max/;
 use Graphics::Toolkit::Color::Space;
 
-my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
+my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol', alias => '',
                                                     axis => [qw/hue whiteness blackness/],
                                                     type => [qw/angular linear linear/],
                                                    range => [600, 100, 100],  precision => 0,

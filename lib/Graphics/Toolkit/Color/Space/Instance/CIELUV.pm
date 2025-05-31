@@ -1,7 +1,7 @@
 
 # CIE LUV color space specific code based on XYZ for Illuminant D65 and Observer 2 degree
 
-package Graphics::Toolkit::Color::Space::Instance::LUV;
+package Graphics::Toolkit::Color::Space::Instance::CIELUV;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;

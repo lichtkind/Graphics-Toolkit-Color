@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 53;
+use Test::More tests => 54;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSV';
@@ -11,7 +11,8 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $def->name,       'HSV',                     'color space has right name');
+is( $def->name,       'HSV',                     'color space has initials as name');
+is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'color space has 3 axis');
 is( ref $def->range_check([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');
 is( ref $def->range_check([360,100,100]), 'ARRAY',   'check HSV values works on upper bound values');

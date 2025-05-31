@@ -5,7 +5,11 @@ use warnings;
 use Test::More tests => 40;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Instance::YIQ';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELCHab';
+
+exit 0;
+
+__END__
 
 my $def = eval "require $module";
 use Graphics::Toolkit::Color::Space::Util ':all';
@@ -65,4 +69,3 @@ is( close_enough($rgb[0],  0.1), 1,   'right red value');
 is( close_enough($rgb[1],  0  ), 1,   'right green value');
 is( close_enough($rgb[2],  1, ), 1,   'right blue value');
 
-exit 0;

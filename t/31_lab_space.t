@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 93;
 
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Instance::LAB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
 
 my $space = eval "require $module";
 use Graphics::Toolkit::Color::Space::Util ':all';

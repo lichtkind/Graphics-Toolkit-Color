@@ -1,12 +1,13 @@
 
-# check, convert and measure color values # hcg eq hsb ?
+# check, convert and measure color values
 
 package Graphics::Toolkit::Color::Space::Hub;
 use v5.12;
 use warnings;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package, qw/CMY CMYK HSL HSV HSB HWB NCol YIQ XYZ LAB LUV LCHab LCHuv/); # search order ## missing: Ncol
+my @space_packages = ($base_package,
+   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUC CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order # CubeHelix
 my %space_obj     =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
 my @space_names = map { $space_obj{$_}->name } @space_packages;                                      # names in search oder

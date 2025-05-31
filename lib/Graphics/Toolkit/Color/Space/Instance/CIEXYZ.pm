@@ -1,9 +1,9 @@
 use v5.12;
 use warnings;
 
-# XYZ color space specific code for Illuminant D65 and Observer 2°
+# CIEXYZ color space specific code for Illuminant D65 and Observer 2°
 
-package Graphics::Toolkit::Color::Space::Instance::XYZ;
+package Graphics::Toolkit::Color::Space::Instance::CIEXYZ;
 use Graphics::Toolkit::Color::Space;
 use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 

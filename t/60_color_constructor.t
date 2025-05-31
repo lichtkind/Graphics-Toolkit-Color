@@ -6,6 +6,9 @@ use Test::More tests => 128;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color';
+
+__END__
+
 eval "use $module";
 is( not( $@), 1, 'could load the module');
 

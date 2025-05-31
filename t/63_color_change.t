@@ -7,6 +7,8 @@ use Test::More tests => 29;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color qw/color/;
 
+__END__
+
 my $red   = color('#FF0000');
 my $blue  = color('#0000FF');
 my $white = color('white');

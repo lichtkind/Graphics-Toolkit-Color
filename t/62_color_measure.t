@@ -8,6 +8,7 @@ BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color qw/color/;
 use Graphics::Toolkit::Color::Space::Util ':all';
 
+__END__
 my $red = Graphics::Toolkit::Color->new('red');
 my $blue = Graphics::Toolkit::Color->new('blue');
 

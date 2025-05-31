@@ -18,23 +18,26 @@ sub new {
     my @iterator         = 0 .. $#axis_long_name;
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
     my %short_name_order = map { $axis_short_name[$_] => $_ } @iterator;
-    my $name = $space_name // uc join( '', @axis_short_name );
-    $name = $space_prefix.$name if defined $space_prefix and $space_prefix;
+    my $axis_initials    = uc join( '', @axis_short_name );
+    $space_name //= $axis_initials;
+    $space_name   = $space_prefix.$space_name if defined $space_prefix and $space_prefix;
+    $alias_name //= $axis_initials;
+    $alias_name   = '' if $alias_name eq $space_name;
 
-    bless { name => $name, alias_name => $alias_name // '',
+    bless { space_name => $space_name, alias_name => $alias_name,
             axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
             long_name_order => \%long_name_order, short_name_order => \%short_name_order,
-            axis_count => int @axis_long_name, iterator => \@iterator }
+            axis_iterator => \@iterator }
 }
 
 #### getter ############################################################
 
-sub space_name       {   $_[0]{'name'}        }      # color space name
+sub space_name       {   $_[0]{'space_name'}  }      # color space name
 sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
-sub axis_iterator    { @{$_[0]{'iterator'}}   }      # counting all axis 0 .. -1
-sub axis_count       {   $_[0]{'axis_count'}  }      # amount of axis
+sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1
+sub axis_count   { int @{$_[0]{'axis_iterator'}} }   # amount of axis
 
 sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }  # ~long_name  --> +pos
 sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef } # ~short_name --> +pos

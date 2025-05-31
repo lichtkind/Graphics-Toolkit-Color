@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 147;
+use Test::More tests => 148;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -14,6 +14,7 @@ is( ref $fspace,         '', 'need axis names to create color space');
 my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/]);
 is( ref $space,     $module, 'created color space just with axis names');
 is( $space->name,    'ABCD', 'got space name from AXIS short names');
+is( $space->alias,       '', 'space name alias is empty');
 is( $space->axis,         4, 'counted axis right');
 
 is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');

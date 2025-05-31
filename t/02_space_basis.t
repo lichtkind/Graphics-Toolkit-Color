@@ -175,14 +175,14 @@ is( $ph->{4}, 5,       'second key He has right value');
 is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef, 'name');
-is( ref $p5d,  $module,  'created space with user set name');
-is( $p5d->space_name, 'name',  'got correct specially set name');
-is( $p5d->alias_name,     '',  'set no alias name');
+is( ref $p5d,  $module,  'created space with user set name and user set axis short names');
+is( $p5d->space_name, 'name',  'space name is user set');
+is( $p5d->alias_name, 'MNOPQ', 'space name alias are short name initials');
 
 my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'pre');
-is( ref $p5p,  $module,  'created space with name prefix');
-is( $p5p->space_name, 'preMNOPQ',  'got correct name with prefix');
-is( $p5p->alias_name,     '',  'set no alias name');
+is( ref $p5p,  $module,  'created space with name prefix and user set axis short names');
+is( $p5p->space_name, 'preMNOPQ',  'space name are initials with prefix');
+is( $p5p->alias_name,    'MNOPQ',  'space name alias are short name initials');
 
 my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'PRE', 'name', 'alias');
 is( $p5pn->space_name, 'PREname',  'got correct name with prefix');

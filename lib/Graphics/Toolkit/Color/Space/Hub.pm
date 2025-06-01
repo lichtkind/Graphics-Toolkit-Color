@@ -6,11 +6,12 @@ use v5.12;
 use warnings;
 use Carp;
 our $base_package = 'RGB';
-my @space_packages = ($base_package,
-   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUC CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order # CubeHelix
-my %space_obj     =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
+my @space_packages = ( $base_package,
+                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # CubeHelix
+                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order
+my %space_obj    =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
-my @space_names = map { $space_obj{$_}->name } @space_packages;                                      # names in search oder
+my @space_names  = map { $space_obj{$_}->name } @space_packages;                                      # names in search oder
 
 sub get_space { $space_lookup{ uc $_[0] } if exists $space_lookup{ uc $_[0] } }
 sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
@@ -26,6 +27,7 @@ sub add_space {
     return "space objct has no name" unless $name;
     return "name $name is already taken as color space name" if ref get_space( $name );
     $space_lookup{ $name } = $space;
+    $space_lookup{ $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
 }
 
 sub remove_space {

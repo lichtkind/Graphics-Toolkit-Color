@@ -72,17 +72,14 @@ sub deconvert {
     return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];
 }
 
-#### full pipe ops #####################################################
+#### full pipe IO ops ##################################################
 
 sub read { # formatted color blob in local space --> normalized RGB
     my ($self, $color, $range, $precision, $suffix) = @_;
     my ($values, $format_name) = $self->deformat( $color, $suffix);
-#say "read deformat $values, $format_name ";
     $values = $self->round( $values, $precision) if defined $precision;
     $values = $self->normalize( $values, $range);
-#say "read normalize @$values ";
     $values = $self->convert( $values, 'RGB');
-#say "read convert @$values ";
     return (not ref $values) ? $values :
                    wantarray ? ($values, $format_name) : $values;
 }
@@ -104,24 +101,28 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Space - color space constructor
+Graphics::Toolkit::Color::Space - base class of all color spaces
 
 =head1 SYNOPSIS
 
-Color spaces are objects( instances ) of this class, who provide property
-details via the constructor and formatter and converters via CODE ref.
+Color spaces are objects that hold all detail information of a color space.
+Among these are its name, alias, count, length and type of axis.
+The conversion and formatting algorithms are also located here,
+but provided by the instances.
 
     use Graphics::Toolkit::Color::Space;
 
-    my  $def = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/],
-                                                    short => [qw/1 2 3/],
-                                                   prefix => 'pre',
-                                                     name => 'demo'
-                                                     type => [qw/linear circular angular/]
-                                                    range => [1, [-2, 2], [-3, 3]],
-                                                precision => [-1, 0, 1],
-                                                   suffix => ['', '', '%'],
-                                                     );
+    my $def = Graphics::Toolkit::Color::Space->new (
+                      prefix => 'pre',
+                        name => 'demo',
+                       alias => 'alias',
+                        axis => [qw/one two three/],
+                       short => [qw/1 2 3/],
+                        type => [qw/linear circular angular/]
+                       range => [1, [-2, 2], [-3, 3]],
+                   precision => [-1, 0, 1],
+                      suffix => ['', '', '%'],
+    );
 
     $def->add_converter(    'RGB',   \&to_rgb, \&from_rgb );
     $def->add_formatter(   'name',   sub {...} );
@@ -130,11 +131,12 @@ details via the constructor and formatter and converters via CODE ref.
 
 =head1 DESCRIPTION
 
-This package provides the API for constructing color spaces, which are instances
-of this class. Plase name them L<Graphics::Toolkit::Color::Space::Instance::*>.
-These instances are supposed to be held by L<Graphics::Toolkit::Color::Space::Hub>.
-So if you are an author of your own color space, you have to send it to the Hub
-manually at runtime or submit you color space as merge request.
+This package provides the API for constructing custom color spaces.
+Please name them L<Graphics::Toolkit::Color::Space::Instance::MyName>.
+These instances are supposed to be loaded by L<Graphics::Toolkit::Color::Space::Hub>.
+So if you are an author of your own color space, you have to call C<*::Hub::add_space>
+manually at runtime or submit you color space as merge request and I add
+your space into the list of automatically loaded spaces.
 
 =head1 METHODS
 

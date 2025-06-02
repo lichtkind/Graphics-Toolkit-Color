@@ -8,15 +8,21 @@ use Graphics::Toolkit::Color::Space;
 
 my ($i_max, $q_max)   = (0.5959, 0.5227);
 my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
-                                                                    # cyan-orange balance, magenta-green balance
-my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in_phase quadrature/],
+                                                             # cyan-orange balance, magenta-green balance
+my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luma Cb Cr/],
                                                      short => [qw/Y U V/],
                                                      range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
 
     $yiq_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
-    my ($r, $g, $b) = @{$_[0]};
+    my ($rgb) = @_;
+
+    my (@yuv) =  mult_matrix([[0.4124564, 0.2126729, 0.0193339],
+                              [0.3575761, 0.7151522, 0.1191920],
+                              [0.1804375, 0.0721750, 0.9503041]], @$rgb);
+
+
     my $y =           (0.299  * $r) + ( 0.587  * $g) + ( 0.114  * $b);
     my $i = ($i_max + (0.5959 * $r) + (-0.2746 * $g) + (-0.3213 * $b)) / $i_size;
     my $q = ($q_max + (0.2115 * $r) + (-0.5227 * $g) + ( 0.3112 * $b)) / $q_size;

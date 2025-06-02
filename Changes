@@ -1,8 +1,8 @@
 
-1.8     2024-05-04    lichtkind
+1.9     2025-06-04    lichtkind
 -------
     * = mid level feature release
-    * * added support of 7 color spaces: NCol CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB
+    * * added support of 7 color spaces: NCol YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv
     * + extended range definitions with explicit type names
     * + color spaces can now define value procision,
                                     value suffix ('%') and

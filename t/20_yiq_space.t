@@ -29,7 +29,7 @@ is( ref $def->range_check([0, 0, 1] ),         '',   "quadrature value is too bi
 
 
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
-is( $def->is_partial_hash({i => 1, quadrature => 0}), 1, 'found hash with some keys');
+is( $def->is_partial_hash({i => 1, Quadrature => 0}), 1, 'found hash with some keys');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $def->can_convert('yiq'), 0,                 'can not convert to itself');
 is( $def->format([0,0,0], 'css_string'), 'yiq(0, 0, 0)', 'can format css string');

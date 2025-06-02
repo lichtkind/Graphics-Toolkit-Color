@@ -1,5 +1,5 @@
 
-# sRGB color space specific code
+# sRGB color space IEC 61966-2-1
 
 package Graphics::Toolkit::Color::Space::Instance::RGB;
 use v5.12;

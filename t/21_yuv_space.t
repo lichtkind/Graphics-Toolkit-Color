@@ -12,7 +12,8 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $def->name,       'YIQ',                     'color space has right name');
+is( $def->name,       'YUV',                     'color space has initials as name');
+is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'color space has 3 axis');
 is( ref $def->range_check([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
 is( ref $def->range_check([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');

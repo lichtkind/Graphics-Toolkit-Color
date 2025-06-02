@@ -7,7 +7,7 @@ use warnings;
 use Carp;
 our $base_package = 'RGB';
 my @space_packages = ( $base_package,
-                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # CubeHelix
+                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # CubeHelix OKLAB
                        qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order
 my %space_obj    =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
@@ -145,13 +145,12 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Space::Hub - convert, format and (de-)normalize color values
+Graphics::Toolkit::Color::Space::Hub - convert, (de-)normalize and format color value tuples
 
 =head1 SYNOPSIS
 
-Central hub for all color value related math. Can handle vectors of all
-spaces mentioned in next paragraph and translates also into and from
-different formats such as I<RGB> I<hex> ('#AABBCC').
+Central store for all color space objects, which hold color space specific
+information and algorithms.
 
     use Graphics::Toolkit::Color::Space::Hub;
 
@@ -166,85 +165,137 @@ different formats such as I<RGB> I<hex> ('#AABBCC').
     $RGB->denormalize([0, 0, 1]);          #   0, 0, 255
     $RGB->format([0, 0, 255], 'hex');      #   '#0000ff'
 
-    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( '#0000ff' );
     # [0, 0, 255] , 'RGB'
+    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( '#0000ff' );
 
 =head1 DESCRIPTION
 
-This module is supposed to be used by L<Graphics::Toolkit::Color> and not
-directly, thus it exports no symbols and has a much less DWIM API then
+This module is supposed to be used internally and not directly by the user,
+unless he wants to add his own color space.
+Therefore it exports no symbols and the methods are much less DWIM then
 the main module.
+
 
 
 =head1 COLOR SPACES
 
-Color space names can be written in any combination of upper and lower case.
+Up next, a listing of all supported color spaces. These are mathematical
+constructs that associate each color with a point inside this space.
+The numerical values of a color definition become coordinates along
+axis that express different properties. The closer two
+colors are along an axis the more similar are they in that property.
+All color spaces are finite and only certain value ranges along an
+axis are acceptable. Many spaces have 3 dimensions (axis) and are
+completely lineary like in Euclidean (everyday) geometry.
+A few spaces have more axis and some spaces are cylindrical. That
+means that some axis are not lines but circles and the associated value
+descibes an angle.
+
+Color definitions contain either the name of a space or the names
+of its axis (long or short). If the space name or its abbreviated alias
+is used, the values have to be provided in the same order as the axis
+described here.
+
+Color space or axis names may be written in any combination of upper and
+lower case characters, but I recommended to use the spelling presented here.
+Each axis has also two specific names, one long and one short, which are
+in rare cases equal. In order to define a color in that space you need
+to provide for each axis one value that is inside the required value range
+and of a specificed type (int or real with amount of decimals).
+
 
 =head2 RGB
 
-has three integer values: B<red> (short I<r>) range: 0 .. 255, B<green>
-(short I<g>) range: 0 .. 255 and B<blue> (short I<b>) range: 0 .. 255.
-All are scaling from no (0) to very much (255) light of that color,
-so that (0,0,0) is black, (255,255,255) is white and (0,0,255) is blue.
+... is the default color space of this CPAN module. It is used
+by most computer hardware like monitors and follows the logic of additive
+color mixing as produced by an overlay of three colored light beams.
+Its is a completely linear (Euclidean) 3D space and thus a RGB tuple
+consists of three integer values: B<red> (short B<r>) range: 0 .. 255, B<green>
+(short B<g>) range: 0 .. 255 and B<blue> (short B<b>) range: 0 .. 255.
+A higher value means a stronger beam of that base color flows into the mix,
+so that black is (0,0,0), white (255,255,255) and a pure red
+(fully stured color) is (255, 0, 0).
+
 
 =head2 CMY
 
-is the inverse of RGB but with the real value range: 0 .. 1.
-B<cyan> (short I<c>) is the inverse value of I<red>,
-B<magenta> (short I<m> ) is inverse to I<green> and
-B<yellow> (short I<y>) is inverse of I<blue>.
-Inverse meaning when a color has the maximal I<red> value, it has to
-have the minimal I<cyan> value.
+is the complement of RGB since it follows the logic of subtractive color
+mixing as used in printing. Think of it as the amount of colored ink
+on white paper, so that white is (0,0,0) and black (1,1,1).
+It uses normalized real value ranges: 0 .. 1.
+An CMY tuple has also three values:
+B<cyan> (short B<c>) is the inverse of I<red>,
+B<magenta> (short B<m> ) is inverse to I<green> and
+B<yellow> (short B<y>) is inverse of I<blue>.
 
 =head2 CMYK
 
-is an extension of CMY with a fourth value named B<key> (short I<k>) (also 0 .. 1),
-which is basically the amount of black mixed into the CMY color.
+is an extension of CMY with a fourth value named B<key> (short B<k>),
+which is the amount of black ink mixed into the CMY color.
+It also has an normalized range of 0 .. 1.
+
 
 =head2 HSL
 
-has three integer values: B<hue> (0 .. 359), B<saturation> (0 .. 100)
-and B<lightness> (0 .. 100). Hue (short I<h>) stands for a color on
-a rainbow: 0 = red, 15 approximates orange, 60 - yellow 120 - green,
-180 - cyan, 240 - blue, 270 - violet, 300 - magenta, 330 - pink.
-0 and 360 points to the same coordinate. This module only outputs 0,
-even if accepting 360 as input.
-I<saturation> (short I<s>) ranges from 0 (White/gray/black) to 100 (clearest color set by hue).
-I<lightness> (short I<l>) ranges from 0 (black) over 50 (hue or gray) to 100 (white).
+.. is a cylindrical space that orders colors along cognitive properties.
+The first dimension is the angular one and it rotates in 360 degrees around
+the rainbow of fully saturated colors: 0 = red, 15 approximates orange,
+60 - yellow 120 - green, 180 - cyan, 240 - blue, 270 - violet,
+300 - magenta, 330 - pink. 0 and 360 points to the same coordinate.
+This module only outputs 0, even if accepting 360 as input. Thes second,
+linear dimension (axis) measures the distance between a point the the center
+column of the cylinder at the same height, no matter in which direction.
+The center column has the value 0 (white .. gray .. black) and the outer
+mantle of the cylinder contains the most saturated, purest colors.
+The third, vertical axis reaches from bottom value 0 (always black no
+matter the other values) to 100 (always white no matter the other values).
+In summary: HSL needs three integer values: B<hue> (short B<h>) (0 .. 359),
+B<saturation> (short B<s>) (0 .. 100) and B<lightness> (short B<l>) (0 .. 100).
 
 =head2 HSV
 
-Similar to HSL we have B<hue> and B<saturation>, but the third value in
-named B<value>. In HSL we always get  white, when I<lightness> is 100.
-In HSV additionally I<saturation> has to be zero to get white.
-When I<saturation> is 100 and I<value> is 100 we have the brightest,
-clearest color of whatever I<hue> sets.
+... is also cylindrical but can be shaped like a cone.
+Similar to HSL we have B<hue> and B<saturation>, but the third axis is
+named B<value> (short B<v>). In HSL we always get white, when I<lightness>
+is 100. In HSV additionally I<saturation> has to be zero to get white.
+When I<saturation> is 100 and I<value> is 100 we have the purest, most
+sturated color of whatever I<hue> sets.
 
 =head2 HSB
 
-It is an alias to HSV, just value being renamed with B<brightness>.
+Is an alias to HSV, just the I<value> axis is renamed with B<brightness> (B<b>).
 
 =head2 HWB
 
-An inverted HSV, where the saturated, clean colors are on the center
+An inverted HSV, where the saturated, pure colors are on the center
 column of the cylinder. It still has the circular B<hue> dimension,
 as described in C<HSL>. The other two, linear dimensions (also 0 .. 100)
-are B<whiteness> and B<blackness>, desribing how much white or black are
-mixed in. If both are zero, than we have a pure color. I<whiteness> of 100
-always leads to white and I<blackness> of 100 always leads to black.
+are B<whiteness> (B<w>) and B<blackness> (B<b>), desribing how much white
+or black are mixed in. If both are zero, than we have a pure color.
+I<whiteness> of 100 always leads to white and I<blackness> of 100 always
+leads to black. The space is truncated as a cone so the sum of I<whiteness>
+and I<blackness> can never be greater than 100.
 
 =head2 NCol
 
-Is a human readable derivation of the HWB space with altered B<hue> axis
-that consicts of a letter and nwo digits. The letter demarks one of the
-six areas around the rainbow B<R> (I<Red>), B<Y> (I<Yellow>), B<G> (I<Green),
-B<C> (I<Cyan>), B<B> (I<Blue>), B<M> (I<Magenta). The two digits after this
-letter are a percentual value, pointing to a position on the rainbow,
-between the stated color by the letter and the next. The B<whiteness> and
-B<blackness> axis have values with the suffix I<%>, since they are
-percentual values as well.
+Is a more human readable derivation of the HWB space with an altered
+B<hue> axis, whith values that consists of a letter and two digits.
+The letter demarks one of the six areas around the rainbow B<R> (I<Red>),
+B<Y> (I<Yellow>), B<G> (I<Green), B<C> (I<Cyan>), B<B> (I<Blue>),
+B<M> (I<Magenta). The two digits after this letter are an angular value,
+measuring the distance between the pure color (as stated by the letter)
+and the described color (toward the next color on the rainbow).
+The B<whiteness> and B<blackness> axis have values with the suffix I<%>,
+since they are percentual values as well.
 
 =head2 YIQ
+
+Has three linear dimensions:
+B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
+B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5959 .. 0.5959) and
+B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
+
+=head2 YUV
 
 Has three linear dimensions:
 B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),

@@ -212,9 +212,9 @@ color mixing as produced by an overlay of three colored light beams.
 Its is a completely linear (Euclidean) 3D space and thus a RGB tuple
 consists of three integer values: B<red> (short B<r>) range: 0 .. 255, B<green>
 (short B<g>) range: 0 .. 255 and B<blue> (short B<b>) range: 0 .. 255.
-A higher value means a stronger beam of that base color flows into the mix,
-so that black is (0,0,0), white (255,255,255) and a pure red
-(fully stured color) is (255, 0, 0).
+A higher value means a stronger beam of that base color flows into the mix
+above a black background, so that black is (0,0,0), white (255,255,255)
+and a pure red (fully saturated color) is (255, 0, 0).
 
 
 =head2 CMY

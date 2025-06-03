@@ -4,6 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::YIQ;
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Space::Util qw/mult_matrix/;
 use Graphics::Toolkit::Color::Space;
 
 my ($i_max, $q_max)   = (0.5959, 0.5227);
@@ -22,6 +23,10 @@ sub from_rgb {
     my $q = ($q_max + (0.2115 * $r) + (-0.5227 * $g) + ( 0.3112 * $b)) / $q_size;
     return ($y, $i, $q);
 }
+
+    my (@xyz) =  mult_matrix([[0.4124564, 0.2126729, 0.0193339],
+                              [0.3575761, 0.7151522, 0.1191920],
+                              [0.1804375, 0.0721750, 0.9503041]], apply_d65( $r ), apply_d65( $g ), apply_d65( $b ));
 
 
 sub to_rgb {

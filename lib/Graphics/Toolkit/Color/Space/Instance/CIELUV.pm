@@ -12,7 +12,7 @@ my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',
                                                       range => [100, [-100, 175], [-140, 110]] );
 
 
-    $luv_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+    $luv_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

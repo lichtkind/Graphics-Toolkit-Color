@@ -12,7 +12,7 @@ my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           
                                                       range => [100, [-500, 500], [-200, 200]],
                                                   precision => 3 );
 
-    $lab_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+    $lab_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

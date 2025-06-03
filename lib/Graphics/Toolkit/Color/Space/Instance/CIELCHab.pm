@@ -11,7 +11,7 @@ my  $hcl_def = Graphics::Toolkit::Color::Space->new(prefix => 'CIE', name => 'LC
                                                       axis => [qw/luminance croma hue/],
                                                      range => [100, 539, 360] );
 
-    $hcl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+    $hcl_def->add_converter('CIELAB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
     my ($r, $g, $b) = @_;

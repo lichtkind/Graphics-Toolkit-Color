@@ -290,6 +290,7 @@ since they are percentual values as well.
 
 =head2 YIQ
 
+
 Has three linear dimensions:
 B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
 B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5959 .. 0.5959) and
@@ -299,22 +300,30 @@ B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227)
 
 Has three linear dimensions:
 B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
-B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5959 .. 0.5959) and
+B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5 .. 0.5) and
 B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
 
 =head2 CIEXYZ
-Has three real valued dimension named X, Y and Z, (short names are the same),
-which aim to reflect the chemical activity of the three type of
-colored light receptors in the human eye. Their ranges span from zero to
-0.95047, 1 and 1.08883.
+
+X, Y and Z refer to the red, green and blue receptors (rods) in the retina
+(on the back side of the eye), because they measure a lot more than than
+just those exact colors. The values in that space tell you about the
+amount of chemical and neurological activity a color produces inside the eye.
+This time the short and long names of the linear axis are the same and the
+value range from zero to to 0.95047, 1 and 1.08883 respectively.
 
 =head2 CIELAB
 
-Has three linear real valued dimension named L*, a* and b*, (short names have only
-the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+Is a reshaped version of CIEXYZ that reorderes the color positions to reflect
+human perception. B<L> stand for lightness (0 .. 100),
+B<a> is the axis that reaches from red to green (-500 .. 500) and
+B<b> from yellow to blue (-200 .. 200). The long names of the axis contain
+a '*' and are thus: B<L*>, B<a*> and B<b*>.
 
 =head2 CIELUV
 
+Is a more perceptually uniform  version of CIELAB and and axis a and b
+got renamed to u and v but did not change their meaning.
 Has three linear real valued dimension named L*, u* and v*, (short names have only
 the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 

@@ -150,3 +150,9 @@
     * = initial release - moved code out of Chart module
     * \ created own distro
     * ~ small POD fixes
+
+TODO:
+  # add condition W + B < 100
+  # add oklab space
+  # add Cubehelix space
+  # - add gama crrection ?

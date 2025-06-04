@@ -15,7 +15,7 @@ my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness bl
 
    $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
-
+# add condition W + B < 100
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b);

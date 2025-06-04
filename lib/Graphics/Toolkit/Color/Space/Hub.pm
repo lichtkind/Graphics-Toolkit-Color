@@ -290,18 +290,21 @@ since they are percentual values as well.
 
 =head2 YIQ
 
-
-Has three linear dimensions:
-B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
-B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5959 .. 0.5959) and
-B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
+Is a space developed for color television broadcasting which is still
+compatible with black and white TV. It achieves this by sending the
+B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1)
+in channel number one, which is all black and white TV needs. Additionally
+we have the axis of B<in-phase> (short B<i>)
+(cyan - orange - balance, range -0.5959 .. 0.5959) and
+B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
 
 =head2 YUV
 
-Has three linear dimensions:
+Is a slightly different YIQ with
 B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
 B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5 .. 0.5) and
 B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
+luma Cb Cr
 
 =head2 CIEXYZ
 
@@ -309,16 +312,18 @@ X, Y and Z refer to the red, green and blue receptors (rods) in the retina
 (on the back side of the eye), because they measure a lot more than than
 just those exact colors. The values in that space tell you about the
 amount of chemical and neurological activity a color produces inside the eye.
-This time the short and long names of the linear axis are the same and the
-value range from zero to to 0.95047, 1 and 1.08883 respectively.
+Here the short and long names of the linear axis are the same and the
+values range from zero to to 0.95047, 1 and 1.08883 respectively.
 
 =head2 CIELAB
 
-Is a reshaped version of CIEXYZ that reorderes the color positions to reflect
-human perception. B<L> stand for lightness (0 .. 100),
+Is a reshaped version of CIEXYZ that reorderes the color positions to
+reflect how the brain processes colors. It uses three information channels.
+One named B<L> (lightness) with a range of (0 .. 100),
 B<a> is the axis that reaches from red to green (-500 .. 500) and
 B<b> from yellow to blue (-200 .. 200). The long names of the axis contain
-a '*' and are thus: B<L*>, B<a*> and B<b*>.
+a '*' and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect
+the opponent color theory.
 
 =head2 CIELUV
 
@@ -329,11 +334,13 @@ the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head2 CIELCHab
 
+.. is the cylindrical version of the CIELAB.
 Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
 Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head2 CIELCHuv
 
+.. is the cylindrical version of the CIELUV.
 Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
 Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 

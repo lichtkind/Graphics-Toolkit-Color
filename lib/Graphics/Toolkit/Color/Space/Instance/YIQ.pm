@@ -8,7 +8,7 @@ use Graphics::Toolkit::Color::Space::Util qw/mult_matrix/;
 use Graphics::Toolkit::Color::Space;
 
 my ($i_max, $q_max)   = (0.5959, 0.5227);
-my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
+my ($i_range_size, $q_range_size) = (2 * $i_max, 2 * $q_max);
                                                                     # cyan-orange balance, magenta-green balance
 my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in_phase quadrature/],
                                                      short => [qw/Y I Q/],
@@ -17,26 +17,24 @@ my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luminance in_p
     $yiq_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
 sub from_rgb {
-    my ($r, $g, $b) = @{$_[0]};
-    my $y =           (0.299  * $r) + ( 0.587  * $g) + ( 0.114  * $b);
-    my $i = ($i_max + (0.5959 * $r) + (-0.2746 * $g) + (-0.3213 * $b)) / $i_size;
-    my $q = ($q_max + (0.2115 * $r) + (-0.5227 * $g) + ( 0.3112 * $b)) / $q_size;
+    my ($rgb) = shift;
+    my ($y, $i, $q) = mult_matrix([[0.299,   0.587,   0.114 ],
+                                   [0.5959, -0.2746, -0.3213],
+                                   [0.2115, -0.5227,  0.3112]], @$rgb);
+    $i = ($i + $i_max) / $i_range_size;
+    $q = ($q + $q_max) / $q_range_size;
     return ($y, $i, $q);
 }
 
-    my (@xyz) =  mult_matrix([[0.4124564, 0.2126729, 0.0193339],
-                              [0.3575761, 0.7151522, 0.1191920],
-                              [0.1804375, 0.0721750, 0.9503041]], apply_d65( $r ), apply_d65( $g ), apply_d65( $b ));
 
 
 sub to_rgb {
-    my ($y, $i, $q) = @{$_[0]};
-    $i = ($i * $i_size) - $i_max;
-    $q = ($q * $q_size) - $q_max;
-    my $r = $y + ( 0.956 * $i) + ( 0.619 * $q);
-    my $g = $y + (-0.272 * $i) + (-0.647 * $q);
-    my $b = $y + (-1.106 * $i) + ( 1.703 * $q);
-    return ($r, $g, $b);
+    my ($yiq) = shift;
+    $yiq->[1] = $yiq->[1] * $i_range_size - $i_max;
+    $yiq->[2] = $yiq->[2] * $q_range_size - $q_max;
+    return mult_matrix([[1,   0.95605,   0.620755],
+                        [1,  -0.272052, -0.647206],
+                        [1,  -1.1067,    1.70442 ]], @$yiq);
 }
 
 $yiq_def;

@@ -51,9 +51,9 @@ sub remove_d65 { $_[0] > 0.003131 ? ((($_[0]**(1/2.4)) * 1.055) - 0.055) : ($_[0
 sub mult_matrix {
     my ($mat, $v1, $v2, $v3) = @_;
     return unless ref $mat eq 'ARRAY' and defined $v3;
-    return ($v1 * $mat->[0][0] + $v2 * $mat->[1][0] + $v3 * $mat->[2][0]) ,
-           ($v1 * $mat->[0][1] + $v2 * $mat->[1][1] + $v3 * $mat->[2][1]) ,
-           ($v1 * $mat->[0][2] + $v2 * $mat->[1][2] + $v3 * $mat->[2][2]) ;
+    return ($v1 * $mat->[0][0] + $v2 * $mat->[0][1] + $v3 * $mat->[0][2]) ,
+           ($v1 * $mat->[1][0] + $v2 * $mat->[1][1] + $v3 * $mat->[1][2]) ,
+           ($v1 * $mat->[2][0] + $v2 * $mat->[2][1] + $v3 * $mat->[2][2]) ;
 }
 
 

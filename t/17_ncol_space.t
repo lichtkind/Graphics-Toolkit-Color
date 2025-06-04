@@ -20,7 +20,7 @@ is( $space->is_value_tuple([0,0,0]), 1,            'value tuple has 3 elements')
 is( $space->is_partial_hash({whiteness => 1, blackness => 0}), 1, 'found hash with some axis name');
 is( $space->is_partial_hash({what => 1, blackness => 0}), 0, 'found hash with a bad axis name');
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('yiq'), 0,                 'can not convert to itself');
+is( $space->can_convert('ncol'), 0,                'can not convert to itself');
 
 is( ref $space->range_check([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
 is( ref $space->range_check([600,100,100]), 'ARRAY',   'check HWB values works on upper bound values');

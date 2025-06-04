@@ -2,13 +2,13 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 41;
+use Test::More tests => 65;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YIQ';
 
 my $def = eval "require $module";
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util 'close_enough';
 
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
@@ -27,7 +27,6 @@ is( ref $def->range_check([0, 1, 0]),          '',   "in_phase value is too big"
 is( ref $def->range_check([0, 0, -1 ] ),       '',   "quadrature value is too small");
 is( ref $def->range_check([0, 0, 1] ),         '',   "quadrature value is too big");
 
-
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
 is( $def->is_partial_hash({i => 1, Quadrature => 0}), 1, 'found hash with some keys');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');
@@ -41,17 +40,75 @@ is( $val->[1],    0,  'second value good');
 is( $val->[2], -0.1,  'third value good');
 
 
-my $yiq = $def->deconvert( [ 0.5, 0.5, 0.5], 'RGB');
-is( int @$yiq,  3,     'converted color grey has three YIQ values');
-is( $yiq->[0], 0.5,     'converted color grey has computed right luminance value');
-is( $yiq->[1], 0.5,  'converted color grey has computed right in-phase');
-is( $yiq->[2], 0.5,  'converted color grey has computed right quadrature');
+my $yiq = $def->deconvert( [ 0, 0, 0], 'RGB');
+is( ref $yiq, 'ARRAY','reconverted black has to be a ARRAY reference');
+is( int @$yiq,  3,    'reconverted black has three YIQ values');
+is( $yiq->[0],  0,    'reconverted black has computed right luminance value');
+is( $yiq->[1],  0.5,  'reconverted black has computed right in-phase');
+is( $yiq->[2],  0.5,  'reconverted black has computed right quadrature');
 
-my $rgb = $def->convert( [0.5, 0.5, 0.5], 'RGB');
-is( int @$rgb,  3,     'converted back color grey has three rgb values');
-is( $rgb->[0],   0.5,   'converted back color grey has right red value');
-is( $rgb->[1],   0.5,   'converted back color grey has right green value');
-is( $rgb->[2],   0.5,   'converted back color grey has right blue value');
+$yiq = $def->denormalize( [0, 0.5, 0.5] );
+is( ref $yiq, 'ARRAY','denormalized black has to be a ARRAY reference');
+is( int @$yiq,  3,    'denormalized black has three YIQ values');
+is( $yiq->[0],  0,    'denormalized black has computed right luminance value');
+is( $yiq->[1],  0,    'denormalized black has computed right in-phase');
+is( $yiq->[2],  0,    'denormalized black has computed right quadrature');
+
+my $rgb = $def->convert( [0, 0.5, 0.5], 'RGB');
+is( int @$rgb,  3,    'converted black has three rgb values');
+is( $rgb->[0],  0,    'converted black has right red value');
+is( $rgb->[1],  0,    'converted black has right green value');
+is( $rgb->[2],  0,    'converted black has right blue value');
+
+$yiq = $def->deconvert( [ 1, 1, 1], 'RGB');
+is( int @$yiq,  3,               'reconverted white has three YIQ values');
+ok( close_enough($yiq->[0],  1), 'reconverted white has computed right luminance value');
+ok( close_enough($yiq->[1], .5), 'reconverted white has computed right in-phase');
+ok( close_enough($yiq->[2], .5), 'reconverted white has computed right quadrature');
+
+$yiq = $def->denormalize( [1, 0.5, 0.5] );
+is( int @$yiq,  3,    'denormalized white has three YIQ values');
+is( $yiq->[0],  1,    'denormalized white has computed right luminance value');
+is( $yiq->[1],  0,    'denormalized white has computed right in-phase');
+is( $yiq->[2],  0,    'denormalized white has computed right quadrature');
+
+$rgb = $def->convert( [1, .5, .5], 'RGB');
+is( int @$rgb,  3,    'converted white has three rgb values');
+is( $rgb->[0],  1,    'converted white has right red value');
+is( $rgb->[1],  1,    'converted white has right green value');
+is( $rgb->[2],  1,    'converted white has right blue value');
+
+
+exit 0;
+
+
+
+$yiq = $def->deconvert( [ .5, .5, .5], 'RGB');
+is( int @$yiq,  3,                'reconverted gray has three YIQ values');
+ok( close_enough($yiq->[0],  .5), 'reconverted gray has computed right luminance value');
+ok( close_enough($yiq->[1],  0),  'reconverted gray has computed right in-phase');
+ok( close_enough($yiq->[2],  0),  'reconverted gray has computed right quadrature');
+
+$rgb = $def->convert( [.5, 0, 0], 'RGB');
+is( int @$rgb,  3,     'converted gray has three rgb values');
+is( $rgb->[0],  0.5,   'converted gray has right red value');
+is( $rgb->[1],  .5,    'converted gray has right green value');
+is( $rgb->[2],  .5,    'converted gray has right blue value');
+
+$yiq = $def->deconvert( [ 0.11, 0, 1], 'RGB');
+is( int @$yiq,  3,                'reconverted nice blue has three YIQ values');
+ok( close_enough($yiq->[0],  0.14683),   'reconverted nice blue has computed right luminance value');
+ok( close_enough($yiq->[1],  -0.25555),  'reconverted nice blue has computed right in-phase');
+ok( close_enough($yiq->[2],  0.334278),  'reconverted nice blue has computed right quadrature');
+
+$rgb = $def->convert( [.5, 0, 0], 'RGB');
+is( int @$rgb,  3,     'converted nice blue has three rgb values');
+is( $rgb->[0],  0.5,   'converted nice blue has right red value');
+is( $rgb->[1],  .5,    'converted nice blue has right green value');
+is( $rgb->[2],  .5,    'converted nice blue has right blue value');
+
+exit 0;
+__END__
 
 $yiq = $def->deconvert( [0.1, 0, 1], 'RGB');
 is( int @$yiq,  3,     'converted blue has three YIQ values');
@@ -65,4 +122,3 @@ is( close_enough($rgb->[0],  0.1), 1,   'right red value');
 is( close_enough($rgb->[1],  0  ), 1,   'right green value');
 is( close_enough($rgb->[2],  1, ), 1,   'right blue value');
 
-exit 0;

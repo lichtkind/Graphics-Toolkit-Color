@@ -11,7 +11,7 @@ my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
                                                              # cyan-orange balance, magenta-green balance
 my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luma Cb Cr/],
                                                      short => [qw/Y U V/],
-                                                     range => [1, [-$i_max, $i_max], [-$q_max, $q_max]] );
+                                                     range => [1, [-.5, .5], [-.5, .5],] );
 
     $yiq_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

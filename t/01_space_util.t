@@ -10,7 +10,7 @@ my $module = 'Graphics::Toolkit::Color::Space::Util';
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
-my $round = \&Graphics::Toolkit::Color::Space::Util::round;
+my $round = \&Graphics::Toolkit::Color::Space::Util::round_int;
 is( $round->(0.5),           1,     'round 0.5 upward');
 is( $round->(0.500000001),   1,     'everything above 0.5 gets also increased');
 is( $round->(0.4999999),     0,     'everything below 0.5 gets smaller');
@@ -56,7 +56,7 @@ is( $max->(1,2,3),         3,        'simple maximum');
 is( $max->(-1,2,10E3), 10000,        'any syntax maximum');
 
 
-my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix;
+my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix3;
 my @rv = $MM->([[1,2,3],[1,2,3],[1,2,3],], 0,0,0);
 is( int @rv,   3,        'result of matrix multiplication has length of 3');
 is( $rv[0],    0,        'first value of matrix multiplication result is 0');

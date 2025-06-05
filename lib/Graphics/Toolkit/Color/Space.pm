@@ -4,9 +4,14 @@
 package Graphics::Toolkit::Color::Space;
 use v5.12;
 use warnings;
+use Exporter 'import';
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Format;
+use Graphics::Toolkit::Color::Space::Util qw/:all/;
+our @EXPORT_OK = qw/round_int round_decimals rmod min max apply_d65 remove_d65 mult_matrix3 close_enough is_nr/;
+our %EXPORT_TAGS = (all => [@EXPORT_OK]);
+
 
 sub new {
     my $pkg = shift;

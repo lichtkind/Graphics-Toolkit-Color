@@ -4,8 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::NCol;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util qw/min max/;
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space qw/min max/;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol', alias => '',
                                                     axis => [qw/hue whiteness blackness/],

@@ -4,8 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::HSL;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space qw/min max rmod/;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation lightness/],
                                                    range => [ 360, 100, 100 ],

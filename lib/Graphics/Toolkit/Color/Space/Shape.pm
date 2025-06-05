@@ -7,6 +7,8 @@ use warnings;
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Util qw/round_decimals is_nr/;
 
+#### constructor #######################################################
+
 sub new {
     my $pkg = shift;
     my ($basis, $type, $range, $precision) = @_;
@@ -53,9 +55,17 @@ sub new {
                                                        and $range->[$i][1] == int($range->[$i][1])
                                                        and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
     }
-    bless { basis => $basis, type => $type, range => $range, precision => $precision }
+    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
 }
 
+sub add_constraint {
+    my ($self, $constraint_def) = @_;
+    $self->{'constraint'};
+    # name
+    # equation
+    # correction
+
+}
 #### getter (defaults) #################################################
 
 sub basis           { $_[0]{'basis'}}
@@ -108,6 +118,9 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
         return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0
                                                            and round_decimals($values->[$i], $precision->[$i]) != $values->[$i];
     }
+    if ($self->{'constraint'}){
+
+    }
     return $values;
 }
 
@@ -132,6 +145,9 @@ sub clamp { # change value if its outside of range
             $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
         }
         $values->[$i] = round_decimals($values->[$i], $precision->[$i]) if $precision->[$i] >= 0;
+    }
+    if ($self->{'constraint'}){
+
     }
     return $values;
 }

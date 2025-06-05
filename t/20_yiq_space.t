@@ -17,15 +17,15 @@ is( $def->alias,         '',                     'color space has no alias name'
 is( $def->axis,           3,                     'color space has 3 axis');
 is( ref $def->range_check([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
 is( ref $def->range_check([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
-is( ref $def->range_check([1, 0.5959, 0.5227]),    'ARRAY',   'check YIQ values works on upper bound values');
+is( ref $def->range_check([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');
 is( ref $def->range_check([0,0]),              '',   "YIQ got too few values");
 is( ref $def->range_check([0, 0, 0, 0]),       '',   "YIQ got too many values");
-is( ref $def->range_check([-1, 0, 0]),         '',   "luminance value is too small");
+is( ref $def->range_check([-0.1, 0, 0]),       '',   "luminance value is too small");
 is( ref $def->range_check([1.1, 0, 0]),        '',   "luminance value is too big");
-is( ref $def->range_check([0, -1, 0]),         '',   "in_phase value is too small");
-is( ref $def->range_check([0, 1, 0]),          '',   "in_phase value is too big");
-is( ref $def->range_check([0, 0, -1 ] ),       '',   "quadrature value is too small");
-is( ref $def->range_check([0, 0, 1] ),         '',   "quadrature value is too big");
+is( ref $def->range_check([0, -0.6, 0]),       '',   "in_phase value is too small");
+is( ref $def->range_check([0, 0.6, 0]),        '',   "in_phase value is too big");
+is( ref $def->range_check([0, 0, .6 ] ),       '',   "quadrature value is too small");
+is( ref $def->range_check([0, 0, -.6] ),       '',   "quadrature value is too big");
 
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
 is( $def->is_partial_hash({i => 1, Quadrature => 0}), 1, 'found hash with some keys');

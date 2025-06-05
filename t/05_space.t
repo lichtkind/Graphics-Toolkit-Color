@@ -6,8 +6,9 @@ use Test::More tests => 150;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
+eval "use $module";
+is( not($@), 1, 'could load the module');
 
-use_ok( $module, 'could load the module');
 my $fspace = Graphics::Toolkit::Color::Space->new();
 is( ref $fspace,         '', 'need axis names to create color space');
 

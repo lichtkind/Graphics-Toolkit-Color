@@ -4,7 +4,8 @@
 package Graphics::Toolkit::Color::Space;
 use v5.12;
 use warnings;
-use Exporter 'import';
+require Exporter;
+our @ISA = qw(Exporter);
 use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Format;

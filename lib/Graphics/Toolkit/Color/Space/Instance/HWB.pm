@@ -4,8 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::HWB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util qw/min max/;
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space qw/min max/;
 
 my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness blackness/],
                                                    range => [360, 100, 100], precision => 0,

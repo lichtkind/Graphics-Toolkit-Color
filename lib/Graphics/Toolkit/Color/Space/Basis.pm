@@ -1,5 +1,5 @@
 
-# count and names of color space axis (short and long), space name = prefix + axis initials
+# count and names of color space axis (short and long), space name = usr | prefix + axis initials
 
 package Graphics::Toolkit::Color::Space::Basis;
 use v5.12;

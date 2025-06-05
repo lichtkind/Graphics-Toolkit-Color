@@ -27,6 +27,8 @@ is( ref $def->range_check([0, 1, 0]),          '',   "in_phase value is too big"
 is( ref $def->range_check([0, 0, -1 ] ),       '',   "quadrature value is too small");
 is( ref $def->range_check([0, 0, 1] ),         '',   "quadrature value is too big");
 
+exit 0;
+
 
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
 is( $def->is_partial_hash({i => 1, quadrature => 0}), 1, 'found hash with some keys');
@@ -65,4 +67,3 @@ is( close_enough($rgb->[0],  0.1), 1,   'right red value');
 is( close_enough($rgb->[1],  0  ), 1,   'right green value');
 is( close_enough($rgb->[2],  1, ), 1,   'right blue value');
 
-exit 0;

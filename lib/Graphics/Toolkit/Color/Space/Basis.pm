@@ -13,7 +13,8 @@ sub new {
 
     my @axis_long_name = map {lc} @$axis_long_names;
     my @axis_short_name = map { color_key_shortcut($_) } (defined $axis_short_names) ? @$axis_short_names : @axis_long_name;
-    return unless @axis_long_name > 0;
+    return 'need some axis names to create a color space' unless @axis_long_name > 0;
+    return 'need same amount of axis short names and long names' unless @axis_long_name == @axis_short_name;
 
     my @iterator         = 0 .. $#axis_long_name;
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
@@ -29,6 +30,7 @@ sub new {
             long_name_order => \%long_name_order, short_name_order => \%short_name_order,
             axis_iterator => \@iterator }
 }
+sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 #### getter ############################################################
 
@@ -61,6 +63,7 @@ sub is_partial_hash { # with some axis names as keys
     }
     return 1;
 }
+sub is_value_tuple { (ref $_[1] eq 'ARRAY' and @{$_[1]} == $_[0]->axis_count) ? 1 : 0 }
 
 #### converter #########################################################
 
@@ -93,21 +96,20 @@ sub tuple_from_hash {
     for my $key (keys %$value_hash) {
         if    ($self->is_long_axis_name( $key ))  { $values[ $self->pos_from_long_axis_name($key) ] = $value_hash->{ $key } }
         elsif ($self->is_short_axis_name( $key )) { $values[ $self->pos_from_short_axis_name($key) ] = $value_hash->{ $key } }
-        else                                      { return "value of $key is mussing" }
+        else                                      { return "value of $key is missing" }
     }
     return \@values;
 }
 sub pos_hash_from_partial_hash {
     my ($self, $value_hash) = @_;
     return unless $self->is_partial_hash( $value_hash );
-    my $values = {};
+    my $pos = {};
     for my $key (keys %$value_hash) {
-        if    ( $self->is_long_axis_name( $key ) )
-              { $values->{$self->pos_from_long_axis_name($key)} = $value_hash->{ $key } }
-        elsif ( $self->is_short_axis_name( $key ))
-              { $values->{$self->pos_from_short_axis_name($key)} = $value_hash->{ $key } }
+        if    ( $self->is_long_axis_name( $key ) ) { $pos->{ $self->pos_from_long_axis_name($key) } = $value_hash->{ $key } }
+        elsif ( $self->is_short_axis_name( $key )) { $pos->{ $self->pos_from_short_axis_name($key) } = $value_hash->{ $key } }
+        else                                       { return "value of $key is missing" }
     }
-    return $values;
+    return $pos;
 }
 
 sub select_tuple_value_from_name {
@@ -118,10 +120,5 @@ sub select_tuple_value_from_name {
     return $values->[ $self->{'short_name_order'}{$name} ] if exists $self->{'short_name_order'}{$name};
     undef;
 }
-
-#### util ##############################################################
-
-sub is_value_tuple { (ref $_[1] eq 'ARRAY' and @{$_[1]} == $_[0]->axis_count) ? 1 : 0 }
-sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 1;

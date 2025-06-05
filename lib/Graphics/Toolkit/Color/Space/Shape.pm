@@ -59,7 +59,7 @@ sub new {
 #### getter (defaults) #################################################
 
 sub basis           { $_[0]{'basis'}}
-sub is_axis_nr {
+sub is_axis_numeric {
     my ($self, $axis_nr) = @_;
     return 0 if not defined $axis_nr or not exists $self->{'type'}[$axis_nr];
     $self->{'type'}[$axis_nr] == 2 ? 0 : 1;
@@ -68,7 +68,7 @@ sub is_axis_nr {
 sub axis_value_precision { # --> +precision?
     my ($self, $axis_nr, $precision) = @_;
     return undef if not defined $axis_nr or not exists $self->{'type'}[$axis_nr];
-    return undef unless $self->is_axis_nr($axis_nr);
+    return undef unless $self->is_axis_numeric($axis_nr);
     $precision //= $self->{'precision'};
     return undef unless ref $precision eq 'ARRAY' and exists $precision->[$axis_nr];
     $precision->[$axis_nr];
@@ -102,7 +102,7 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
     my @names = $self->basis->long_axis_names;
     for my $i ($self->basis->axis_iterator){
-        next unless $self->is_axis_nr($i);
+        next unless $self->is_axis_numeric($i);
         return $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
         return $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
         return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0
@@ -121,7 +121,7 @@ sub clamp { # change value if its outside of range
     push @$values, 0 while @$values < $self->basis->axis_count;
     pop  @$values    while @$values > $self->basis->axis_count;
     for my $i ($self->basis->axis_iterator){
-        next unless $self->is_axis_nr($i);
+        next unless $self->is_axis_numeric($i);
         my $delta = $range->[$i][1] - $range->[$i][0];
         if ($self->{'type'}[$i]){
             $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
@@ -141,7 +141,7 @@ sub round {
     return unless $self->basis->is_value_tuple( $values );
     $precision = $self->_precision( $precision );
     return "bad precision definition" unless ref $precision;
-    [ map { ($self->is_axis_nr( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
+    [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
 }
 
 #### computation methods ###############################################
@@ -151,7 +151,7 @@ sub normalize {
     return unless $self->basis->is_value_tuple( $values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
-    [ map { ($self->is_axis_nr( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
+    [ map { ($self->is_axis_numeric( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
                                            : $values->[$_]    } $self->basis->axis_iterator ];
 }
 
@@ -161,7 +161,7 @@ sub denormalize {
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
 
-    return [ map { ($self->is_axis_nr( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
+    return [ map { ($self->is_axis_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
                                                    : $values->[$_]   } $self->basis->axis_iterator ];
 }
 
@@ -170,7 +170,7 @@ sub denormalize_delta {
     return unless $self->basis->is_value_tuple( $delta_values );
     $range = $self->_range( $range );
     return "bad range definition" unless ref $range;
-    [ map { ($self->is_axis_nr( $_ ))
+    [ map { ($self->is_axis_numeric( $_ ))
              ? ($delta_values->[$_] * ($range->[$_][1]-$range->[$_][0]))
              :  $delta_values->[$_]                                       } $self->basis->axis_iterator ];
 }
@@ -179,7 +179,7 @@ sub delta { # values have to be normalized
     my ($self, $values1, $values2) = @_;
     return unless $self->basis->is_value_tuple( $values1 ) and $self->basis->is_value_tuple( $values2 );
     # ignore none numeric dimensions
-    my @delta = map { $self->is_axis_nr($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->axis_iterator;
+    my @delta = map { $self->is_axis_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->axis_iterator;
     [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
             $delta[$_] < -0.5 ? ($delta[$_]+1) :
             $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->axis_iterator ];

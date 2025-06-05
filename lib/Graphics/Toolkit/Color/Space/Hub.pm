@@ -203,13 +203,17 @@ in rare cases equal. In order to define a color in that space you need
 to provide for each axis one value that is inside the required value range
 and of a specificed type (int or real with amount of decimals).
 
+While I acknowledge that some of the spaces below should be called systems
+to be technically correct, they still will be called spaces here, because
+the main goal of this software is seamless interoperabilitiy between them.
+
 
 =head2 RGB
 
 ... is the default color space of this CPAN module. It is used
 by most computer hardware like monitors and follows the logic of additive
 color mixing as produced by an overlay of three colored light beams.
-Its is a completely linear (Euclidean) 3D space and thus a RGB tuple
+Its is a completely Cartesian (Euclidean) 3D space and thus a RGB tuple
 consists of three integer values: B<red> (short B<r>) range: 0 .. 255, B<green>
 (short B<g>) range: 0 .. 255 and B<blue> (short B<b>) range: 0 .. 255.
 A higher value means a stronger beam of that base color flows into the mix
@@ -290,11 +294,11 @@ since they are percentual values as well.
 
 =head2 YIQ
 
-Is a space developed for color television broadcasting which is still
-compatible with black and white TV. It achieves this by sending the
-B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1)
-in channel number one, which is all black and white TV needs. Additionally
-we have the axis of B<in-phase> (short B<i>)
+Is a space developed for NTSC to broadcast a colored television signal,
+which is still compatible with black and white TV. It achieves this by
+sending the B<luminance> (short I<y>) (sort of brightness with real range
+of 0 .. 1) in channel number one, which is all black and white TV needs.
+Additionally we have the axis of B<in-phase> (short B<i>)
 (cyan - orange - balance, range -0.5959 .. 0.5959) and
 B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
 

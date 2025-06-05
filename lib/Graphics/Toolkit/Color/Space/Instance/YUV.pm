@@ -6,9 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-my ($i_max, $q_max)   = (0.5959, 0.5227);
-my ($i_size, $q_size) = (2 * $i_max, 2 * $q_max);
-                                                             # cyan-orange balance, magenta-green balance
+                                                                     # cyan-orange balance, magenta-green balance
 my  $yiq_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luma Cb Cr/],
                                                      short => [qw/Y U V/],
                                                      range => [1, [-.5, .5], [-.5, .5],] );
@@ -26,8 +24,8 @@ sub from_rgb {
 
 sub to_rgb {
     my ($y, $i, $q) = @{$_[0]};
-    $i = ($i * $i_size) - $i_max;
-    $q = ($q * $q_size) - $q_max;
+    #~ $i = ($i * $i_size) - $i_max;
+    #~ $q = ($q * $q_size) - $q_max;
     my $r = $y + ( 0.956 * $i) + ( 0.619 * $q);
     my $g = $y + (-0.272 * $i) + (-0.647 * $q);
     my $b = $y + (-1.106 * $i) + ( 1.703 * $q);

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 80;
+use Test::More tests => 88;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YUV';
@@ -112,6 +112,7 @@ is( $rgb->[0], .5,    'converted white has right red value');
 is( $rgb->[1], .5,    'converted white has right green value');
 is( $rgb->[2], .5,    'converted white has right blue value');
 
+
 $yuv = $def->deconvert( [ 0.11, 0, 1], 'RGB');
 is( int @$yuv,  3,                'reconverted nice blue has three YUV values');
 ok( close_enough( $yuv->[0], 0.15),    'reconverted nice blue has computed right luma value');
@@ -123,6 +124,19 @@ is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
 ok( close_enough( $rgb->[0], .11),   'converted nice blue color, has right red value');
 ok( close_enough( $rgb->[1],  0),    'converted nice blue color, has right green value');
 ok( close_enough( $rgb->[2],  1),    'converted nice blue color, has right blue value');
+
+
+$yuv = $def->deconvert( [ 0.8156, 0.0470588, 0.137254], 'RGB');
+is( int @$yuv,  3,                'reconverted nice red has three YUV values');
+ok( close_enough( $yuv->[0],  0.2871),    'reconverted nice red has computed right luma value');
+ok( close_enough( $yuv->[1], -0.0846+0.5),  'reconverted nice red has computed right Pb');
+ok( close_enough( $yuv->[2],  0.3769+0.5),  'reconverted nice red has computed right Pr');
+
+$rgb = $def->convert( [0.2871, -0.0846+0.5, 0.3769+0.5], 'RGB');
+is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
+ok( close_enough( $rgb->[0], 0.8156),    'converted red blue color, has right red value');
+ok( close_enough( $rgb->[1], 0.04705),    'converted red blue color, has right green value');
+ok( close_enough( $rgb->[2], 0.137254),    'converted red blue color, has right blue value');
 
 exit 0;
 

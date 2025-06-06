@@ -27,6 +27,7 @@ is( ref $def->range_check([0, 0.6, 0]),        '',   "in_phase value is too big"
 is( ref $def->range_check([0, 0, .6 ] ),       '',   "quadrature value is too small");
 is( ref $def->range_check([0, 0, -.6] ),       '',   "quadrature value is too big");
 
+
 is( $def->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
 is( $def->is_partial_hash({i => 1, Quadrature => 0}), 1, 'found hash with some keys');
 is( $def->can_convert('rgb'), 1,                 'do only convert from and to rgb');

@@ -4,15 +4,14 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELUV;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
+use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
 
 my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',
                                                        axis => [qw/L* u* v*/], # cyan-orange balance, magenta-green balance
                                                       range => [100, [-100, 175], [-140, 110]] );
 
 
-    $luv_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
+$luv_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

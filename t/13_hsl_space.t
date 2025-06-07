@@ -67,7 +67,7 @@ is( close_enough($hsl->[0], 0.35097493), 1, 'converted color blue has computed r
 is( close_enough($hsl->[1], 0.98),       1, 'converted color blue has computed right saturation');
 is( close_enough($hsl->[2], 0.4),        1, 'converted color blue has computed right lightness');
 
-$rgb = $def->convert( [0.351, 0.98, 0.4], 'RGB');
+$rgb = $def->convert( [0.351011, 0.980205, 0.39607], 'RGB');
 is( int @$rgb,  3,     'converted back color grey has three rgb values');
 is( close_enough($rgb->[0], 0.00784), 1,  'converted back color grey has right red value');
 is( close_enough($rgb->[1], 0.7843),  1,  'converted back color grey has right green value');

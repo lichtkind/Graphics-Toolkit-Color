@@ -4,15 +4,14 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELAB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
+use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
 
 my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB
                                                        axis => [qw/L* a* b*/],  # short l a b
                                                       range => [100, [-500, 500], [-200, 200]],
                                                   precision => 3 );
 
-    $lab_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
+$lab_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

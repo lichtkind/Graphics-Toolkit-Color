@@ -119,12 +119,11 @@ ok( close_enough( $yuv->[0], 0.15),    'reconverted nice blue has computed right
 ok( close_enough( $yuv->[1], 0.48+0.5),  'reconverted nice blue has computed right Pb');
 ok( close_enough( $yuv->[2], -0.03+0.5),  'reconverted nice blue has computed right Pr');
 
-$rgb = $def->convert( [0.15, 0.48+0.5, -0.03+0.5], 'RGB');
+$rgb = $def->convert( [0.14689, 0.48143904+0.5, -0.026312+0.5], 'RGB');
 is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
 ok( close_enough( $rgb->[0], .11),   'converted nice blue color, has right red value');
 ok( close_enough( $rgb->[1],  0),    'converted nice blue color, has right green value');
 ok( close_enough( $rgb->[2],  1),    'converted nice blue color, has right blue value');
-
 
 $yuv = $def->deconvert( [ 0.8156, 0.0470588, 0.137254], 'RGB');
 is( int @$yuv,  3,                'reconverted nice red has three YUV values');
@@ -139,7 +138,3 @@ ok( close_enough( $rgb->[1], 0.04705),    'converted red blue color, has right g
 ok( close_enough( $rgb->[2], 0.137254),    'converted red blue color, has right blue value');
 
 exit 0;
-
-
-
-

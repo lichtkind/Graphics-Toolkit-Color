@@ -4,8 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::RGB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space ':all';
 
 my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/], range => 255 );
    $rgb_def->add_converter(          'RGB', \&pass, \&pass );

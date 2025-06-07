@@ -22,7 +22,7 @@ sub round_decimals {
     $precision = 10 ** $precision;
     round_int( $nr * $precision ) / $precision;
 }
-sub close_enough { abs($_[0] - $_[1]) < 0.008 if defined $_[1]}
+sub close_enough { abs($_[0] - $_[1]) < 0.005 if defined $_[1]}
 
 
 sub rmod { # real value modulo

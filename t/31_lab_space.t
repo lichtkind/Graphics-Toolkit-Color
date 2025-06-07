@@ -6,13 +6,13 @@ use Test::More tests => 93;
 
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
-
 my $space = eval "require $module";
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,       'CIELAB',                  'color space has right name');
+is( $space->alias,         'LAB',                  'color space has right alis name');
 is( $space->axis,              3,                  'color space has 3 axis');
 
 is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');

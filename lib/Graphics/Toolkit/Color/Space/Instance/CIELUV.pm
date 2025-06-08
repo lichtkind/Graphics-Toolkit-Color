@@ -4,12 +4,12 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELUV;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
+use Graphics::Toolkit::Color::Space;
 
-my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',          # space name is CIELUV, alias LUV
-                                                       axis => [qw/L* u* v*/], # cyan-orange balance, magenta-green balance
-                                                      range => [100, [-100, 175], [-140, 110]] );
-
+my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELUV, alias LUV
+                                                       axis => [qw/L* u* v*/],  # short l u v
+                                                      range => [100, [-100, 175], [-140, 110]],
+                                                  precision => 3 );
 
 $luv_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
 

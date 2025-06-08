@@ -4,12 +4,12 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELAB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
+use Graphics::Toolkit::Color::Space;
 
 my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB, alias LAB
                                                        axis => [qw/L* a* b*/],  # short l a b
                                                       range => [100, [-500, 500], [-200, 200]],
-                                                  precision => 3 );
+                                                  precision => 3 );             # lightness, cyan-orange balance, magenta-green balance
 
 $lab_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
 
@@ -26,14 +26,13 @@ sub from_xyz {
     return ($l, $a, $b);
 }
 
-
 sub to_xyz {
     my ($lab) = shift;
     my $fy = ($lab->[0] + 0.16) / 1.16;
     my $fx = $fy - 1 + ($lab->[1] * 2);
     my $fz = $fy + 1 - ($lab->[2] * 2);
-
-    return ( map {my $f3 = $_** 3; ($f3 > $eta) ? $f3 : (( 116 * $_ - 16 ) / $kappa) } $fx, $fy, $fz );
+    my @xyz = map {my $f3 = $_** 3; ($f3 > $eta) ? $f3 : (( 116 * $_ - 16 ) / $kappa) } $fx, $fy, $fz;
+    return @xyz;
 }
 
 $lab_def;

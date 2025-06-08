@@ -30,9 +30,9 @@ is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $space->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
-is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('RGB'), 1,                 'namespace can be written upper case');
-is( $space->can_convert('xyz'), 0,                 'can not convert to xyz');
+is( $space->can_convert('CIEXYZ'), 1,              'do only convert from and to xyz');
+is( $space->can_convert('ciexyz'), 1,              'namespace can be written upper case');
+is( $space->can_convert('CIELAB'), 0,              'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cielab(0, 0, 0)', 'can format css string');
 
 

@@ -1,19 +1,19 @@
 
-# CIE LCh(ab) cylindrical color space specific code
+# CIE LCh(ab) cylindrical color space variant of CIELAB
 
 package Graphics::Toolkit::Color::Space::Instance::CIELCHab;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $hcl_def = Graphics::Toolkit::Color::Space->new(prefix => 'CIE', name => 'LCHab', alias => 'LCH',
-                                                      axis => [qw/luminance croma hue/],
-                                                     range => [100, 539, 360] );
+my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHab', alias => 'LCH',
+                                                     axis => [qw/luminance chroma hue/],
+                                                    range => [100, 539, 360],
+                                                precision => 3 );
 
-    $hcl_def->add_converter('CIELAB', \&to_rgb, \&from_rgb );
+    $hcl_def->add_converter('CIELAB', \&to_lab, \&from_lab );
 
-sub from_rgb {
+sub from_lab {
     my ($r, $g, $b) = @_;
     my ($x, $y, $z) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
                                    [0.3575761, 0.7151522, 0.1191920],
@@ -30,7 +30,7 @@ sub from_rgb {
 }
 
 
-sub to_rgb {
+sub to_lab {
     my ($l, $a, $b) = @_;
     my $y = ($l + 16) / 116;
     my $x = ($a / 500) + $y;

@@ -1,19 +1,19 @@
 
-# CIE LCh(uv) cylindrical color space specific code
+# CIE LCh(uv) cylindrical color space variant of CIELUV
 
-package Graphics::Toolkit::Color::Space::Instance::LCHuv;
+package Graphics::Toolkit::Color::Space::Instance::CIELCHuv;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
-use Graphics::Toolkit::Color::Space::Util qw/mult_matrix apply_d65 remove_d65/;
 
-my  $hcl_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE', name => 'LCHuv',
-                                                       axis => [qw/luminance croma hue/],
-                                                      range => [0.95047, 1, 1.08883] );
+my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv', alias => '',
+                                                     axis => [qw/luminance chroma hue/],
+                                                    range => [100, 1, 360],
+                                                precision => 3 );
 
-    $hcl_def->add_converter('CIELUV', \&to_rgb, \&from_rgb );
+    $hcl_def->add_converter('CIELUV', \&to_luv, \&from_luv );
 
-sub from_rgb {
+sub from_luv {
     my ($r, $g, $b) = @_;
     my ($x, $y, $z) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
                                    [0.3575761, 0.7151522, 0.1191920],
@@ -30,7 +30,7 @@ sub from_rgb {
 }
 
 
-sub to_rgb {
+sub to_luv {
     my ($x, $y, $z) = @_;
     my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
                                    [-1.5371385,  1.8760108, -0.2040259],

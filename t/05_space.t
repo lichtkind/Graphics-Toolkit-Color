@@ -50,7 +50,7 @@ is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid 
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], prefix => 'pre', name => 'Name');
-is( $space->name,    'preName', 'got space name with given prefix and givn Name');
+is( $space->name,        'Name', 'got space name with given prefix and givn Name');
 is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid space basis sub object');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');

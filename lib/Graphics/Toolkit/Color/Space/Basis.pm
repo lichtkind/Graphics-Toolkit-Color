@@ -20,8 +20,8 @@ sub new {
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
     my %short_name_order = map { $axis_short_name[$_] => $_ } @iterator;
     my $axis_initials    = uc join( '', @axis_short_name );
-    $space_name //= $axis_initials;
-    $space_name   = $space_prefix.$space_name if defined $space_prefix and $space_prefix;
+    $space_prefix //= '';
+    $space_name //= $space_prefix.$axis_initials;
     $alias_name //= $axis_initials;
     $alias_name   = '' if $alias_name eq $space_name;
 

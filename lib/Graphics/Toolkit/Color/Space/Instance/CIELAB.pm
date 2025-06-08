@@ -6,30 +6,32 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB
+my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB, alias LAB
                                                        axis => [qw/L* a* b*/],  # short l a b
                                                       range => [100, [-500, 500], [-200, 200]],
                                                   precision => 3 );
 
-$lab_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
+$lab_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;
-my $kappa = 903.3 / 100;
+my $kappa = 903.3;
 
-sub from_rgb {
-    my ($r, $g, $b) = @{$_[0]};
-    my (@xyz) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
-                             [0.3575761, 0.7151522, 0.1191920],
-                             [0.1804375, 0.0721750, 0.9503041]], apply_d65($r), apply_d65($g), apply_d65($b));
+sub from_xyz {
+    my ($x, $y, $z) = @{$_[0]};
+    my $fx = ($x > $eta) ? ($x ** (1/3)) : $kappa * $x;
+    my $fy = ($x > $eta) ? ($y ** (1/3)) : $kappa * $y;
+    my $fz = ($x > $eta) ? ($z ** (1/3)) : $kappa * $z;
+#   my $l = ($x > $eta) ? ((($x ** (1/3)) - 0.16) * 1.16) : $kappa * $x;
+
     @xyz = map { $xyz[$_] / $D65[$_] } 0 .. 2;
     @xyz = map { $_ > $eta ? ($_ ** (1/3)) : ((($kappa * $_) + .16) / 1.16) } @xyz;
 
-    return ((1.16 * $xyz[1]) - .16, ($xyz[0] - $xyz[1] + 1) / 2, (($xyz[1] - $xyz[2] + 1) / 2)); # l a b
+    return ($l, ($xyz[0] - $xyz[1] + 1) / 2, (($xyz[1] - $xyz[2] + 1) / 2)); # l a b
 }
 
 
-sub to_rgb {
+sub to_xyz {
     my ($l, $a, $b) = @{$_[0]};
     my $y = ($l + .16) / 1.16;
     my $x = $y + (($a * 2)-1);

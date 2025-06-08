@@ -185,7 +185,7 @@ is( $p5p->space_name, 'preMNOPQ',  'space name are initials with prefix');
 is( $p5p->alias_name,    'MNOPQ',  'space name alias are short name initials');
 
 my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'PRE', 'name', 'alias');
-is( $p5pn->space_name, 'PREname',  'got correct name with prefix');
+is( $p5pn->space_name,  'name',  'got correct name with prefix');
 is( $p5pn->alias_name,  'alias',  'got user set alias name');
 
 exit 0;

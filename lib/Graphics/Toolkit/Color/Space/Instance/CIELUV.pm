@@ -6,18 +6,18 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix3 apply_d65 remove_d65/;
 
-my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',
+my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',          # space name is CIELUV, alias LUV
                                                        axis => [qw/L* u* v*/], # cyan-orange balance, magenta-green balance
                                                       range => [100, [-100, 175], [-140, 110]] );
 
 
-$luv_def->add_converter('CIEXYZ', \&to_rgb, \&from_rgb );
+$luv_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;
 my $kappa = 903.3 / 100;
 
-sub from_rgb {
+sub from_xyz {
     my ($r, $g, $b) = @{$_[0]};
     my (@xyz) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
                              [0.3575761, 0.7151522, 0.1191920],
@@ -39,7 +39,7 @@ sub from_rgb {
 }
 
 
-sub to_rgb {
+sub to_xyz {
     my ($L, $u, $v) = @{$_[0]};
 
     my $r_nenner = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);

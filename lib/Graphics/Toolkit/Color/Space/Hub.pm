@@ -223,9 +223,9 @@ and a pure red (fully saturated color) is (255, 0, 0).
 
 =head2 CMY
 
-is the complement of RGB since it follows the logic of subtractive color
-mixing as used in printing. Think of it as the amount of colored ink
-on white paper, so that white is (0,0,0) and black (1,1,1).
+is the complement of L<RGB> since it follows the logic of subtractive
+color mixing as used in printing. Think of it as the amount of colored
+ink on white paper, so that white is (0,0,0) and black (1,1,1).
 It uses normalized real value ranges: 0 .. 1.
 An CMY tuple has also three values:
 B<cyan> (short B<c>) is the inverse of I<red>,
@@ -234,7 +234,7 @@ B<yellow> (short B<y>) is inverse of I<blue>.
 
 =head2 CMYK
 
-is an extension of CMY with a fourth value named B<key> (short B<k>),
+is an extension of L<CMY> with a fourth value named B<key> (short B<k>),
 which is the amount of black ink mixed into the CMY color.
 It also has an normalized range of 0 .. 1.
 
@@ -260,18 +260,18 @@ B<saturation> (short B<s>) (0 .. 100) and B<lightness> (short B<l>) (0 .. 100).
 
 ... is also cylindrical but can be shaped like a cone.
 Similar to HSL we have B<hue> and B<saturation>, but the third axis is
-named B<value> (short B<v>). In HSL we always get white, when I<lightness>
+named B<value> (short B<v>). In L<HSL> we always get white, when I<lightness>
 is 100. In HSV additionally I<saturation> has to be zero to get white.
 When I<saturation> is 100 and I<value> is 100 we have the purest, most
 sturated color of whatever I<hue> sets.
 
 =head2 HSB
 
-Is an alias to HSV, just the I<value> axis is renamed with B<brightness> (B<b>).
+Is an alias to L<HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
 
 =head2 HWB
 
-An inverted HSV, where the saturated, pure colors are on the center
+An inverted L<HSV>, where the saturated, pure colors are on the center
 column of the cylinder. It still has the circular B<hue> dimension,
 as described in C<HSL>. The other two, linear dimensions (also 0 .. 100)
 are B<whiteness> (B<w>) and B<blackness> (B<b>), desribing how much white
@@ -282,7 +282,7 @@ and I<blackness> can never be greater than 100.
 
 =head2 NCol
 
-Is a more human readable derivation of the HWB space with an altered
+Is a more human readable derivation of the L<HWB> space with an altered
 B<hue> axis, whith values that consists of a letter and two digits.
 The letter demarks one of the six areas around the rainbow B<R> (I<Red>),
 B<Y> (I<Yellow>), B<G> (I<Green), B<C> (I<Cyan>), B<B> (I<Blue>),
@@ -294,7 +294,7 @@ since they are percentual values as well.
 
 =head2 YIQ
 
-Is a space developed for NTSC to broadcast a colored television signal,
+Is a space developed for I<NTSC> to broadcast a colored television signal,
 which is still compatible with black and white TV. It achieves this by
 sending the B<luminance> (short I<y>) (sort of brightness with real range
 of 0 .. 1) in channel number one, which is all black and white TV needs.
@@ -304,47 +304,53 @@ B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227)
 
 =head2 YUV
 
-Is a slightly different YIQ with
-B<luminance> (short I<y>) (sort of brightness with real range of 0 .. 1),
-B<in-phase> (short I<i>) (cyan - orange - balance, range -0.5 .. 0.5) and
-B<quadrature> (short I<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
-luma Cb Cr
+Is a slightly altered version of L<YIQ> for the I<PAL> TV standard.
+We use  here the variant called B<YCbCr> (can also be used as space name),
+because of it's computation friendly value ranges and because it is still
+relevant in video and image formats and compression algorithms.
+It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
+range of 0..1, 2. B<Cb> (short I<u>, -0.5 .. 0.5) and 3. C<Cr>
+(short I<v>, -0.5 .. 0.5). (see also L<CIELUV>)
 
 =head2 CIEXYZ
 
-X, Y and Z refer to the red, green and blue receptors (rods) in the retina
-(on the back side of the eye), because they measure a lot more than than
-just those exact colors. The values in that space tell you about the
-amount of chemical and neurological activity a color produces inside the eye.
-Here the short and long names of the linear axis are the same and the
-values range from zero to to 0.95047, 1 and 1.08883 respectively.
+this space (alias name B<XYZ>) has the axis B<X>, B<Y> and B<Z> that
+refer to the red, green and blue receptors (cones) in the retina (on the
+back side of the eye), because they measure a lot more than than just
+exactly those colors. The values in that space tell you about the amount
+of chemical and neurological activity a color produces inside the eye.
+In this space short and long names of the linear axis are the same and
+the values range from zero to to 0.95047, 1 and 1.08883 respectively.
+These values are due to the use of the standard luminant I<D65>.
 
 =head2 CIELAB
 
-Is a reshaped version of CIEXYZ that reorderes the color positions to
+Is a derivate of L<CIEXYZ> that reorderes the color positions to
 reflect how the brain processes colors. It uses three information channels.
-One named B<L> (lightness) with a range of (0 .. 100),
-B<a> is the axis that reaches from red to green (-500 .. 500) and
-B<b> from yellow to blue (-200 .. 200). The long names of the axis contain
-a '*' and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect
-the opponent color theory.
+One named B<L> (lightness) with a real value range of (0 .. 100).
+Second is channel B<a>, that reaches from red to green (-500 .. 500) and
+third B<b> from yellow to blue (-200 .. 200). The long names of the axis
+names contain a '*' and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b>
+axis reflect the opponent color theory and the short alias name of this
+space is B<LAB>.
 
 =head2 CIELUV
 
-Is a more perceptually uniform  version of CIELAB and and axis a and b
-got renamed to u and v but did not change their meaning.
-Has three linear real valued dimension named L*, u* and v*, (short names have only
-the first letter). Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+Is a more perceptually uniform  version of L<CIELAB> and and axis I<a>
+and I<b> got renamed to I<u> and I<v >but did not change their meaning.
+Has three linear real valued dimension named L*, u* and v*, (short names
+have only the first letter). Their ranges are 0 .. 100, -500 .. 500
+and -200 .. 200. The short alias name of this space is B<LUV>.
 
 =head2 CIELCHab
 
-.. is the cylindrical version of the CIELAB.
+.. is the cylindrical version of the I<CIELAB>.
 Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
 Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 
 =head2 CIELCHuv
 
-.. is the cylindrical version of the CIELUV.
+.. is the cylindrical version of the I<CIELUV>.
 Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
 Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
 

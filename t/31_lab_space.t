@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 93;
+use Test::More tests => 100;
 
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
@@ -27,6 +27,7 @@ is( ref $space->range_check([0, 0, -200.1 ] ),   '',   "b value is too small");
 is( ref $space->range_check([0, 0, 200.2] ),     '',   "b value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
+is( $space->is_partial_hash({'L*' => 1, 'a*' => 0, 'b*' => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $space->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
@@ -34,7 +35,6 @@ is( $space->can_convert('CIEXYZ'), 1,              'do only convert from and to 
 is( $space->can_convert('ciexyz'), 1,              'namespace can be written upper case');
 is( $space->can_convert('CIELAB'), 0,              'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cielab(0, 0, 0)', 'can format css string');
-
 
 my $val = $space->deformat(['CIELAB', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
@@ -44,97 +44,112 @@ is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
 is( $space->format([0,1,0], 'css_string'), 'cielab(0, 1, 0)', 'can format css string');
 
-$val = $space->deconvert( [ 0, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'deconverted tuple of zeros (black) from RGB');
-is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0.5),    1,  'second value good');
-is( close_enough( $val->[2] , 0.5),    1,  'third value good');
+
+my $lab = $space->deconvert( [ 0, 0, 0], 'CIEXYZ');
+is( ref $lab,                    'ARRAY',  'deconverted tuple of zeros (black) from CIEXYZ');
+is( int @$lab,                         3,  'right amount of values');
+is( close_enough( $lab->[0] , 0),      1,  'L* value good');
+is( close_enough( $lab->[1] , 0.5),    1,  'a* value good');
+is( close_enough( $lab->[2] , 0.5),    1,  'b* value good');
+
+my $xyz = $space->convert( [ 0, 0.5, 0.5], 'CIEXYZ');
+is( ref $xyz,                    'ARRAY',  'converted black to CIEXYZ');
+is( int @$xyz,                         3,  'got 3 values');
+is( close_enough( $xyz->[0] , 0),      1,  'X value good');
+is( close_enough( $xyz->[1] , 0),      1,  'Y value good');
+is( close_enough( $xyz->[2] , 0),      1,  'Z value good');
 
 $val = $space->denormalize( [0, .5, .5] );
-is( ref $val,                    'ARRAY',  'denormalized deconverted tuple of zeros');
+is( ref $val,                    'ARRAY',  'denormalized deconverted tuple of zeros (black)');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0),      1,  'second value good');
-is( close_enough( $val->[2] , 0),      1,  'third value good');
+is( close_enough( $val->[0] , 0),      1,  'L* value of black good');
+is( close_enough( $val->[1] , 0),      1,  'a* value of black good');
+is( close_enough( $val->[2] , 0),      1,  'b* value of black good');
 
 $val = $space->normalize( [0, 0, 0] );
-is( ref $val,                    'ARRAY',  'normalized tuple of zeros');
+is( ref $val,                    'ARRAY',  'normalized tuple of zeros (black)');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0.5),    1,  'second value good');
-is( close_enough( $val->[2] , 0.5),    1,  'third value good');
+is( close_enough( $val->[0] , 0),      1,  'L value good');
+is( close_enough( $val->[1] , 0.5),    1,  'a* value good');
+is( close_enough( $val->[2] , 0.5),    1,  'b* value good');
 
-$val = $space->convert( [ 0, 0.5, 0.5], 'RGB');
-is( ref $val,                    'ARRAY',  'converted white to RGB');
+
+$lab = $space->deconvert( [ 1, 1, 1,], 'CIEXYZ');
+is( int @$lab,                          3,  'deconverted white from CIEXYZ');
+is( close_enough( $lab->[0],   1),      1,  'L* value of white good');
+is( close_enough( $lab->[1],   0.5),    1,  'a* value of white good');
+is( close_enough( $lab->[2],   0.5),    1,  'b* value of white good');
+
+$xyz = $space->convert( [ 1, 0.5, 0.5], 'CIEXYZ');
+is( int @$xyz,                         3,  'converted white to CIEXYZ');
+is( close_enough( $xyz->[0] , 1),      1,  'X value of white good');
+is( close_enough( $xyz->[1] , 1),      1,  'Y value of white good');
+is( close_enough( $xyz->[2] , 1),      1,  'Z value of white good');
+
+$val = $space->denormalize( [1, .5, .5] );
+is( ref $val,                    'ARRAY',  'denormalized white');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0),      1,  'second value good');
-is( close_enough( $val->[2] , 0),      1,  'third value good');
+is( close_enough( $val->[0] , 100),    1,  'L* value of black good');
+is( close_enough( $val->[1] , 0),      1,  'a* value of black good');
+is( close_enough( $val->[2] , 0),      1,  'b* value of black good');
 
-$val = $space->deconvert( [ 1, 1, 1,], 'RGB');
-is( ref $val,                     'ARRAY',  'deconverted tuple of ones (white)');
-is( int @$val,                          3,  'right amount of values');
-is( close_enough($val->[0],   1),       1,  'first value good');
-is( close_enough($val->[1],   0.5),     1,  'second value good');
-is( close_enough($val->[2],   0.5),     1,  'third value good');
-
-$val = $space->convert( [ 1, 0.5, 0.5], 'RGB');
-is( ref $val,                    'ARRAY',  'converted tuple of zeros');
+$val = $space->normalize( [100, 0, 0] );
+is( ref $val,                    'ARRAY',  'normalized white');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 1),      1,  'first value good');
-is( close_enough( $val->[1] , 1),      1,  'second value good');
-is( close_enough( $val->[2] , 1),      1,  'third value good');
-
-$val = $space->deconvert( [ 0.5, 0.5, 0.5], 'RGB');
-is( ref $val,                     'ARRAY',  'converted gray to RGB');
-is( int @$val,                          3,  'right amount of values');
-is( close_enough( $val->[0] , .53389),  1,  'first value good');
-is( close_enough( $val->[1] , .5),      1,  'second value good');
-is( close_enough( $val->[2] , .5),      1,  'third value good');
-
-$val = $space->denormalize( [0.53389, .5, .5] );
-is( ref $val,                    'ARRAY',  'denormalized deconverted gray');
-is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 53.389), 1,  'first value good');
-is( close_enough( $val->[1] , 0),      1,  'second value good');
-is( close_enough( $val->[2] , 0),      1,  'third value good');
-
-$val = $space->convert( [ 0.53389, .5, .5], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back gray to RGB');
-is( int @$val,                          3, 'right amount of values');
-is( close_enough( $val->[0] , .5),      1, 'first value good');
-is( close_enough( $val->[1] , .5),      1, 'second value good');
-is( close_enough( $val->[2] , .5),      1, 'third value good');
+is( close_enough( $val->[0] , 1),      1,  'L value good');
+is( close_enough( $val->[1] , 0.5),    1,  'a* value good');
+is( close_enough( $val->[2] , 0.5),    1,  'b* value good');
 
 
-$val = $space->deconvert( [ 1, 0, 0.5], 'RGB');
-is( ref $val,                     'ARRAY', 'converted purple from RGB');
-is( int @$val,                          3, 'right amount of values');
-is( close_enough( $val->[0] , .54878),  1, 'first value good');
-is( close_enough( $val->[1] , .584499), 1, 'second value good');
-is( close_enough( $val->[2] , .5109),   1, 'third value good');
 
-$val = $space->convert( [ 0.54878, .584499, .5109], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back gray to RGB');
-is( int @$val,                          3, 'right amount of values');
-is( close_enough( $val->[0] ,  1),      1, 'first value good');
-is( close_enough( $val->[1] ,  0),      1, 'second value good');
-is( close_enough( $val->[2] , .5),      1, 'third value good');
+$lab = $space->deconvert( [ 0.0872931606914908, 0.0537065470652866, 0.282231548430505], 'CIEXYZ');
+is( int @$lab,                          3,  'deconverted nice blue from CIEXYZ');
+is(  close_enough($lab->[0],   0.277656852),  1,    'L* value of nice blue good');
+is(  close_enough($lab->[1],   0.5331557592), 1,    'a* value of nice blue good');
+is(  close_enough($lab->[2],   0.3606718),    1,    'b* value of nice blue good');
+
+$xyz = $space->convert( [ .277656852, 0.5331557592, 0.3606718], 'CIEXYZ');
+is( int @$xyz,                         3,  'converted nice blue to CIEXYZ');
+is( close_enough( $xyz->[0],  0.08729316069), 1,   'X value of nice blue good');
+is( close_enough( $xyz->[1],  0.053706547),   1,   'Y value of nice blue good');
+is( close_enough( $xyz->[2],  0.2822315484),  1,   'Z value of nice blue good');
+
+$val = $space->denormalize( [0.277656852, 0.5331557592, 0.3606718] );
+is( int @$val,                          3,  'denormalized nice blue');
+is( close_enough( $val->[0] , 27.766),  1,  'L* value of nice blue good');
+is( close_enough( $val->[1] , 33.156),  1,  'a* value of nice blue good');
+is( close_enough( $val->[2] , -55.731), 1,  'b* value of nice blue good');
+
+$val = $space->normalize( [27.766, 33.156, -55.731] );
+is( int @$val,                         3,  'normalized nice blue');
+is( close_enough( $val->[0] , 0.277656852),    1,  'L value good');
+is( close_enough( $val->[1] , 0.5331557592),   1,  'a* value good');
+is( close_enough( $val->[2] , 0.3606718),      1,  'b* value good');
 
 
-$val = $space->deconvert( [ .1, 0.2, 0.9], 'RGB');
-is( ref $val,                    'ARRAY', 'converted BLUE from RGB');
-is( int @$val,                          3, 'right amount of values');
-is( close_enough( $val->[0] , .34526),  1, 'first value good');
-is( close_enough( $val->[1] , .557165), 1, 'second value good');
-is( close_enough( $val->[2] , .2757375),1, 'third value good');
+$lab = $space->deconvert( [0.487032731, 0.25180, 0.208186769 ], 'CIEXYZ');
+is( int @$lab,                          3,  'deconverted pink from CIEXYZ');
+is(  close_enough($lab->[0],   0.57250),    1,    'L* value of pink good');
+is(  close_enough($lab->[1],   0.577658),   1,    'a* value of pink good');
+is(  close_enough($lab->[2],   0.5193925),  1,    'b* value of pink good');
 
-$val = $space->convert( [ 0.34526, .557165, .2757375], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back BLUE to RGB');
-is( int @$val,                          3, 'right amount of values');
-is( close_enough( $val->[0] , .1),      1, 'first value good');
-is( close_enough( $val->[1] , .2),      1, 'second value good');
-is( close_enough( $val->[2] , .9),      1, 'third value good');
+$xyz = $space->convert( [ .57250, 0.577658, 0.5193925], 'CIEXYZ');
+is( int @$xyz,                         3,  'converted nice blue to CIEXYZ');
+is( close_enough( $xyz->[0],  0.487032731), 1,   'X value of pink good');
+is( close_enough( $xyz->[1],  0.25180),     1,   'Y value of pink good');
+is( close_enough( $xyz->[2],  0.208186769), 1,   'Z value of pink good');
 
+
+$val = $space->denormalize( [0.57250, 0.577658, 0.5193925] );
+is( int @$val,                          3,  'denormalized pink');
+is( close_enough( $val->[0] , 57.250),  1,  'L* value of pink good');
+is( close_enough( $val->[1] , 77.658),  1,  'a* value of pink good');
+is( close_enough( $val->[2] ,  7.757),  1,  'b* value of pink good');
+
+$val = $space->normalize( [57.250, 77.658, 7.757] );
+is( int @$val,                         3,  'normalized pink');
+is( close_enough( $val->[0] , 0.57250),    1,  'L value of pink good');
+is( close_enough( $val->[1] , 0.577658),   1,  'a* value of pink good');
+is( close_enough( $val->[2] , 0.5193925),  1,  'b* value of pink good');
 exit 0;
+

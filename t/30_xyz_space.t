@@ -60,7 +60,7 @@ is( ref $xyz,                     'ARRAY',  'converted color grey has three XYZ 
 is( int @$xyz,                          3,  'got three values');
 is( close_enough($xyz->[0], 0.21404),   1,  'converted color grey has computed right X value');
 is( close_enough($xyz->[1], 0.21404),   1,  'converted color grey has computed right Y value');
-is( close_enough($xyz->[2], 0.214037),  1,  'converted color grey has computed right Z value');
+is( close_enough($xyz->[2], 0.21404),  1,  'converted color grey has computed right Z value');
 
 $rgb = $space->convert( [0.21404, 0.21404, 0.214037], 'RGB');
 is( int @$rgb,                     3,   'converted back gray with 3 values');

@@ -7,14 +7,14 @@ use Test::More tests => 40;
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELUV';
 
-__END__
 
 my $space = eval "require $module";
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,       'CIELUV',                  'color space has right name');
+is( $space->name,       'CIELUV',                  'color space name is CIELUV');
+is( $space->alias,         'LUV',                  'color space alias is LUV');
 is( $space->axis,              3,                  'color space has 3 dimensions');
 
 is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
@@ -22,21 +22,25 @@ is( ref $space->range_check([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELU
 is( ref $space->range_check([0,0]),              '',   "CIELUV got too few values");
 is( ref $space->range_check([0, 0, 0, 0]),       '',   "CIELUV got too many values");
 is( ref $space->range_check([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $space->range_check([100, 0, 0]),   'ARRAY',   'L value is maximal');
 is( ref $space->range_check([101, 0, 0]),        '',   "L value is too big");
-is( ref $space->range_check([0, -500.1, 0]),     '',   "a value is too small");
-is( ref $space->range_check([0, 500.1, 0]),      '',   "a value is too big");
-is( ref $space->range_check([0, 0, -200.1 ] ),   '',   "b value is too small");
-is( ref $space->range_check([0, 0, 200.2] ),     '',   "b value is too big");
+is( ref $space->range_check([0, -134, 0]),  'ARRAY',   'u value is minimal');
+is( ref $space->range_check([0, -134.1, 0]),     '',   "u value is too small");
+is( ref $space->range_check([0, 220, 0]),   'ARRAY',   'u value is maximal');
+is( ref $space->range_check([0, 220.1, 0]),      '',   "u value is too big");
+is( ref $space->range_check([0, 0, -140]),  'ARRAY',   'v value is minimal');
+is( ref $space->range_check([0, 0, -140.1 ] ),   '',   "v value is too small");
+is( ref $space->range_check([0, 0, 122]),   'ARRAY',   'v value is maximal');
+is( ref $space->range_check([0, 0, 122.2] ),     '',   "v value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({u => 1, v => 0}), 1,  'found hash with some axis names');
 is( $space->is_partial_hash({u => 1, v => 0, l => 0}), 1, 'found hash with all axis names');
 is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with onw wrong axis name');
-is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('RGB'), 1,                 'namespace can be written upper case');
+is( $space->can_convert('CIEXYZ'), 1,                 'do only convert from and to rgb');
+is( $space->can_convert('ciexyz'), 1,                 'namespace can be written lower case');
 is( $space->can_convert('luv'), 0,                 'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cieluv(0, 0, 0)', 'can format css string');
-exit 1;
 
 my $val = $space->deformat(['CIELUV', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
@@ -46,7 +50,7 @@ is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
 is( $space->format([0,1,0], 'css_string'), 'cieluv(0, 1, 0)', 'can format css string');
 
-
+exit 1;
 $val = $space->deconvert( [ 0, 0, 0], 'RGB');
 is( ref $val,                    'ARRAY',  'deconverted tuple of zeros (black) from RGB');
 is( int @$val,                         3,  'right amount of values');
@@ -61,7 +65,7 @@ is( close_enough( $val->[0] , 0),      1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
-
+exit 1;
 
 
 $val = $space->deconvert( [ 1, 1, 1], 'RGB');

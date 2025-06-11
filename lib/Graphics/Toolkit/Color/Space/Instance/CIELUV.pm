@@ -24,11 +24,12 @@ sub from_xyz {
     my $color_mix = $XYZ[0] + (15 * $XYZ[1]) + (3 * $XYZ[2]);
     my $u_color = 4 * $XYZ[0] / $color_mix;
     my $v_color = 9 * $XYZ[1] / $color_mix;
+
     my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
     my $u_white = 4 * $D65[0] / $white_mix;
     my $v_white = 9 * $D65[1] / $white_mix;
 
-    my $l = ($xyz->[1] > $eta) ? (($xyz->[1] ** (1/3)) * 116 - 16) : ($kappa * $xyz->[1]);
+    my $l = ($XYZ->[1] > $eta) ? (($XYZ->[1] ** (1/3)) * 116 - 16) : ($kappa * $XYZ->[1]);
     my $u = 13 * $l * ($u_color - $u_white);
     my $v = 13 * $l * ($v_color - $v_white);
     return ( $l / 100 , ($u+134) / 354, ($v+140) / 262 );
@@ -36,29 +37,24 @@ sub from_xyz {
 
 
 sub to_xyz {
-    my ($L, $u, $v) = @{$_[0]};
+    my ($luv) = shift;
+    my $l = $luv->[0] * 100;
+    my $u = $luv->[1] * 354 - 134;
+    my $v = $luv->[2] * 262 - 140;
 
-    my $r_nenner = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
-    my $u0 = 4 * $D65[0] / $r_nenner;
-    my $v0 = 9 * $D65[1] / $r_nenner;
+    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
+    my $u_white = 4 * $D65[0] / $white_mix;
+    my $v_white = 9 * $D65[1] / $white_mix;
 
-    my $Y = ($L > ($kappa*$eta)) ? (($L+.16)/1.16)**3 : $L / $kappa;
-    my @xyz;
-    if ($Y){
-        my $a = (( 52 * $L / ($u + (13 * $L * $u0)) ) -1) / 3;
-        my $b = -5 * $Y;
-        my $d = $Y * ((39 * $L / ($v + (13 * $L* $v0))) - 5);
-        my $X = ($d - $b) / ($a + (1/3));
-        @xyz = ($X, $Y, $X * $a + $b);
-    } else { @xyz = (0,0,0) }
-#say "xyz @xyz";
-    # @xyz = map { $xyz[$_] * $D65[$_] } 0 .. 2;
-    my (@rgb) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
-                             [-1.5371385,  1.8760108, -0.2040259],
-                             [-0.4985314,  0.0415560,  1.0572252]], @xyz);
+    my $u_color = ($u / 13 / $l) + $u_white;
+    my $v_color = ($v / 13 / $l) + $v_white;
 
-#say "rgb @rgb";
-    return ( map { remove_d65($_) } @rgb );
+    my $y = ($l > $kappa * $eta) ? ((($l+16) / 116) ** 3) : ($l / $kappa);
+    my $color_mix = 9 * $y / $v_color;
+    my $x = $u_color * $color_mix / 9;
+    my $z = ($color_mix - $x - (15 * $y)) / 3;
+    my $XYZ = [$x, $y, $z];
+    return map { $XYZ->[$_] / $D65[$_] } 0 .. 2;
 }
 
 $luv_def;

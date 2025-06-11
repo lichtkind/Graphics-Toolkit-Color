@@ -325,34 +325,37 @@ These values are due to the use of the standard luminant I<D65>.
 
 =head2 CIELAB
 
-Is a derivate of L<CIEXYZ> that reorderes the color positions to
-reflect how the brain processes colors. It uses three information channels.
+Is a derivate of L<CIEXYZ> that reorderes the colors to positions that
+reflect how the brain processes them. It uses three information channels.
 One named B<L> (lightness) with a real value range of (0 .. 100).
 Second is channel B<a>, that reaches from red to green (-500 .. 500) and
-third B<b> from yellow to blue (-200 .. 200). The long names of the axis
+thirdly B<b> from yellow to blue (-200 .. 200). The long names of the axis
 names contain a '*' and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b>
 axis reflect the opponent color theory and the short alias name of this
 space is B<LAB>.
 
 =head2 CIELUV
 
-Is a more perceptually uniform  version of L<CIELAB> and and axis I<a>
+Is a more perceptually uniform  version of L<CIELAB> and the axis I<a>
 and I<b> got renamed to I<u> and I<v >but did not change their meaning.
-Has three linear real valued dimension named L*, u* and v*, (short names
-have only the first letter). Their ranges are 0 .. 100, -500 .. 500
-and -200 .. 200. The short alias name of this space is B<LUV>.
+It has also three Cartesian dimension named L*, u* and v*, (short names
+have only the first letter). Their real valued ranges are 0 .. 100,
+-134 .. 220 and -140 .. 122. The short alias name of this space is B<LUV>.
 
 =head2 CIELCHab
 
-.. is the cylindrical version of the I<CIELAB>.
-Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
-Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+.. is the cylindrical version of the L<CIELAB> with the dimensions
+B<luminance> (short B<l>), B<chroma> (short B<c>) and B<hue> (short B<h>).
+The real valued ranges are from zero to 100, 539 and 360 respectively.
+Like with the L<HSL> and L<HSV>, hue is the circular dimensions and its
+values are meant as degrees in a circle.
+The short alias name of this space is B<LCH>.
 
 =head2 CIELCHuv
 
-.. is the cylindrical version of the I<CIELUV>.
-Has three linear real valued dimension named B<luminance>, B<croma> and B<hue>.
-Their ranges are 0 .. 100, -500 .. 500 and -200 .. 200.
+.. is the cylindrical version of the L<CIELUV> and works similar to
+L<CIELCHab> except the real valued range of B<chroma> is (0 .. 441) and
+the space has no alias name.
 
 
 =head1 RANGES

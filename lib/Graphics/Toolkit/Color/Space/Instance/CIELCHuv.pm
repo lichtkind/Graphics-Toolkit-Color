@@ -8,37 +8,30 @@ use Graphics::Toolkit::Color::Space;
 
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv', alias => '',
                                                      axis => [qw/luminance chroma hue/],
-                                                    range => [100, 1, 360],
+                                                    range => [100, 441, 360],
                                                 precision => 3 );
 
     $hcl_def->add_converter('CIELUV', \&to_luv, \&from_luv );
 
+my $TAU = 6.283185307;
+
 sub from_luv {
-    my ($r, $g, $b) = @_;
-    my ($x, $y, $z) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
-                                   [0.3575761, 0.7151522, 0.1191920],
-                                   [0.1804375, 0.0721750, 0.9503041]],
-                                   apply_d65( $r ), apply_d65( $g ), apply_d65( $b ));
-    $x /= 0.95047;
-    $z /= 0.108883;
-
-    $x = ($x > 0.008856) ? ($x ** (1/3)) : (7.7870689 * $x + 0.137931034);
-    $y = ($y > 0.008856) ? ($y ** (1/3)) : (7.7870689 * $y + 0.137931034);
-    $z = ($z > 0.008856) ? ($z ** (1/3)) : (7.7870689 * $z + 0.137931034);
-
-    return ((116 * $y) - 16, $a = 500 * ($x - $y), 200 * ($y - $z));
+    my ($luv) = shift;
+    my $a = $lab->[1] * 441 - 134;
+    my $b = $lab->[2] * 360 - 140;
+    my $c = sqrt( ($u**2) + ($v**2));
+    my $h = atan2($v, $u);
+    $h += $TAU if $h < 0;
+    return ($lab->[0], $c / 539, $h / $TAU);
 }
 
 
 sub to_luv {
-    my ($x, $y, $z) = @_;
-    my ($r, $g, $b) = mult_matrix([[ 3.2404542, -0.9692660,  0.0556434],
-                                   [-1.5371385,  1.8760108, -0.2040259],
-                                   [-0.4985314,  0.0415560,  1.0572252]], $x, $y, $z);
-
-    return ( remove_d65($r), remove_d65($g), remove_d65($b));
+    my ($lch) = shift;
+    my $u = cos($lch->[2] * $TAU);
+    my $v = sin($lch->[2] * $TAU);
+    return ($lch->[0], ($a + 1) / 2, ($b + 1) / 2);
 }
-
 
 $hcl_def;
 

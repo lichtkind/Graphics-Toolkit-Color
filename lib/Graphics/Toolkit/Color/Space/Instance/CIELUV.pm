@@ -29,7 +29,7 @@ sub from_xyz {
     my $u_white = 4 * $D65[0] / $white_mix;
     my $v_white = 9 * $D65[1] / $white_mix;
 
-    my $l = ($XYZ->[1] > $eta) ? (($XYZ->[1] ** (1/3)) * 116 - 16) : ($kappa * $XYZ->[1]);
+    my $l = ($XYZ[1] > $eta) ? (($XYZ[1] ** (1/3)) * 116 - 16) : ($kappa * $XYZ[1]);
     my $u = 13 * $l * ($u_color - $u_white);
     my $v = 13 * $l * ($v_color - $v_white);
     return ( $l / 100 , ($u+134) / 354, ($v+140) / 262 );

@@ -8,34 +8,30 @@ use Graphics::Toolkit::Color::Space;
 
 my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELUV, alias LUV
                                                        axis => [qw/L* u* v*/],  # short l u v
-                                                      range => [100, [-100, 175], [-140, 110]],
+                                                      range => [100, [-134, 220], [-140, 122]],
                                                   precision => 3 );
 
 $luv_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;
-my $kappa = 903.3 / 100;
+my $kappa = 903.3;
 
 sub from_xyz {
-    my ($r, $g, $b) = @{$_[0]};
-    my (@xyz) = mult_matrix([[0.4124564, 0.2126729, 0.0193339],
-                             [0.3575761, 0.7151522, 0.1191920],
-                             [0.1804375, 0.0721750, 0.9503041]], apply_d65($r), apply_d65($g), apply_d65($b));
+    my ($xyz) = shift;
+    my @XYZ = map { $xyz->[$_] * $D65[$_] } 0 .. 2;
 
-    my $yr = $xyz[1] / $D65[1];
-    my $L = ($yr > $eta) ? ((1.16 * ($yr **(1/3)))-.16) : ($kappa * $yr);
-#say "XYZ: @xyz $yr";
-    return (0,0,0) unless $L;
-    my $strich_nenner = $xyz[0] + (15 * $xyz[1]) + (3 * $xyz[2]);
-    my $r_nenner      = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
-    my $u_strich = 4 * $xyz[0] / $strich_nenner;
-    my $v_strich = 9 * $xyz[1] / $strich_nenner;
-    my $ur       = 4 * $D65[0] / $r_nenner;
-    my $vr       = 9 * $D65[1] / $r_nenner;
-#say "Luv ", ($L,',', 13 * ($u_strich - $ur),',', 13 * ($v_strich - $vr)), " :: $u_strich - $ur";
-    # @{$lab_def->normalize()};
-    return ($L, 13 * ($u_strich - $ur), 13 * ($v_strich - $vr)); # Luv
+    my $color_mix = $XYZ[0] + (15 * $XYZ[1]) + (3 * $XYZ[2]);
+    my $u_color = 4 * $XYZ[0] / $color_mix;
+    my $v_color = 9 * $XYZ[1] / $color_mix;
+    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
+    my $u_white = 4 * $D65[0] / $white_mix;
+    my $v_white = 9 * $D65[1] / $white_mix;
+
+    my $l = ($xyz->[1] > $eta) ? (($xyz->[1] ** (1/3)) * 116 - 16) : ($kappa * $xyz->[1]);
+    my $u = 13 * $l * ($u_color - $u_white);
+    my $v = 13 * $l * ($v_color - $v_white);
+    return ( $l / 100 , ($u+134) / 354, ($v+140) / 262 );
 }
 
 

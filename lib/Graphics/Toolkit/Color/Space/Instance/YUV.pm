@@ -7,7 +7,7 @@ use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix3/;
 
                                                       # luma, cyan-orange balance, magenta-green balance
-my  $yuv_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luma Pb Pr/], alias => 'YCbCr',
+my  $yuv_def = Graphics::Toolkit::Color::Space->new( axis  => [qw/luma Cb Cr/], alias => 'YCbCr',
                                                      short => [qw/Y U V/],
                                                      range => [1, [-.5, .5], [-.5, .5],] );
 

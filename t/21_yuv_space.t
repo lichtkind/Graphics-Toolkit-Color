@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 88;
+use Test::More tests => 91;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YUV';
@@ -22,14 +22,18 @@ is( ref $space->range_check([0,0]),              '',   "YUV got too few values")
 is( ref $space->range_check([0, 0, 0, 0]),       '',   "YUV got too many values");
 is( ref $space->range_check([-1, 0, 0]),         '',   "luma value is too small");
 is( ref $space->range_check([1.1, 0, 0]),        '',   "luma value is too big");
-is( ref $space->range_check([0, -.51, 0]),       '',   "Pb value is too small");
-is( ref $space->range_check([0, .51, 0]),        '',   "Pb value is too big");
-is( ref $space->range_check([0, 0, -.51] ),      '',   "Pr value is too small");
-is( ref $space->range_check([0, 0, 0.51] ),      '',   "Pr value is too big");
+is( ref $space->range_check([0, -.51, 0]),       '',   "Cb value is too small");
+is( ref $space->range_check([0, .51, 0]),        '',   "Cb value is too big");
+is( ref $space->range_check([0, 0, -.51] ),      '',   "Cr value is too small");
+is( ref $space->range_check([0, 0, 0.51] ),      '',   "Cr value is too big");
 
 
 is( $space->is_value_tuple([0,0,0]),            1,  'value vector has 3 elements');
-is( $space->is_partial_hash({y => 1, Pb => 0}), 1,  'found hash with some keys');
+is( $space->is_partial_hash({y => 1, Cb => 0}), 1,  'found hash with some keys');
+is( $space->is_partial_hash({Y => 1, U => 0, V => 0}), 1,  'found hash with some axis names');
+is( $space->is_partial_hash({luma => 1, Cb => 0, Cr => 0}), 1, 'found hash with all axis names');
+is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
+
 is( $space->can_convert('rgb'), 1,                  'do only convert from and to rgb');
 is( $space->can_convert('yuv'), 0,                  'can not convert to itself');
 is( $space->format([0,1,2], 'css_string'), 'yuv(0, 1, 2)', 'can format css string');

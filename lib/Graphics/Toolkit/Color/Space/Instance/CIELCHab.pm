@@ -28,8 +28,8 @@ sub from_lab {
 
 sub to_lab {
     my ($lch) = shift;
-    my $a = cos($lch->[2] * $TAU);
-    my $b = sin($lch->[2] * $TAU);
+    my $a = $lch->[1] * cos($lch->[2] * $TAU);
+    my $b = $lch->[1] * sin($lch->[2] * $TAU);
     return ($lch->[0], ($a + 1) / 2, ($b + 1) / 2);
 }
 

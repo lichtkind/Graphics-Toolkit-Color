@@ -36,10 +36,12 @@ is( ref $space->range_check([0, 0, 122.2] ),     '',   "v value is too big");
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({u => 1, v => 0}), 1,  'found hash with some axis names');
 is( $space->is_partial_hash({u => 1, v => 0, l => 0}), 1, 'found hash with all axis names');
+is( $space->is_partial_hash({'L*' => 1, 'u*' => 0, 'v*' => 0}), 1, 'found hash with all long axis names');
 is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
 is( $space->can_convert('CIEXYZ'), 1,                 'do only convert from and to rgb');
 is( $space->can_convert('ciexyz'), 1,                 'namespace can be written lower case');
-is( $space->can_convert('luv'), 0,                 'can not convert to itself');
+is( $space->can_convert('CIEluv'), 0,                 'can not convert to itself');
+is( $space->can_convert('luv'), 0,                    'can not convert to itself (alias)');
 is( $space->format([0,0,0], 'css_string'), 'cieluv(0, 0, 0)', 'can format css string');
 
 my $val = $space->deformat(['CIELUV', 0, -1, -0.1]);

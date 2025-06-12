@@ -17,8 +17,8 @@ my $TAU = 6.283185307;
 
 sub from_luv {
     my ($luv) = shift;
-    my $a = $lab->[1] * 441 - 134;
-    my $b = $lab->[2] * 360 - 140;
+    my $a = $lab->[1] *  441 - 134;
+    my $b = $lab->[2] *  360 - 140;
     my $c = sqrt( ($u**2) + ($v**2));
     my $h = atan2($v, $u);
     $h += $TAU if $h < 0;
@@ -28,8 +28,8 @@ sub from_luv {
 
 sub to_luv {
     my ($lch) = shift;
-    my $u = cos($lch->[2] * $TAU);
-    my $v = sin($lch->[2] * $TAU);
+    my $u = $lch->[1] * cos($lch->[2] * $TAU);
+    my $v = $lch->[1] * sin($lch->[2] * $TAU);
     return ($lch->[0], ($a + 1) / 2, ($b + 1) / 2);
 }
 

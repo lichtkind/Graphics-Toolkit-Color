@@ -22,12 +22,13 @@ sub from_xyz {
     my @XYZ = map { $xyz->[$_] * $D65[$_] } 0 .. 2;
 
     my $color_mix = $XYZ[0] + (15 * $XYZ[1]) + (3 * $XYZ[2]);
-    my $u_color = 4 * $XYZ[0] / $color_mix;
-    my $v_color = 9 * $XYZ[1] / $color_mix;
+    my $u_color = $color_mix ? (4 * $XYZ[0] / $color_mix) : 0;
+    my $v_color = $color_mix ? (9 * $XYZ[1] / $color_mix) : 0;
 
-    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
-    my $u_white = 4 * $D65[0] / $white_mix;
-    my $v_white = 9 * $D65[1] / $white_mix;
+    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]); # 19.21696
+    my $u_white = 0.197839825; # 4 * $D65[0] / $white_mix; #
+    my $v_white = 0.468336303; # 9 * $D65[1] / $white_mix; #
+
 
     my $l = ($XYZ[1] > $eta) ? (($XYZ[1] ** (1/3)) * 116 - 16) : ($kappa * $XYZ[1]);
     my $u = 13 * $l * ($u_color - $u_white);
@@ -42,15 +43,15 @@ sub to_xyz {
     my $u = $luv->[1] * 354 - 134;
     my $v = $luv->[2] * 262 - 140;
 
-    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]);
-    my $u_white = 4 * $D65[0] / $white_mix;
-    my $v_white = 9 * $D65[1] / $white_mix;
+    my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]); # 19.21696
+    my $u_white = 0.197839825; # 4 * $D65[0] / $white_mix; #
+    my $v_white = 0.468336303; # 9 * $D65[1] / $white_mix; #
 
-    my $u_color = ($u / 13 / $l) + $u_white;
-    my $v_color = ($v / 13 / $l) + $v_white;
+    my $u_color = $l ? (($u / 13 / $l) + $u_white) : 0;
+    my $v_color = $l ? (($v / 13 / $l) + $v_white) : 0;
 
     my $y = ($l > $kappa * $eta) ? ((($l+16) / 116) ** 3) : ($l / $kappa);
-    my $color_mix = 9 * $y / $v_color;
+    my $color_mix = $v_color ? (9 * $y / $v_color) : 0;
     my $x = $u_color * $color_mix / 9;
     my $z = ($color_mix - $x - (15 * $y)) / 3;
     my $XYZ = [$x, $y, $z];

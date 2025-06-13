@@ -52,56 +52,75 @@ is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
 is( $space->format([0,1,0], 'css_string'), 'cieluv(0, 1, 0)', 'can format css string');
 
-exit 1;
-$val = $space->deconvert( [ 0, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'deconverted tuple of zeros (black) from RGB');
+
+$val = $space->denormalize( [0, .378531073, .534351145] );
+is( ref $val,                    'ARRAY',  'denormalized black into zeros');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0),      1,  'second value good');
-is( close_enough( $val->[2] , 0),      1,  'third value good');
+is( close_enough( $val->[0] , 0),      1,  'L* value of black good');
+is( close_enough( $val->[1] , 0),      1,  'u* value of black good');
+is( close_enough( $val->[2] , 0),      1,  'v* value of black good');
 
-$val = $space->convert( [ 0, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'converted black to RGB');
+$val = $space->normalize( [0, 0, 0] );
+is( ref $val,                    'ARRAY',  'normalized tuple of zeros (black)');
 is( int @$val,                         3,  'right amount of values');
-is( close_enough( $val->[0] , 0),      1,  'first value good');
-is( close_enough( $val->[1] , 0),      1,  'second value good');
-is( close_enough( $val->[2] , 0),      1,  'third value good');
+is( close_enough( $val->[0] , 0),      1,  'L value good');
+is( close_enough( $val->[1] , 0.378531073),    1,  'u* value good');
+is( close_enough( $val->[2] , 0.534351145),    1,  'v* value good');
 
+
+my $luv = $space->deconvert( [ 0, 0, 0], 'CIEXYZ');
+is( ref $luv,                    'ARRAY',  'deconverted tuple of zeros (black) from CIEXYZ');
+is( int @$luv,                         3,  'right amount of values');
+is( close_enough( $luv->[0] , 0),                1,  'first value good');
+is( close_enough( $luv->[1] , 0.378531073),      1,  'second value good');
+is( close_enough( $luv->[2] , 0.534351145),      1,  'third value good');
+
+my $xyz = $space->convert( [ 0, .378531073, .534351145 ], 'CIEXYZ');
+is( ref $xyz,                    'ARRAY',  'converted black to CIEXYZ');
+is( int @$xyz,                         3,  'right amount of values');
+is( close_enough( $xyz->[0] , 0),      1,  'X value good');
+is( close_enough( $xyz->[1] , 0),      1,  'Y value good');
+is( close_enough( $xyz->[2] , 0),      1,  'Z value good');
+
+#say "@$luv";
+#say "@$val";
 exit 1;
 
 
-$val = $space->deconvert( [ 1, 1, 1], 'RGB');
-is( ref $val,                    'ARRAY',  'deconverted white from RGB');
+
+
+$val = $space->deconvert( [ 1, 1, 1], 'CIEXYZ');
+is( ref $val,                    'ARRAY',  'deconverted white from CIEXYZ');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 1),      1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
-$val = $space->convert( [ 1, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'converted white to RGB');
+$val = $space->convert( [ 1, 0, 0], 'CIEXYZ');
+is( ref $val,                    'ARRAY',  'converted white to CIEXYZ');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 1),      1,  'first value good');
 is( close_enough( $val->[1] , 1),      1,  'second value good');
 is( close_enough( $val->[2] , 1),      1,  'third value good');
 
 
-$val = $space->deconvert( [ .5, .5, .5], 'RGB');
-is( ref $val,                    'ARRAY',  'deconverted gray from RGB');
+$val = $space->deconvert( [ .5, .5, .5], 'CIEXYZ');
+is( ref $val,                    'ARRAY',  'deconverted gray from CIEXYZ');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 0.53389),1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
-$val = $space->convert( [ .53389, 0, 0], 'RGB');
-is( ref $val,                    'ARRAY',  'converted gray to RGB');
+$val = $space->convert( [ .53389, 0, 0], 'CIEXYZ');
+is( ref $val,                    'ARRAY',  'converted gray to CIEXYZ');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , .5),     1,  'first value good');
 is( close_enough( $val->[1] , .5),     1,  'second value good');
 is( close_enough( $val->[2] , .5),     1,  'third value good');
 
 
-$val = $space->deconvert( [ 1, 0, 0.5], 'RGB');
-is( ref $val,                     'ARRAY', 'converted purple from RGB');
+$val = $space->deconvert( [ 1, 0, 0.5], 'CIEXYZ');
+is( ref $val,                     'ARRAY', 'converted purple from CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] , .54878),  1, 'first value good');
 is( close_enough( $val->[1] , .584499), 1, 'second value good');
@@ -139,30 +158,30 @@ is( close_enough( $val->[0] , 0),      1,  'first value good');
 is( close_enough( $val->[1] , 0.5),    1,  'second value good');
 is( close_enough( $val->[2] , 0.5),    1,  'third value good');
 
-$val = $space->convert( [ 0, 0.5, 0.5], 'RGB');
-is( ref $val,                    'ARRAY',  'converted white to RGB');
+$val = $space->convert( [ 0, 0.5, 0.5], 'CIEXYZ');
+is( ref $val,                    'ARRAY',  'converted white to CIEXYZ');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 0),      1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
 
-$val = $space->deconvert( [ 1, 1, 1,], 'RGB');
+$val = $space->deconvert( [ 1, 1, 1,], 'CIEXYZ');
 is( ref $val,                     'ARRAY',  'deconverted tuple of ones (white)');
 is( int @$val,                          3,  'right amount of values');
 is( close_enough($val->[0],   1),       1,  'first value good');
 is( close_enough($val->[1],   0.5),     1,  'second value good');
 is( close_enough($val->[2],   0.5),     1,  'third value good');
 
-$val = $space->convert( [ 1, 0.5, 0.5], 'RGB');
+$val = $space->convert( [ 1, 0.5, 0.5], 'CIEXYZ');
 is( ref $val,                    'ARRAY',  'converted tuple of zeros');
 is( int @$val,                         3,  'right amount of values');
 is( close_enough( $val->[0] , 1),      1,  'first value good');
 is( close_enough( $val->[1] , 1),      1,  'second value good');
 is( close_enough( $val->[2] , 1),      1,  'third value good');
 
-$val = $space->deconvert( [ 0.5, 0.5, 0.5], 'RGB');
-is( ref $val,                     'ARRAY',  'converted gray to RGB');
+$val = $space->deconvert( [ 0.5, 0.5, 0.5], 'CIEXYZ');
+is( ref $val,                     'ARRAY',  'converted gray to CIEXYZ');
 is( int @$val,                          3,  'right amount of values');
 is( close_enough( $val->[0] , .53389),  1,  'first value good');
 is( close_enough( $val->[1] , .5),      1,  'second value good');
@@ -175,38 +194,38 @@ is( close_enough( $val->[0] , 53.389), 1,  'first value good');
 is( close_enough( $val->[1] , 0),      1,  'second value good');
 is( close_enough( $val->[2] , 0),      1,  'third value good');
 
-$val = $space->convert( [ 0.53389, .5, .5], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back gray to RGB');
+$val = $space->convert( [ 0.53389, .5, .5], 'CIEXYZ');
+is( ref $val,                     'ARRAY', 'converted back gray to CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] , .5),      1, 'first value good');
 is( close_enough( $val->[1] , .5),      1, 'second value good');
 is( close_enough( $val->[2] , .5),      1, 'third value good');
 
 
-$val = $space->deconvert( [ 1, 0, 0.5], 'RGB');
-is( ref $val,                     'ARRAY', 'converted purple from RGB');
+$val = $space->deconvert( [ 1, 0, 0.5], 'CIEXYZ');
+is( ref $val,                     'ARRAY', 'converted purple from CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] , .54878),  1, 'first value good');
 is( close_enough( $val->[1] , .584499), 1, 'second value good');
 is( close_enough( $val->[2] , .5109),   1, 'third value good');
 
-$val = $space->convert( [ 0.54878, .584499, .5109], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back gray to RGB');
+$val = $space->convert( [ 0.54878, .584499, .5109], 'CIEXYZ');
+is( ref $val,                     'ARRAY', 'converted back gray to CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] ,  1),      1, 'first value good');
 is( close_enough( $val->[1] ,  0),      1, 'second value good');
 is( close_enough( $val->[2] , .5),      1, 'third value good');
 
 
-$val = $space->deconvert( [ .1, 0.2, 0.9], 'RGB');
-is( ref $val,                    'ARRAY', 'converted BLUE from RGB');
+$val = $space->deconvert( [ .1, 0.2, 0.9], 'CIEXYZ');
+is( ref $val,                    'ARRAY', 'converted BLUE from CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] , .34526),  1, 'first value good');
 is( close_enough( $val->[1] , .557165), 1, 'second value good');
 is( close_enough( $val->[2] , .2757375),1, 'third value good');
 
-$val = $space->convert( [ 0.34526, .557165, .2757375], 'RGB');
-is( ref $val,                     'ARRAY', 'converted back BLUE to RGB');
+$val = $space->convert( [ 0.34526, .557165, .2757375], 'CIEXYZ');
+is( ref $val,                     'ARRAY', 'converted back BLUE to CIEXYZ');
 is( int @$val,                          3, 'right amount of values');
 is( close_enough( $val->[0] , .1),      1, 'first value good');
 is( close_enough( $val->[1] , .2),      1, 'second value good');

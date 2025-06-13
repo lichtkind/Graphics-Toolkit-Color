@@ -305,11 +305,14 @@ B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227)
 =head2 YUV
 
 Is a slightly altered version of L<YIQ> for the I<PAL> TV standard.
-We use  here the variant called B<YCbCr> (can also be used as space name),
-because of it's computation friendly value ranges and because it is still
-relevant in video and image formats and compression algorithms.
+We use a variant called B<YPbPr>, which can also be used as space name.
+It has computation friendly value ranges and is still relevant in video
+and image formats and compression algorithms, but under the name I<YCbCr>.
+The only difference is that I<YCbCr> works with digital values but
+this module computes with real (analogue)  value to enable any precision
+the user might prefer. To make this clear, this space holds the name I<YPbPr>.
 It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
-range of 0..1, 2. B<Cb> (short I<u>, -0.5 .. 0.5) and 3. C<Cr>
+range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. C<Pr>
 (short I<v>, -0.5 .. 0.5). (see also L<CIELUV>)
 
 =head2 CIEXYZ

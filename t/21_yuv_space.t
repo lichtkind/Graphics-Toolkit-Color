@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
 is( $space->name,       'YUV',                      'color space has initials as name');
-is( $space->alias,    'YCbCr',                      'color space has alias name YCbCr');
+is( $space->alias,    'YPbPr',                      'color space has alias name YCbCr');
 is( $space->axis,           3,                      'color space has 3 axis');
 is( ref $space->range_check([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
 is( ref $space->range_check([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
@@ -29,9 +29,9 @@ is( ref $space->range_check([0, 0, 0.51] ),      '',   "Cr value is too big");
 
 
 is( $space->is_value_tuple([0,0,0]),            1,  'value vector has 3 elements');
-is( $space->is_partial_hash({y => 1, Cb => 0}), 1,  'found hash with some keys');
+is( $space->is_partial_hash({y => 1, Pb => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({Y => 1, U => 0, V => 0}), 1,  'found hash with some axis names');
-is( $space->is_partial_hash({luma => 1, Cb => 0, Cr => 0}), 1, 'found hash with all axis names');
+is( $space->is_partial_hash({luma => 1, Pb => 0, Pr => 0}), 1, 'found hash with all axis names');
 is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
 
 is( $space->can_convert('rgb'), 1,                  'do only convert from and to rgb');

@@ -1,5 +1,5 @@
 
-# logic of value hash keys for all color spacs
+# conversion back and forth of value tuples into string and other formats
 
 package Graphics::Toolkit::Color::Space::Format;
 use v5.12;

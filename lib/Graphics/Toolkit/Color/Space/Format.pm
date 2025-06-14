@@ -1,12 +1,12 @@
 
-# conversion back and forth of value tuples into string and other formats
+# conversion of value tuples (ARRAY) into different string and other formats
 
 package Graphics::Toolkit::Color::Space::Format;
 use v5.12;
 use warnings;
 
-sub new {
-    my ($pkg, $basis, $suffix, $value_form ) = @_;
+sub new { # __, @:Basic, @~suffix --> _
+    my ($pkg, $basis, $suffix, $value_format ) = @_;
     return 'first argument has to be an Color::Space::Basis reference'
         unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
@@ -15,11 +15,11 @@ sub new {
 
     my $number_form = '-?(?:\d+|\d+\.\d+|.\d+)';
     my $count = $basis->axis_count;
-    $value_form = [($number_form) x $count] unless defined $value_form;
-    $value_form = [($value_form) x $count] unless ref $value_form;
-    $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
-    return 'need an ARRAY as definition of value format' unless ref $value_form eq 'ARRAY';
-    return 'definition value format has to have same length as basis (number of axis)' unless @$value_form == $count;
+    $value_format = [($number_form) x $count] unless defined $value_format;
+    $value_format = [($value_format) x $count] unless ref $value_format;
+    $value_format = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_format]; # fill missing defs with default
+    return 'need an ARRAY as definition of value format' unless ref $value_format eq 'ARRAY';
+    return 'definition value format has to have same length as basis (number of axis)' unless @$value_format == $count;
 
     # format --> tuple
     my %deformats = ( hash => sub { tuple_from_hash(@_)         },
@@ -35,7 +35,7 @@ sub new {
            named_string => sub { $_[0]->named_string_from_tuple($_[1]) },     #  'rgb: 1, 2, 3'
              css_string => sub { $_[0]->css_string_from_tuple($_[1]) },       #  'rgb(1,2,3)'
     );
-    bless { basis => $basis, suffix => $suffix, value_form => $value_form ,
+    bless { basis => $basis, suffix => $suffix, value_format => $value_format ,
             format => \%formats, deformat => \%deformats, pre => '', post => ''}
 }
 
@@ -144,8 +144,8 @@ sub match_number_values {
 sub _value_regex {
     my ($self, $match) = @_;
     (defined $match and $match)
-        ? (map {'\s*('.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->axis_iterator)
-        : (map {'\s*' .$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->axis_iterator);
+        ? (map {'\s*('.$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->axis_iterator)
+        : (map {'\s*' .$self->{'value_format'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->axis_iterator);
 }
 
 #### converter: format --> values ######################################
@@ -155,8 +155,15 @@ sub tuple_from_named_string {
     return 0 unless defined $string and not ref $string;
     my $name = $self->basis->space_name;
     $string =~ /^\s*$name:\s*(\s*[^:]+\s*)\s*$/i;
-    return 0 unless $1;
-    $self->match_number_values( [split(',',$1)] );
+    my $match = $1;
+    unless ($match){
+        my $name = $self->basis->alias_name;
+        return 0 unless $name;
+        $string =~ /^\s*$name:\s*(\s*[^:]+\s*)\s*$/i;
+        $match = $1;
+    }
+    return 0 unless $match;
+    $self->match_number_values( [split(',', $match)] );
 }
 
 
@@ -165,14 +172,22 @@ sub tuple_from_css_string {
     return 0 unless defined $string and not ref $string;
     my $name = $self->basis->space_name;
     $string =~ /^\s*$name\s*\(\s*([^)]+)\s*\)\s*$/i;
-    return 0 unless $1;
-    $self->match_number_values( [split(',',$1)] );
+    my $match = $1;
+    unless ($match){
+        my $name = $self->basis->alias_name;
+        return 0 unless $name;
+        $string =~ /^\s*$name\s*\(\s*([^)]+)\s*\)\s*$/i;
+        $match = $1;
+    }
+    return 0 unless $match;
+    $self->match_number_values( [split(',', $match)] );
 }
 
 sub tuple_from_named_array {
     my ($self, $array) = @_;
     return 0 unless ref $array eq 'ARRAY' and @$array == $self->basis->axis_count+1;
-    return 0 unless uc $array->[0] eq uc $self->basis->space_name;
+    return 0 unless uc $array->[0] eq uc $self->basis->space_name
+                or (uc $array->[0] eq uc $self->basis->alias_name and $self->basis->alias_name);
     shift @$array;
     $self->match_number_values( $array );
 }

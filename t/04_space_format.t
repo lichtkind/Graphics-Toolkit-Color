@@ -2,14 +2,14 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 113;
+use Test::More tests => 127;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
 
 use_ok( $module, 'could load the module');
 use Graphics::Toolkit::Color::Space::Basis;
-my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/]);
+my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/], undef, undef, undef, 'alias');
 
 my $obj = Graphics::Toolkit::Color::Space::Format->new( );
 like( $obj,   qr/first argument/,      'constructor needs basis as first argument');
@@ -47,6 +47,15 @@ is( $vals->[1],             2, 'second value');
 is( $vals->[2],             3, 'third value');
 is( $name,     'named_string', 'found right format name');
 
+($vals, $name) = $pobj->deformat(' alias:1,2,3');
+is( ref $vals,        'ARRAY', 'could deformat values with space name alias and leading space');
+is( @$vals,                 3, 'right amount of values');
+is( $vals->[0],             1, 'first value');
+is( $vals->[1],             2, 'second value');
+is( $vals->[2],             3, 'third value');
+is( $name,     'named_string', 'found right format name');
+
+
 ($vals, $name) = $pobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string');
 is( $name,     'named_string', 'recognized named string format');
@@ -65,6 +74,9 @@ is( $name,     'named_string', 'found named string as custom format');
 ($vals, $name) = $pobj->deformat(' abg( 1 %, 2 % , 3% ) ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in css string');
 is( $name,       'css_string', 'recognized CSS string format');
+($vals, $name) = $pobj->deformat(' alias( 1 %, 2 % , 3% ) ');
+is( ref $vals,        'ARRAY', 'deformatted css string with space name alias');
+is( $name,       'css_string', 'recognized CSS string format');
 ($vals, $name) = $pobj->deformat(' abg( 1 , 2  , 3 ) ');
 is( ref $vals,        'ARRAY', 'ignored missing suffixes');
 is( $name,       'css_string', 'recognized CSS string format');
@@ -75,6 +87,14 @@ is( $vals->[2],             3, 'third value');
 
 ($vals, $name) = $obj->deformat( ['ABG',1,2,3] );
 is( $name,       'named_array', 'recognized named array');
+is( ref $vals,         'ARRAY', 'could deformat values');
+is( @$vals,                  3, 'right amount of values');
+is( $vals->[0],              1, 'first value');
+is( $vals->[1],              2, 'second value');
+is( $vals->[2],              3, 'third value');
+
+($vals, $name) = $obj->deformat( ['ALIAs',1,2,3] );
+is( $name,       'named_array', 'recognized named array with space name alias');
 is( ref $vals,         'ARRAY', 'could deformat values');
 is( @$vals,                  3, 'right amount of values');
 is( $vals->[0],              1, 'first value');

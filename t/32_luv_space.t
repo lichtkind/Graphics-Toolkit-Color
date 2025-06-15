@@ -67,7 +67,6 @@ is( close_enough( $val->[0] , 0),      1,  'L value good');
 is( close_enough( $val->[1] , 0.378531073),    1,  'u* value good');
 is( close_enough( $val->[2] , 0.534351145),    1,  'v* value good');
 
-
 my $luv = $space->deconvert( [ 0, 0, 0], 'CIEXYZ');
 is( ref $luv,                    'ARRAY',  'deconverted tuple of zeros (black) from CIEXYZ');
 is( int @$luv,                         3,  'right amount of values');
@@ -82,8 +81,40 @@ is( close_enough( $xyz->[0] , 0),      1,  'X value good');
 is( close_enough( $xyz->[1] , 0),      1,  'Y value good');
 is( close_enough( $xyz->[2] , 0),      1,  'Z value good');
 
+
+
+$val = $space->denormalize( [1, .378531073, .534351145] );
+is( ref $val,                    'ARRAY',  'denormalized white into zeros');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 100),      1,  'L* value of white good');
+is( close_enough( $val->[1] , 0),      1,  'u* value of white good');
+is( close_enough( $val->[2] , 0),      1,  'v* value of white good');
+
+$val = $space->normalize( [100, 0, 0] );
+is( ref $val,                    'ARRAY',  'normalized tuple of white');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 1),      1,  'L value good');
+is( close_enough( $val->[1] , 0.378531073),    1,  'u* value good');
+is( close_enough( $val->[2] , 0.534351145),    1,  'v* value good');
+
+my $luv = $space->deconvert( [ 1, 1, 1], 'CIEXYZ');
+is( ref $luv,                    'ARRAY',  'deconverted white from CIEXYZ');
+is( int @$luv,                         3,  'right amount of values');
+is( close_enough( $luv->[0] , 1),                1,  'first value good');
+is( close_enough( $luv->[1] , 0.378531073),      1,  'second value good');
+is( close_enough( $luv->[2] , 0.534351145),      1,  'third value good');
+
+my $xyz = $space->convert( [ 1, .378531073, .534351145 ], 'CIEXYZ');
+is( ref $xyz,                    'ARRAY',  'converted white to CIEXYZ');
+is( int @$xyz,                         3,  'right amount of values');
+is( close_enough( $xyz->[0] , 1),      1,  'X value good');
+is( close_enough( $xyz->[1] , 1),      1,  'Y value good');
+is( close_enough( $xyz->[2] , 1),      1,  'Z value good');
+
+
 #say "@$luv";
 #say "@$val";
+say "@$xyz";
 exit 1;
 
 

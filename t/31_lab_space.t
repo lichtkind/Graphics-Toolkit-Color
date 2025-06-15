@@ -3,11 +3,11 @@
 use v5.12;
 use warnings;
 use Test::More tests => 100;
-
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
+use Graphics::Toolkit::Color::Space::Util ':all';
+
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
 my $space = eval "require $module";
-use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');

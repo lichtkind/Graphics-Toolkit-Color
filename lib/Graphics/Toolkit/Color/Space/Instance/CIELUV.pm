@@ -25,17 +25,14 @@ sub from_xyz {
     my $u_color = $color_mix ? (4 * $XYZ[0] / $color_mix) : 0;
     my $v_color = $color_mix ? (9 * $XYZ[1] / $color_mix) : 0;
 
-say  "xyz : @XYZ from xyz";
-say  "color : $u_color $v_color ($color_mix) from xyz";
-
     my $white_mix = $D65[0] + (15 * $D65[1]) + (3 * $D65[2]); # 19.21696
     my $u_white = 0.197839825; # 4 * $D65[0] / $white_mix; #
     my $v_white = 0.468336303; # 9 * $D65[1] / $white_mix; #
 
-
     my $l = ($XYZ[1] > $eta) ? (($XYZ[1] ** (1/3)) * 116 - 16) : ($kappa * $XYZ[1]);
     my $u = 13 * $l * ($u_color - $u_white);
     my $v = 13 * $l * ($v_color - $v_white);
+
     return ( $l / 100 , ($u+134) / 354, ($v+140) / 262 );
 }
 
@@ -53,14 +50,12 @@ sub to_xyz {
     my $u_color = $l ? (($u / 13 / $l) + $u_white) : 0;
     my $v_color = $l ? (($v / 13 / $l) + $v_white) : 0;
 
-
     my $y = ($l > $kappa * $eta) ? ((($l+16) / 116) ** 3) : ($l / $kappa);
     my $color_mix = $v_color ? (9 * $y / $v_color) : 0;
-say  "color : $u_color $v_color ($color_mix) to xyz";
     my $x = $u_color * $color_mix / 4;
     my $z = ($color_mix - $x - (15 * $y)) / 3;
     my $XYZ = [$x, $y, $z];
-say  "xyz : $x $y $z to xyz";
+
     return map { $XYZ->[$_] / $D65[$_] } 0 .. 2;
 }
 

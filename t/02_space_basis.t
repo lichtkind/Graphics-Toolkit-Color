@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 138;
+use Test::More tests => 140;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -94,8 +94,11 @@ is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with rig
 is( $s3d->is_hash({ALPHA => 1, Beta => 20, gamma => 3}), 1, 'key casing gets ignored');
 is( $s3d->is_hash({a => 1, b => 1, g => 3}),             1, 'valid shortcut hash');
 is( $s3d->is_hash({a => 1, B => 1, g => 3}),             1, 'shortcut casing gets ignored');
-is( $s3d->is_hash({a => 1, b => 1, g => 3, h => 4}),     0, 'too many hash key shortcut ');
+is( $s3d->is_hash({a => 1, b => 1, B => 3 }),            0, 'value hash has same key twice');
+is( $s3d->is_hash({a => 1, b => 1, g => 3, h => 4}),     0, 'value hash has too many keys key');
+is( $s3d->is_hash({a => 1, b => 1, h => 4}),             0, 'value hash has one wrong key');
 is( $s3d->is_hash({alph => 1, beth => 1, gimel => 4, daleth => 2, he => 4}), 0, 'one wrong hash key');
+
 
 is( $s5d->is_partial_hash(''),             0,      'string is not a partial hash');
 is( $s5d->is_partial_hash([]),             0,      'array is not a partial hash');

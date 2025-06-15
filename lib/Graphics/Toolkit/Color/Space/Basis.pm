@@ -57,9 +57,14 @@ sub is_partial_hash { # with some axis names as keys
     my ($self, $value_hash) = @_;
     return 0 unless ref $value_hash eq 'HASH';
     my $key_count = keys %$value_hash;
+    my @axis_visited;
     return 0 unless $key_count and $key_count <= $self->axis_count;
-    for (keys %$value_hash) {
-        return 0 unless $self->is_axis_name( $_ );
+    for my $axis_name (keys %$value_hash) {
+        return 0 unless $self->is_axis_name( $axis_name );
+        my $axis_pos = $self->pos_from_long_axis_name( $axis_name );
+        $axis_pos = $self->pos_from_short_axis_name( $axis_name ) unless defined $axis_pos;
+        $axis_visited[ $axis_pos ]++;
+        return 0 if $axis_visited[ $axis_pos ] > 1;
     }
     return 1;
 }

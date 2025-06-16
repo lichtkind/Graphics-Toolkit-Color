@@ -42,7 +42,162 @@ is( int @$val,   3,     'right amount of values');
 is( $val->[0],   0,     'first value good');
 is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
-is( $space->format([0,1,0], 'css_string'), 'cielchab(0, 1, 0)', 'can format css string');
+is( $space->format([0,11,350], 'css_string'), 'cielchab(0, 11, 350)', 'can format css string');
 
+
+# black
+$val = $space->denormalize( [0, 0, 0] );
+is( ref $val,                    'ARRAY',  'denormalized black into zeros');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 0),      1,  'L value is good');
+is( close_enough( $val->[1] , 0),      1,  'C value is good');
+is( close_enough( $val->[2] , 0),      1,  'H value is good');
+
+$val = $space->normalize( [0, 0, 0] );
+is( ref $val,                    'ARRAY',  'normalized tuple of zeros (black)');
+is( int @$val,                         3,  'right amount of values');
+is( close_enough( $val->[0] , 0),      1,  'L value is good');
+is( close_enough( $val->[1] , 0),      1,  'C value is good');
+is( close_enough( $val->[2] , 0),      1,  'H value is good');
+
+my $lch = $space->deconvert( [ 0, 0.5, 0.5], 'CIELAB');
+is( ref $lch,                    'ARRAY',  'deconverted black from CIELAB');
+is( int @$lch,                         3,  'right amount of values');
+is( close_enough( $lch->[0] , 0),      1,  'L value is good');
+is( close_enough( $lch->[1] , 0),      1,  'C value is good');
+is( close_enough( $lch->[2] , 0),      1,  'H value is good');
+
+my $lab = $space->convert( [ 0, 0, 0 ], 'CIELAB');
+is( ref $lab,                    'ARRAY',  'converted black to CIELAB');
+is( int @$lab,                             3,  'right amount of values');
+is( close_enough( $lab->[0] , 0),          1,  'L* value is good');
+is( close_enough( $lab->[1] , 0.5), 1,  'a* value is good');
+is( close_enough( $lab->[2] , 0.5), 1,  'b* value is good');
+
+# white
+$val = $space->denormalize( [1, 0, 0] );
+is( int @$val,                          3,  'denormalized white');
+is( close_enough( $val->[0] , 100),     1,  'L value of white is good');
+is( close_enough( $val->[1] , 0),       1,  'C value of white is good');
+is( close_enough( $val->[2] , 0),       1,  'H value of white is good');
+
+$val = $space->normalize( [100, 0, 0] );
+is( int @$val,                        3,  'normalized white');
+is( close_enough( $val->[0] , 1),     1,  'L value is good');
+is( close_enough( $val->[1] , 0),     1,  'C value is good');
+is( close_enough( $val->[2] , 0),     1,  'H value is good');
+
+$lch = $space->deconvert( [ 1, .5, .5], 'CIELAB');
+is( int @$lch,                         3,  'deconverted white from CIELAB');
+is( close_enough( $lch->[0] , 1),      1,  'L value is good');
+is( close_enough( $lch->[1] , 0),      1,  'C value is good');
+is( close_enough( $lch->[2] , 0),      1,  'H value is good');
+
+$lab = $space->convert( [ 1, 0, 0 ], 'CIELAB');
+is( int @$lab,                     3,  'converted white to CIELAB');
+is( close_enough( $lab->[0] , 1),  1,  'L value is good');
+is( close_enough( $lab->[1] , .5), 1,  'u value is good');
+is( close_enough( $lab->[2] , .5), 1,  'v value is good');
+
+# gray
+$val = $space->denormalize( [.53389, 0, .686386111] );
+is( int @$val,                          3,  'denormalized gray');
+is( close_enough( $val->[0] , 53.389),  1,  'L value is good');
+is( close_enough( $val->[1] , 0),       1,  'C value is good');
+is( close_enough( $val->[2] , 247.099), 1,  'H value is good');
+
+$val = $space->normalize( [53.389, 0, 247.099] );
+is( int @$val,                              3,  'normalized gray');
+is( close_enough( $val->[0] , .53389),      1,  'L value good');
+is( close_enough( $val->[1] , 0),           1,  'C value good');
+is( close_enough( $val->[2] , 0.686386111), 1,  'H value good');
+
+$lch = $space->deconvert( [ .53389, .5, .5], 'CIELAB');
+is( int @$lch,                         3,  'deconverted gray from CIELAB');
+is( close_enough( $lch->[0] , .53389), 1,  'L value is good');
+is( close_enough( $lch->[1] , 0),      1,  'C value is good');
+is( close_enough( $lch->[2] , 0),      1,  'H value is good');
+
+$lab = $space->convert( [ .53389, 0, 0.686386111 ], 'CIELAB');
+is( int @$lab,                         3,  'converted gray to CIELAB');
+is( close_enough( $lab->[0] , .53389),      1,  'L value is good');
+is( close_enough( $lab->[1] , .5),  1,  'u value is good');
+is( close_enough( $lab->[2] , .5),  1,  'v value is good');
+
+# red
+$val = $space->denormalize( [.53389, 0.193974026, .111108333] );
+is( int @$val,                          3,  'denormalized red');
+is( close_enough( $val->[0] , 53.389),     1,  'L value is good');
+is( close_enough( $val->[1] , 104.552),       1,  'C value is good');
+is( close_enough( $val->[2] , 39.999), 1,  'H value is good');
+
+$val = $space->normalize( [53.389, 104.552, 39.999] );
+is( int @$val,                         3,  'normalized red');
+is( close_enough( $val->[0] , .53389),      1,  'L value good');
+is( close_enough( $val->[1] , 0.193974026),      1,  'C value good');
+is( close_enough( $val->[2] , 0.111108333),    1,  'H value good');
+
+$lch = $space->deconvert( [ .53389, .580092, .6680075], 'CIELAB');
+is( int @$lch,                         3,  'deconverted red from CIELAB');
+is( close_enough( $lch->[0] , .53389), 1,  'L value good');
+is( close_enough( $lch->[1] , 0.193974026),      1,  'C value good');
+is( close_enough( $lch->[2] , 0.111108333),      1,  'H value good');
+
+$lab = $space->convert( [ .53389, 0.193974026, .111108333 ], 'CIELAB');
+is( int @$lab,                         3,  'converted red to CIELAB');
+is( close_enough( $lab->[0] , .53389),      1,  'L value good');
+is( close_enough( $lab->[1] , .580092),  1,  'u value good');
+is( close_enough( $lab->[2] , .6680075),  1,  'v value good');
+
+# blue
+$val = $space->denormalize( [.32297, 0.248252319, .850791667] );
+is( int @$val,                          3,  'denormalized blue');
+is( close_enough( $val->[0] , 32.297),     1,  'L value is good');
+is( close_enough( $val->[1] , 133.808),       1,  'C value is good');
+is( close_enough( $val->[2] , 306.285), 1,  'H value is good');
+
+$val = $space->normalize( [32.297, 133.808, 306.285] );
+is( int @$val,                         3,  'normalized blue');
+is( close_enough( $val->[0] , .32297),      1,  'L value good');
+is( close_enough( $val->[1] , 0.248252319),      1,  'C value good');
+is( close_enough( $val->[2] , 0.850791667),    1,  'H value good');
+
+$lch = $space->deconvert( [ .32297, .579188, .23035], 'CIELAB');
+is( int @$lch,                         3,  'deconverted blue from CIELAB');
+is( close_enough( $lch->[0] , .32297), 1,  'L value good');
+is( close_enough( $lch->[1] , 0.248252319),      1,  'C value good');
+is( close_enough( $lch->[2] , 0.850791667),      1,  'H value good');
+
+$lab = $space->convert( [ .32297, 0.248252319, .850791667 ], 'CIELAB');
+is( int @$lab,                         3,  'converted blue to CIELAB');
+is( close_enough( $lab->[0] , .32297),      1,  'L value good');
+is( close_enough( $lab->[1] , .579188),  1,  'u value good');
+is( close_enough( $lab->[2] , .23035),  1,  'v value good');
+
+# mid blue
+$val = $space->denormalize( [.37478, 0.220141002, .842422222] );
+is( int @$val,                          3,  'denormalized nice blue');
+is( close_enough( $val->[0] , 37.478),      1,  'L value is good');
+is( close_enough( $val->[1] , 118.656),     1,  'C value is good');
+is( close_enough( $val->[2] , 303.272), 1,  'H value is good');
+
+$val = $space->normalize( [37.478, 118.656, 303.272] );
+is( int @$val,                         3,  'normalized nice blue');
+is( close_enough( $val->[0] , .37478),      1,  'L value good');
+is( close_enough( $val->[1] , 0.220141002),      1,  'C value good');
+is( close_enough( $val->[2] , 0.842422222),    1,  'H value good');
+
+$lch = $space->deconvert( [ .37478, .565097, .2519875], 'CIELAB');
+is( int @$lch,                         3,  'deconverted nice blue from CIELAB');
+is( close_enough( $lch->[0] , .37478), 1,  'L value good');
+is( close_enough( $lch->[1] , 0.220141002),      1,  'C value good');
+is( close_enough( $lch->[2] , 0.842422222),      1,  'H value good');
+
+$lab = $space->convert( [ .37478, 0.220141002, .842422222 ], 'CIELAB');
+is( int @$lab,                         3,  'converted nice blue to CIELAB');
+is( close_enough( $lab->[0] , .37478),      1,  'L value good');
+is( close_enough( $lab->[1] , .565097),     1,  'u value good');
+is( close_enough( $lab->[2] , .2519875),    1,  'v value good');
 
 exit 0;
+

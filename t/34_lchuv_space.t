@@ -76,17 +76,17 @@ is( close_enough( $luv->[2] , .534351145), 1,  'v* value is good');
 
 
 # white
-$val = $space->denormalize( [1, 0, .686386111] );
+$val = $space->denormalize( [1, 0, 0] );
 is( int @$val,                          3,  'denormalized white');
 is( close_enough( $val->[0] , 100),     1,  'L value of white is good');
 is( close_enough( $val->[1] , 0),       1,  'C value of white is good');
-is( close_enough( $val->[2] , 247.099), 1,  'H value of white is good');
+is( close_enough( $val->[2] , 0),       1,  'H value of white is good');
 
-$val = $space->normalize( [100, 0, 247.099] );
+$val = $space->normalize( [100, 0, 0] );
 is( int @$val,                               3,  'normalized white');
 is( close_enough( $val->[0] , 1),            1,  'L value is good');
 is( close_enough( $val->[1] , 0),            1,  'C value is good');
-is( close_enough( $val->[2] , 0.686386111),  1,  'H value is good');
+is( close_enough( $val->[2] , 0),            1,  'H value is good');
 
 $lch = $space->deconvert( [ 1, .378531073, .534351145], 'CIELUV');
 is( int @$lch,                         3,  'deconverted white from CIELUV');
@@ -200,9 +200,5 @@ is( int @$luv,                         3,  'converted mid blue to CIELUV');
 is( close_enough( $luv->[0] , .24082),      1,  'L value good');
 is( close_enough( $luv->[1] , .352573446),  1,  'u value good');
 is( close_enough( $luv->[2] , .317049618),  1,  'v value good');
-
-# say "@$val";
-# say "LCH : @$lch";
-# say "@$luv";
 
 exit 0;

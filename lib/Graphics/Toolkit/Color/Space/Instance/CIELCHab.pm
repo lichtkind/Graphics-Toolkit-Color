@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELCHab;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space qw/close_enough/;
 
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHab', alias => 'LCH',
                                                      axis => [qw/luminance chroma hue/],
@@ -19,6 +19,7 @@ sub from_lab {
     my ($lab) = shift;
     my $a = $lab->[1] * 1000 - 500;
     my $b = $lab->[2] *  400 - 200;
+
     $a = 0 if close_enough($a , 0);
     $b = 0 if close_enough($b , 0);
     my $c = sqrt( ($a**2) + ($b**2));

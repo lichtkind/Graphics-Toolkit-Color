@@ -15,10 +15,10 @@ is( $space->name,       'CIELCHuv',                  'color space name is CIELCH
 is( $space->alias,              '',                  'color space has no alias name');
 is( $space->axis,                3,                  'color space has 3 dimensions');
 
-is( ref $space->range_check([0,0]),              '',   "CIELUV got too few values");
-is( ref $space->range_check([0, 0, 0, 0]),       '',   "CIELUV got too many values");
-is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
-is( ref $space->range_check([100, 261, 360]),    'ARRAY',   'check maximal CIELUV values are in bounds');
+is( ref $space->range_check([0,0]),              '',   "CIELCHuv got too few values");
+is( ref $space->range_check([0, 0, 0, 0]),       '',   "CIELCHuv got too many values");
+is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELCHuv values are in bounds');
+is( ref $space->range_check([100, 261, 360]),    'ARRAY',   'check maximal CIELCHuv values are in bounds');
 is( ref $space->range_check([-0.1, 0, 0]),       '',   "L value is too small");
 is( ref $space->range_check([100.01, 0, 0]),     '',   'L value is too big');
 is( ref $space->range_check([0, -0.1, 0]),       '',   "c value is too small");

@@ -19,6 +19,8 @@ sub from_lab {
     my ($lab) = shift;
     my $a = $lab->[1] * 1000 - 500;
     my $b = $lab->[2] *  400 - 200;
+    $a = 0 if close_enough($a , 0);
+    $b = 0 if close_enough($b , 0);
     my $c = sqrt( ($a**2) + ($b**2));
     my $h = atan2($b, $a);
     $h += $TAU if $h < 0;
@@ -30,7 +32,6 @@ sub to_lab {
     my ($lch) = shift;
     my $a = $lch->[1] * cos($lch->[2] * $TAU) * 539;
     my $b = $lch->[1] * sin($lch->[2] * $TAU) * 539;
-    return ($lch->[0], ($a + 1) / 2, ($b + 1) / 2);
     return ($lch->[0], ($a+500) / 1000, ($b+200) / 400 );
 }
 

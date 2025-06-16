@@ -348,16 +348,18 @@ have only the first letter). Their real valued ranges are 0 .. 100,
 =head2 CIELCHab
 
 .. is the cylindrical version of the L<CIELAB> with the dimensions
-B<luminance> (short B<l>), B<chroma> (short B<c>) and B<hue> (short B<h>).
+B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
 The real valued ranges are from zero to 100, 539 and 360 respectively.
 Like with the L<HSL> and L<HSV>, hue is the circular dimensions and its
-values are meant as degrees in a circle.
+values are meant as degrees in a circle. For gray colors in the middle
+column the value I<chroma> has no importance and will be in this
+implementation implementation alsway be zero.
 The short alias name of this space is B<LCH>.
 
 =head2 CIELCHuv
 
 .. is the cylindrical version of the L<CIELUV> and works similar to
-L<CIELCHab> except the real valued range of B<chroma> is (0 .. 441) and
+L<CIELCHab> except the real valued range of B<chroma> is (0 .. 261) and
 the space has no alias name.
 
 

@@ -3,9 +3,9 @@
 use v5.12;
 use warnings;
 use Test::More tests => 148;
+BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
-BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELUV';
 my $space = eval "require $module";
 

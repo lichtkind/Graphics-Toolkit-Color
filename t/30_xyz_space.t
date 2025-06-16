@@ -81,7 +81,7 @@ is( close_enough($rgb->[0],  1), 1,   'right red value');
 is( close_enough($rgb->[1],  1), 1,   'right green value');
 is( close_enough($rgb->[2],  1), 1,   'right blue value');
 
-
+# pink
 $xyz = $space->deconvert( [ 1, 0, 0.5], 'RGB');
 is( int @$xyz,                          3,  'converted color pink has three XYZ values');
 is( close_enough($xyz->[0], 0.474586),  1,  'converted color pink has computed right X value');
@@ -94,7 +94,7 @@ is( close_enough($rgb->[0],  1  ), 1,   'right red value');
 is( close_enough($rgb->[1],  0  ), 1,   'right green value');
 is( close_enough($rgb->[2],  0.5), 1,   'right blue value');
 
-
+# mid blue
 $xyz = $space->deconvert( [ .2, .2, .6], 'RGB');
 is( int @$xyz,                           3,  'converted color mid blue has three XYZ values');
 is( close_enough($xyz->[0],  0.087293),  1,  'converted color mid blue has computed right X value');

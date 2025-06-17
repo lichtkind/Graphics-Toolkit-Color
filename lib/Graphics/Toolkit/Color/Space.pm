@@ -61,10 +61,22 @@ sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, 
 
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 sub add_converter {
-    my ($self, $space_name, $to_code, $from_code) = @_;
+    my ($self, $space_name, $to_code, $from_code, $normalize) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
     return 0 if $self->can_convert( $space_name );
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code }; # what is mode ?
+    return 0 if defined $normalize and ref $normalize ne 'HASH';
+    $normalize = { from => 1, to => 1, } unless ref $normalize; # default is full normalisation
+    $normalize->{'from'} = {} if not exists $normalize->{'from'}
+                                 or (exists $normalize->{'from'} and not $normalize->{'from'});
+    $normalize->{'from'} = {in => 1, out => 1} if not ref $normalize->{'from'};
+    $normalize->{'from'}{'in'} = 0 unless exists $normalize->{'from'}{'in'};
+    $normalize->{'from'}{'out'} = 0 unless exists $normalize->{'from'}{'out'};
+    $normalize->{'to'} = {} if not exists $normalize->{'to'}
+                               or (exists $normalize->{'to'} and not $normalize->{'to'});
+    $normalize->{'to'} = {in => 1, out => 1} if not ref $normalize->{'to'};
+    $normalize->{'to'}{'in'} = 0 unless exists $normalize->{'to'}{'in'};
+    $normalize->{'to'}{'out'} = 0 unless exists $normalize->{'to'}{'out'};
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, normalize => $normalize };
 }
 
 sub convert {

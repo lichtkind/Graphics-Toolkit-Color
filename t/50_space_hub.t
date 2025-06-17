@@ -2,15 +2,11 @@
 
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
 use Test::More tests => 106;
-
 BEGIN { unshift @INC, 'lib', '../lib'}
+use Graphics::Toolkit::Color::Space::Util ':all';
+
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
-
-__END__
-
-
 use_ok( $module, 'could load the module');
 my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
 my $format        = \&Graphics::Toolkit::Color::Space::Hub::format;
@@ -20,6 +16,10 @@ my $normalize     = \&Graphics::Toolkit::Color::Space::Hub::normalize;
 my $denormalize   = \&Graphics::Toolkit::Color::Space::Hub::denormalize;
 my $read          = \&Graphics::Toolkit::Color::Space::Hub::read;
 my $write         = \&Graphics::Toolkit::Color::Space::Hub::write;
+
+__END__
+
+
 
 
 is( Graphics::Toolkit::Color::Space::Hub::is_space('RGB'),  1, 'RGB is a color space');

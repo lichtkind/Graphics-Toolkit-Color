@@ -202,16 +202,19 @@ sub tuple_from_hash        {
 #### converter: values --> format ######################################
 
 sub named_array_from_tuple {
-    my ($self, $values) = @_;
-    return [$self->basis->space_name, @$values] unless $self->basis->is_value_tuple( $values );
+    my ($self, $values, $name) = @_;
+    $name //= $self->basis->space_name;
+    return [$name, @$values] unless $self->basis->is_value_tuple( $values );
 }
 sub named_string_from_tuple {
-    my ($self, $values) = @_;
-    return lc( $self->basis->space_name).': '.join(', ', @$values);
+    my ($self, $values, $name) = @_;
+    $name //= $self->basis->space_name;
+    return lc( $name).': '.join(', ', @$values);
 }
 sub css_string_from_tuple {
-    my ($self, $values) = @_;
-    return  lc( $self->basis->space_name).'('.join(', ', @$values).')';
+    my ($self, $values, $name) = @_;
+    $name //= $self->basis->space_name;
+    return  lc( $name).'('.join(', ', @$values).')';
 }
 
 1;

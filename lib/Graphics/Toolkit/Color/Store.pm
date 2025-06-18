@@ -1,11 +1,9 @@
 
 # value objects with cache of original values
 
-package Graphics::Toolkit::Color::Values;
+package Graphics::Toolkit::Color::Store;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Hub;
-use Carp;
 
 sub new {
     my ($pkg, $color_val) = @_;

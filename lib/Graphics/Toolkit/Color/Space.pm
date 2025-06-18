@@ -92,19 +92,17 @@ sub deconvert {
 
 #### full pipe IO ops ##################################################
 
-sub read { # formatted color blob in local space --> normalized RGB
+sub read { # formatted color blob --> normalized values
     my ($self, $color, $range, $precision, $suffix) = @_;
     my ($values, $format_name) = $self->deformat( $color, $suffix);
     $values = $self->round( $values, $precision) if defined $precision;
     $values = $self->normalize( $values, $range);
-    $values = $self->convert( $values, 'RGB');
     return (not ref $values) ? $values :
                    wantarray ? ($values, $format_name) : $values;
 }
 
-sub write { # normalized @RGB --> formatted color in local space
+sub write { # normalized values --> formatted color
     my ($self, $values, $format_name, $range, $precision, $suffix) = @_;
-    $values = $self->deconvert( $values, 'RGB');
     $values = $self->denormalize( $values, $range);
     $values = $self->round( $values, $precision);
     $self->format( $values, $format_name, $suffix);

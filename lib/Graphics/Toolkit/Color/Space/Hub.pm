@@ -1,5 +1,5 @@
 
-# check, convert and measure color values
+# store all clolor space objects, to convert check, convert and measure color values
 
 package Graphics::Toolkit::Color::Space::Hub;
 use v5.12;
@@ -7,7 +7,7 @@ use warnings;
 use Carp;
 our $base_package = 'RGB';
 my @space_packages = ( $base_package,
-                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # CubeHelix OKLAB
+                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
                        qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order
 my %space_obj    =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
 my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
@@ -53,7 +53,7 @@ sub _check_values_and_space {
 
 #### value API #########################################################
 
-sub read {
+sub read { # formatted color values --> tuple
     my ($color, $range, $precision, $suffix) = @_;
     for my $space_name (space_names()) {
         my $color_space = get_space( $space_name );
@@ -64,7 +64,7 @@ sub read {
     return undef;
 }
 
-sub write {
+sub write { # tuple --> formatted color values
     my ($color, $space_name, $format_name, $range, $precision, $suffix) = @_;
     my $color_space = get_space( $space_name );
     return unless ref $color_space;

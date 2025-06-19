@@ -4,8 +4,8 @@
 package Graphics::Toolkit::Color::Operation::Single;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Hub;
 use Carp;
+use Graphics::Toolkit::Color::Space::Store;
 
 sub new {
     my ($pkg, $color_val) = @_;

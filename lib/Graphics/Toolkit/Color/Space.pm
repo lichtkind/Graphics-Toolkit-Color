@@ -59,6 +59,7 @@ sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, 
 
 #### conversion ########################################################
 
+sub converter_names  { keys %{  $_[0]{'convert'} } }
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $normalize) = @_;
@@ -79,12 +80,12 @@ sub add_converter {
     $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, normalize => $normalize };
 }
 
-sub convert {
+sub convert { # convert value tuple from this space into another
     my ($self, $values, $space_name) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
     return [$self->{'convert'}{ uc $space_name }{'to'}->( $values )];
 }
-sub deconvert {
+sub deconvert { # convert value tuple from another space into this
     my ($self, $values, $space_name) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
     return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];

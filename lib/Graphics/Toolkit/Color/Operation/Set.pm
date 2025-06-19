@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Operation::Set;
 use v5.12;
 use warnings;
 use Carp;
-use Graphics::Toolkit::Color::Values;
+use Graphics::Toolkit::Color::Operation::Single;
 
 
 sub gradient { # $to ~in + steps +dynamic +variance --> @_
@@ -153,7 +153,7 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     return @result;
 }
 
-sub bowl {# +radius +distance|count +variance ~in @range
+sub ball {# +radius +distance|count +variance ~in @range
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';

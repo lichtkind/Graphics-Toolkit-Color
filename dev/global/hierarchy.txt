@@ -1,0 +1,40 @@
+
+
+Hierarchy
+---------
+
+
+    G::T::Color
+      - new
+      ------
+      - values
+      - name
+      - distance
+      ------
+      - set
+      - add
+      - blend
+      ------
+      - gradient
+      - complement
+      - ball (snake)
+    GTC::Operation::Single
+          - set
+          - add
+          - blend
+          - distance
+    GTC::Operation::Set
+          - gradient
+          - complement
+          - ball (snake)
+    GTC::Store
+          - values
+          - name
+    GTC::Space::Hub
+            - convert
+    GTC::Space
+            - clamp
+            - round
+            - normalize
+            - delta
+            - format

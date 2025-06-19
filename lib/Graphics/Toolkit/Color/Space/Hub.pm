@@ -5,17 +5,21 @@ package Graphics::Toolkit::Color::Space::Hub;
 use v5.12;
 use warnings;
 use Carp;
+
+#### internal API ######################################################
+
 our $base_package = 'RGB';
 my @space_packages = ( $base_package,
                        qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
                        qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order
-my %space_obj    =  map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
-my %space_lookup = map { $_->name => $_ } values %space_obj;                                         # full color space names
-my @space_names  = map { $space_obj{$_}->name } @space_packages;                                      # names in search oder
+my %space_obj    = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
+my @space_names  = map { $space_obj{$_}->name } @space_packages;                                       # names in search oder
+my %space_lookup = map { $_->name => $_, $_->alias => $_  } values %space_obj;                        # full color space names
+delete $space_lookup{''};
 
+sub base_space { $space_lookup{ $base_package } }
 sub get_space { $space_lookup{ uc $_[0] } if exists $space_lookup{ uc $_[0] } }
 sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
-sub base_space { $space_lookup{ $base_package } }
 sub space_names { @space_names }
 
 #### space API #########################################################
@@ -42,8 +46,8 @@ sub check_space_name {
     my $error = "called with unknown color space name '$_[0]', please try one of: " . join (', ', @space_packages);
     is_space( $_[0] ) ? 0 : carp $error;
 }
-sub _check_values_and_space {
-    my ($sub_name, $values, $space_name) = @_;
+sub check_space_and_values {
+    my ($space_name, $values, $sub_name) = @_;
     $space_name //= $base_package;
     check_space_name( $space_name ) and return;
     my $space = get_space($space_name);
@@ -95,7 +99,7 @@ sub deformat { # convert from any format into list of values of any space
 sub format { # @tuple --> % | % |~ ...
     my ($values, $space_name, $format_name) = @_;
 
-    my $space = _check_values_and_space( 'format', $values, $space_name );
+    my $space = check_space_and_values(  $space_name, $values, 'format' );
     return unless ref $space;
     my @values = $space->format( $values, $format_name // 'list' );
     return @values, carp "got unknown format name: '$format_name'" unless defined $values[0];
@@ -104,7 +108,7 @@ sub format { # @tuple --> % | % |~ ...
 
 sub denormalize { # result clamped, alway in space
     my ($values, $space_name, $range) = @_;
-    my $space = _check_values_and_space( 'denormalize', $values, $space_name );
+    my $space = check_space_and_values( $space_name, $values,'denormalize' );
     return unless ref $space;
     $values = $space->clamp($values, 'normal');
     $space->denormalize( $values, $range);
@@ -112,7 +116,7 @@ sub denormalize { # result clamped, alway in space
 
 sub normalize {
     my ($values, $space_name, $range) = @_;
-    my $space = _check_values_and_space( 'normalize', $values, $space_name );
+    my $space = check_space_and_values( $space_name, $values, 'normalize' );
     return unless ref $space;
     $values = $space->clamp($values, $range);
     return $values unless ref $values;
@@ -121,7 +125,7 @@ sub normalize {
 
 sub deconvert { # @... --> @RGB (base color space) # normalized values only
     my ($values, $space_name) = @_;
-    my $space = _check_values_and_space( 'deconvert', $values, $space_name );
+    my $space = check_space_and_values( $space_name, $values, 'deconvert');
     return unless ref $space;
     $values = $space->clamp( $values, 'normal', -1);
     return $values if $space->name eq base_space->name;
@@ -130,7 +134,7 @@ sub deconvert { # @... --> @RGB (base color space) # normalized values only
 
 sub convert { # @RGB --> $@...|!~                     # normalized values only
     my ($values, $space_name) = @_;
-    my $space = _check_values_and_space( 'convert', $values, $space_name );
+    my $space = check_space_and_values( $space_name, $values, 'convert' );
     return $space unless ref $space;
     $values = base_space->clamp( $values, 'normal', -1);
     return $values if $space->name eq base_space->name;

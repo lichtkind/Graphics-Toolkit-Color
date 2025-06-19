@@ -8,19 +8,16 @@ use Carp;
 
 #### internal API ######################################################
 
-our $base_package = 'RGB';
-my @space_packages = ( $base_package,
+our $default_space_name = 'RGB';
+my %space_obj;
+add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for $default_space_name,
                        qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
-                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/); # search order
-my %space_obj    = map { $_ => require "Graphics/Toolkit/Color/Space/Instance/$_.pm" } @space_packages; # outer names
-my @space_names  = map { $space_obj{$_}->name } @space_packages;                                       # names in search oder
-my %space_lookup = map { $_->name => $_, $_->alias => $_  } values %space_obj;                        # full color space names
-delete $space_lookup{''};
+                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/; # search order
 
-sub base_space { $space_lookup{ $base_package } }
-sub get_space { $space_lookup{ uc $_[0] } if exists $space_lookup{ uc $_[0] } }
-sub is_space  { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
-sub space_names { @space_names }
+sub default_space { $space_obj{ $default_space_name } }
+sub get_space  { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
+sub is_space   { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
+sub space_names{ sort keys %space_obj }
 
 #### space API #########################################################
 
@@ -29,26 +26,32 @@ sub add_space {
     return 'got no Graphics::Toolkit::Color::Space object' unless ref $space eq 'Graphics::Toolkit::Color::Space';
     my $name = $space->name;
     return "space objct has no name" unless $name;
-    return "name $name is already taken as color space name" if ref get_space( $name );
-    $space_lookup{ $name } = $space;
-    $space_lookup{ $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
+    return "color space name $name is already taken" if ref get_space( $name );
+    for my $converter_target ($space->converter_names){
+        return "space object $name does convert into $converter_target, which is no known color space"
+            unless is_space( $converter_target );
+    }
+    $space_obj{ $name } = $space;
+    $space_obj{ $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
 }
 
 sub remove_space {
     my $name = shift;
     return "got no name as argument" unless defined $name and $name;
-    return "no known color space with name $name" unless ref get_space( $name );
-    delete $space_lookup{ $name };
+    my $space = get_space( $name );
+    return "no known color space with name $name" unless ref $space;
+    delete $space_obj{ $space->name };
+    delete $space_obj{ $space->alias } if $space->alias;
 }
 
 sub check_space_name {
     return unless defined $_[0];
-    my $error = "called with unknown color space name '$_[0]', please try one of: " . join (', ', @space_packages);
+    my $error = "called with unknown color space name '$_[0]', please try one of: " . join (', ', space_names());
     is_space( $_[0] ) ? 0 : carp $error;
 }
 sub check_space_and_values {
     my ($space_name, $values, $sub_name) = @_;
-    $space_name //= $base_package;
+    $space_name //= $default_space_name;
     check_space_name( $space_name ) and return;
     my $space = get_space($space_name);
     $space->is_value_tuple( $values ) ? $space
@@ -56,6 +59,44 @@ sub check_space_and_values {
 }
 
 #### value API #########################################################
+
+
+sub convert {
+    my ($values, $from_space, $to_space, $want_normalized) = @_;
+    my $origin_space = get_space( $from_space );
+    return "$from_space is an unknown color space, try: ".(join ', ', space_names()) unless ref $origin_space;
+    my $target_space = get_space( $to_space // $default_space_name );
+    return "$to_space is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
+    return 'need an ARRAY ref with '.$origin_space->axis." $from_space values as first argument of convert"
+        unless $origin_space->is_value_tuple( $values );
+    $values = $origin_space->clamp( $values );
+    #$values = $origin_space->normalize( $values );
+    my $is_normal = 0;
+    my $current_space = $origin_space;
+    while (uc $current_space->name ne $default_space_name ){
+        my ($next_space_name, @next_options) = $current_space->converter_names;
+        $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
+        $values = $current_space->convert( $values, $next_space_name);
+        $current_space = get_space( $next_space_name );
+    }
+    if ($target_space->name ne $default_space_name){
+        my @convertchain = ($target_space->name);
+        $current_space = $target_space->name;
+        while ($current_space->name ne $default_space_name ){
+            my ($next_space_name, @next_options) = $current_space->converter_names;
+            $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
+            push @convertchain, $next_space_name if $next_space_name ne $default_space_name;
+            $current_space = get_space( $next_space_name );
+        }
+        for my $next_space_name (@convertchain){
+            $values = $current_space->deconvert( $values, $next_space_name);
+            $current_space = get_space( $next_space_name );
+        }
+    }
+    $values = $target_space->normalize( $values ) if not $is_normal and defined $want_normalized and $want_normalized;
+    $values = $target_space->denormalize( $values ) if $is_normal and (not defined $want_normalized or not $want_normalized);
+    return $values;
+}
 
 sub read { # formatted color values --> tuple
     my ($color, $range, $precision, $suffix) = @_;
@@ -106,40 +147,23 @@ sub format { # @tuple --> % | % |~ ...
     return @values == 1 ? $values[0] : @values;
 }
 
-sub denormalize { # result clamped, alway in space
-    my ($values, $space_name, $range) = @_;
-    my $space = check_space_and_values( $space_name, $values,'denormalize' );
-    return unless ref $space;
-    $values = $space->clamp($values, 'normal');
-    $space->denormalize( $values, $range);
-}
+#~ sub denormalize { # result clamped, alway in space
+    #~ my ($values, $space_name, $range) = @_;
+    #~ my $space = check_space_and_values( $space_name, $values,'denormalize' );
+    #~ return unless ref $space;
+    #~ $values = $space->clamp($values, 'normal');
+    #~ $space->denormalize( $values, $range);
+#~ }
 
-sub normalize {
-    my ($values, $space_name, $range) = @_;
-    my $space = check_space_and_values( $space_name, $values, 'normalize' );
-    return unless ref $space;
-    $values = $space->clamp($values, $range);
-    return $values unless ref $values;
-    $space->normalize( $values, $range);
-}
+#~ sub normalize {
+    #~ my ($values, $space_name, $range) = @_;
+    #~ my $space = check_space_and_values( $space_name, $values, 'normalize' );
+    #~ return unless ref $space;
+    #~ $values = $space->clamp($values, $range);
+    #~ return $values unless ref $values;
+    #~ $space->normalize( $values, $range);
+#~ }
 
-sub deconvert { # @... --> @RGB (base color space) # normalized values only
-    my ($values, $space_name) = @_;
-    my $space = check_space_and_values( $space_name, $values, 'deconvert');
-    return unless ref $space;
-    $values = $space->clamp( $values, 'normal', -1);
-    return $values if $space->name eq base_space->name;
-    $space->convert( $values, $base_package);
-}
-
-sub convert { # @RGB --> $@...|!~                     # normalized values only
-    my ($values, $space_name) = @_;
-    my $space = check_space_and_values( $space_name, $values, 'convert' );
-    return $space unless ref $space;
-    $values = base_space->clamp( $values, 'normal', -1);
-    return $values if $space->name eq base_space->name;
-    $space->deconvert( $values, $base_package);
-}
 
 1;
 
@@ -160,7 +184,7 @@ information and algorithms.
 
     my $true = Graphics::Toolkit::Color::Space::Hub::is_space( 'HSL' );
     my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space( 'HSL');
-    my $RGB = Graphics::Toolkit::Color::Space::Hub::base_space();
+    my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
     Graphics::Toolkit::Color::Space::Hub::space_names();     # all space names
 
     $HSL->normalize([240,100, 0]);         # 2/3, 1, 0
@@ -445,7 +469,7 @@ If it is, the result is an 1, otherwise 0 (perlish pseudo boolean).
 Needs one argument, that supposed to be a color space name.
 If it is, the result is the according color space object, otherwise undef.
 
-=head2 base_space
+=head2 default_space
 
 Return the color space object of (currently) RGB name space.
 This name space is special since every color space object provides

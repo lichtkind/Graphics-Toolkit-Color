@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Name;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Values;
+use Graphics::Toolkit::Color::Space::Hub;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');

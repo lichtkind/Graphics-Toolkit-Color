@@ -32,6 +32,9 @@ Hierarchy
           - name
     GTC::Space::Hub
             - convert
+            - format
+            - deformat
+            - distance
     GTC::Space
             - clamp
             - round

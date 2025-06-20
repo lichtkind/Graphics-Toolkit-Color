@@ -27,7 +27,9 @@ sub add_space {
     my $name = $space->name;
     return "space objct has no name" unless $name;
     return "color space name $name is already taken" if ref get_space( $name );
-    for my $converter_target ($space->converter_names){
+    my @converter_target = $space->converter_names;
+    return "can not add clor space $name, it has no converter" unless @converter_target;
+    for my $converter_target (@converter_target){
         return "space object $name does convert into $converter_target, which is no known color space"
             unless is_space( $converter_target );
     }
@@ -60,41 +62,53 @@ sub check_space_and_values {
 
 #### value API #########################################################
 
-
-sub convert {
-    my ($values, $from_space, $to_space, $want_normalized) = @_;
-    my $origin_space = get_space( $from_space );
-    return "$from_space is an unknown color space, try: ".(join ', ', space_names()) unless ref $origin_space;
-    my $target_space = get_space( $to_space // $default_space_name );
-    return "$to_space is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
-    return 'need an ARRAY ref with '.$origin_space->axis." $from_space values as first argument of convert"
-        unless $origin_space->is_value_tuple( $values );
-    $values = $origin_space->clamp( $values );
-    #$values = $origin_space->normalize( $values );
-    my $is_normal = 0;
-    my $current_space = $origin_space;
+sub convert_to_default_form { # formatted color def --> normalized RGB values -- normalized original named value array
+    my ($color_def) = @_;
+    return 'got no dolor definition' unless defined $color_def;
+    my ($values, $original_space_name) = deformat( $color_def );
+    return 'could not deformat color definition: "$color_def"' unless ref $values;
+    my $color_space = get_space( $original_space_name );
+    $values = $color_space->normalize( $values );
+    $values = $color_space->clamp( $values, 'normal');
+    return $values if $original_space_name eq $default_space_name;
+    my $original_values = [ $original_space_name, @$values ];
+    my $current_space = $color_space;
+    my $value_is_normal = 1;
     while (uc $current_space->name ne $default_space_name ){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         $values = $current_space->convert( $values, $next_space_name);
         $current_space = get_space( $next_space_name );
     }
-    if ($target_space->name ne $default_space_name){
-        my @convertchain = ($target_space->name);
-        $current_space = $target_space->name;
-        while ($current_space->name ne $default_space_name ){
-            my ($next_space_name, @next_options) = $current_space->converter_names;
-            $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-            push @convertchain, $next_space_name if $next_space_name ne $default_space_name;
-            $current_space = get_space( $next_space_name );
-        }
-        for my $next_space_name (@convertchain){
-            $values = $current_space->deconvert( $values, $next_space_name);
-            $current_space = get_space( $next_space_name );
-        }
+    return $values, $original_values;
+}
+
+sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
+    my ($values, $space_name, $want_result_normalized, $source) = @_;
+    return "need a value ARRAY and a space name to convert to" unless defined $space_name;
+    my $target_space = get_space( $space_name );
+    return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
+    return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
+        unless ref $values eq 'ARRAY' and @$values == 3;
+    return $values if $space_name eq $default_space_name;
+    $want_result_normalized //= 0;
+    # $values = $origin_space->clamp( $values );
+    # $values = $origin_space->normalize( $values );
+    my $value_is_normal = 1;
+    my $current_space = $target_space;
+    my @convertchain = ($target_space->name);
+    while ($current_space->name ne $default_space_name ){
+        my ($next_space_name, @next_options) = $current_space->converter_names;
+        $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
+        push @convertchain, $next_space_name if $next_space_name ne $default_space_name;
+        $current_space = get_space( $next_space_name );
     }
-    $values = $target_space->normalize( $values ) if not $is_normal and defined $want_normalized and $want_normalized;
-    $values = $target_space->denormalize( $values ) if $is_normal and (not defined $want_normalized or not $want_normalized);
+    for my $next_space_name (@convertchain){
+        $values = $current_space->deconvert( $values, $next_space_name);
+        $current_space = get_space( $next_space_name );
+    }
+    $values = $target_space->normalize( $values ) if not $value_is_normal and $want_result_normalized;
+    $values = $target_space->denormalize( $values ) if $value_is_normal and not $want_result_normalized;
     return $values;
 }
 

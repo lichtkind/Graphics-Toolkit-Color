@@ -124,7 +124,7 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
     return $values;
 }
 
-sub clamp { # change value if its outside of range
+sub clamp { # change values if outside of range, angles get rotated in std range
     my ($self, $values, $range, $precision) = @_;
     $range = $self->_range( $range );
     return "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;

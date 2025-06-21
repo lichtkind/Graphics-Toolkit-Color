@@ -63,7 +63,7 @@ sub check_space_and_values {
 #### value API #########################################################
 
 sub convert_to_default_form { # formatted color def --> normalized RGB values -- normalized original named value array
-    my ($color_def) = @_;
+    my ($color_def, $ranges, $suffix) = @_;
     return 'got no dolor definition' unless defined $color_def;
     my ($values, $original_space_name) = deformat( $color_def );
     return 'could not deformat color definition: "$color_def"' unless ref $values;
@@ -84,26 +84,27 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
 }
 
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
-    my ($values, $space_name, $want_result_normalized, $source_values) = @_;
+    my ($values, $target_space_name, $want_result_normalized, $source_values) = @_;
     return "need a value ARRAY and a space name to convert to" unless defined $space_name;
-    my $target_space = get_space( $space_name );
-    return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
+    my $target_space = get_space( $target_space_name );
+    return "$target_space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
     return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
         unless ref $values eq 'ARRAY' and @$values == 3;
     return $values if $space_name eq $default_space_name;
     $want_result_normalized //= 0;
     # $values = $origin_space->clamp( $values );
     # $values = $origin_space->normalize( $values );
-    my $value_is_normal = 1;
     my $current_space = $target_space;
-    my @convertchain = ($target_space->name);
+    my @convert_chain = ($target_space->name);
     while ($current_space->name ne $default_space_name ){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-        push @convertchain, $next_space_name;
+        unshift @convert_chain, $next_space_name if $next_space_name ne $default_space_name;
         $current_space = get_space( $next_space_name );
     }
-    for my $next_space_name (@convertchain){
+    my $value_is_normal = 1;
+    $current_space = default_space();
+    for my $next_space_name (@convert_chain){
         if (ref $source_values eq 'ARRAY' and $source_values->[0] eq $current_space){
             $values = [@{$source_values}[1 .. $#$source_values]];
             $source_values = 0;

@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Operation::Set;
 use v5.12;
 use warnings;
 use Carp;
-use Graphics::Toolkit::Color::Operation::Single;
+use Graphics::Toolkit::Color::Values;
 
 
 sub gradient { # $to ~in + steps +dynamic +variance --> @_

@@ -1,10 +1,11 @@
 
 # value objects with cache of original values
 
-package Graphics::Toolkit::Color::Store;
+package Graphics::Toolkit::Color::Values;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Hub;
+use Graphics::Toolkit::Color::Name;
+
 
 sub new { #  values => %space_name => tuple ,   ~origin_space, ~color_name
     my ($pkg, $color_val) = @_;

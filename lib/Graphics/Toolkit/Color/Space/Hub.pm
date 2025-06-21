@@ -85,15 +85,13 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
 
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
     my ($values, $target_space_name, $want_result_normalized, $source_values) = @_;
-    return "need a value ARRAY and a space name to convert to" unless defined $space_name;
+    return "need a value ARRAY and a space name to convert to" unless defined $target_space_name;
     my $target_space = get_space( $target_space_name );
     return "$target_space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
     return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
         unless ref $values eq 'ARRAY' and @$values == 3;
-    return $values if $space_name eq $default_space_name;
+    return $values if $target_space_name eq $default_space_name; # nothing to convert
     $want_result_normalized //= 0;
-    # $values = $origin_space->clamp( $values );
-    # $values = $origin_space->normalize( $values );
     my $current_space = $target_space;
     my @convert_chain = ($target_space->name);
     while ($current_space->name ne $default_space_name ){
@@ -104,6 +102,8 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
     }
     my $value_is_normal = 1;
     $current_space = default_space();
+    # $values = $origin_space->clamp( $values );
+    # $values = $origin_space->normalize( $values );
     for my $next_space_name (@convert_chain){
         if (ref $source_values eq 'ARRAY' and $source_values->[0] eq $current_space){
             $values = [@{$source_values}[1 .. $#$source_values]];

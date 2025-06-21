@@ -5,11 +5,8 @@ package Graphics::Toolkit::Color;
 our $VERSION = '1.8';
 use v5.12;
 use warnings;
-
 use Carp;
-use Graphics::Toolkit::Color::Name;
-use Graphics::Toolkit::Color::Values;
-use Graphics::Toolkit::Color::Set;
+use Graphics::Toolkit::Color::Operation::Set;
 
 use Exporter 'import';
 our @EXPORT_OK = qw/color/;

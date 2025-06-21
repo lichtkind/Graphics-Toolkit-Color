@@ -36,7 +36,6 @@ sub add_space {
     $space_obj{ $name } = $space;
     $space_obj{ $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
 }
-
 sub remove_space {
     my $name = shift;
     return "got no name as argument" unless defined $name and $name;
@@ -44,20 +43,6 @@ sub remove_space {
     return "no known color space with name $name" unless ref $space;
     delete $space_obj{ $space->name };
     delete $space_obj{ $space->alias } if $space->alias;
-}
-
-sub check_space_name {
-    return unless defined $_[0];
-    my $error = "called with unknown color space name '$_[0]', please try one of: " . join (', ', space_names());
-    is_space( $_[0] ) ? 0 : carp $error;
-}
-sub check_space_and_values {
-    my ($space_name, $values, $sub_name) = @_;
-    $space_name //= $default_space_name;
-    check_space_name( $space_name ) and return;
-    my $space = get_space($space_name);
-    $space->is_value_tuple( $values ) ? $space
-                                : 'need an ARRAY ref with '.$space->axis." $space_name values as first argument of $sub_name";
 }
 
 #### value API #########################################################
@@ -77,6 +62,7 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
     while (uc $current_space->name ne $default_space_name ){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
+        my @normal_state = $current_space->converter_normal_states( 'to', $next_space_name );
         $values = $current_space->convert( $values, $next_space_name);
         $current_space = get_space( $next_space_name );
     }
@@ -110,6 +96,7 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
             $source_values = 0;
             $value_is_normal = 1;
         } else {
+            my @normal_state = $current_space->converter_normal_states( 'from', $next_space_name );
             $values = $current_space->deconvert( $values, $next_space_name);
         }
         $current_space = get_space( $next_space_name );
@@ -139,6 +126,41 @@ sub partial_hash_deformat { # convert partial hash into
     }
     return undef;
 }
+
+sub distance { # _c1 _c2 -- ~space ~select @range --> +
+    my ($self, $c2, $space_name, $select, $range) = @_;
+    return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
+    $space_name //= 'RGB';
+    Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
+    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    $select = $space->basis->shortcut_of_key($select) if $space->basis->is_key( $select );
+    my @values1 = $self->get( $space_name, 'list', 'normal' );
+    my @values2 = $c2->get( $space_name, 'list', 'normal' );
+    return unless defined $values1[0] and defined $values2[0];
+
+    my $delta = $space->delta( \@values1, \@values2 );
+    $delta = $space->denormalize_range( $delta, $range);
+    return unless ref $delta and @$delta == $space->dimensions;
+
+    # grep values for individual select / subspace distance
+    if (defined $select and $select){
+        my @components = split( '', $select );
+        my $pos = $space->basis->key_pos( $select );
+        @components = defined( $pos )
+                    ? ($pos)
+                    : (map  { $space->basis->shortcut_pos($_) }
+                       grep { defined $space->basis->shortcut_pos($_) } @components);
+        return - carp "called 'distance' for select $select that does not fit color space $space_name!" unless @components;
+        $delta = [ map { $delta->[$_] } @components ];
+    }
+
+    # Euclidean distance:
+    my $d = 0;
+    map {$d += ($_ * $_)} @$delta;
+    return sqrt $d;
+}
+
+
 
 1;
 

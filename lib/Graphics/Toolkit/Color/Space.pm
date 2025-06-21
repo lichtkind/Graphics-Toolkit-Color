@@ -60,35 +60,40 @@ sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, 
 #### conversion ########################################################
 
 sub converter_names  { keys %{  $_[0]{'convert'} } }
-sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
+sub can_convert_to   { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 sub add_converter {
-    my ($self, $space_name, $to_code, $from_code, $normalize) = @_;
+    my ($self, $space_name, $to_code, $from_code, $normal) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
-    return 0 if $self->can_convert( $space_name );
-    return 0 if defined $normalize and ref $normalize ne 'HASH';
-    $normalize = { from => 1, to => 1, } unless ref $normalize; # default is full normalisation
-    $normalize->{'from'} = {} if not exists $normalize->{'from'}
-                                 or (exists $normalize->{'from'} and not $normalize->{'from'});
-    $normalize->{'from'} = {in => 1, out => 1} if not ref $normalize->{'from'};
-    $normalize->{'from'}{'in'} = 0 unless exists $normalize->{'from'}{'in'};
-    $normalize->{'from'}{'out'} = 0 unless exists $normalize->{'from'}{'out'};
-    $normalize->{'to'} = {} if not exists $normalize->{'to'}
-                               or (exists $normalize->{'to'} and not $normalize->{'to'});
-    $normalize->{'to'} = {in => 1, out => 1} if not ref $normalize->{'to'};
-    $normalize->{'to'}{'in'} = 0 unless exists $normalize->{'to'}{'in'};
-    $normalize->{'to'}{'out'} = 0 unless exists $normalize->{'to'}{'out'};
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, normalize => $normalize };
+    return 0 if $self->can_convert_to( $space_name );
+    return 0 if defined $normal and ref $normal ne 'HASH';
+    $normal = { from => 1, to => 1, } unless ref $normal; # default is full normalisation
+    $normal->{'from'} = {} if not exists $normal->{'from'} or (exists $normal->{'from'} and not $normal->{'from'});
+    $normal->{'from'} = {in => 1, out => 1} if not ref $normal->{'from'};
+    $normal->{'from'}{'in'} = 0 unless exists $normal->{'from'}{'in'};
+    $normal->{'from'}{'out'} = 0 unless exists $normal->{'from'}{'out'};
+    $normal->{'to'} = {} if not exists $normal->{'to'} or (exists $normal->{'to'} and not $normal->{'to'});
+    $normal->{'to'} = {in => 1, out => 1} if not ref $normal->{'to'};
+    $normal->{'to'}{'in'} = 0 unless exists $normal->{'to'}{'in'};
+    $normal->{'to'}{'out'} = 0 unless exists $normal->{'to'}{'out'};
+    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, normal => $normal };
 }
 
 sub convert { # convert value tuple from this space into another
     my ($self, $values, $space_name) = @_;
-    return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
+    return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert_to( $space_name );
     return [$self->{'convert'}{ uc $space_name }{'to'}->( $values )];
 }
 sub deconvert { # convert value tuple from another space into this
     my ($self, $values, $space_name) = @_;
-    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
+    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert_to( $space_name );
     return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];
+}
+
+sub converter_normal_states {
+    my ($self, $direction, $space_name) = @_;
+    return unless $self->can_convert_to( $space_name )
+              and defined $direction and ($direction eq 'from' or $direction eq 'to');
+    return @{$self->{'convert'}{'normal'}{'from'}}{'in', 'out'};
 }
 
 #### full pipe IO ops ##################################################

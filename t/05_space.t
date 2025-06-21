@@ -186,12 +186,12 @@ is( $fval->[2],  3, 'third value correctly deformatted');
 is( $fval->[3],  4, 'fourth value correctly deformatted');
 
 my @converter = $space->converter_names;
-is( $space->can_convert('RGB'),   0, 'converter not yet inserted');
+is( $space->can_convert_to('RGB'),   0, 'converter not yet inserted');
 is( int @converter,               0, 'no converter names known');
 my $h = $space->add_converter('RGB', sub { $_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1},
                                      sub { $_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1} );
 is( ref $h, 'HASH', 'converter code accepted');
-is( $space->can_convert('RGB'),   1, 'converter inserted');
+is( $space->can_convert_to('RGB'),   1, 'converter inserted');
 @converter = $space->converter_names;
 is( int @converter,               1, 'one converter name is known');
 is( $converter[0],            'RGB', 'correct converter name is known');

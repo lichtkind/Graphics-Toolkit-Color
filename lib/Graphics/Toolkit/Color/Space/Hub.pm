@@ -57,19 +57,21 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
     $values = $color_space->normalize( $values );
     $values = $color_space->clamp( $values, 'normal');
     return $values if $original_space_name eq $default_space_name;
+
     my $original_values = [ $original_space_name, @$values ];
     my $current_space = $color_space;
-    my $value_is_normal = 1;
+    my $values_are_normal = 1;
     while (uc $current_space->name ne $default_space_name ){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
-        $values = $current_space->normalize( $values ) if not $value_is_normal and $normal_in_out[0];
-        $values = $current_space->denormalize( $values ) if $value_is_normal and not $normal_in_out[0];
+        $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
+        $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
         $values = $current_space->convert_to( $next_space_name, $values);
-        $value_is_normal = $normal_in_out[1];
+        $values_are_normal = $normal_in_out[1];
         $current_space = get_space( $next_space_name );
     }
+    $values = default_space()->normalize( $values ) unless $values_are_normal;
     return $values, $original_values;
 }
 
@@ -90,26 +92,24 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
         unshift @convert_chain, $next_space_name if $next_space_name ne $default_space_name;
         $current_space = get_space( $next_space_name );
     }
-    my $value_is_normal = 1;
+    my $values_are_normal = 1;
     $current_space = default_space();
-    # $values = $origin_space->clamp( $values );
-    # $values = $origin_space->normalize( $values );
     for my $next_space_name (@convert_chain){
         if (ref $source_values eq 'ARRAY' and $source_values->[0] eq $current_space){
             $values = [@{$source_values}[1 .. $#$source_values]];
             $source_values = 0;
-            $value_is_normal = 1;
+            $values_are_normal = 1;
         } else {
             my @normal_in_out = $current_space->converter_normal_states( 'from', $next_space_name );
-            $values = $current_space->normalize( $values ) if not $value_is_normal and $normal_in_out[0];
-            $values = $current_space->denormalize( $values ) if $value_is_normal and not $normal_in_out[0];
+            $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
+            $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
             $values = $current_space->convert_from( $next_space_name, $values);
-            $value_is_normal = $normal_in_out[1];
+            $values_are_normal = $normal_in_out[1];
         }
         $current_space = get_space( $next_space_name );
     }
-    $values = $target_space->normalize( $values ) if not $value_is_normal and $want_result_normalized;
-    $values = $target_space->denormalize( $values ) if $value_is_normal and not $want_result_normalized;
+    $values = $target_space->normalize( $values ) if not $values_are_normal and $want_result_normalized;
+    $values = $target_space->denormalize( $values ) if $values_are_normal and not $want_result_normalized;
     return $values;
 }
 

@@ -13,8 +13,8 @@ my $constants = require Graphics::Toolkit::Color::Name::Constant;
 our (@name_from_rgb, @name_from_hsl);       # search caches
 _add_color_to_reverse_search( $_, @{$constants->{$_}} ) for all();
 
-sub all   { sort keys %$constants }
-sub taken { exists  $constants->{ _clean_name($_[0]) } }
+sub all      { sort keys %$constants }
+sub is_taken { exists  $constants->{ _clean_name($_[0]) } }
 
 sub rgb_from_name {
     my $name = _clean_name(shift);

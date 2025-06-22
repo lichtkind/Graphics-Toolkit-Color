@@ -12,7 +12,7 @@ our $default_space_name = 'RGB';
 my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for $default_space_name,
                        qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
-                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/; # search order
+                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # search order
 
 sub default_space { $space_obj{ $default_space_name } }
 sub get_space  { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
@@ -23,26 +23,27 @@ sub space_names{ sort keys %space_obj }
 
 sub add_space {
     my $space = shift;
-    return 'got no Graphics::Toolkit::Color::Space object' unless ref $space eq 'Graphics::Toolkit::Color::Space';
+    return 'got no Graphics::Toolkit::Color::Space object' if ref $space ne 'Graphics::Toolkit::Color::Space';
     my $name = $space->name;
     return "space objct has no name" unless $name;
     return "color space name $name is already taken" if ref get_space( $name );
     my @converter_target = $space->converter_names;
-    return "can not add clor space $name, it has no converter" unless @converter_target;
-    for my $converter_target (@converter_target){
+    return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
+     for my $converter_target (@converter_target){
         return "space object $name does convert into $converter_target, which is no known color space"
             unless is_space( $converter_target );
     }
-    $space_obj{ $name } = $space;
-    $space_obj{ $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
+    $space_obj{ uc $name } = $space;
+    $space_obj{ uc $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
+    return 1;
 }
 sub remove_space {
     my $name = shift;
     return "got no name as argument" unless defined $name and $name;
     my $space = get_space( $name );
     return "no known color space with name $name" unless ref $space;
-    delete $space_obj{ $space->name };
-    delete $space_obj{ $space->alias } if $space->alias;
+    delete $space_obj{ uc $space->alias } if $space->alias;
+    delete $space_obj{ uc $space->name };
 }
 
 #### value API #########################################################

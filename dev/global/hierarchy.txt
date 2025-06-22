@@ -15,18 +15,20 @@ Hierarchy
       - add        (GTC::Values::add)
       - blend      (GTC::Values::blend)
       ------
-      - gradient   (GTC::Operation::Set::)
-      - complement (GTC::Operation::Set::)
-      - ball       (GTC::Operation::Set::)
+      - gradient   (GTC::Operation::Set::gradient)
+      - complement (GTC::Operation::Set::complement)
+      - ball       (GTC::Operation::Set::ball)
+      - snake?
       = ::Operation::Set
-          - gradient
-          - complement
-          - ball (+snake)
+          - gradient   (Values::blend)
+          - complement (Values::add)
+          - ball       (Values::add)
       = ::Values
           - new       (GTC::Space::Name::rgb_from_name | GTC::Space::Hub::convert_to_default_form)
           - name      (GTC::Space::Name::name_from_rgb)
           - tuple     (GTC::Space::Hub::convert)
           - formatted (GTC::Space::Hub::format)
+          ------
           - set       (GTC::Space::Hub::partial_hash_deformat)
           - add       (GTC::Space::Hub::partial_hash_deformat)
           - blend     (tuple, GTC::Space::clamp)

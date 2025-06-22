@@ -4,8 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::HSB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
-use Graphics::Toolkit::Color::Space;
+use Graphics::Toolkit::Color::Space ':all';
 
 my $hsb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation brightness/],
                                                    range => [360, 100, 100],

@@ -63,8 +63,11 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
     while (uc $current_space->name ne $default_space_name ){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-        my @normal_state = $current_space->converter_normal_states( 'to', $next_space_name );
+        my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
+        $values = $current_space->normalize( $values ) if not $value_is_normal and $normal_in_out[0];
+        $values = $current_space->denormalize( $values ) if $value_is_normal and not $normal_in_out[0];
         $values = $current_space->convert_to( $next_space_name, $values);
+        $value_is_normal = $normal_in_out[1];
         $current_space = get_space( $next_space_name );
     }
     return $values, $original_values;
@@ -97,8 +100,11 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
             $source_values = 0;
             $value_is_normal = 1;
         } else {
-            my @normal_state = $current_space->converter_normal_states( 'from', $next_space_name );
+            my @normal_in_out = $current_space->converter_normal_states( 'from', $next_space_name );
+            $values = $current_space->normalize( $values ) if not $value_is_normal and $normal_in_out[0];
+            $values = $current_space->denormalize( $values ) if $value_is_normal and not $normal_in_out[0];
             $values = $current_space->convert_from( $next_space_name, $values);
+            $value_is_normal = $normal_in_out[1];
         }
         $current_space = get_space( $next_space_name );
     }

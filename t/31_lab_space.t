@@ -45,14 +45,14 @@ is( $val->[2], -0.1,    'third value good');
 is( $space->format([0,1,0], 'css_string'), 'cielab(0, 1, 0)', 'can format css string');
 
 # black
-my $lab = $space->deconvert( [ 0, 0, 0], 'CIEXYZ');
+my $lab = $space->convert_from( 'CIEXYZ', [ 0, 0, 0]);
 is( ref $lab,                    'ARRAY',  'deconverted tuple of zeros (black) from CIEXYZ');
 is( int @$lab,                         3,  'right amount of values');
 is( close_enough( $lab->[0] , 0),      1,  'L* value good');
 is( close_enough( $lab->[1] , 0.5),    1,  'a* value good');
 is( close_enough( $lab->[2] , 0.5),    1,  'b* value good');
 
-my $xyz = $space->convert( [ 0, 0.5, 0.5], 'CIEXYZ');
+my $xyz = $space->convert_to( 'CIEXYZ', [ 0, 0.5, 0.5]);
 is( ref $xyz,                    'ARRAY',  'converted black to CIEXYZ');
 is( int @$xyz,                         3,  'got 3 values');
 is( close_enough( $xyz->[0] , 0),      1,  'X value good');
@@ -74,13 +74,13 @@ is( close_enough( $val->[1] , 0.5),    1,  'a* value good');
 is( close_enough( $val->[2] , 0.5),    1,  'b* value good');
 
 # white
-$lab = $space->deconvert( [ 1, 1, 1,], 'CIEXYZ');
+$lab = $space->convert_from( 'CIEXYZ', [ 1, 1, 1,]);
 is( int @$lab,                          3,  'deconverted white from CIEXYZ');
 is( close_enough( $lab->[0],   1),      1,  'L* value of white good');
 is( close_enough( $lab->[1],   0.5),    1,  'a* value of white good');
 is( close_enough( $lab->[2],   0.5),    1,  'b* value of white good');
 
-$xyz = $space->convert( [ 1, 0.5, 0.5], 'CIEXYZ');
+$xyz = $space->convert_to( 'CIEXYZ', [ 1, 0.5, 0.5]);
 is( int @$xyz,                         3,  'converted white to CIEXYZ');
 is( close_enough( $xyz->[0] , 1),      1,  'X value of white good');
 is( close_enough( $xyz->[1] , 1),      1,  'Y value of white good');
@@ -101,13 +101,13 @@ is( close_enough( $val->[1] , 0.5),    1,  'a* value good');
 is( close_enough( $val->[2] , 0.5),    1,  'b* value good');
 
 # nice blue
-$lab = $space->deconvert( [ 0.0872931606914908, 0.0537065470652866, 0.282231548430505], 'CIEXYZ');
+$lab = $space->convert_from( 'CIEXYZ', [ 0.0872931606914908, 0.0537065470652866, 0.282231548430505]);
 is( int @$lab,                          3,  'deconverted nice blue from CIEXYZ');
 is(  close_enough($lab->[0],   0.277656852),  1,    'L* value of nice blue good');
 is(  close_enough($lab->[1],   0.5331557592), 1,    'a* value of nice blue good');
 is(  close_enough($lab->[2],   0.3606718),    1,    'b* value of nice blue good');
 
-$xyz = $space->convert( [ .277656852, 0.5331557592, 0.3606718], 'CIEXYZ');
+$xyz = $space->convert_to( 'CIEXYZ', [ .277656852, 0.5331557592, 0.3606718]);
 is( int @$xyz,                         3,  'converted nice blue to CIEXYZ');
 is( close_enough( $xyz->[0],  0.08729316069), 1,   'X value of nice blue good');
 is( close_enough( $xyz->[1],  0.053706547),   1,   'Y value of nice blue good');
@@ -126,13 +126,13 @@ is( close_enough( $val->[1] , 0.5331557592),   1,  'a* value good');
 is( close_enough( $val->[2] , 0.3606718),      1,  'b* value good');
 
 # pink
-$lab = $space->deconvert( [0.487032731, 0.25180, 0.208186769 ], 'CIEXYZ');
+$lab = $space->convert_from( 'CIEXYZ', [0.487032731, 0.25180, 0.208186769 ]);
 is( int @$lab,                          3,  'deconverted pink from CIEXYZ');
 is(  close_enough($lab->[0],   0.57250),    1,    'L* value of pink good');
 is(  close_enough($lab->[1],   0.577658),   1,    'a* value of pink good');
 is(  close_enough($lab->[2],   0.5193925),  1,    'b* value of pink good');
 
-$xyz = $space->convert( [ .57250, 0.577658, 0.5193925], 'CIEXYZ');
+$xyz = $space->convert_to( 'CIEXYZ', [ .57250, 0.577658, 0.5193925]);
 is( int @$xyz,                         3,  'converted nice blue to CIEXYZ');
 is( close_enough( $xyz->[0],  0.487032731), 1,   'X value of pink good');
 is( close_enough( $xyz->[1],  0.25180),     1,   'Y value of pink good');

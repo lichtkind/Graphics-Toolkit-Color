@@ -45,37 +45,37 @@ is( $hsv->[0], 359,     'rotated up (H) value and removed decimals');
 is( $hsv->[1],   0,     'clamped up too small (S) value');
 is( $hsv->[2], 100,     'clamped down too large (V) value');;
 
-$hsv = $def->deconvert( [0.5, 0.5, 0.5], 'RGB');
+$hsv = $def->convert_from( 'RGB', [0.5, 0.5, 0.5]);
 is( int @$hsv,   3,     'converted color grey has three hsv values');
 is( $hsv->[0],   0,     'converted color grey has computed right hue value');
 is( $hsv->[1],   0,     'converted color grey has computed right saturation');
 is( $hsv->[2],  0.5,     'converted color grey has computed right value');
 
-my $rgb = $def->convert( [0, 0, 0.5], 'RGB');
+my $rgb = $def->convert_to( 'RGB', [0, 0, 0.5]);
 is( int @$rgb,  3,     'converted back color grey has three rgb values');
 is( $rgb->[0], 0.5,     'converted back color grey has right red value');
 is( $rgb->[1], 0.5,     'converted back color grey has right green value');
 is( $rgb->[2], 0.5,     'converted back color grey has right blue value');
 
-$rgb = $def->convert( [0.972222222, 0.9, 0.78], 'RGB');
+$rgb = $def->convert_to( 'RGB', [0.972222222, 0.9, 0.78]);
 is( int @$rgb,  3,     'converted red color into tripled');
 is( $rgb->[0], 0.78,    'right red value');
 is( $rgb->[1], 0.078,   'right green value');
 is( close_enough($rgb->[2], 0.196), 1,    'right blue value');
 
-$hsv = $def->deconvert( [0.78, 0.078, 0.196078431], 'RGB');
+$hsv = $def->convert_from( 'RGB', [0.78, 0.078, 0.196078431]);
 is( int @$hsv,  3,      'converted nice blue has three hsv values');
 is( close_enough($hsv->[0], 0.97222), 1, 'converted nice blue has computed right hue value');
 is( $hsv->[1],  .9,      'converted nice blue has computed right saturation');
 is( $hsv->[2],  .78,     'converted nice blue has computed right value');
 
-$rgb = $def->convert( [0.76666, .83, .24], 'RGB');
+$rgb = $def->convert_to( 'RGB', [0.76666, .83, .24]);
 is( int @$rgb,  3,     'converted red color into tripled');
 is( close_enough($rgb->[0], 0.156862), 1,   'right red value');
 is( close_enough($rgb->[1], 0.03921),  1,   'right green value');
 is( close_enough($rgb->[2], 0.2352),   1,   'right blue value');
 
-$hsv = $def->deconvert( [40/255, 10/255, 60/255], 'RGB');
+$hsv = $def->convert_from( 'RGB', [40/255, 10/255, 60/255]);
 is( int @$hsv,                         3, 'converted nice blue has three hsv values');
 is( close_enough($hsv->[0], 0.766666), 1, 'converted nice blue has computed right hue value');
 is( close_enough($hsv->[1],  .83),     1, 'converted nice blue has computed right saturation');

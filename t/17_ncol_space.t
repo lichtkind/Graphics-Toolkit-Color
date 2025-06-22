@@ -75,31 +75,31 @@ is( $val->[0],                     1, 'first value kept');
 is( $val->[1],                    23, 'second value rounded up');
 is( $val->[2],                    11, 'third value rounded down');
 
-my $hwb = $space->deconvert( [ .5, .5, .5], 'RGB');
+my $hwb = $space->convert_from( 'RGB', [ .5, .5, .5]);
 is( int @$hwb,   3,     'converted color grey has three hwb values');
 is( $hwb->[0],   0,     'converted color grey has computed right hue value');
 is( $hwb->[1],  .5,     'converted color grey has computed right whiteness');
 is( $hwb->[2],  .5,     'converted color grey has computed right blackness');
 
-my $rgb = $space->convert( [0, 0.5, .5], 'RGB');
+my $rgb = $space->convert_to( 'RGB', [0, 0.5, .5]);
 is( int @$rgb,     3,   'converted back color grey has three rgb values');
 is( $rgb->[0],   0.5,   'converted back color grey has right red value');
 is( $rgb->[1],   0.5,   'converted back color grey has right green value');
 is( $rgb->[2],   0.5,   'converted back color grey has right blue value');
 
-$hwb = $space->deconvert( [210/255, 20/255, 70/255], 'RGB');
+$hwb = $space->convert_from( 'RGB', [210/255, 20/255, 70/255]);
 is( int @$hwb,                          3,     'converted nice magents has three hwb values');
 is( close_enough( $hwb->[0], 0.95555),  1,  'converted nice magenta has computed right hue value');
 is( close_enough( $hwb->[1], 0.08,   ), 1,  'converted nice magenta has computed right whiteness');
 is( close_enough( $hwb->[2], 0.18,   ), 1,  'converted nice magenta has computed right blackness');
 
-$rgb = $space->convert( [0.95555, 0.08, 0.18], 'RGB');
+$rgb = $space->convert_to( 'RGB', [0.95555, 0.08, 0.18]);
 is( int @$rgb,                         3,   'converted back nice magenta');
 is( close_enough( $rgb->[0], 210/255), 1,   'right red value');
 is( close_enough( $rgb->[1], 20/255) , 1,   'right green value');
 is( close_enough( $rgb->[2], 70/255) , 1,   'right blue value');
 
-$rgb = $space->convert( [0.83333, 0, 1], 'RGB'); # should become black despite color value
+$rgb = $space->convert_to( 'RGB', [0.83333, 0, 1]); # should become black despite color value
 is( int @$rgb,   3,    'converted black');
 is( $rgb->[0],   0,    'right red value');
 is( $rgb->[1],   0,    'right green value');

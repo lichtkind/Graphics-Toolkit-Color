@@ -31,9 +31,9 @@ is( $space->is_partial_hash({c => 1, h => 0}), 1,  'found hash with some axis na
 is( $space->is_partial_hash({l => 1, c => 0, h => 0}), 1, 'found hash with all short axis names');
 is( $space->is_partial_hash({luminance => 1, chroma => 0, hue => 0}), 1, 'found hash with all long axis names');
 is( $space->is_partial_hash({c => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
-is( $space->can_convert('CIELAB'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('CieLab'), 1,                 'namespace can be written lower case');
-is( $space->can_convert('CIELCHab'), 0,               'can not convert to itself');
+is( $space->can_convert( 'CIELAB'), 1,                 'do only convert from and to rgb');
+is( $space->can_convert( 'CieLab'), 1,                 'namespace can be written lower case');
+is( $space->can_convert( 'CIELCHab'), 0,               'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cielchab(0, 0, 0)', 'can format css string');
 
 my $val = $space->deformat(['CIELCHab', 0, -1, -0.1]);
@@ -60,14 +60,14 @@ is( close_enough( $val->[0] , 0),      1,  'L value is good');
 is( close_enough( $val->[1] , 0),      1,  'C value is good');
 is( close_enough( $val->[2] , 0),      1,  'H value is good');
 
-my $lch = $space->deconvert( [ 0, 0.5, 0.5], 'CIELAB');
+my $lch = $space->convert_from( 'CIELAB',  [ 0, 0.5, 0.5]);
 is( ref $lch,                    'ARRAY',  'deconverted black from CIELAB');
 is( int @$lch,                         3,  'right amount of values');
 is( close_enough( $lch->[0] , 0),      1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-my $lab = $space->convert( [ 0, 0, 0 ], 'CIELAB');
+my $lab = $space->convert_to( 'CIELAB',  [ 0, 0, 0 ]);
 is( ref $lab,                    'ARRAY',  'converted black to CIELAB');
 is( int @$lab,                             3,  'right amount of values');
 is( close_enough( $lab->[0] , 0),          1,  'L* value is good');
@@ -87,13 +87,13 @@ is( close_enough( $val->[0] , 1),     1,  'L value is good');
 is( close_enough( $val->[1] , 0),     1,  'C value is good');
 is( close_enough( $val->[2] , 0),     1,  'H value is good');
 
-$lch = $space->deconvert( [ 1, .5, .5], 'CIELAB');
+$lch = $space->convert_from( 'CIELAB',  [ 1, .5, .5]);
 is( int @$lch,                         3,  'deconverted white from CIELAB');
 is( close_enough( $lch->[0] , 1),      1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-$lab = $space->convert( [ 1, 0, 0 ], 'CIELAB');
+$lab = $space->convert_to( 'CIELAB',  [ 1, 0, 0 ]);
 is( int @$lab,                     3,  'converted white to CIELAB');
 is( close_enough( $lab->[0] , 1),  1,  'L value is good');
 is( close_enough( $lab->[1] , .5), 1,  'u value is good');
@@ -112,13 +112,13 @@ is( close_enough( $val->[0] , .53389),      1,  'L value good');
 is( close_enough( $val->[1] , 0),           1,  'C value good');
 is( close_enough( $val->[2] , 0.686386111), 1,  'H value good');
 
-$lch = $space->deconvert( [ .53389, .5, .5], 'CIELAB');
+$lch = $space->convert_from( 'CIELAB',  [ .53389, .5, .5]);
 is( int @$lch,                         3,  'deconverted gray from CIELAB');
 is( close_enough( $lch->[0] , .53389), 1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-$lab = $space->convert( [ .53389, 0, 0.686386111 ], 'CIELAB');
+$lab = $space->convert_to( 'CIELAB',  [ .53389, 0, 0.686386111 ]);
 is( int @$lab,                         3,  'converted gray to CIELAB');
 is( close_enough( $lab->[0] , .53389),      1,  'L value is good');
 is( close_enough( $lab->[1] , .5),  1,  'u value is good');
@@ -137,13 +137,13 @@ is( close_enough( $val->[0] , .53389),      1,  'L value good');
 is( close_enough( $val->[1] , 0.193974026),      1,  'C value good');
 is( close_enough( $val->[2] , 0.111108333),    1,  'H value good');
 
-$lch = $space->deconvert( [ .53389, .580092, .6680075], 'CIELAB');
+$lch = $space->convert_from( 'CIELAB',  [ .53389, .580092, .6680075]);
 is( int @$lch,                         3,  'deconverted red from CIELAB');
 is( close_enough( $lch->[0] , .53389), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.193974026),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.111108333),      1,  'H value good');
 
-$lab = $space->convert( [ .53389, 0.193974026, .111108333 ], 'CIELAB');
+$lab = $space->convert_to( 'CIELAB',  [ .53389, 0.193974026, .111108333 ]);
 is( int @$lab,                         3,  'converted red to CIELAB');
 is( close_enough( $lab->[0] , .53389),      1,  'L value good');
 is( close_enough( $lab->[1] , .580092),  1,  'u value good');
@@ -162,13 +162,13 @@ is( close_enough( $val->[0] , .32297),      1,  'L value good');
 is( close_enough( $val->[1] , 0.248252319),      1,  'C value good');
 is( close_enough( $val->[2] , 0.850791667),    1,  'H value good');
 
-$lch = $space->deconvert( [ .32297, .579188, .23035], 'CIELAB');
+$lch = $space->convert_from( 'CIELAB',  [ .32297, .579188, .23035]);
 is( int @$lch,                         3,  'deconverted blue from CIELAB');
 is( close_enough( $lch->[0] , .32297), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.248252319),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.850791667),      1,  'H value good');
 
-$lab = $space->convert( [ .32297, 0.248252319, .850791667 ], 'CIELAB');
+$lab = $space->convert_to( 'CIELAB',  [ .32297, 0.248252319, .850791667 ]);
 is( int @$lab,                         3,  'converted blue to CIELAB');
 is( close_enough( $lab->[0] , .32297),      1,  'L value good');
 is( close_enough( $lab->[1] , .579188),  1,  'u value good');
@@ -187,13 +187,13 @@ is( close_enough( $val->[0] , .37478),      1,  'L value good');
 is( close_enough( $val->[1] , 0.220141002),      1,  'C value good');
 is( close_enough( $val->[2] , 0.842422222),    1,  'H value good');
 
-$lch = $space->deconvert( [ .37478, .565097, .2519875], 'CIELAB');
+$lch = $space->convert_from( 'CIELAB',  [ .37478, .565097, .2519875]);
 is( int @$lch,                         3,  'deconverted nice blue from CIELAB');
 is( close_enough( $lch->[0] , .37478), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.220141002),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.842422222),      1,  'H value good');
 
-$lab = $space->convert( [ .37478, 0.220141002, .842422222 ], 'CIELAB');
+$lab = $space->convert_to( 'CIELAB',  [ .37478, 0.220141002, .842422222 ]);
 is( int @$lab,                         3,  'converted nice blue to CIELAB');
 is( close_enough( $lab->[0] , .37478),      1,  'L value good');
 is( close_enough( $lab->[1] , .565097),     1,  'u value good');

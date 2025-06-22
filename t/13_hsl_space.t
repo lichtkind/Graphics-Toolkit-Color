@@ -49,25 +49,25 @@ is( $hsl->[1],     0,     'clamped up (S) value');
 is( $hsl->[2],   100,    'clamped down(L) value');;
 
 
-$hsl = $def->deconvert( [0.5, 0.5, 0.5], 'RGB');
+$hsl = $def->convert_from( 'RGB', [0.5, 0.5, 0.5]);
 is( int @$hsl,   3,     'converted color grey has three hsl values');
 is( $hsl->[0],   0,     'converted color grey has computed right hue value');
 is( $hsl->[1],   0,     'converted color grey has computed right saturation');
 is( $hsl->[2],  0.5,    'converted color grey has computed right lightness');
 
-my $rgb = $def->convert( [0, 0, 0.5], 'RGB');
+my $rgb = $def->convert_to( 'RGB', [0, 0, 0.5]);
 is( int @$rgb,   3,     'converted back color grey has three rgb values');
 is( $rgb->[0], 0.5,     'converted back color grey has right red value');
 is( $rgb->[1], 0.5,     'converted back color grey has right green value');
 is( $rgb->[2], 0.5,     'converted back color grey has right blue value');
 
-$hsl = $def->deconvert( [0.00784, 0.7843, 0.0902], 'RGB');
+$hsl = $def->convert_from( 'RGB', [0.00784, 0.7843, 0.0902]);
 is( int @$hsl,  3,     'converted blue color has three hsl values');
 is( close_enough($hsl->[0], 0.35097493), 1, 'converted color blue has computed right hue value');
 is( close_enough($hsl->[1], 0.98),       1, 'converted color blue has computed right saturation');
 is( close_enough($hsl->[2], 0.4),        1, 'converted color blue has computed right lightness');
 
-$rgb = $def->convert( [0.351011, 0.980205, 0.39607], 'RGB');
+$rgb = $def->convert_to( 'RGB', [0.351011, 0.980205, 0.39607]);
 is( int @$rgb,  3,     'converted back color grey has three rgb values');
 is( close_enough($rgb->[0], 0.00784), 1,  'converted back color grey has right red value');
 is( close_enough($rgb->[1], 0.7843),  1,  'converted back color grey has right green value');

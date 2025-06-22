@@ -42,66 +42,66 @@ is( $val->[2], -0.1,  'third value good');
 is( $space->format([0,1,0], 'css_string'), 'ciexyz(0, 1, 0)', 'can format css string');
 
 
-my $xyz = $space->deconvert( [ 0, 0, 0], 'RGB');
+my $xyz = $space->convert_from( 'RGB', [ 0, 0, 0]);
 is( int @$xyz,  3,  'converted color black has three XYZ values');
 is( $xyz->[0],   0,  'converted color black has computed right X value');
 is( $xyz->[1],   0,  'converted color black has computed right Y value');
 is( $xyz->[2],   0,  'converted color black has computed right Z value');
 
-my $rgb = $space->convert( [0, 0, 0], 'RGB');
+my $rgb = $space->convert_to( 'RGB', [0, 0, 0]);
 is( int @$rgb,                  3,    'converted back black with 3 values');
 is( close_enough($rgb->[0],  0), 1,   'conversion of black has right red value');
 is( close_enough($rgb->[1],  0), 1,   'conversion of black has right green value');
 is( close_enough($rgb->[2],  0), 1,   'conversion of black has right blue value');
 
 
-$xyz = $space->deconvert( [ 0.5, 0.5, 0.5], 'RGB');
+$xyz = $space->convert_from( 'RGB', [ 0.5, 0.5, 0.5]);
 is( ref $xyz,                     'ARRAY',  'converted color grey has three XYZ values');
 is( int @$xyz,                          3,  'got three values');
 is( close_enough($xyz->[0], 0.21404),   1,  'converted color grey has computed right X value');
 is( close_enough($xyz->[1], 0.21404),   1,  'converted color grey has computed right Y value');
 is( close_enough($xyz->[2], 0.21404),  1,  'converted color grey has computed right Z value');
 
-$rgb = $space->convert( [0.21404, 0.21404, 0.214037], 'RGB');
+$rgb = $space->convert_to( 'RGB', [0.21404, 0.21404, 0.214037]);
 is( int @$rgb,                     3,   'converted back gray with 3 values');
 is( close_enough($rgb->[0],  0.5), 1,   'right red value');
 is( close_enough($rgb->[1],  0.5), 1,   'right green value');
 is( close_enough($rgb->[2],  0.5), 1,   'right blue value');
 
 
-$xyz = $space->deconvert( [ 1, 1, 1], 'RGB');
+$xyz = $space->convert_from( 'RGB', [ 1, 1, 1]);
 is( int @$xyz,                          3,  'converted color white has three XYZ values');
 is( close_enough($xyz->[0],       1),   1,  'converted color white has computed right X value');
 is( close_enough($xyz->[1],       1),   1,  'converted color white has computed right Y value');
 is( close_enough($xyz->[2],       1),   1,  'converted color white has computed right Z value');
 
-$rgb = $space->convert( [1, 1, 1], 'RGB');
+$rgb = $space->convert_to( 'RGB', [1, 1, 1]);
 is( int @$rgb,                    3,     'converted back gray with 3 values');
 is( close_enough($rgb->[0],  1), 1,   'right red value');
 is( close_enough($rgb->[1],  1), 1,   'right green value');
 is( close_enough($rgb->[2],  1), 1,   'right blue value');
 
 # pink
-$xyz = $space->deconvert( [ 1, 0, 0.5], 'RGB');
+$xyz = $space->convert_from( 'RGB', [ 1, 0, 0.5]);
 is( int @$xyz,                          3,  'converted color pink has three XYZ values');
 is( close_enough($xyz->[0], 0.474586),  1,  'converted color pink has computed right X value');
 is( close_enough($xyz->[1], 0.22821),   1,  'converted color pink has computed right Y value');
 is( close_enough($xyz->[2], 0.204568),  1,  'converted color pink has computed right Z value');
 
-$rgb = $space->convert( [0.474586, 0.22821, 0.204568], 'RGB');
+$rgb = $space->convert_to( 'RGB', [0.474586, 0.22821, 0.204568]);
 is( int @$rgb,                    3,     'converted back gray with 3 values');
 is( close_enough($rgb->[0],  1  ), 1,   'right red value');
 is( close_enough($rgb->[1],  0  ), 1,   'right green value');
 is( close_enough($rgb->[2],  0.5), 1,   'right blue value');
 
 # mid blue
-$xyz = $space->deconvert( [ .2, .2, .6], 'RGB');
+$xyz = $space->convert_from( 'RGB', [ .2, .2, .6]);
 is( int @$xyz,                           3,  'converted color mid blue has three XYZ values');
 is( close_enough($xyz->[0],  0.087293),  1,  'converted color mid blue has computed right X value');
 is( close_enough($xyz->[1],  0.05371),   1,  'converted color mid blue has computed right Y value');
 is( close_enough($xyz->[2],  0.2822315), 1,  'converted color mid blue has computed right Z value');
 
-$rgb = $space->convert( [0.0872931606914908, 0.0537065470652866, 0.282231548430505], 'RGB');
+$rgb = $space->convert_to( 'RGB', [0.0872931606914908, 0.0537065470652866, 0.282231548430505]);
 is( int @$rgb,                      3,   'converted back gray with 3 values');
 is( close_enough($rgb->[0],  .2  ), 1,   'right red value');
 is( close_enough($rgb->[1],  .2  ), 1,   'right green value');

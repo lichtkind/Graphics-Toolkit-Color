@@ -58,27 +58,27 @@ is( $cmyk->[2],   1,     'max yellow value is kept');
 is( $cmyk->[3],   1,     'too large key value is clamped down');
 
 
-$cmyk = $def->deconvert( [0.5, 0.5, 0.5], 'RGB');
+$cmyk = $def->convert_from( 'RGB', [0.5, 0.5, 0.5]);
 is( int @$cmyk,   4,     'converted grey has four cmyk values');
 is( $cmyk->[0],   0,     'converted grey has right cyan value');
 is( $cmyk->[1],   0,     'converted grey has right magenta value');
 is( $cmyk->[2],   0,     'converted grey has right yellow value');
 is( $cmyk->[3],   0.5,   'converted grey has right key value');
 
-my $rgb = $def->convert( [0, 0, 0, 0.5], 'RGB');
+my $rgb = $def->convert_to( 'RGB', [0, 0, 0, 0.5]);
 is( int @$rgb,   3,     'converted back grey has three rgb values');
 is( $rgb->[0], 0.5,     'converted back grey has right red value');
 is( $rgb->[1], 0.5,     'converted back grey has right green value');
 is( $rgb->[2], 0.5,     'converted back grey has right blue value');
 
-$cmyk = $def->deconvert( [0.3, 0.4, 0.5], 'RGB');
+$cmyk = $def->convert_from( 'RGB', [0.3, 0.4, 0.5]);
 is( int @$cmyk,     4,    'converted color has four cmyk values');
 is( $cmyk->[0],   0.4,    'converted color has right cyan value');
 is( $cmyk->[1],   0.2,    'converted color has right magenta value');
 is( $cmyk->[2],   0 ,     'converted color has right yellow value');
 is( $cmyk->[3],   0.5,    'converted color has right key value');
 
-$rgb = $def->convert( [0.4, 0.2, 0, 0.5], 'RGB');
+$rgb = $def->convert_to( 'RGB', [0.4, 0.2, 0, 0.5]);
 is( int @$rgb,     3,   'trimmed and converted back color black');
 is( $rgb->[0],   0.3,   'right red value');
 is( $rgb->[1],   0.4,   'right green value');

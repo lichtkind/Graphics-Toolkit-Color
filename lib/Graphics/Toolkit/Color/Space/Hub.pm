@@ -63,7 +63,7 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         my @normal_state = $current_space->converter_normal_states( 'to', $next_space_name );
-        $values = $current_space->convert( $values, $next_space_name);
+        $values = $current_space->convert_to( $next_space_name, $values);
         $current_space = get_space( $next_space_name );
     }
     return $values, $original_values;
@@ -97,7 +97,7 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
             $value_is_normal = 1;
         } else {
             my @normal_state = $current_space->converter_normal_states( 'from', $next_space_name );
-            $values = $current_space->deconvert( $values, $next_space_name);
+            $values = $current_space->convert_from( $next_space_name, $values);
         }
         $current_space = get_space( $next_space_name );
     }

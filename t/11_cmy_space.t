@@ -46,7 +46,7 @@ is( $cmy->[1],   1,     'clamped down (M) value to maximum');
 is( $cmy->[2],  0.5,    'passed (Y) value');
 
 
-$cmy = $def->deconvert( [0, 0.1, 1], 'RGB');
+$cmy = $def->convert_from( 'RGB', [0, 0.1, 1]);
 is( ref $cmy,   'ARRAY',  'converted RGB values tuple into CMY tuple');
 is( int @$cmy,   3,     'converted RGB values to CMY');
 is( $cmy->[0],   1,      'converted to maximal cyan value');
@@ -56,7 +56,7 @@ is( $cmy->[2],   0,      'converted to minimal yellow value');
 my ($rgb, $name) = $def->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
-$rgb = $def->convert( [1, 0.9, 0 ], 'RGB');
+$rgb = $def->convert_to( 'RGB', [1, 0.9, 0 ]);
 is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
 is( int @$rgb,   3,      'converted CMY to RGB triplets');
 is( $rgb->[0],   0,      'converted red value');

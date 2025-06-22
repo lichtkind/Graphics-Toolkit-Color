@@ -4,40 +4,57 @@ Hierarchy
 ---------
 
 
-    G::T::Color
-      - new
+    = G::T::Color    (public API)
+      - new        (GTC::Values::new)
       ------
-      - values
-      - name
-      - distance
+      - values     (GTC::Values::formatted)
+      - name       (GTC::Values::name)
+      - distance   (GTC::Values::distance)
       ------
-      - set
-      - add
-      - blend
+      - set        (GTC::Values::set)
+      - add        (GTC::Values::add)
+      - blend      (GTC::Values::blend)
       ------
-      - gradient
-      - complement
-      - ball (snake)
-    GTC::Operation::Single
-          - set
-          - add
-          - blend
-          - distance
-    GTC::Operation::Set
+      - gradient   (GTC::Operation::Set::)
+      - complement (GTC::Operation::Set::)
+      - ball       (GTC::Operation::Set::)
+      = ::Operation::Set
           - gradient
           - complement
-          - ball (snake)
-    GTC::Store
-          - values
-          - name
-    GTC::Space::Hub
-            - convert
-            - format
-            - deformat
-            - distance
-    GTC::Space
-            - clamp
-            - round
-            - normalize
-            - delta
-            - format
+          - ball (+snake)
+      = ::Values
+          - new       (GTC::Space::Name::rgb_from_name | GTC::Space::Hub::convert_to_default_form)
+          - name      (GTC::Space::Name::name_from_rgb)
+          - tuple     (GTC::Space::Hub::convert)
+          - formatted (GTC::Space::Hub::format)
+          - set       (GTC::Space::Hub::partial_hash_deformat)
+          - add       (GTC::Space::Hub::partial_hash_deformat)
+          - blend     (tuple, GTC::Space::clamp)
+          - distance  (GTC::Space::Hub::distance)
+      = ::Space::Name
+          - all
+          - is_taken
+          - rgb_from_name
+          - hsl_from_name
+          - name_from_rgb
+          - name_from_hsl
+          - names_in_hsl_range (GTC::Space::Hub::distance)
+          - add_rgb
+          - add_hsl
+      = ::Space::Hub
+          - convert_to_default_form (deformat)
+          - convert
+          - deformat
+          - partial_hash_deformat
+          - distance
+      = ::Space
+          - clamp
+          - round
+          - normalize
+          - delta
+          - format
+          = ::Space::Basis
+          = ::Space::Shape
+          = ::Space::Format
+          = ::Space::Util
+

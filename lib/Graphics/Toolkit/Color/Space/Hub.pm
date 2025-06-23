@@ -48,33 +48,6 @@ sub remove_space {
 
 #### value API #########################################################
 
-sub convert_to_default_form { # formatted color def --> normalized RGB values -- normalized original named value array
-    my ($color_def, $ranges, $suffix) = @_;
-    return 'got no dolor definition' unless defined $color_def;
-    my ($values, $original_space_name) = deformat( $color_def );
-    return 'could not deformat color definition: "$color_def"' unless ref $values;
-    my $color_space = get_space( $original_space_name );
-    $values = $color_space->normalize( $values );
-    $values = $color_space->clamp( $values, 'normal');
-    return $values if $original_space_name eq $default_space_name;
-
-    my $original_values = [ $original_space_name, @$values ];
-    my $current_space = $color_space;
-    my $values_are_normal = 1;
-    while (uc $current_space->name ne $default_space_name ){
-        my ($next_space_name, @next_options) = $current_space->converter_names;
-        $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-        my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
-        $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
-        $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
-        $values = $current_space->convert_to( $next_space_name, $values);
-        $values_are_normal = $normal_in_out[1];
-        $current_space = get_space( $next_space_name );
-    }
-    $values = default_space()->normalize( $values ) unless $values_are_normal;
-    return $values, $original_values;
-}
-
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
     my ($values, $target_space_name, $want_result_normalized, $source_values) = @_;
     return "need a value ARRAY and a space name to convert to" unless defined $target_space_name;
@@ -113,13 +86,40 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
     return $values;
 }
 
-sub deformat { # convert from any format into list of values of any space
-    my ($formated_values) = @_;
+sub convert_to_default_form { # formatted color def --> normalized RGB values -- normalized original named value array
+    my ($color_def, $ranges, $suffix) = @_;
+    return 'got no dolor definition' unless defined $color_def;
+    my ($values, $original_space_name, $original_space);
     for my $space_name (space_names()) {
         my $color_space = get_space( $space_name );
-        my @val = $color_space->deformat( $formated_values );
-        return \@val, $space_name if defined $val[0];
+        my ($val, $format_name) = $color_space->deformat( $color_def );
+        if (ref $val){
+            $values = $val;
+            $original_space_name = $space_name;
+            $original_space = $color_space;
+            last;
+        }
     }
+    return 'could not deformat color definition: "$color_def"' unless ref $original_space;
+    $values = $original_space->normalize( $values );
+    $values = $original_space->clamp( $values, 'normal');
+    return $values if $original_space_name eq $default_space_name;
+
+    my $original_values = [ $original_space_name, @$values ];
+    my $current_space = $original_space;
+    my $values_are_normal = 1;
+    while (uc $current_space->name ne $default_space_name ){
+        my ($next_space_name, @next_options) = $current_space->converter_names;
+        $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
+        my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
+        $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
+        $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
+        $values = $current_space->convert_to( $next_space_name, $values);
+        $values_are_normal = $normal_in_out[1];
+        $current_space = get_space( $next_space_name );
+    }
+    $values = default_space()->normalize( $values ) unless $values_are_normal;
+    return $values, $original_values;
 }
 
 sub partial_hash_deformat { # convert partial hash into

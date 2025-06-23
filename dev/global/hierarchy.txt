@@ -44,9 +44,8 @@ Hierarchy
           - add_rgb
           - add_hsl
       = ::Space::Hub
-          - convert_to_default_form (deformat)
           - convert
-          - deformat
+          - convert_to_default_form
           - partial_hash_deformat
           - distance
       = ::Space

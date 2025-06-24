@@ -161,7 +161,7 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
         $values_b = \@selected_values;
     }
     my $d = 0;
-    map  {$d += (( $values_a[$_] - $values_b[$_]) ** 2)} 0 .. $#$values_a;
+    map  {$d += (( $values_a->[$_] - $values_b->[$_]) ** 2)} 0 .. $#$values_a;
     return sqrt $d;
 }
 

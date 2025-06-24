@@ -139,17 +139,17 @@ is( $tuple->[4],   5, 'fifth extracted value is correct');
 $tuple = $s5d->tuple_from_hash( {aleph => 1, beth => 2, O => 3, daleth => 4, y => 5} );
 is( ref $tuple,  '', 'no values extraced because one key was wrong');
 
-is( $s3d->select_tuple_value_from_name('alpha', [1,2,3]), 1,   'got correct first value from list by key');
-is( $s3d->select_tuple_value_from_name('beta',  [1,2,3]), 2,   'got correct second value from list by key');
-is( $s3d->select_tuple_value_from_name('gamma', [1,2,3]), 3,   'got correct third value from list by key');
-is( $s3d->select_tuple_value_from_name('he',    [1,2,3]), undef, 'get undef when asking with unknown key');
-is( $s3d->select_tuple_value_from_name('alpha', [1,2  ]), undef, 'get undef when giving not enough values');
+is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2,3]), 1,   'got correct first value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('beta',  [1,2,3]), 2,   'got correct second value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('gamma', [1,2,3]), 3,   'got correct third value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('he',    [1,2,3]), undef, 'get undef when asking with unknown key');
+is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2  ]), undef, 'get undef when giving not enough values');
 
-is( $s3d->select_tuple_value_from_name('a', [1,2,3]), 1,       'got correct first value from list by shortcut');
-is( $s3d->select_tuple_value_from_name('b', [1,2,3]), 2,       'got correct second value from list by shortcut');
-is( $s3d->select_tuple_value_from_name('g', [1,2,3]), 3,       'got correct third value from list by shortcut');
-is( $s3d->select_tuple_value_from_name('h', [1,2,3]), undef,   'get undef when asking with unknown key');
-is( $s3d->select_tuple_value_from_name('a ',[1,2  ]), undef,         'get undef when giving not enough values');
+is( $s3d->select_tuple_value_from_axis_name('a', [1,2,3]), 1,       'got correct first value from list by shortcut');
+is( $s3d->select_tuple_value_from_axis_name('b', [1,2,3]), 2,       'got correct second value from list by shortcut');
+is( $s3d->select_tuple_value_from_axis_name('g', [1,2,3]), 3,       'got correct third value from list by shortcut');
+is( $s3d->select_tuple_value_from_axis_name('h', [1,2,3]), undef,   'get undef when asking with unknown key');
+is( $s3d->select_tuple_value_from_axis_name('a ',[1,2  ]), undef,         'get undef when giving not enough values');
 
 
 is( ref $s3d->pos_hash_from_partial_hash(),   '',       'partial deformat needs an HASH');

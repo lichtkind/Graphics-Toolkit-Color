@@ -48,7 +48,7 @@ sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc 
 
 sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
 sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
-sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }  # ~name       --> ?
+sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }       # ~name       --> ?
 sub is_hash {         # with all axis names as keys
     my ($self, $value_hash) = @_;
     $self->is_partial_hash( $value_hash ) and (keys %$value_hash == $self->axis_count);
@@ -117,7 +117,7 @@ sub pos_hash_from_partial_hash {
     return $pos;
 }
 
-sub select_tuple_value_from_name {
+sub select_tuple_value_from_axis_name {
     my ($self, $name, $values) = @_;
     $name = lc $name;
     return unless $self->is_value_tuple( $values );

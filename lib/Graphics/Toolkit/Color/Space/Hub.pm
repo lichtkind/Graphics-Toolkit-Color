@@ -135,86 +135,34 @@ sub partial_hash_deformat { # convert partial hash into
 }
 
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
-    my ($self, $c2, $space_name, $select, $range) = @_;
-    return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
-    $space_name //= 'RGB';
-    Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
-    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    $select = $space->basis->shortcut_of_key($select) if $space->basis->is_key( $select );
-    my @values1 = $self->get( $space_name, 'list', 'normal' );
-    my @values2 = $c2->get( $space_name, 'list', 'normal' );
-    return unless defined $values1[0] and defined $values2[0];
-
-    my $delta = $space->delta( \@values1, \@values2 );
-    $delta = $space->denormalize_range( $delta, $range);
-    return unless ref $delta and @$delta == $space->dimensions;
-
-    # grep values for individual select / subspace distance
-    if (defined $select and $select){
-        my @components = split( '', $select );
-        my $pos = $space->basis->key_pos( $select );
-        @components = defined( $pos )
-                    ? ($pos)
-                    : (map  { $space->basis->shortcut_pos($_) }
-                       grep { defined $space->basis->shortcut_pos($_) } @components);
-        return - carp "called 'distance' for select $select that does not fit color space $space_name!" unless @components;
-        $delta = [ map { $delta->[$_] } @components ];
+    my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
+    $space_name //= $default_space_name;
+    my $color_space = get_space( $space_name );
+    return unless ref $color_space;
+    return unless $color_space->is_value_tuple( $values_a ) and $color_space->is_value_tuple( $values_b );
+    unless ($space_name eq $default_space_name){
+        $values_a = convert( $values_a, $space_name, defined $range);
+        $values_b = convert( $values_b, $space_name, defined $range);
     }
-
-    # Euclidean distance:
+    if (defined $range){
+        $values_a = $color_space->denormalize( $values_a, $range );
+        $values_a = $color_space->denormalize( $values_b, $range );
+        return unless ref $values_a and $values_b;
+    }
+    if (defined $select_axis){
+        $select_axis = [$select_axis] unless ref $select_axis;
+        return unless ref $select_axis eq 'ARRAY' and @$select_axis;
+        my @selected_values = grep {defined $_}
+                              map {$color_space->select_tuple_value_from_name($_, $values_a) } @$select_axis;
+        return unless @selected_values == @$select_axis;
+        $values_a = \@selected_values;
+        @selected_values = grep {defined $_}
+                           map {$color_space->select_tuple_value_from_name($_, $values_b) } @$select_axis;
+        $values_b = \@selected_values;
+    }
     my $d = 0;
-    map {$d += ($_ * $_)} @$delta;
+    map  {$d += (( $values_a[$_] - $values_b[$_]) ** 2)} 0 .. $#$values_a;
     return sqrt $d;
 }
 
-
-
 1;
-
-__END__
-
-
-sub read { # formatted color values --> tuple
-    my ($color, $range, $precision, $suffix) = @_;
-    for my $space_name (space_names()) {
-        my $color_space = get_space( $space_name );
-        my @res = $color_space->read( $color, $range, $precision, $suffix );
-        next unless @res;
-        return wantarray ? ($res[0], $color_space->name, $res[1]) : $res[0];
-    }
-    return undef;
-}
-
-sub write { # tuple --> formatted color values
-    my ($color, $space_name, $format_name, $range, $precision, $suffix) = @_;
-    my $color_space = get_space( $space_name );
-    return unless ref $color_space;
-    $color_space->write( $color, $format_name, $range, $precision, $suffix );
-}
-
-sub format { # @tuple --> % | % |~ ...
-    my ($values, $space_name, $format_name) = @_;
-
-    my $space = check_space_and_values(  $space_name, $values, 'format' );
-    return unless ref $space;
-    my @values = $space->format( $values, $format_name // 'list' );
-    return @values, carp "got unknown format name: '$format_name'" unless defined $values[0];
-    return @values == 1 ? $values[0] : @values;
-}
-
-sub denormalize { # result clamped, alway in space
-    my ($values, $space_name, $range) = @_;
-    my $space = check_space_and_values( $space_name, $values,'denormalize' );
-    return unless ref $space;
-    $values = $space->clamp($values, 'normal');
-    $space->denormalize( $values, $range);
-}
-
-sub normalize {
-    my ($values, $space_name, $range) = @_;
-    my $space = check_space_and_values( $space_name, $values, 'normalize' );
-    return unless ref $space;
-    $values = $space->clamp($values, $range);
-    return $values unless ref $values;
-    $space->normalize( $values, $range);
-}

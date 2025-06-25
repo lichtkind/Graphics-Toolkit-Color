@@ -55,16 +55,15 @@ sub new {
                                                        and $range->[$i][1] == int($range->[$i][1])
                                                        and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
     }
-    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
+    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => [] }
 }
 
 sub add_constraint {
-    my ($self, $constraint_def) = @_;
-    $self->{'constraint'};
-    # name
-    # equation
-    # correction
-
+    my ($self, $name, $error_msg, $checker, $remedy) = @_;
+    return unless defined $name and not exists $self->{'constraint'}{$name}
+              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
+              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
+    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
 }
 #### getter (defaults) #################################################
 
@@ -118,8 +117,8 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
         return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0
                                                            and round_decimals($values->[$i], $precision->[$i]) != $values->[$i];
     }
-    if ($self->{'constraint'}){
-
+    for my $constraint (values %{$self->{'constraint'}}){
+        return $constraint->{'error'} unless $constraint->{'checker'}->( $values );
     }
     return $values;
 }
@@ -146,8 +145,8 @@ sub clamp { # change values if outside of range, angles get rotated in std range
         }
         $values->[$i] = round_decimals($values->[$i], $precision->[$i]) if $precision->[$i] >= 0;
     }
-    if ($self->{'constraint'}){
-
+    for my $constraint (values %{$self->{'constraint'}}){
+        $values = $constraint->{'remedy'}->( $values ) unless $constraint->{'checker'}->( $values );
     }
     return $values;
 }

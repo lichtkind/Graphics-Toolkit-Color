@@ -8,16 +8,17 @@ use Carp;
 
 #### internal API ######################################################
 
-our $default_space_name = 'RGB';
 my %space_obj;
-add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for $default_space_name,
+our $default_space_name = 'RGB';
+add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for default_space_name(),
                        qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
                        qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # search order
 
+sub space_names   { sort keys %space_obj }
+sub default_space_name { $default_space_name }
 sub default_space { $space_obj{ $default_space_name } }
-sub get_space  { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
-sub is_space   { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
-sub space_names{ sort keys %space_obj }
+sub get_space     { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
+sub is_space      { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 
 #### space API #########################################################
 
@@ -49,13 +50,14 @@ sub remove_space {
 #### value API #########################################################
 
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
-    my ($values, $target_space_name, $want_result_normalized, $source_values) = @_;
+    my ($values, $target_space_name, $want_result_normalized, $source_space, $source_values) = @_;
     return "need a value ARRAY and a space name to convert to" unless defined $target_space_name;
     my $target_space = get_space( $target_space_name );
     return "$target_space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $target_space;
     return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
         unless ref $values eq 'ARRAY' and @$values == 3;
     return $values if $target_space_name eq $default_space_name; # nothing to convert
+    return $source_values if ref $source_values and defined $source_space and $source_space eq $target_space_name;
     $want_result_normalized //= 0;
     my $current_space = $target_space;
     my @convert_chain = ($target_space->name);
@@ -105,7 +107,7 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
     $values = $original_space->clamp( $values, 'normal');
     return $values if $original_space_name eq $default_space_name;
 
-    my $original_values = [ $original_space_name, @$values ];
+    my $original_values = [ @$values ];
     my $current_space = $original_space;
     my $values_are_normal = 1;
     while (uc $current_space->name ne $default_space_name ){
@@ -119,7 +121,7 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
         $current_space = get_space( $next_space_name );
     }
     $values = default_space()->normalize( $values ) unless $values_are_normal;
-    return $values, $original_values;
+    return $values, $original_space_name, $original_values;
 }
 
 sub partial_hash_deformat { # convert partial hash into
@@ -136,6 +138,7 @@ sub partial_hash_deformat { # convert partial hash into
 
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
+    return if ref $select_axis and ref $select_axis ne 'ARRAY';
     $space_name //= $default_space_name;
     my $color_space = get_space( $space_name );
     return unless ref $color_space;
@@ -144,24 +147,17 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
         $values_a = convert( $values_a, $space_name, defined $range);
         $values_b = convert( $values_b, $space_name, defined $range);
     }
-    if (defined $range){
-        $values_a = $color_space->denormalize( $values_a, $range );
-        $values_a = $color_space->denormalize( $values_b, $range );
-        return unless ref $values_a and $values_b;
-    }
+    my $delta = $color_space->delta( $values_a, $values_b );
+    $delta = $color_space->denormalize_delta( $delta, $range );
     if (defined $select_axis){
         $select_axis = [$select_axis] unless ref $select_axis;
-        return unless ref $select_axis eq 'ARRAY' and @$select_axis;
         my @selected_values = grep {defined $_}
-                              map {$color_space->select_tuple_value_from_name($_, $values_a) } @$select_axis;
+                              map {$color_space->select_tuple_value_from_name($_, $delta) } @$select_axis;
         return unless @selected_values == @$select_axis;
-        $values_a = \@selected_values;
-        @selected_values = grep {defined $_}
-                           map {$color_space->select_tuple_value_from_name($_, $values_b) } @$select_axis;
-        $values_b = \@selected_values;
+        $delta = \@selected_values;
     }
     my $d = 0;
-    map  {$d += (( $values_a->[$_] - $values_b->[$_]) ** 2)} 0 .. $#$values_a;
+    map  { $d += $_ * $_ } @$delta;
     return sqrt $d;
 }
 

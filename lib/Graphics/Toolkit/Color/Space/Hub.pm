@@ -6,21 +6,19 @@ use v5.12;
 use warnings;
 use Carp;
 
-#### internal API ######################################################
-
+#### internal space loading ############################################
 my %space_obj;
 our $default_space_name = 'RGB';
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for default_space_name(),
                        qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
                        qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # search order
 
+#### space API #########################################################
 sub space_names   { sort keys %space_obj }
 sub default_space_name { $default_space_name }
 sub default_space { $space_obj{ $default_space_name } }
 sub get_space     { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
 sub is_space      { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
-
-#### space API #########################################################
 
 sub add_space {
     my $space = shift;
@@ -124,7 +122,7 @@ sub convert_to_default_form { # formatted color def --> normalized RGB values --
     return $values, $original_space_name, $original_values;
 }
 
-sub partial_hash_deformat { # convert partial hash into
+sub deformat_partial_hash { # convert partial hash into
     my ($value_hash) = @_;
     return unless ref $value_hash eq 'HASH';
     for my $space_name (space_names()) {

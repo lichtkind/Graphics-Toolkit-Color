@@ -85,7 +85,6 @@ sub axis_value_precision { # --> +precision?
 sub _range { # check if range def is valid and eval (exapand) it
     my ($self, $external_range) = @_;
     return $self->{'range'} unless defined $external_range;
-
     $external_range = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'},  $self->{'type'}, $external_range,);
     return (ref $external_range) ? $external_range->{'range'} : undef ;
 }

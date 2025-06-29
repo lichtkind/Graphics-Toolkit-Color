@@ -1,5 +1,5 @@
 
-# stor of valus from a single color in RGB, original and name
+# read only store of values for a single color in RGB, original space and name
 
 package Graphics::Toolkit::Color::Values;
 use v5.12;
@@ -111,13 +111,13 @@ sub add { # %val --> _
     __PACKAGE__->new_from_normal_tuple( $color_space->normalize($values), $space_name);
 }
 
-sub blend { # cv2 -- +percent, ~space --> _
+sub blend { #  @%(+percent _values)  -- ~space_name --> _values
     my ($self, $mix, $space_name ) = @_;
-    return if ref $mix ne 'ARRAY';
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "can not format values in unknown space name: $space_name" unless ref $color_space;
     $mix = [{percent => 50, color => $mix}] if ref $mix eq __PACKAGE__;
+    return if ref $mix ne 'ARRAY';
     my $percentage_sum = 0;
     for my $component (@{$mix}){
         return if ref $component ne 'HASH' or not exists $component->{'percent'}
@@ -126,11 +126,12 @@ sub blend { # cv2 -- +percent, ~space --> _
     }
     my $result = [(0) x $color_space->axis];
     if ($percentage_sum < 100){
-        my $values = $self->get_custom_form ($space_name);
+        my $values = $self->get_custom_form( $space_name );
         my $mix_amount = (100 - $percentage_sum) / 100;
         $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;        
     } else {
-        $_->{'percent'} /= $percentage_sum for @{$mix}; # sum of prcentags has to be 100
+        $percentage_sum /= 100;
+        $_->{'percent'} /= $percentage_sum for @{$mix}; # sum of percentages has to be 100
     }
     for my $component (@{$mix}){
         my $values = $component->{'color'}->get_custom_form ($space_name);

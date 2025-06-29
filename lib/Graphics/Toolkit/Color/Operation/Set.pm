@@ -4,7 +4,6 @@
 package Graphics::Toolkit::Color::Operation::Set;
 use v5.12;
 use warnings;
-use Carp;
 use Graphics::Toolkit::Color::Values;
 
 

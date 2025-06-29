@@ -23,7 +23,7 @@ sub new_from_normal_tuple {
     } else { $space_name = '' }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );
-    bless { name => $name, rgb => $values, source => $source, source_space => $space_name };   
+    bless { name => $name, rgb => $values, source => $source, source_space => $space_name };
 }
 
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
@@ -32,14 +32,14 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
         my $rgb = Graphics::Toolkit::Color::Name::rgb_from_name( $color_def );
         if (ref $rgb){
             $rgb = $RGB->clamp( $RGB->normalize($rgb), 'normal' );
-            return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};    
+            return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};
         }
         my $colon_pos = index( $color_def, ':');
         if ($colon_pos > -1 ){                        # resolve pallet:name
             $rgb = rgb_from_external_module( substr( $color_def, 0, $colon_pos ), substr( $color_def, $colon_pos+1 ) );
             if (ref $rgb){
                 $rgb = $RGB->clamp( $RGB->normalize($rgb), 'normal' );
-                return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};    
+                return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};
             }
         }
     }
@@ -112,15 +112,31 @@ sub add { # %val --> _
 }
 
 sub blend { # cv2 -- +percent, ~space --> _
-    my ($self, $c2, $percent, $space_name ) = @_;
-    return carp "need value object as second argument" unless ref $c2 eq __PACKAGE__;
-    $percent //= 50;
-    $space_name //= 'RGB';
-    Graphics::Toolkit::Color::Space::Hub::check_space_name( $space_name ) and return;
-    my @values1 = $self->get( $space_name );
-    my @values2 = $c2->get( $space_name );
-    my @rvalues = map { ((100 - $percent) * $values1[$_]) + ($percent * $values2[$_]) } 0 .. $#values1;
-    __PACKAGE__->new([$space_name, @rvalues]);
+    my ($self, $mix, $space_name ) = @_;
+    return if ref $mix ne 'ARRAY';
+    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    return "can not format values in unknown space name: $space_name" unless ref $color_space;
+    $mix = [{percent => 50, color => $mix}] if ref $mix eq __PACKAGE__;
+    my $percentage_sum = 0;
+    for my $component (@{$mix}){
+        return if ref $component ne 'HASH' or not exists $component->{'percent'}
+               or not exists $component->{'color'} or ref $component->{'color'} ne __PACKAGE__;
+        $percentage_sum += $component->{'percent'};
+    }
+    my $result = [(0) x $color_space->axis];
+    if ($percentage_sum < 100){
+        my $values = $self->get_custom_form ($space_name);
+        my $mix_amount = (100 - $percentage_sum) / 100;
+        $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;        
+    } else {
+        $_->{'percent'} /= $percentage_sum for @{$mix}; # sum of prcentags has to be 100
+    }
+    for my $component (@{$mix}){
+        my $values = $component->{'color'}->get_custom_form ($space_name);
+        $result->[$_] +=  $values->[$_] * $component->{'percent'} / 100 for 0 .. $#$values;
+    }
+    __PACKAGE__->new_from_normal_tuple( $color_space->normalize($result), $space_name);
 }
 
 ########################################################################

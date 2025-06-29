@@ -1,11 +1,10 @@
 
-# read only color holding object with methods for relation, mixing and transitions
+# public, user level API: changing and measuring colors, computing color sets
 
 package Graphics::Toolkit::Color;
 our $VERSION = '1.8';
 use v5.12;
 use warnings;
-use Carp;
 use Graphics::Toolkit::Color::Operation::Set;
 
 use Exporter 'import';
@@ -24,54 +23,24 @@ sub new {
     my ($pkg, @args) = @_;
     @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
-    return carp $new_help unless @args == 1;
+    return $new_help unless @args == 1;
     _new_from_scalar($args[0]);
 }
 sub _new_from_scalar {
     my ($color_def) = shift;
-    my ($value_obj, @rgb, $name, $origin);
-    # strings that are not '#112233' or 'rgb: 23,34,56'
-    if (not ref $color_def and substr($color_def, 0, 1) =~ /\w/ and $color_def !~ /,/){
-        $name = $color_def;
-        $origin = 'name';
-        my $i = index( $color_def, ':');
-        if ($i > -1 ){                        # resolve pallet:name
-            my $pallet_name = substr $color_def, 0, $i;
-            my $color_name = Graphics::Toolkit::Color::Name::_clean(substr $color_def, $i+1);
-            my $module_base = 'Graphics::ColorNames';
-            eval "use $module_base";
-            return carp "$module_base is not installed, but it's needed to load external colors" if $@;
-            my $module = $module_base.'::'.$pallet_name;
-            eval "use $module";
-            return carp "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
-
-            my $pallet = Graphics::ColorNames->new( $pallet_name );
-            @rgb = $pallet->rgb( $color_name );
-            return carp "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-        } else {                              # resolve name ->
-            @rgb = Graphics::Toolkit::Color::Name::rgb_from_name( $color_def );
-            return carp "'$color_def' is an unknown color name, please check Graphics::Toolkit::Color::Name::all()." unless @rgb == 3;
-        }
-        $value_obj = Graphics::Toolkit::Color::Values->new( [@rgb] );
-    } elsif (ref $color_def eq __PACKAGE__) { # enables color objects to be passed as arguments
-        $name = $color_def->name;
-        $value_obj = Graphics::Toolkit::Color::Values->new( $color_def->{'values'}->string );
-    } else {                                  # define color by numbers in any format
-        my $value_obj = Graphics::Toolkit::Color::Values->new( $color_def );
-        return unless ref $value_obj;
-        return _new_from_value_obj($value_obj);
-    }
-    bless {name => $name, values => $value_obj};
+    my $value_obj = Graphics::Toolkit::Color::Values::new_from_any_input( $color_def );
+    return $value_obj unless ref $value_obj;
+    return bless {values => $value_obj};
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
     return unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
-    bless {name => scalar Graphics::Toolkit::Color::Name::name_from_rgb( $value_obj->get() ), values => $value_obj};
+    bless {values => $value_obj};
 }
 
 ## getter ##############################################################
 
-sub name        { $_[0]{'name'} }
+sub name        { $_[0]{'values'}->get_name }
 
     sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
     sub rgb         { $_[0]->values( ) }
@@ -85,18 +54,17 @@ sub name        { $_[0]{'name'} }
     sub saturation  {($_[0]->values( in => 'hsl'))[1] }
     sub lightness   {($_[0]->values( in => 'hsl'))[2] }
     sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
+    sub distance_to { distance(@_) }
 
 sub values      {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
                (@_ == 1)    ? (in => $_[0])
-                            : return carp "accept three optional, named arguments: in => 'HSL', as => 'css_string', range => 16";
-    $self->{'values'}->get( $args{'in'}, $args{'as'}, $args{'range'} );
+                            : return "method 'values' accepts three optional, named arguments: in => 'HSL', as => 'css_string', range => 16";
+    $self->{'values'}->get_custom_form( $args{'in'}, $args{'as'}, $args{'range'} );
 }
 
 ## measurement methods ##############################################################
-
-    sub distance_to { distance(@_) }
 sub distance {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :

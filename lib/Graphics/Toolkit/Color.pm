@@ -87,7 +87,7 @@ sub _get_arg_hash {
     my $arg = (ref $_[0] eq 'HASH') ? $_[0]
             : (not @_ % 2)          ? {@_}
             :                         {} ;
-    return (keys %$arg) ? $arg : carp "need arguments as hash (with or without braces)";
+    return (keys %$arg) ? $arg : return "need arguments as hash (with or without braces)";
 }
 
 sub set {
@@ -108,12 +108,12 @@ sub blend {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg;
-    return carp "can not use arguments 'to' and 'with' at same time" if exists $arg->{'with'} and exists $arg->{'to'};
+    return "can not use arguments 'to' and 'with' at same time" if exists $arg->{'with'} and exists $arg->{'to'};
     my $c2 = _new_from_scalar( $arg->{'with'} // $arg->{'to'} );
-    return croak "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
+    return "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
     my $pos = $arg->{'pos'} // $arg->{'position'} // 0.5;
     my $space_name = $arg->{'in'} // 'RGB';
-    return carp "color space $space_name is unknown" unless Graphics::Toolkit::Color::Space::Hub::is_space( $space_name );
+    return "color space $space_name is unknown" unless Graphics::Toolkit::Color::Space::Hub::is_space( $space_name );
     _new_from_value_obj( $self->{'values'}->blend( $c2->{'values'}, $pos, $space_name ) );
 }
 
@@ -123,14 +123,14 @@ sub gradient { # $to ~in + steps +dynamic +variance --> @_
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';
     my $c2 = _new_from_scalar( $arg->{'to'} );
-    return croak "need a second color under the key 'to' : ( to => ['HSL', 10, 20, 30])" unless ref $c2;
+    return "need a second color under the key 'to' : ( to => ['HSL', 10, 20, 30])" unless ref $c2;
     my $space_name = $arg->{'in'} // 'RGB';
     my $steps = int(abs($arg->{'steps'} // 3));
     my $power = $arg->{'dynamic'} // 0;
     $power = ($power >= 0) ? $power + 1 : -(1/($power-1));
     return $self if $steps == 1;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return carp "color space $space_name is unknown" unless ref $space;
+    return "color space $space_name is unknown" unless ref $space;
     my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );
     my @val2 =  $c2->{'values'}->get( $space_name, 'list', 'normal' );
     my @delta_val = $space->delta (\@val1, \@val2 );
@@ -152,14 +152,14 @@ my $comp_help = 'set constructor "complement" accepts 4 named args: "steps" (pos
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     my ($self) = shift;
     my %arg = (not @_ % 2) ? @_ :
-              (@_ == 1)    ? (steps => $_[0]) : return carp $comp_help;
+              (@_ == 1)    ? (steps => $_[0]) : return $comp_help;
     my $steps = int abs($arg{'steps'} // 1);
     my $hue_tilt = (exists $arg{'h'}) ? (delete $arg{'h'}) :
                    (exists $arg{'hue_tilt'}) ? (delete $arg{'hue_tilt'}) : 0;
-    return carp $comp_help if ref $hue_tilt;
+    return $comp_help if ref $hue_tilt;
     my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
                           (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
-    return carp $comp_help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
+    return $comp_help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
     my $saturation_axis_offset = 0;
     if (ref $saturation_tilt eq 'HASH'){
         my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $saturation_tilt );

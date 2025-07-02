@@ -5,6 +5,7 @@ package Graphics::Toolkit::Color;
 our $VERSION = '1.8';
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Values;
 use Graphics::Toolkit::Color::Operation::Set;
 
 use Exporter 'import';
@@ -28,9 +29,10 @@ sub new {
 }
 sub _new_from_scalar {
     my ($color_def) = shift;
+    return $color_def if ref $color_def eq __PACKAGE__;
     my $value_obj = Graphics::Toolkit::Color::Values::new_from_any_input( $color_def );
     return $value_obj unless ref $value_obj;
-    return bless {values => $value_obj};
+    _new_from_value_obj( $value_obj );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
@@ -38,10 +40,7 @@ sub _new_from_value_obj {
     bless {values => $value_obj};
 }
 
-## getter ##############################################################
-
-sub name        { $_[0]{'values'}->get_name }
-
+## deprecated - deeted with 2.0
     sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
     sub rgb         { $_[0]->values( ) }
     sub red         {($_[0]->values( in => 'rgb'))[0] }
@@ -55,30 +54,35 @@ sub name        { $_[0]{'values'}->get_name }
     sub lightness   {($_[0]->values( in => 'hsl'))[2] }
     sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
     sub distance_to { distance(@_) }
+    sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2], in => 'HSL') }
+    sub gradient_to     { hsl_gradient_to( @_ ) }
+    sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
+    sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
+    sub complementary { complement(@_) }
 
-sub values      {
+## getter ##############################################################
+sub name         { $_[0]{'values'}->get_name }
+sub closest_name { $_[0]{'values'}->get_closest_name }
+sub values       {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
                (@_ == 1)    ? (in => $_[0])
                             : return "method 'values' accepts three optional, named arguments: in => 'HSL', as => 'css_string', range => 16";
     $self->{'values'}->get_custom_form( $args{'in'}, $args{'as'}, $args{'range'} );
 }
-
-## measurement methods ##############################################################
 sub distance {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
                (@_ == 1)    ? (to => $_[0])
-                            : return carp "accept four optional, named arguments: to => 'color or color definition', in => 'RGB', metric => 'r', range => 16";
+                            : return "accept four optional, named arguments: to => 'color or color definition', in => 'RGB', select => 'r', range => 16";
     my ($c2, $space_name, $select, $range) = ($args{'to'}, $args{'in'}, $args{'select'}, $args{'range'});
-    return carp "missing argument: color object or scalar color definition" unless defined $c2;
+    return "missing argument: color object or scalar color definition" unless defined $c2;
     $c2 = _new_from_scalar( $c2 );
-    return carp "second color for distance calculation (named argument 'to') is badly defined" unless ref $c2 eq __PACKAGE__;
+    return "second color for distance calculation (named argument 'to') is badly defined" unless ref $c2 eq __PACKAGE__;
     $self->{'values'}->distance( $c2->{'values'}, $space_name, $select, $range );
 }
 
 ## single color creation methods #######################################
-
 sub _get_arg_hash {
     my $arg = (ref $_[0] eq 'HASH') ? $_[0]
             : (not @_ % 2)          ? {@_}
@@ -100,7 +104,6 @@ sub add {
     _new_from_value_obj( $self->{'values'}->add( $arg ) );
 }
 
-    sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2], in => 'HSL') }
 sub blend {
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
@@ -115,12 +118,6 @@ sub blend {
 }
 
 ## color set creation methods ##########################################
-
-
-# for compatibility
-    sub gradient_to     { hsl_gradient_to( @_ ) }
-    sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
-    sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
 sub gradient { # $to ~in + steps +dynamic +variance --> @_
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
@@ -152,7 +149,6 @@ my $comp_help = 'set constructor "complement" accepts 4 named args: "steps" (pos
                 '"hue_tilt" or "h" (-180 .. 180), '.
                 '"saturation_tilt or "s" (-100..100) or { s => (-100..100), h => (-180..180)} and '.
                 '"lightness_tilt or "l" (-100..100) or { l => (-100..100), h => (-180..180)}';
-    sub complementary { complement(@_) }
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     my ($self) = shift;
     my %arg = (not @_ % 2) ? @_ :

@@ -65,6 +65,13 @@ sub rgb_from_external_module {
 
 ########################################################################
 sub get_name { $_[0]->{'name'} }
+sub get_closest_name {
+    my ($self) = @_;
+    my $values = $self->get_custom_form('HSL');
+    my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, 12 );
+    return '' unless ref $names eq 'ARRAY' and @$names;
+    return $names->[0], $distances->[0];
+}
 sub get_normal_tuple {
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
@@ -88,8 +95,9 @@ sub get_custom_form { # get a value tuple in any color space, range and format
 ########################################################################
 
 sub set { # %val --> _
-    my ($self, $val_hash) = @_;
-    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash );
+    my ($self, $val_hash, $space_name) = @_;
+    my $pos_hash;
+    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
@@ -100,8 +108,9 @@ sub set { # %val --> _
 }
 
 sub add { # %val --> _
-    my ($self, $val_hash) = @_;
-    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash );
+    my ($self, $val_hash, $space_name) = @_;
+    my $pos_hash;
+    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){

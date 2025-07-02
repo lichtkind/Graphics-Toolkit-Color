@@ -72,7 +72,9 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
             $distance{ $name } = $d if ref $radius or $d <= $radius;
         }
     } else { return; }
-    return sort { $distance{$a} <=> $distance{$b} } keys %distance;
+    my @names = sort { $distance{$a} <=> $distance{$b} } keys %distance;
+    my @d = map {$distance{$_}} @names;
+    return \@names, \@d;
 }
 
 sub add_rgb {

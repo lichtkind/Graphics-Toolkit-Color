@@ -7,8 +7,9 @@ use warnings;
 use Graphics::Toolkit::Color::Space qw/min max rmod/;
 
 my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation lightness/],
-                                                   range => [ 360, 100, 100 ],
-                                                    type => [qw/angular linear linear/]);
+                                                   range => [ 360, 100, 100 ],  precision => 0,
+                                                    type => [qw/angular linear linear/],
+                                                  );
 
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 

@@ -7,7 +7,7 @@ use warnings;
 use Graphics::Toolkit::Color::Space ':all';
 
 my $hsb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation brightness/],
-                                                   range => [360, 100, 100],
+                                                   range => [360, 100, 100],  precision => 0,
                                                     type => [qw/angular linear linear/]);
 
    $hsb_def->add_converter('RGB', \&to_rgb, \&from_rgb );

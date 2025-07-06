@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 118;
+use Test::More tests => 119;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -106,6 +106,7 @@ is( $d->[1],     .2, 'second delta value correct');
 is( $d->[2],   -0.4, 'third delta value correct');
 
 my $tr = $shape->clamp([-1.1, 0, 20.1, 21, 1]);
+is( ref $tr, 'ARRAY', 'got back a value ARRAY (vector) from clamp');
 is( int @$tr,   3, 'clamp down to correct vector length = 3');
 is( $tr->[0],  -1, 'clamp real into int');
 is( $tr->[1],   0, 'do not touch minimal value');

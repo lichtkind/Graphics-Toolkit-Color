@@ -55,7 +55,7 @@ sub new {
                                                        and $range->[$i][1] == int($range->[$i][1])
                                                        and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
     }
-    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => [] }
+    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
 }
 
 sub add_constraint {

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 119;
+use Test::More tests => 134;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -42,8 +42,8 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, -1), $
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [0,1,-1]), $module, 'full precision def');
 like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2]), qr/value precision/, 'precision def too short');
 like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2,3,-1]), qr/value precision/, 'precision def too long');
-
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef,undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
+
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no'], 20, [-1,0,1]);
 is( ref $shape,  $module, 'created shape with 0..20 range');
@@ -55,28 +55,28 @@ is( $shape->axis_value_precision(0), -1, 'first dimension precision');
 is( $shape->axis_value_precision(1), 0, 'second dimension precision');
 is( $shape->axis_value_precision(2), undef, 'third dimension precision does not count (not numeric)');
 
-
 my $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular', 'circular', 0], [[-5,5],[0,5],[-5,0]], );
 is( ref $bshape,  $module, 'created 3D bowl shape with -5..5 range');
-is( $bshape->axis_value_precision(0), 0, 'first dimension is int on default');
-is( $bshape->axis_value_precision(1), 0, 'second dimension is int on default');
-is( $bshape->axis_value_precision(2), 0, 'third dimension is int on default');
+is( $bshape->axis_value_precision(0), -1, 'first dimension is int on default');
+is( $bshape->axis_value_precision(1), -1, 'second dimension is int on default');
+is( $bshape->axis_value_precision(2), -1, 'third dimension is int on default');
 
 my $nshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, 'normal');
 is( $nshape->axis_value_precision(0) < 0, 1, 'first normal dimension is real because normal');
 is( $nshape->axis_value_precision(1) < 0, 1, 'second normal dimension is real because normal');
 is( $nshape->axis_value_precision(2) < 0, 1, 'third normal dimension is real because normal');
 
-my $mshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, ['normal', 100, [2, 2.2]]);
-is( $mshape->axis_value_precision(0) < 0, 1, 'first particular normal dimension is real');
-is( $mshape->axis_value_precision(1), 0, 'second dimension defined by upper int bound is int');
-is( $mshape->axis_value_precision(2) < 0, 1, 'third dimension defined by real range is real');
+my $mshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, ['normal', 100, 2], 2);
+is( $mshape->axis_value_precision(0), 2, 'expanded compact precision to first axis');
+is( $mshape->axis_value_precision(1), 2, 'expanded compact precision to second axis');
+is( $mshape->axis_value_precision(2), 2, 'expanded compact precision to third axis');
 
 my $oshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[0, 10], [0, 10], [0, 10]], [2, 0, -1]);
 is( ref $oshape,  $module, 'space shape with 0..10 axis and hand set precision');
 is( $oshape->axis_value_precision(0), 2, 'first dimension has set precision');
 is( $oshape->axis_value_precision(1), 0, 'second dimension has set precision');
 is( $oshape->axis_value_precision(2), -1,'third dimension has set precision');
+
 
 my $d = $bshape->delta(1, [1,5,4,5] );
 is( ref $d,  '', 'reject compute delta on none vector on first arg position');
@@ -91,7 +91,7 @@ is( ref $d,  '', 'reject compute delta on too long second vector');
 $d = $shape->delta([2,3,4], [5,1] );
 is( ref $d,  '', 'reject compute delta on too short second  vector');
 
-$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[-5,5],[-5,5],[-5,5]], );
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[-5,5],[-5,5],[-5,5]]);
 $d = $shape->delta([2,3,4], [1,5,1.1] );
 is( ref $d,   'ARRAY', 'linear delta result ist vector');
 is( int @$d,   3, 'linear delta result has right length');
@@ -105,14 +105,21 @@ is( $d->[0],   -0.2, 'first delta value correct');
 is( $d->[1],     .2, 'second delta value correct');
 is( $d->[2],   -0.4, 'third delta value correct');
 
-my $tr = $shape->clamp([-1.1, 0, 20.1, 21, 1]);
+my $tr = $shape->clamp([-1.1, 0, 20.1, 21, 1] );
 is( ref $tr, 'ARRAY', 'got back a value ARRAY (vector) from clamp');
 is( int @$tr,   3, 'clamp down to correct vector length = 3');
-is( $tr->[0],  -1, 'clamp real into int');
+is( $tr->[0],  -1.1, 'clamp does not touch small negative value');
 is( $tr->[1],   0, 'do not touch minimal value');
 is( $tr->[2],   5, 'clamp too large nr into upper bound');
 
-$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [ 'circular', 'linear', 'linear'], [[-5,5],[-5,5],[-5,5]], );
+my $r = $shape->round([-1.0001, -0.009, 20.1], 0);
+is( ref $r,'ARRAY', 'got back a value ARRAY (vector) from round');
+is( int @$r,     3, 'rounded three values');
+is( $r->[0],    -1, 'rounded negative value');
+is( $r->[1],     0, 'rounded zero');
+is( $r->[2],    20, 'rounded too large value');
+
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [ 'circular', 'linear', 'linear'], [[-5,5],[-5,5],[-5,5]], [0,1,2] );
 $tr = $shape->clamp( [-10, 20] );
 is( int @$tr,  3, 'clamp added missing value');
 is( $tr->[0],  0, 'rotates in circular value');
@@ -125,13 +132,26 @@ is( $tr->[0],    1, 'rotated larg value down');
 is( $tr->[1],    0, 'too small value clamped up to min');
 is( $tr->[2],   10, 'clamped down into special range');
 
+$r = $shape->round([-1.0001, -0.2109, 20.333]);
+is( ref $r,'ARRAY', 'rounding with custom precision, different for each axis');
+is( int @$r,     3, 'rounded three values');
+is( $r->[0],    -1, 'rounded to int');
+is( $r->[1],  -0.2, 'rounded with precision 1');
+is( $r->[2], 20.33, 'rounded with precision 2');
+
+$r = $shape->round([-1.0001, -0.2109, 20.333], [0,1,2]);
+is( ref $r,'ARRAY', 'rounding with insert precision different for each axis');
+is( int @$r,     3, 'rounded three values');
+is( $r->[0],    -1, 'rounded to int');
+is( $r->[1],  -0.2, 'rounded with precision 1');
+is( $r->[2], 20.33, 'rounded with precision 2');
+
 $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular', 'circular', 0], [[-5,5],[-5,5],[-5,5]], [0,1,-1]);
 $tr = $bshape->clamp( [-.1, 1.123, 2.54], ['normal',2,[-1,4]], [0,1,-1] );
-is( int @$tr,   3, 'clamp kept right amount of values');
-is( $tr->[0],   1, 'rotated and rounded value to int');
-is( $tr->[1],   1.1, 'rounded in range value to set precision');
-is( $tr->[2],   2.54, 'in range value is kept');
-
+is( int @$tr,    3, 'clamp kept right amount of values');
+is( $tr->[0],    1, 'rotated and rounded value to int');
+is( $tr->[1],  1.1, 'rounded in range value to set precision');
+is( $tr->[2], 2.54, 'in range value is kept');
 
 is( ref $shape->in_range(1,2,3),        '',  'need array ref, not list');
 is( ref $shape->in_range({}),           '',  'need array, not other ref');
@@ -139,7 +159,7 @@ is( ref $shape->in_range([1,2,3]), 'ARRAY',  'all values in range');
 is( ref $shape->in_range([1,2]),        '',  "not enough values");
 is( ref $shape->in_range([1,2,3,4]),    '',  "too many values");
 is( ref $shape->in_range([1,22,3]),     '',  "too big second value");
-is( ref $shape->in_range([0,1,3.1]),    '',  "too many decimals in third value");
+is( ref $shape->in_range([0,1,3.111]),  '',  "too many decimals in third value");
 
 
 my $norm = $shape->normalize([-5, 0, 5]);

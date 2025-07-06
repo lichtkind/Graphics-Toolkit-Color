@@ -46,15 +46,10 @@ sub new {
         }
     } else { return 'invalid range definition in color space '.$basis->space_name }
 
-    $precision = [(-2) x $basis->axis_count] unless defined $precision;
+    $precision = -1 unless defined $precision;
     $precision = [($precision) x $basis->axis_count] unless ref $precision;
     return 'need an ARRAY as definition of axis value precision' unless ref $precision eq 'ARRAY';
     return 'definition of axis value precision has to have same lengths as basis' unless @$precision == $basis->axis_count;
-    for my $i ($basis->axis_iterator) {
-        $precision->[$i] = 0 if $precision->[$i] == -2 and $range->[$i][0] == int($range->[$i][0])
-                                                       and $range->[$i][1] == int($range->[$i][1])
-                                                       and ($range->[$i][0] != 0 or $range->[$i][1] != 1);
-    }
     bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
 }
 
@@ -154,7 +149,7 @@ sub round {
     my ($self, $values, $precision) = @_;
     return unless $self->basis->is_value_tuple( $values );
     $precision = $self->_precision( $precision );
-    return "bad precision definition" unless ref $precision;
+    return "round got bad precision definition" unless ref $precision;
     [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
 }
 

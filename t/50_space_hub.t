@@ -21,7 +21,7 @@ my $write         = \&Graphics::Toolkit::Color::Space::Hub::write;
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space($_),   1, "found $_ color space")
     for qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;
-my @names = Graphics::Toolkit::Color::Space::Hub::space_names();
+my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  20, 'intalled 20 space names');
 
 

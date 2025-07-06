@@ -10,7 +10,7 @@ my $module = 'Graphics::Toolkit::Color::Space::Basis';
 use_ok( $module, 'could load the module');
 
 my $obj = Graphics::Toolkit::Color::Space::Basis->new();
-like( $obj,   qr/first argument/,      'constructor needs arguments');
+like( $obj,   qr/first argument/, 'constructor needs arguments');
 
 $obj = Graphics::Toolkit::Color::Space::Basis->new([1]);
 is( ref $obj, $module,  'one constructor argument is enough');

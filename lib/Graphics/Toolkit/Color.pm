@@ -11,15 +11,14 @@ use Graphics::Toolkit::Color::Operation::Set;
 use Exporter 'import';
 our @EXPORT_OK = qw/color/;
 
-my $new_help = 'constructor of Graphics::Toolkit::Color object needs either:'.
-        ' 1. hash or ref (RGB, HSL or any other): ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
-        ' 2. RGB array or ref: ->new( [255, 0, 0 ]) or >new( 255, 0, 0 )'.
-        ' 3. hex form "#FF0000" or "#f00" 4. a name: "red" or "SVG:red".';
-
 ## constructor #########################################################
 
 sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
+my $new_help = 'constructor of Graphics::Toolkit::Color object needs either:'.
+        ' 1. hash or ref (RGB, HSL or any other): ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
+        ' 2. RGB array or ref: ->new( [255, 0, 0 ]) or >new( 255, 0, 0 )'.
+        ' 3. hex form "#FF0000" or "#f00" 4. a name: "red" or "SVG:red".';
 sub new {
     my ($pkg, @args) = @_;
     @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);

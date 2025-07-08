@@ -7,8 +7,8 @@ use warnings;
 use Graphics::Toolkit::Color::Values;
 
 
-sub gradient { # $to ~in + steps +dynamic +variance --> @_
-    my ($self, $c2, $steps, $power, $space_name) = @_;
+sub gradient { # $to, +steps -- +dynamic, ~in  @along --> @_
+    my ($self, $c2, $steps, $dynamic, $space_name, $path) = @_;
     return $self if $steps == 1;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "color space $space_name is unknown" unless ref $space;
@@ -17,7 +17,7 @@ sub gradient { # $to ~in + steps +dynamic +variance --> @_
     my @delta_val = $space->delta (\@val1, \@val2 );
     my @colors = ();
     for my $nr (1 .. $steps-2){
-        my $pos = ($nr / ($steps-1)) ** $power;
+        my $pos = ($nr / ($steps-1)) ** $dynamic;
         my @rval = map {$val1[$_] + ($pos * $delta_val[$_])} 0 .. $space->dimensions - 1;
         @rval = $space->denormalize ( \@rval );
         push @colors, [ $space_name, @rval ];
@@ -26,7 +26,7 @@ sub gradient { # $to ~in + steps +dynamic +variance --> @_
 }
 
 
-my $comp_help = 'set constructor "complement" accepts 4 named args: "steps" (positive int), '.
+my $comp_help = 'color set constructor "complement" accepts 4 named args: "steps" (positive int), '.
                 '"hue_tilt" or "h" (-180 .. 180), '.
                 '"saturation_tilt or "s" (-100..100) or { s => (-100..100), h => (-180..180)} and '.
                 '"lightness_tilt or "l" (-100..100) or { l => (-100..100), h => (-180..180)}';
@@ -158,5 +158,8 @@ sub ball {# +radius +distance|count +variance ~in @range
     return unless ref $arg eq 'HASH';
 
 }
+
+sub snake {}
+sub plane {}
 
 1;

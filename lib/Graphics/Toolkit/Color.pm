@@ -567,31 +567,27 @@ construct many interrelated color objects at once.
 
 =head2 gradient
 
-Creates a gradient (a list of colors that build a transition) between
-current (C1) and a second, given color (C2) by named argument I<to>.
+Creates a gradient (a list of color objects that build a transition)
+between current color held by the object and a second color, provided
+by the named argument I<to>.
 
-The only required argument you have to give under the name I<to> is C2.
-Either as an Graphics::Toolkit::Color object or a scalar (name, hex, HASH
-or ARRAY), which is acceptable to a L</CONSTRUCTOR>. This is the same
-behaviour as in L</distance>.
+The only required arguments are the mentioned I<to> and I<steps>.
+The first accepts a color object or any color definition the
+L</CONSTRUCTOR> would accept, as long as it is a scalar value
+(name, string, ARRAY ref, HASH ref).
+I<steps> sets the number of colors, which make up the gradient. A negative
+value will made positive for now, but in future a minus sign might
+influence the behavior in cylindrical color spaces to go the other way
+around.
 
-An optional argument under the name I<steps> sets the number of colors,
-which make up the gradient (including C1 and C2). It defaults to 3.
-Negative numbers will be rectified by C<abs>.
-These 3 color objects: C1, C2 and a color in between, which is the same
-as the result of method L</blend>.
+An optional argument is I<dynamic>, which has to be a float number, with
+the default of zero. Values greater than than will skew the the gradient
+toward the second color. That means that color change will change very slow
+and will get increasingly faster. Negative values work vice versa and the
+greater the absolute value, the stronger the effect.
 
-Another optional argument under the name I<dynamic> is a float number,
-that defines the position of weight in the color transition from C1 to C2.
-It defaults to zero which gives you a linear transition,
-meaning the L</distance> between neighbouring colors in the gradient is equal.
-If $dynamic > 0, the weight is moved toward C1 and vice versa.
-The greater $dynamic, the slower the color change is in the beginning
-of the gradient and the faster at the end (C2).
-
-The last optional argument named I<in> defines the color space the changes
-are computed in. It parallels the argument of the same name from the method
-L</blend> and L</distance>.
+The last optional argument named L</in> defines the color space,
+the changes are computed in.
 
     # we turn to grey
     my @colors = $c->gradient( to => $grey, steps => 5, in => 'RGB');
@@ -644,6 +640,22 @@ circle in the up-down direction, which is in HSL color space lightness.
     my @colors = $c->complement( steps => 3, hue_tilt => -40,
                                      saturation_tilt => {saturation => 300, hue => -50},
                                      lightness_tilt => {l => -10, hue => 30} );
+
+
+=head1 ARGUMENTS
+
+Some named arguments of the above listed methods reappear in several methods.
+Thus they explained here onece.
+
+=head2 in
+
+Expects the name of a color space as listed here:
+L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>. The default color
+space in this module is I<RGB>. Depending on the space the results
+can be very different, since colors are very differently arranged and
+have different distances to each other. Some colors might not even exists
+in some spaces.
+
 
 =head1 SEE ALSO
 

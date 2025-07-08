@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Format;
 use v5.12;
 use warnings;
 
-sub new { # __, @:Basic, @~suffix --> _
+sub new { # -, $::Basis, ~|@~suffix --> _
     my ($pkg, $basis, $suffix, $value_format ) = @_;
     return 'first argument has to be an Color::Space::Basis reference'
         unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';

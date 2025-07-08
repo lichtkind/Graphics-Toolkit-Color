@@ -18,7 +18,7 @@ Hierarchy
       - gradient   (GTC::Operation::Set::gradient)
       - complement (GTC::Operation::Set::complement)
       - ball       (GTC::Operation::Set::ball)
-      - snake?
+      - plane, snake?
       = ::Operation::Set
           - gradient   (Values::blend)
           - complement (Values::add)

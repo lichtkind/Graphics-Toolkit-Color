@@ -39,7 +39,7 @@ sub _new_from_value_obj {
     bless {values => $value_obj};
 }
 
-## deprecated - deeted with 2.0
+## deprecated - deleted with 2.0
     sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
     sub rgb         { $_[0]->values( ) }
     sub red         {($_[0]->values( in => 'rgb'))[0] }

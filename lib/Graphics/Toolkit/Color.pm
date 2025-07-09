@@ -332,18 +332,20 @@ get the color palette you desire quickly.
 =head1 CONSTRUCTOR
 
 There are many options to create a color object. In short you can
-either use the name of a constant or provide values in one of several
-L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>, which also can be
-formatted in many ways as described below and under
-L<Graphics::Toolkit::Color::Space::Hub/FORMATS.
+either use the name of a constant or provide values, which are coordinates
+in one of several L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The latter can also be formatted in many ways as described
+L<here|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+From now on any input that the constructor method C<new> accepts,
+is called a B<color definition>.
 
 =head2 new('name')
 
 Get a color by providing a name from the X11, HTML (CSS) or SVG standard
 or a Pantone report. UPPER or CamelCase will be normalized to lower case
 and inserted underscore letters ('_') will be ignored as perl does in
-numbers (1_000 == 1000). All available names are listed under
-L<Graphics::Toolkit::Color::Name::Constant/NAMES>. (See also: L</name>)
+numbers (1_000 == 1000). All available names are listed
+L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Name::all(); # select from these
@@ -354,13 +356,13 @@ Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
 separately. * is a placeholder for the pallet name, which might be:
 Crayola, CSS, EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone,
-PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In ladder case
-Graphics::ColorNames::X has to be installed. You can get them all at once
-via L<Bundle::Graphics::ColorNames>. The color name will be  normalized
-as above.
+PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In latter case
+I<Graphics::ColorNames::X> has to be installed. You can get them all at
+once via L<Bundle::Graphics::ColorNames>.
+The color name will be  normalized as above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
-    my @s = Graphics::ColorNames::all_schemes();          # look up the installed
+    my @schemes = Graphics::ColorNames::all_schemes();      # look up the installed
 
 =head2 new('#rgb')
 
@@ -440,54 +442,66 @@ All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
 
 =head2 values
 
-Returns the values of the color in given color space and format.
-It accepts three named, optional arguments.
+Returns the numeric values of the color from a certain color space
+and in a required format.
 
-First argument is the name of a color space (named argument C<in>).
-All options are under: L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
-The order of named arguments is of course chosen by the user, but I call
-it the first (most important) argument, because if you give the method
-only one value, it is assumed to be the color space.
+When given no arguments you get a list of the I<red>, I<greem> and I<blue>
+values since I<RGB> is the default color space.
 
-Second argument is the format (name: C<as>).
-In short any SCALAR format acceptable to the L</CONSTRUCTOR> can also be
-reproduced by a getter method and the numerical cases by this one.
-Not all formats are available under all color spaces, but the always
-present options are: C<list> (default), C<hash>, C<char_hash>, C<array>,
-C<string> and C<css_string>.
+The next option is to give exactly one argument, the name or alias name
+of a L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+Then you get the of value according this space. In other words:
+C<$color->values()> and C<$color->values('RGB')> gives you the same result.
 
-Third named argument is the range inside which the numerical values have
-to be. RGB are normally between 0 .. 255 and CMYK between 0 .. 1 ('normal').
-Only a range of C<1> a.k.a. C<'normal'> displays decimals.
-There are three syntax option to set the ranges. One value will be
-understood as upper limit of all dimensions and zero being the lower one.
-If you want to set the upper limits of all dimensions separately, you
-have to  deliver an ARRAY ref with the 3 or 4 upper limits. To also
-define the lower boundary, you replace the number with an ARRAY ref containing
-the lower and then the upper limit.
+The third and most powerful option is based upon named arguments,
+whithout surrounding curly braces. Here you have four named arguments:
+C<in> (color space), C<as> (format), C<range> and C<precision>.
 
-    $blue->values();                                # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');      # same call
-    $blue->values( in => 'RGB', as => 'array');     # ['rgb', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');      # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash'); # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'hex');       # '#00FFFF'
-    $blue->values( in => 'RGB', as => 'string');    # 'rgb: 255, 0, 0'
-    $blue->values( in => 'RGB', as => 'css_string');# 'rgb(255, 0, 0)'
-    $blue->values( in => 'RGB', as => 'hex');       # '#00ffff'
-    $color->values('HSL');                          # 240, 100, 50
-    $color->values( in => 'HSL', range => 1);       # 0.6666, 1, 0.5
-    $color->values( in => 'RGB', range => 2**16);   # values in RGB16
-    $color->values( in => 'HSB', as => 'hash')->{'hue'};  # how to get single values
-   ($color->values( 'HSB'))[0];                           # same, but shorter
+C<in> works the same way as the only argument.
+
+C<as> has to be followed by the name of a recognized
+L<format|Graphics::Toolkit::Color::Space::Hub/FORMATS>. Among these are
+C<list> (default), C<hash>, C<char_hash>, C<array>, C<string> and C<css_string>.
+
+C<range> is needed seldom. But let's say you want your RGB values not as
+usual in the value range 0 .. 255 (RGB8) but instead RGB16 with a range
+0 .. 65536. Then you need to type C<range => 2**16>. Also important might
+be C<range => 'normal'> which is same as 0 .. 1 or C<range => 1> which in
+parallel activates maximal precision of the values. If you want to get
+extra fancy, you can set a different range for every axis and can set even
+the lower bound of the range. For instance in C<HSL> the C<hue> is normally
+0 .. 359 and the other two axis are 0 .. 100.
+In order to set C<hue> to -100 .. 100 but keep the other two untouched
+you would have to insert: C<range => [[-100,100],100,100]>.
+
+C<precision> is rally exotic but some color spaces have a set precision.
+For instance C<LAB> values will have three decimals, no matter how precise
+the input was. In case you prefer 4 decimals, just use C<precision => 4>.
+A zero means no decimals and -1 is maximal precision which can spit more
+decimals than you expected.
+
+    $blue->values();                                  # get list in RGB: 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');        # same call
+    $blue->values( in => 'RGB', as => 'named_array'); # ['rgb', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');        # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');   # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'hex');         # '#00FFFF'
+    $blue->values( in => 'RGB', as => 'named_string');# 'rgb: 255, 0, 0'
+    $blue->values( in => 'RGB', as => 'css_string');  # 'rgb(255, 0, 0)'
+    $blue->values( in => 'RGB', as => 'hex');         # '#00ffff'
+    $color->values('HSL');                            # 240, 100, 50
+    $color->values( in => 'HSL', range => 1, precision => 2); # 0.66, 1, 0.5
+    $color->values( in => 'RGB', range => 2**16);             # values in RGB16
+    $color->values( in => 'HSB', as => 'hash')->{'hue'};      # how to get single value
+   ($color->values( 'HSB'))[0];                               # same, but shorter
 
 
 =head2 distance
 
 Is a floating point number that measures the Euclidean distance between
 two colors. One color is the calling object itself and the second (C2)
-has to provided as a named argument (I<to>), which is the only required one.
-It ca come in the form of a second GTC object or any scalar color definition
+has to be provided as a named argument (I<to>), which is the only required one.
+It may come in the form of a second GTC object or any scalar color definition
 I<new> would accept. The I<distance> is measured in RGB color space unless
 told otherwise by the argument I<in>. The third argument is named I<metric>.
 It's useful if you want to notice only certain dimensions. Metric is the

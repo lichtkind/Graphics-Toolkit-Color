@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 106;
+use Test::More tests => 100;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';

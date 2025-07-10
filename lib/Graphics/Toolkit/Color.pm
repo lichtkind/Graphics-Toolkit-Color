@@ -432,12 +432,13 @@ giving access to different parts of the objects data.
 
 =head2 name
 
-String with normalized name (lower case without I<'_'>) of the color as
-in X11 or HTML (SVG) standard or the Pantone report.
-The name will be found and filled in, even when the object
-was created with numerical values.
-If no color is found, C<name> returns an empty string.
-All names are at: L<Graphics::Toolkit::Color::Name::Constant/NAMES>
+String with normalized color name (lower case without I<'_'>) as to be
+found in I<X11> or I<HTML> (I<SVG>) standard or the I<Pantone report>.
+Returns a name, even when the object was created with numerical values.
+Returns an empty string when no color constant in the mentioned standards
+has the exact same values. If several constants have matching values,
+the one with the shortest name will be returned.
+All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>
 (See also: L</new('name')>)
 
 =head2 values

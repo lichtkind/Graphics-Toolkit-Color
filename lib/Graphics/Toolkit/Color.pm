@@ -516,59 +516,63 @@ Methods to construct colors that are related to the current object.
 
 =head2 set
 
-Create a new object shares some values with the current but differs in
-others.
+Creates a new GTC color object that shares some values with the current one,
+but differs in others. The altering values are provided as absoltue numbers.
+The axis of
+L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+have long and short names. For instance I<HSL> has I<hue>, I<sturation>
+and I<lightness>. The short equivalents are I<h>, I<s> and I<l>. This
+method accepts these axis names as named arguments and disregards if
+characters are written upper or lower case. This method can not work,
+if you mix axis names from different spaces or choose one axis more than once.
+One solvable issue is when axis in different spaces have the same name.
+For instance I<HSL> and I<HSV> have a I<hue> axis. To disambiguate you
+have to put the axis names inside a HASH ref and add the named argument L</in>.
 
     $black->set( blue => 255 )->name;   # blue, same as #0000ff
     $blue->set( saturation => 50 );     # pale blue, same as $blue->set( s => 50 );
+    $blue->set( {saturation => 50}, in => 'HSV' );  # previous example computed in HSL
 
 =head2 add
 
-Create a Graphics::Toolkit::Color object, by adding any RGB or HSL values to current
-color. (Same rules apply for key names as in new - values can be negative.)
-RGB and HSL can be combined, but please note that RGB are applied first.
-
-If the first argument is a Graphics::Toolkit::Color object, than RGB values will be added.
-In that case an optional second argument is a factor (default = 1),
-by which the RGB values will be multiplied before being added. Negative
-values of that factor lead to darkening of result colors, but its not
-subtractive color mixing, since this module does not support CMY color
-space. All RGB operations follow the logic of additive mixing, and the
-result will be rounded (clamped), to keep it inside the defined RGB space.
+Creates a new GTC color object that shares some values with the current one,
+but differs in others. The altering values are provided as relative numbers
+to the current one. The rest works as described in L</set>.
 
     my $blue = Graphics::Toolkit::Color->new('blue');
     my $darkblue = $blue->add( Lightness => -25 );
-    my $blue2 = $blue->add( blue => 10 );        # this is bluer than blue
+    my $blue2 = $blue->add( blue => 10 );               # this is bluer than blue
+    my $blue3 = $blue->add( {l => 10}, in => 'LAB' );   #
 
 =head2 blend
 
-Create a Graphics::Toolkit::Color object, that has the average values
-between the calling object (color 1 - C1) and another color (C2).
+Create a new GTC object, that has the average values
+between the calling object (color 1 - C1) and another color (C2),
+which is the only required parameter.
+It takes three named arguments: C<with> (L</to>), C<amount> and L</in>.
 
-It takes three named arguments, only the first is required.
+Only with this method an alias to C<to> is allowed because: blend ... with
+sound more natural , but if you want to keep it consistent with the other
+methods you might also use C<$color->blend( to => 'grey');>. In case you
+want to mix several colors, you have to provide this argument with an ARRAY
+ref with several color definitions or objects.
 
-1. The color C2 (scalar that is acceptable by the constructor: object, string, ARRAY, HASH).
-   The name of the argument is I<with> (color is blended with ...).
+Per default blend computes a 50-50 (1:1) mix. In order to change that,
+employ the C<amount> argument which is the amount of the other color (C2)
+in percent. Again, if you want to mix more than two colors, the previous
+and this argument has to hold an ARRAY reference with the same amount
+of values in the same order. If the amounts add up to more than 100
+percent the current color will not be present in the mix and the values
+will be recalculated by keeping the ratio.
 
-2. Blend position is a floating point number, which defaults to 0.5.
-   (blending ratio of 1:1 ). 0 represents here C1 and 1 is pure C2.
-   Numbers below 0 and above 1 are possible, butlikely to be clamped to
-   fit inside the color space. Name of the argument is I<pos>.
-
-3. Color space name (default is I<RGB> - all can be seen unter
-   L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>). Name of the argument
-   is I<in>.
-
-    # a little more silver than $color in the mix
-    $color->blend( to => 'silver', pos => 0.6 );
-    $color->blend({ to => 'silver', pos => 0.6 });             # works too!
+    $color->blend( to => 'silver', amount => 60 );
+    $color->blend( to => [qw/silver green/], amount => [10, 20]);      # mix three colors
     $blue->blend( with => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
 
-Instead of I<to> one could also use the alias I<with>, which sounds more english.
 
 =head1 COLOR SETS
 
-construct many interrelated color objects at once.
+construct several interrelated color objects at once.
 
 
 =head2 gradient
@@ -678,6 +682,8 @@ refs even inside that. For instance in C<HSL> the C<hue> is normally
 0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
 to -100 .. 100 but keep the other two untouched you would have to insert:
 C<range => [[-100,100],100,100]>.
+
+=head2 to
 
 
 =head1 SEE ALSO

@@ -492,17 +492,17 @@ decimals than you prefer. Different precisions per axis ([1,2,3]) are possible.
 
 Is a floating point number that measures the Euclidean distance between
 two colors. One color is the calling object itself and the second (C2)
-has to be provided as a named argument (I<to>), which is the only required one.
-It may come in the form of a second GTC object or any scalar color definition
-I<new> would accept. The I<distance> is measured in RGB color space unless
-told otherwise by the argument I<in>. The third argument is named I<metric>.
-It's useful if you want to notice only certain dimensions. Metric is the
-long or short name of that dimension or the short names of several dimensions.
-They all have to come from one color space and one shortcut letter can be
-used several times to heighten the weight of this dimension. The last
-argument is named I<range> and is a range definition, which works as in the
-previous method above. Please not that a user defined value range can change
-the result in most drastic ways.
+has to be provided as a named argument (L</to>), which is the only required one.
+
+The C<distance> is measured in I<RGB> color space unless told otherwise
+by the argument L</in>.
+
+The third argument is named C<select>. It's useful if you want to regard
+only certain dimensions (axis). Long or short axis names are accepted.
+They all have to come from one color space and one short name can be used
+several times to heighten the weight of this dimension (axis).
+
+The last argument is named L</range>, which can change the result drasticly.
 
     my $d = $blue->distance( to => 'lapisblue' );              # how close is blue to lapis color?
     $d = $blue->distance( to => 'airyblue', in => 'RGB', select => 'Blue'); # same amount of blue?
@@ -655,7 +655,7 @@ circle in the up-down direction, which is in HSL color space lightness.
 =head1 ARGUMENTS
 
 Some named arguments of the above listed methods reappear in several methods.
-Thus they explained here onece.
+Thus they are explained here once.
 
 =head2 in
 
@@ -685,6 +685,10 @@ C<range => [[-100,100],100,100]>.
 
 =head2 to
 
+This argument receives a second or target color. It may come in form of
+another GTC object or a color definition that is acceptable to the
+constructor. But it has to be a scalar (string or (HASH) reference),
+not a value list or hash.
 
 =head1 SEE ALSO
 

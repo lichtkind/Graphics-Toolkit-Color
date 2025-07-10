@@ -284,7 +284,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color - color palette constructor
+Graphics::Toolkit::Color - calculate colors and color sets, IO many spaces and formats
 
 =head1 SYNOPSIS
 
@@ -298,13 +298,15 @@ Graphics::Toolkit::Color - color palette constructor
     $red->complement( 3 );                          # get fitting red green and blue
 
 
-=head1 DESCRIPTION
+=head1 WARNING
 
-ATTENTION: deprecated methods of the old API ( I<string>, I<rgb>, I<red>,
+deprecated methods of the old API ( I<string>, I<rgb>, I<red>,
 I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
 I<lightness>, I<hsl_hash>, I<blend_with>, I<gradient_to>,
 I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
-will be removed on version 2.0.
+will be removed with release of version 2.0.
+
+=head1 DESCRIPTION
 
 Graphics::Toolkit::Color, for short GTC, is the top level API of this
 release and the only one a regular user should be concerned with.
@@ -328,6 +330,7 @@ Humans access colors on hardware level (eye) in RGB, on cognition level
 in HSL (brain) and on cultural level (language) with names.
 Having easy access to all three and some color math should enable you to
 get the color palette you desire quickly.
+
 
 =head1 CONSTRUCTOR
 
@@ -510,6 +513,7 @@ The last argument is named L</range>, which can change the result drasticly.
     # compute distance when with all value ranges 0 .. 1
     $d = $color->distance( to => $c2, in => 'HSL', select => 'hue', range => 'normal' );
 
+
 =head1 SINGLE COLOR
 
 Methods to construct colors that are related to the current object.
@@ -517,7 +521,10 @@ Methods to construct colors that are related to the current object.
 =head2 set
 
 Creates a new GTC color object that shares some values with the current one,
-but differs in others. The altering values are provided as absoltue numbers.
+but differs in others. The altered values are provided as absoltue numbers.
+If the resulting color will be outside of the given color space, the values
+will be clamped so it will become a regular color of that space.
+
 The axis of
 L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
 have long and short names. For instance I<HSL> has I<hue>, I<sturation>
@@ -536,13 +543,13 @@ have to put the axis names inside a HASH ref and add the named argument L</in>.
 =head2 add
 
 Creates a new GTC color object that shares some values with the current one,
-but differs in others. The altering values are provided as relative numbers
-to the current one. The rest works as described in L</set>.
+but differs in others. The altered values are provided relative to the current
+ones. The rest works as described in L</set>.
 
     my $blue = Graphics::Toolkit::Color->new('blue');
-    my $darkblue = $blue->add( Lightness => -25 );
-    my $blue2 = $blue->add( blue => 10 );               # this is bluer than blue
-    my $blue3 = $blue->add( {l => 10}, in => 'LAB' );   #
+    my $darkblue = $blue->add( Lightness => -25 );      # dim it down
+    my $blue2 = $blue->add( blue => 10 );               # can it get bluer than blue ?
+    my $blue3 = $blue->add( {l => 10}, in => 'LAB' );   # change lightness in CIELAB
 
 =head2 blend
 
@@ -574,82 +581,79 @@ will be recalculated by keeping the ratio.
 
 construct several interrelated color objects at once.
 
-
 =head2 gradient
 
 Creates a gradient (a list of color objects that build a transition)
-between current color held by the object and a second color, provided
-by the named argument I<to>.
+between the current color held by the object and a second color,
+provided by the named argument L</to>, which is a required.
+Optionally C<to> accepts an ARRAY ref (square braces) with a list of
+colors in order to create the most fancy, custom and nonelinear gradients.
 
-The only required arguments are the mentioned I<to> and I<steps>.
-The first accepts a color object or any color definition the
-L</CONSTRUCTOR> would accept, as long as it is a scalar value
-(name, string, ARRAY ref, HASH ref).
-I<steps> sets the number of colors, which make up the gradient. A negative
-value will made positive for now, but in future a minus sign might
-influence the behavior in cylindrical color spaces to go the other way
-around.
+Also required is the named argument C<steps>, which is the gradient length
+or count of colors, which are part of this gradient. Included in there
+are the start color (given by this object) and end color (given with C<to>).
 
-An optional argument is I<dynamic>, which has to be a float number, with
-the default of zero. Values greater than than will skew the the gradient
-toward the second color. That means that color change will change very slow
-and will get increasingly faster. Negative values work vice versa and the
-greater the absolute value, the stronger the effect.
+The optional, floating point valued argument C<dynamic> makes the gradient
+skewed toward one or the other end. Default is zero, which results in
+a linear, uniform transition between start and stop.
+Greater values of the argument let the color change rate start small,
+steadily getting bigger. Negative values work vice versa.
+The bigger the numeric value the bigger the effect.
 
-The last optional argument named L</in> defines the color space,
-the changes are computed in.
+Optional is the named argument L<\in> (color space - details behind the link).
 
     # we turn to grey
-    my @colors = $c->gradient( to => $grey, steps => 5, in => 'RGB');
+    my @colors = $c->gradient( to => $grey, steps => 5);
     # none linear gradient in HSL space :
-    @colors = $c1->gradient( to =>[14,10,222], steps => 10, dynamic => 3 );
+    @colors = $c1->gradient( to =>[14,10,222], steps => 10, dynamic => 3, in => 'HSL' );
+    @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
 
 =head2 complement
 
 Creates a set of complementary colors, which will be computed in I<HSL>
-color space. It accepts 4 optional, named arguments.
-Complementary colors have a different I<hue> value but same
-I<saturation> and I<lightness>. Because they form a circle in HSL, they
-will be called in this paragraph a circle.
+color space. The method accepts two optional, named arguments.
+Complementary colors normally have a different I<hue> value but same
+I<saturation> and I<lightness>. They form a circle in I<HSL>, which will
+be referenced  often in this paragraph.
 
-If you provide no names (just a single argument), the value is understood
-as I<steps>. I<steps> is the amount (count) of complementary colors,
-which defaults to 1 (giving you then THE complementary color).
-If more than one color is requested, the result will contain the calling
-object as the first color.
+If called with no arguments the method returns just THE complementary
+color on the opposite side "side" of the circle.
 
-The second optional argument is I<hue_tilt>, in short I<h>, which defaults
-to zero. When zero, the hue distance between all resulting colors on the
-circle is the same. When not zero, the I<hue_tilt> gets added (see L</add>)
-to THE complementary color. The so computed color divides the circle in a
-shorter and longer part. Both of these parts will now contain an equal
-amount of result colors. The distribution will be computed in a way,
-that there will be a place on the circle where the distance between colors
-is the highest (let's call it Dmax) and one where it is the lowest (Dmin).
-The distance between two colors increases or decreases steadily.
-When I<hue_tilt> is zero, the axis through Dmax and Dmin and the axis
-through $self and C2 are orthogonal.
+The named argument C<steps> (as in L</gradient>) sets the number of colors
+computed, by dividing the perimeter of the circle in N equal parts
+If you for instance use C<steps => 3> you will get the triadic colors,
+that form a equilateral triangle on top of the circle. If no other named
+arguments are used, you may omit the arguments name and type just C<complement(3)>.
 
-The third optional argument I<saturation_tilt>, or short I<s>, which also
-defaults to zero. If the value differs from zero it gets added the color
-on Dmax (last paragraph), subtracted on Dmin, changed accordingly in between,
-so that the circle gets moved in direction Dmin. If you want to move
-the circle in any other direction you have to give I<saturation_tilt>
-a HASH reference with 2 keys. First is I<saturation> or I<s>, which is
-the  value as described. Secondly  I<hue> or I<h> rotates the direction
-in which the circle will be moved. Please not, this will not change
-the position of Dmin and Dmax, because it just defines the angle
-between the Dmin-Dmax axis and the direction where the circle is moved.
-
-The fourth optional argument is I<lightness_tilt> or I<l>m which works
-analogously to I<saturation_tilt>. Only difference is that it tilts the
-circle in the up-down direction, which is in HSL color space lightness.
+The second argument is C<tilt>, can skew the circle in any direction and
+provides several options to do that. In its simplest form you provide just
+one number to skew the hue values of the complements. Positive values
+move the complementary colors nearest to the given color even nearer -
+negative values do the opposite. The same can be achieved by using the
+form C<tilt => {hue => nnn}>. Into that HASH reference you could insert
+the keys C<saturation> (or C<s>) and C<lightness> (or C<l>) to tilt the
+circle along two more axis. They move the opposite "side" of the cirle
+(THE complement color, lets call it TC) as the method L</add> would do.
+With C<s => -10> you move TC towards the point, which was previously
+the center of the circle, making some resulting colors more saturated
+than others. C<l => 10> would move TC a bit up, making some colors lighter.
+To get even more control you could determine to not move the circle
+at the TC point but also at any hue position. In order to do that,
+you have to provide the C<saturation> and C<lightness> keys with a HASH
+reference that has two keys: C<amount> and C<hue> (or C<h>). C<amount>
+does the same movements as just described. But the C<hue> value lets you
+select the point on the circe you actually want to move. Too large or
+negative C<hue> values will be rotated into the expected range of 0 ..359.
 
     my @colors = $c->complement( 4 );    # $self + 3 compementary (square) colors
-    my @colors = $c->complement( steps => 3, s => 20, l => -10 );
-    my @colors = $c->complement( steps => 3, hue_tilt => -40,
-                                     saturation_tilt => {saturation => 300, hue => -50},
-                                     lightness_tilt => {l => -10, hue => 30} );
+    my @colors = $c->complement( steps => 3, tilt => {s => 20, l => -10} );
+    my @colors = $c->complement( steps => 3, tilt => { hue => -40,
+                                                         s => {amount => 300, hue => -50},
+                                                         l => {amount => -10, hue => 30} });
+
+=head2 cluster
+
+Computes a set of colors that are all similar but not the same.
 
 
 =head1 ARGUMENTS

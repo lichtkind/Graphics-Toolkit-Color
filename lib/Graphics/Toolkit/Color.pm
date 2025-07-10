@@ -432,64 +432,55 @@ giving access to different parts of the objects data.
 
 =head2 name
 
-String with normalized color name (lower case without I<'_'>) as to be
-found in I<X11> or I<HTML> (I<SVG>) standard or the I<Pantone report>.
-Returns a name, even when the object was created with numerical values.
-Returns an empty string when no color constant in the mentioned standards
-has the exact same values. If several constants have matching values,
-the one with the shortest name will be returned.
-All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>
+Returns the normalized name (lower case, without I<'_'>) of the color,
+held by the object - even when the object was created with numerical values.
+It returns an empty string when no color constant with the exact same values
+was found in the I<X11> or I<HTML> (I<SVG>) standard or the I<Pantone report>.
+If several constants have matching values, the shortest name will be returned.
+All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
 (See also: L</new('name')>)
 
 =head2 values
 
-Returns the numeric values of the color from a certain color space
-and in a required format.
+Returns the numeric values of the color, held by the object. With fitting
+arguments, the values from
+L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+can be accessed and the values can be presented in many different
+L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+When given no arguments, the method returns a list with the I<red>, I<greem>
+and I<blue> values, since I<RGB> is the default color space of this module.
 
-When given no arguments you get a list of the I<red>, I<greem> and I<blue>
-values since I<RGB> is the default color space.
+The next possibility is to give exactly one argument: the name or alias name
+of a L<color space|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+Then you get the of values in list form according to this space.
+In other words: C<$color->values()> and C<$color->values('RGB')>
+give you the same result.
 
-The next option is to give exactly one argument, the name or alias name
-of a L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
-Then you get the of value according this space. In other words:
-C<$color->values()> and C<$color->values('RGB')> gives you the same result.
-
-The third and most powerful option is based upon named arguments,
-whithout surrounding curly braces. Here you have four named arguments:
-C<in> (color space), C<as> (format), C<range> and C<precision>.
-
-C<in> works the same way as the only argument.
+The third and most powerful option is based upon named arguments, whithout
+surrounding curly braces. Here you have four named, optional arguments:
+L</in> (color space), C<as> (format), L</range> and C<precision>.
+C<in> and C<range> work as describd behind the links.
 
 C<as> has to be followed by the name of a recognized
 L<format|Graphics::Toolkit::Color::Space::Hub/FORMATS>. Among these are
-C<list> (default), C<hash>, C<char_hash>, C<array>, C<string> and C<css_string>.
+C<list> (default), C<hash>, C<char_hash>, C<array>, C<named_string> and C<css_string>.
+Please note that C<hex_string> is only supported by I<RGB>
 
-C<range> is needed seldom. But let's say you want your RGB values not as
-usual in the value range 0 .. 255 (RGB8) but instead RGB16 with a range
-0 .. 65536. Then you need to type C<range => 2**16>. Also important might
-be C<range => 'normal'> which is same as 0 .. 1 or C<range => 1> which in
-parallel activates maximal precision of the values. If you want to get
-extra fancy, you can set a different range for every axis and can set even
-the lower bound of the range. For instance in C<HSL> the C<hue> is normally
-0 .. 359 and the other two axis are 0 .. 100.
-In order to set C<hue> to -100 .. 100 but keep the other two untouched
-you would have to insert: C<range => [[-100,100],100,100]>.
-
-C<precision> is rally exotic but some color spaces have a set precision.
+C<precision> is really exotic but sometimes you need to escape the numeric
+precision set by a color spaces definition.
 For instance C<LAB> values will have three decimals, no matter how precise
 the input was. In case you prefer 4 decimals, just use C<precision => 4>.
 A zero means no decimals and -1 is maximal precision which can spit more
-decimals than you expected.
+decimals than you prefer. Different precisions per axis ([1,2,3]) are possible.
 
     $blue->values();                                  # get list in RGB: 0, 0, 255
     $blue->values( in => 'RGB', as => 'list');        # same call
     $blue->values( in => 'RGB', as => 'named_array'); # ['rgb', 0, 0, 255]
     $blue->values( in => 'RGB', as => 'hash');        # { red => 0, green => 0, blue => 255}
     $blue->values( in => 'RGB', as => 'char_hash');   # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'hex');         # '#00FFFF'
     $blue->values( in => 'RGB', as => 'named_string');# 'rgb: 255, 0, 0'
     $blue->values( in => 'RGB', as => 'css_string');  # 'rgb(255, 0, 0)'
-    $blue->values( in => 'RGB', as => 'hex');         # '#00ffff'
+    $blue->values(              as => 'hex_string');  # '#00ffff'
     $color->values('HSL');                            # 240, 100, 50
     $color->values( in => 'HSL', range => 1, precision => 2); # 0.66, 1, 0.5
     $color->values( in => 'RGB', range => 2**16);             # values in RGB16
@@ -509,9 +500,9 @@ It's useful if you want to notice only certain dimensions. Metric is the
 long or short name of that dimension or the short names of several dimensions.
 They all have to come from one color space and one shortcut letter can be
 used several times to heighten the weight of this dimension. The last
-argument in named I<range> and is a range definition, unless you don't
-want to compute the distance with the default ranges of the selected color
-space.
+argument is named I<range> and is a range definition, which works as in the
+previous method above. Please not that a user defined value range can change
+the result in most drastic ways.
 
     my $d = $blue->distance( to => 'lapisblue' );              # how close is blue to lapis color?
     $d = $blue->distance( to => 'airyblue', in => 'RGB', select => 'Blue'); # same amount of blue?
@@ -521,12 +512,12 @@ space.
 
 =head1 SINGLE COLOR
 
-construct colors that are related to the current object.
+Methods to construct colors that are related to the current object.
 
 =head2 set
 
-Create a new object that differs in certain values defined in the arguments
-as a hash.
+Create a new object shares some values with the current but differs in
+others.
 
     $black->set( blue => 255 )->name;   # blue, same as #0000ff
     $blue->set( saturation => 50 );     # pale blue, same as $blue->set( s => 50 );
@@ -670,6 +661,23 @@ space in this module is I<RGB>. Depending on the space the results
 can be very different, since colors are very differently arranged and
 have different distances to each other. Some colors might not even exists
 in some spaces.
+
+=head2 range
+
+Every color space comes with range definitions for its values.
+For instance I<red>, I<green> and I<blue> in I<RGB> go usually from zero
+to 255 (0..255). In order to change that, many methods accept the named
+argument C<range>. When only one interger value provided, it changes the
+upper bound on all three axis and as lower bound is assumed zero.
+Let's say you need I<RGB16> values with a range of 0 .. 65536,
+then you type C<range => 65536> or C<range => 2**16>.
+
+If you provide an ARRAY ref you can change the upper bounds of all axis
+individually and in order to change even the lower boundaries, use ARRAY
+refs even inside that. For instance in C<HSL> the C<hue> is normally
+0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
+to -100 .. 100 but keep the other two untouched you would have to insert:
+C<range => [[-100,100],100,100]>.
 
 
 =head1 SEE ALSO

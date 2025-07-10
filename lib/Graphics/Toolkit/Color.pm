@@ -654,6 +654,21 @@ negative C<hue> values will be rotated into the expected range of 0 ..359.
 =head2 cluster
 
 Computes a set of colors that are all similar but not the same.
+The method accepts three named arguments: C<radius>, C<distance> and L</in>,
+of which the first two are required.
+
+The produced colors form a ball or cuboid around the given color, depending
+on what the argument C<radius> got. If it is a single number, it will be
+a ball with the given radius. If it is an ARRAY of values you get the a
+cuboid with the given dimensions.
+
+The minimal distance between the colors is set by the argument C<distance>,
+which is computed the same way as the method with taht name. In a cuboid
+shaped cluster the colors will be in a cubic grid inside the ball they
+form a cuboctahedral grid, which is packed tighter but still obey the
+demanded minimal distance.
+
+    my @colors = $c->cluster( radius => [2,2,3], distance => 0.4, in => YUV );
 
 
 =head1 ARGUMENTS
@@ -734,7 +749,7 @@ L<Color::Similarity>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2022-2023 Herbert Breunung.
+Copyright 2022-2025 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

@@ -152,7 +152,7 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     return @result;
 }
 
-sub ball {# +radius +distance|count +variance ~in @range
+sub cluster {# +radius +distance|count +variance ~in @range
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';

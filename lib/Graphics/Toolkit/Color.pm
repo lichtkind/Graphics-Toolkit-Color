@@ -269,7 +269,7 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     return @result;
 }
 
-sub bowl {# +radius +distance|count +variance ~in @range
+sub cluster {# +radius +distance|count +variance ~in @range
     my ($self, @args) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';
@@ -494,8 +494,9 @@ decimals than you prefer. Different precisions per axis ([1,2,3]) are possible.
 =head2 distance
 
 Is a floating point number that measures the Euclidean distance between
-two colors. One color is the calling object itself and the second (C2)
-has to be provided as a named argument (L</to>), which is the only required one.
+two colors. One color is the calling object itself and the second one,
+that has to be provided as either the only argument or the named argument
+L</to>, which is the only required one.
 
 The C<distance> is measured in I<RGB> color space unless told otherwise
 by the argument L</in>.

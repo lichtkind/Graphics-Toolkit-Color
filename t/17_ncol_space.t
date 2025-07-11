@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 71;
+use Test::More tests => 72;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::NCol';
@@ -46,6 +46,8 @@ is( int @$val, 3,      'deformated value triplet (tuple)');
 is( $val->[0], 0,      'first value good');
 is( $val->[1], 0,      'second value good');
 is( $val->[2], 0,      'third value good');
+$val = $space->deformat('ncol(R0, 0%, 0%)');
+is( int @$val, 3,      'one digit color values work too');
 $val = $space->deformat('ncol(G12, 34%, 56%)');
 is( ref $val, 'ARRAY', 'deformated CSS string into tuple (ARRAY)');
 is( int @$val, 3,      'deformated value triplet (tuple)');

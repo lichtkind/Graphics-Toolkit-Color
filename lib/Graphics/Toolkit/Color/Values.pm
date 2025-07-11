@@ -79,7 +79,7 @@ sub get_normal_tuple {
     );
 }
 sub get_custom_form { # get a value tuple in any color space, range and format
-    my ($self, $space_name, $format_name, $range_def) = @_;
+    my ($self, $space_name, $format_name, $range_def, $precision_def) = @_;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "can not format values in unknown space name: $space_name" unless ref $color_space;
@@ -88,6 +88,7 @@ sub get_custom_form { # get a value tuple in any color space, range and format
     );
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );
+    $values = $color_space->round( $values, $precision_def ) if defined $precision_def;
     $values = $color_space->format( $values, $format_name ) if defined $format_name;
     return $values;
 }
@@ -120,7 +121,7 @@ sub add { # %val --> _
     __PACKAGE__->new_from_normal_tuple( $color_space->normalize($values), $space_name);
 }
 
-sub blend { #  @%(+percent _values)  -- ~space_name --> _values
+sub mix { #  @%(+percent _values)  -- ~space_name --> _values
     my ($self, $mix, $space_name ) = @_;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
@@ -137,7 +138,7 @@ sub blend { #  @%(+percent _values)  -- ~space_name --> _values
     if ($percentage_sum < 100){
         my $values = $self->get_custom_form( $space_name );
         my $mix_amount = (100 - $percentage_sum) / 100;
-        $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;        
+        $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
     } else {
         $percentage_sum /= 100;
         $_->{'percent'} /= $percentage_sum for @{$mix}; # sum of percentages has to be 100

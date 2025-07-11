@@ -9,23 +9,6 @@ use Graphics::Toolkit::Color::Space::Hub;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
-sub new_from_normal_tuple {
-    my ($pkg, $values, $space_name) = @_;
-    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $color_space;
-    $values = $color_space->clamp( $values, 'normal' );
-    # return 'need a normalized (0..1) RGB tuple' unless $RGB->range_check( $values, 'normal' );
-    my $source = '';
-    if ($color_space->name ne  Graphics::Toolkit::Color::Space::Hub::default_space_name()){
-        $source = $values;
-        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $values, $space_name, 'normal' );
-    } else { $space_name = '' }
-    $values = $RGB->clamp( $values, 'normal' );
-    my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );
-    bless { name => $name, rgb => $values, source => $source, source_space => $space_name };
-}
-
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
     my ($pkg, $color_def) = @_;
     if (not ref $color_def){
@@ -47,6 +30,7 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
     return "could not recognize color value format or color name: $color_def" unless ref $values;
     __PACKAGE__->new_from_normal_tuple( $values, $source_space);
 }
+
 sub rgb_from_external_module {
     my ( $pallet_name, $color_name ) = @_;
     return unless defined $color_name;
@@ -61,6 +45,23 @@ sub rgb_from_external_module {
     my @rgb = $pallet->rgb( $color_name );
     return "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
     return \@rgb;
+}
+
+sub new_from_normal_tuple {
+    my ($pkg, $values, $space_name) = @_;
+    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $color_space;
+    $values = $color_space->clamp( $values, 'normal' );
+    # return 'need a normalized (0..1) RGB tuple' unless $RGB->range_check( $values, 'normal' );
+    my $source = '';
+    if ($color_space->name ne  Graphics::Toolkit::Color::Space::Hub::default_space_name()){
+        $source = $values;
+        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $values, $space_name, 'normal' );
+    } else { $space_name = '' }
+    $values = $RGB->clamp( $values, 'normal' );
+    my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );
+    bless { name => $name, rgb => $values, source => $source, source_space => $space_name };
 }
 
 ########################################################################
@@ -122,14 +123,13 @@ sub add { # %val --> _
 }
 
 sub mix { #  @%(+percent _values)  -- ~space_name --> _values
-    my ($self, $mix, $space_name ) = @_;
+    my ($self, $recipe, $space_name ) = @_;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "can not format values in unknown space name: $space_name" unless ref $color_space;
-    $mix = [{percent => 50, color => $mix}] if ref $mix eq __PACKAGE__;
-    return if ref $mix ne 'ARRAY';
+    return if ref $recipe ne 'ARRAY';
     my $percentage_sum = 0;
-    for my $component (@{$mix}){
+    for my $component (@{$recipe}){
         return if ref $component ne 'HASH' or not exists $component->{'percent'}
                or not exists $component->{'color'} or ref $component->{'color'} ne __PACKAGE__;
         $percentage_sum += $component->{'percent'};
@@ -141,9 +141,9 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
         $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
     } else {
         $percentage_sum /= 100;
-        $_->{'percent'} /= $percentage_sum for @{$mix}; # sum of percentages has to be 100
+        $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
     }
-    for my $component (@{$mix}){
+    for my $component (@$recipe){
         my $values = $component->{'color'}->get_custom_form ($space_name);
         $result->[$_] +=  $values->[$_] * $component->{'percent'} / 100 for 0 .. $#$values;
     }

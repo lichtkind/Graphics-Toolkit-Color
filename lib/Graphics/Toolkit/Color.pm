@@ -1,14 +1,15 @@
 
-# public, user level API: changing and measuring colors, computing color sets
+# public, user level API: computing color (sets), measuring ,IO in many formats and spaces
 
 package Graphics::Toolkit::Color;
 our $VERSION = '1.8';
+
 use v5.12;
 use warnings;
+use Exporter 'import';
 use Graphics::Toolkit::Color::Values;
 use Graphics::Toolkit::Color::Operation::Set;
 
-use Exporter 'import';
 our @EXPORT_OK = qw/color/;
 
 ## constructor #########################################################
@@ -17,9 +18,7 @@ sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
 sub new {
     my ($pkg, @args) = @_;
-    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
-    @args = ({ @args }) if @args == 6 or @args == 8;
-    return <<EOH unless @args == 1;
+    my $help = <<EOH;
     constructor new of Graphics::Toolkit::Color object needs either:
     1. a color name: new('red') or new('SVG:red')
     3. RGB hex string new('#FF0000') or new('#f00')
@@ -28,9 +27,12 @@ sub new {
     6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
     7. HASH or HASH ref with values from RGB or any other space:
        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
-    see perldoc Graphics::Toolkit::Color for more
 EOH
-    _new_from_scalar( $args[0] );
+    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
+    @args = ({ @args }) if @args == 6 or @args == 8;
+    return $help unless @args == 1;
+    my $self = _new_from_scalar( $args[0] );
+    return (ref $self) ? $self : $help;
 }
 sub _new_from_scalar {
     my ($color_def) = shift;
@@ -41,25 +43,26 @@ sub _new_from_scalar {
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
-    return unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
+    return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
     bless {values => $value_obj};
 }
 
-## deprecated - deleted with 2.0
+## deprecated methods - deleted with 2.0
     sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
     sub rgb         { $_[0]->values( ) }
-    sub red         {($_[0]->values( in => 'rgb'))[0] }
-    sub green       {($_[0]->values( in => 'rgb'))[1] }
-    sub blue        {($_[0]->values( in => 'rgb'))[2] }
-    sub rgb_hex     { $_[0]->values( in => 'rgb', as => 'hex') }
-    sub rgb_hash    { $_[0]->values( in => 'rgb', as => 'hash') }
+    sub red         {($_[0]->values( ))[0] }
+    sub green       {($_[0]->values( ))[1] }
+    sub blue        {($_[0]->values( ))[2] }
+    sub rgb_hex     { $_[0]->values( as => 'hex') }
+    sub rgb_hash    { $_[0]->values( as => 'hash') }
     sub hsl         { $_[0]->values( in => 'hsl') }
     sub hue         {($_[0]->values( in => 'hsl'))[0] }
     sub saturation  {($_[0]->values( in => 'hsl'))[1] }
     sub lightness   {($_[0]->values( in => 'hsl'))[2] }
     sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
     sub distance_to { distance(@_) }
-    sub blend_with { $_[0]->blend( with => $_[1], pos => $_[2], in => 'HSL') }
+    sub blend       { mix( @_ ) }
+    sub blend_with { $_[0]->mix( with => $_[1], amount => $_[2], in => 'HSL') }
     sub gradient_to     { hsl_gradient_to( @_ ) }
     sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
     sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
@@ -71,69 +74,116 @@ sub closest_name { $_[0]{'values'}->get_closest_name }
 sub values       {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
-               (@_ == 1)    ? (in => $_[0])
-                            : return <<EOH;
+               (@_ == 1)    ? (in => $_[0]) : ();
+    my %clean_arg = map { $_ => delete $args{$_} } qw/in as range precision/;
+    return <<EOH if %args;
     GTC method 'values' accepts either no arguments, one color space name or
-    three optional, named arguments (not in a HASH ref):
+    four optional, named arguments (not in a HASH ref):
         in => 'HSL',          # color space name
         as => 'css_string',   # output format name
-        range => 1,           # value range definition
-    see perldoc Graphics::Toolkit::Color for more
+        range => 1,           # value range definition (SCALAR or ARRAY)
+        precision => 3,       # value precision definition (SCALAR or ARRAY)
+
 EOH
-    $self->{'values'}->get_custom_form( $args{'in'}, $args{'as'}, $args{'range'} );
+    $self->{'values'}->get_custom_form( $clean_arg{'in'}, $clean_arg{'as'},
+                                        $clean_arg{'range'}, $clean_arg{'precision'} );
 }
 sub distance {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
-               (@_ == 1)    ? (to => $_[0])
-                            : return <<EOH;
+               (@_ == 1)    ? (to => $_[0]) : ();
+    my %clean_arg = map { $_ => delete $args{$_} } qw/to in select range/;
+    return <<EOH if %args or not defined $clean_arg{'to'};
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
-        to => ....            # color objector color definition
-        in => 'RGB'           # color space name
+        to => 'green'         # color object or color definition (required)
+        in => 'HSL'           # color space name
         select => 'red'       # axis name or names (ARRAY ref)
         range => 2**16        # value range definition
 EOH
-    my ($target, $space_name, $select, $range) = ($args{'to'}, $args{'in'}, $args{'select'}, $args{'range'});
-    return "missing required argument: color object or scalar color definition" unless defined $target;
-    $target = _new_from_scalar( $target );
-    return "second color for distance calculation (named argument 'to') is badly defined" unless ref $target eq __PACKAGE__;
-    $self->{'values'}->distance( $target->{'values'}, $space_name, $select, $range );
+    my $target_color = _new_from_scalar( $clean_arg{'to'} );
+    return "target color definition (only argument or named argument 'to') is ill formed" unless ref $target_color;
+    $self->{'values'}->distance( $target_color->{'values'}, $clean_arg{'in'},
+                                 $clean_arg{'select'}, $clean_arg{'range'} );
 }
 
 ## single color creation methods #######################################
-sub _get_arg_hash {
-    my $arg = (ref $_[0] eq 'HASH') ? $_[0]
-            : (not @_ % 2)          ? {@_}
-            :                         {} ;
-    return (keys %$arg) ? $arg : return "need arguments as hash (with or without braces)";
+sub _split_args_partial_space {
+    my ($partial_color, $color_space);
+    if (@_ == 3){
+        if (lc $_[0] eq 'in'){
+            $color_space = $_[1];
+            $partial_color = $_[2] if ref $_[2] eq 'HASH' and %$_[2];
+        } elsif (lc $_[1] eq 'in'){
+            $color_space = $_[2];
+            $partial_color = $_[0] if ref $_[0] eq 'HASH' and %$_[0];
+        }
+    } elsif (not @_ % 2 and @_) { $partial_color = { @_ } }
+    return $partial_color, $color_space;
 }
-
 sub set {
     my ($self, @args) = @_;
-    my $arg = _get_arg_hash( @args );
-    return unless ref $arg;
-    _new_from_value_obj( $self->{'values'}->set( $arg ) );
+    my ($partial_color, $color_space) = _split_args_partial_space( @args );
+    return <<EOH unless ref $partial_color;
+    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or short names
+    from one color space. If the chosen axis name(s) is/are ambiguous, they might be wrapped
+    into curly braces (HASH ref) and the named argument "in" with a space name has to be added:
+        set( green => 20 ) or set( g => 20 )
+        set( { hue => 240 }, in => 'HWB' )
+EOH
+    _new_from_value_obj( $self->{'values'}->set( $partial_color, $color_space ) );
 }
 
 sub add {
     my ($self, @args) = @_;
-    my $arg = _get_arg_hash( @args );
-    return unless ref $arg;
-    _new_from_value_obj( $self->{'values'}->add( $arg ) );
+    my ($partial_color, $color_space) = _split_args_partial_space( @args );
+    return <<EOH unless ref $partial_color;
+    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or short names
+    from one color space. If the chosen axis name(s) is/are ambiguous, they might be wrapped
+    into curly braces (HASH ref) and the named argument "in" with a space name has to be added:
+        add( blue => -10 ) or set( b => -10 )
+        add( { hue => 100 }, in => 'HWB' )
+EOH
+    _new_from_value_obj( $self->{'values'}->add( $partial_color, $color_space ) );
 }
 
-sub blend {
-    my ($self, @args) = @_;
-    my $arg = _get_arg_hash( @args );
-    return unless ref $arg;
-    return "can not use arguments 'to' and 'with' at same time" if exists $arg->{'with'} and exists $arg->{'to'};
-    my $c2 = _new_from_scalar( $arg->{'with'} // $arg->{'to'} );
-    return "need a second color under the key 'with' ( with => { h=>1, s=>2, l=>3 })" unless ref $c2;
-    my $pos = $arg->{'pos'} // $arg->{'position'} // 0.5;
-    my $space_name = $arg->{'in'} // 'RGB';
-    return "color space $space_name is unknown" unless Graphics::Toolkit::Color::Space::Hub::is_space( $space_name );
-    _new_from_value_obj( $self->{'values'}->blend( $c2->{'values'}, $pos, $space_name ) );
+sub mix {
+    my $help = <<EOH;
+    GTC method 'mix' accepts three named arguments, only the first being required:
+        with => ['HSL', 240, 100, 50]  # scalar color definition or ARRAY ref thereof
+        amount => 20                   # percentage value or ARRAY ref thereof
+        in => 'HSL'                    # color space name
+    Please note that either both or none of the first two arguments has to be an ARRAY.
+    Both ARRAY have to have the same length.
+EOH
+    my ($self, @args) = shift;
+    return "GTC method 'mix' got odd number of arguments, has to be HASH with key value pairs" if @args % 2;
+    my %args = @args;
+    return $help unless exists $args{'with'};
+    my $recipe = _new_from_scalar( $args{'with'} );
+    if (ref $recipe){
+        $recipe = [{color => $recipe, percent => 50}];
+        return $help if ref $args{'amount'};
+        $recipe->[0]{'percent'} = $args{'amount'} if defined $args{'amount'};
+    } else {
+        if (ref $args{'with'} ne 'ARRAY'){
+            return "target color definition (argument 'with') is ill formed";
+        } else {
+            $recipe = [];
+            for my $color_def (@{$args{'with'}}){
+                my $color = _new_from_scalar( $color_def );
+                return "target color definition: '$color_def' is ill formed" unless ref $color;
+                push @$recipe, { color => $color, percent => 50};
+            }
+            if (exists $args{'amount'}){
+                return $help if ref $args{'amount'} ne 'ARRAY' or @{$args{'amount'}} != @{$args{'with'}};
+                for my $amount_nr (0 .. $#{$args{'amount'}}){
+                    $recipe->[$amount_nr]{'percent'} = $args{'amount'}[$amount_nr];
+                }
+            }
+        }
+    }
+    _new_from_value_obj( $self->{'values'}->mix( $recipe, $args{'in'} ) );
 }
 
 ## color set creation methods ##########################################
@@ -322,7 +372,7 @@ Graphics::Toolkit::Color - calculate colors and color sets, IO many spaces and f
 
 deprecated methods of the old API ( I<string>, I<rgb>, I<red>,
 I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
-I<lightness>, I<hsl_hash>, I<blend_with>, I<gradient_to>,
+I<lightness>, I<hsl_hash>, I<blend>, I<blend_with>, I<gradient_to>,
 I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
 will be removed with release of version 2.0.
 
@@ -572,30 +622,28 @@ ones. The rest works as described in L</set>.
     my $blue2 = $blue->add( blue => 10 );               # can it get bluer than blue ?
     my $blue3 = $blue->add( {l => 10}, in => 'LAB' );   # change lightness in CIELAB
 
-=head2 blend
+=head2 mix
 
 Create a new GTC object, that has the average values
-between the calling object (color 1 - C1) and another color (C2),
-which is the only required parameter.
+between the calling object and another color (or several colors),
+which is the only required input.
 It takes three named arguments: C<with> (L</to>), C<amount> and L</in>.
 
-Only with this method an alias to C<to> is allowed because: blend ... with
-sound more natural , but if you want to keep it consistent with the other
-methods you might also use C<$color->blend( to => 'grey');>. In case you
-want to mix several colors, you have to provide this argument with an ARRAY
-ref with several color definitions or objects.
+C<with> works like L</to> in other methods with the exception that it
+also accepts an ARRAY ref with several color definitions C<to> would get.
 
-Per default blend computes a 50-50 (1:1) mix. In order to change that,
-employ the C<amount> argument which is the amount of the other color (C2)
+Per default I<mix> computes a 50-50 (1:1) mix. In order to change that,
+employ the C<amount> argument which is the amount of the other color(s)
 in percent. Again, if you want to mix more than two colors, the previous
 and this argument has to hold an ARRAY reference with the same amount
-of values in the same order. If the amounts add up to more than 100
-percent the current color will not be present in the mix and the values
-will be recalculated by keeping the ratio.
+of values in the same order. This means the first amount value corresponds
+to the first color mentioned by argument C<with>.
+If the amounts add up to more than 100 percent the current color will not
+be present in the mix and the values will be recalculated by keeping the ratio.
 
-    $color->blend( to => 'silver', amount => 60 );
-    $color->blend( to => [qw/silver green/], amount => [10, 20]);      # mix three colors
-    $blue->blend( with => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
+    $color->mix( with => 'silver', amount => 60 );
+    $color->mix( with => [qw/silver green/], amount => [10, 20]);      # mix three colors
+    $blue->mix( with => {H => 240, S =>100, L => 50}, in => 'RGB' );   # teal
 
 
 =head1 COLOR SETS

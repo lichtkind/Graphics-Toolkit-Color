@@ -1,5 +1,5 @@
 
-1.8     2025-07-05    lichtkind
+1.8     2025-07-14    lichtkind
 -------
     * = major feature release
     * * added support of 5 color spaces: NCol YUV CIELUV CIELCHab CIELCHuv,
@@ -12,7 +12,8 @@
     * & moved code into Space::Format space attr object class
     * & removed Carp and Test::Warn as dependencies
     * & moved color set function into own package
-    * ~ default space of methods 'distance', 'blend' and 'gradient'
+    * ~ renamed blend method to mix
+    * ~ default space of methods 'distance', 'mix' and 'gradient'
         went from HSL to RGB, consistent with Space::Hub defaults (complement has to be HSL)
 
 1.71     2023-09-21    lichtkind

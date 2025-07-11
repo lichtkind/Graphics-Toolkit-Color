@@ -15,16 +15,22 @@ our @EXPORT_OK = qw/color/;
 
 sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
-my $new_help = 'constructor of Graphics::Toolkit::Color object needs either:'.
-        ' 1. hash or ref (RGB, HSL or any other): ->new(r => 255, g => 0, b => 0), ->new({ h => 0, s => 100, l => 50 })'.
-        ' 2. RGB array or ref: ->new( [255, 0, 0 ]) or >new( 255, 0, 0 )'.
-        ' 3. hex form "#FF0000" or "#f00" 4. a name: "red" or "SVG:red".';
 sub new {
     my ($pkg, @args) = @_;
     @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
-    return $new_help unless @args == 1;
-    _new_from_scalar($args[0]);
+    return <<EOH unless @args == 1;
+    constructor new of Graphics::Toolkit::Color object needs either:
+    1. a color name: new('red') or new('SVG:red')
+    3. RGB hex string new('#FF0000') or new('#f00')
+    4. RGB array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
+    5. named array or ARRAY ref:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
+    6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
+    7. HASH or HASH ref with values from RGB or any other space:
+       new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
+    see perldoc Graphics::Toolkit::Color for more
+EOH
+    _new_from_scalar( $args[0] );
 }
 sub _new_from_scalar {
     my ($color_def) = shift;
@@ -66,19 +72,33 @@ sub values       {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
                (@_ == 1)    ? (in => $_[0])
-                            : return "method 'values' accepts three optional, named arguments: in => 'HSL', as => 'css_string', range => 16";
+                            : return <<EOH;
+    GTC method 'values' accepts either no arguments, one color space name or
+    three optional, named arguments (not in a HASH ref):
+        in => 'HSL',          # color space name
+        as => 'css_string',   # output format name
+        range => 1,           # value range definition
+    see perldoc Graphics::Toolkit::Color for more
+EOH
     $self->{'values'}->get_custom_form( $args{'in'}, $args{'as'}, $args{'range'} );
 }
 sub distance {
     my ($self) = shift;
     my %args = (not @_ % 2) ? @_ :
                (@_ == 1)    ? (to => $_[0])
-                            : return "accept four optional, named arguments: to => 'color or color definition', in => 'RGB', select => 'r', range => 16";
-    my ($c2, $space_name, $select, $range) = ($args{'to'}, $args{'in'}, $args{'select'}, $args{'range'});
-    return "missing argument: color object or scalar color definition" unless defined $c2;
-    $c2 = _new_from_scalar( $c2 );
-    return "second color for distance calculation (named argument 'to') is badly defined" unless ref $c2 eq __PACKAGE__;
-    $self->{'values'}->distance( $c2->{'values'}, $space_name, $select, $range );
+                            : return <<EOH;
+    GTC method 'distance' accepts as arguments either a scalar color definition or
+    four named arguments, only the first being required:
+        to => ....            # color objector color definition
+        in => 'RGB'           # color space name
+        select => 'red'       # axis name or names (ARRAY ref)
+        range => 2**16        # value range definition
+EOH
+    my ($target, $space_name, $select, $range) = ($args{'to'}, $args{'in'}, $args{'select'}, $args{'range'});
+    return "missing required argument: color object or scalar color definition" unless defined $target;
+    $target = _new_from_scalar( $target );
+    return "second color for distance calculation (named argument 'to') is badly defined" unless ref $target eq __PACKAGE__;
+    $self->{'values'}->distance( $target->{'values'}, $space_name, $select, $range );
 }
 
 ## single color creation methods #######################################

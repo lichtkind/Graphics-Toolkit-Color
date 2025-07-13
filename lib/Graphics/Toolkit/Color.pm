@@ -28,18 +28,16 @@ sub new {
     7. HASH or HASH ref with values from RGB or any other space:
        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
 EOH
-    @args = ([@args]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
+    @args = ([ @args ]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
     return $help unless @args == 1;
-    my $self = _new_from_scalar( $args[0] );
+    my $self = _new_from_scalar_def( $args[0] );
     return (ref $self) ? $self : $help;
 }
-sub _new_from_scalar {
+sub _new_from_scalar_def { # color defs for method args
     my ($color_def) = shift;
     return $color_def if ref $color_def eq __PACKAGE__;
-    my $value_obj = Graphics::Toolkit::Color::Values::new_from_any_input( $color_def );
-    return $value_obj unless ref $value_obj;
-    _new_from_value_obj( $value_obj );
+    _new_from_value_obj( Graphics::Toolkit::Color::Values::new_from_any_input( $color_def ) );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
@@ -70,280 +68,206 @@ sub _new_from_value_obj {
 
 ## getter ##############################################################
 sub name         { $_[0]{'values'}->get_name }
-sub closest_name { $_[0]{'values'}->get_closest_name }
-sub values       {
+sub closest_name {
     my ($self) = shift;
-    my %args = (not @_ % 2) ? @_ :
-               (@_ == 1)    ? (in => $_[0]) : ();
-    my %clean_arg = map { $_ => delete $args{$_} } qw/in as range precision/;
-    return <<EOH if %args;
-    GTC method 'values' accepts either no arguments, one color space name or
-    four optional, named arguments (not in a HASH ref):
+    my $name = $self->name;
+    return ($name) ? ($name, 0) : $self->{'values'}->get_closest_name;
+}
+
+sub values       {
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, ['in'], [qw/as precision range/], 'default');
+    my $help = <<EOH;
+    GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
+    values (                  # no HASH ref around arguments
         in => 'HSL',          # color space name
         as => 'css_string',   # output format name
         range => 1,           # value range definition (SCALAR or ARRAY)
         precision => 3,       # value precision definition (SCALAR or ARRAY)
 
 EOH
-    $self->{'values'}->get_custom_form( $clean_arg{'in'}, $clean_arg{'as'},
-                                        $clean_arg{'range'}, $clean_arg{'precision'} );
+    return $help.$arg unless ref $arg;
+    $self->{'values'}->get_custom_form( @{$arg}[qw/in as range precision/] );
 }
+
 sub distance {
-    my ($self) = shift;
-    my %args = (not @_ % 2) ? @_ :
-               (@_ == 1)    ? (to => $_[0]) : ();
-    my %clean_arg = map { $_ => delete $args{$_} } qw/to in select range/;
-    return <<EOH if %args or not defined $clean_arg{'to'};
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, ['to'], [qw/in select range/], 'default');
+    my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
+    distance (                # no HASH ref around arguments
         to => 'green'         # color object or color definition (required)
         in => 'HSL'           # color space name
         select => 'red'       # axis name or names (ARRAY ref)
         range => 2**16        # value range definition
 EOH
-    my $target_color = _new_from_scalar( $clean_arg{'to'} );
-    return "target color definition (only argument or named argument 'to') is ill formed" unless ref $target_color;
-    $self->{'values'}->distance( $target_color->{'values'}, $clean_arg{'in'},
-                                 $clean_arg{'select'}, $clean_arg{'range'} );
+    return $help.$arg unless ref $arg;
+    my $target_color = _new_from_scalar_def( $arg->{'to'} );
+    return "target color definition: $arg->{'to'} is ill formed" unless ref $target_color;
+    $self->{'values'}->distance( $target_color->{'values'}, @{$arg}[qw/in select range/] );
+}
+
+sub split_named_args {
+    my ($args, $required, $optional, $default) = shift;
+    unshift @$args, $required->[0] if defined $default and @$args == 1;
+    return 'got odd number of values, either a key or value of an argument is missing' if @$args % 2;
+    my %args = @$args;
+    my %clean_arg = map { $_ => delete $args{$_} } @$required, @$optional;
+    if (%args){
+        my @keys = keys %args;
+        return "Inserted unknown argument: @keys\n";
+    }
+    for my $arg_name ( @$required){
+        return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }
+    }
+    return \%clean_arg;
 }
 
 ## single color creation methods #######################################
-sub _split_args_partial_space {
-    my ($partial_color, $color_space);
-    if (@_ == 3){
-        if (lc $_[0] eq 'in'){
-            $color_space = $_[1];
-            $partial_color = $_[2] if ref $_[2] eq 'HASH' and %$_[2];
-        } elsif (lc $_[1] eq 'in'){
-            $color_space = $_[2];
-            $partial_color = $_[0] if ref $_[0] eq 'HASH' and %$_[0];
-        }
-    } elsif (not @_ % 2 and @_) { $partial_color = { @_ } }
-    return $partial_color, $color_space;
-}
 sub set {
     my ($self, @args) = @_;
-    my ($partial_color, $color_space) = _split_args_partial_space( @args );
-    return <<EOH unless ref $partial_color;
-    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or short names
-    from one color space. If the chosen axis name(s) is/are ambiguous, they might be wrapped
-    into curly braces (HASH ref) and the named argument "in" with a space name has to be added:
-        set( green => 20 ) or set( g => 20 )
-        set( { hue => 240 }, in => 'HWB' )
+    return <<EOH if @args % 2 or not @args or @args > 10;
+    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or short names from
+    one color space. If the chosen axis name(s) is/are ambiguous, you might add the "in" argument:
+        set( green => 20 ) or set( g => 20 ) or
+        set( hue => 240, in => 'HWB' )
 EOH
+    my $partial_color = {@args};
+    my $color_space = delete $partial_color->{'in'};
     _new_from_value_obj( $self->{'values'}->set( $partial_color, $color_space ) );
 }
 
 sub add {
     my ($self, @args) = @_;
-    my ($partial_color, $color_space) = _split_args_partial_space( @args );
-    return <<EOH unless ref $partial_color;
-    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or short names
-    from one color space. If the chosen axis name(s) is/are ambiguous, they might be wrapped
-    into curly braces (HASH ref) and the named argument "in" with a space name has to be added:
+    return <<EOH if @args % 2 or not @args or @args > 10;
+    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or short names from
+    one color space. If the chosen axis name(s) is/are ambiguous, you might add the "in" argument:
         add( blue => -10 ) or set( b => -10 )
-        add( { hue => 100 }, in => 'HWB' )
+        add( hue => 100 , in => 'HWB' )
 EOH
+    my $partial_color = {@args};
+    my $color_space = delete $partial_color->{'in'};
     _new_from_value_obj( $self->{'values'}->add( $partial_color, $color_space ) );
 }
 
 sub mix {
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, ['with'], [qw/amount in/]);
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
+    mix (                              # no HASH ref around arguments
         with => ['HSL', 240, 100, 50]  # scalar color definition or ARRAY ref thereof
         amount => 20                   # percentage value or ARRAY ref thereof
-        in => 'HSL'                    # color space name
+        in => 'HSL'                    # color space name, defaults to RGB
     Please note that either both or none of the first two arguments has to be an ARRAY.
     Both ARRAY have to have the same length.
 EOH
-    my ($self, @args) = shift;
-    return "GTC method 'mix' got odd number of arguments, has to be HASH with key value pairs" if @args % 2;
-    my %args = @args;
-    return $help unless exists $args{'with'};
-    my $recipe = _new_from_scalar( $args{'with'} );
+    return $help.$arg unless ref $arg;
+    my $recipe = _new_from_scalar_def( $arg->{'with'} );
     if (ref $recipe){
         $recipe = [{color => $recipe, percent => 50}];
-        return $help if ref $args{'amount'};
-        $recipe->[0]{'percent'} = $args{'amount'} if defined $args{'amount'};
+        return $help."Amount argument has to be a sacalar value if only one color is mixed !\n" if ref $arg->{'amount'};
+        $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
     } else {
-        if (ref $args{'with'} ne 'ARRAY'){
-            return "target color definition (argument 'with') is ill formed";
+        if (ref $arg->{'with'} ne 'ARRAY'){
+            return "target color definition (argument 'with'): $arg->{'with'} is ill formed";
         } else {
             $recipe = [];
-            for my $color_def (@{$args{'with'}}){
-                my $color = _new_from_scalar( $color_def );
+            for my $color_def (@{$arg->{'with'}}){
+                my $color = _new_from_scalar_def( $color_def );
                 return "target color definition: '$color_def' is ill formed" unless ref $color;
                 push @$recipe, { color => $color, percent => 50};
             }
-            if (exists $args{'amount'}){
-                return $help if ref $args{'amount'} ne 'ARRAY' or @{$args{'amount'}} != @{$args{'with'}};
-                for my $amount_nr (0 .. $#{$args{'amount'}}){
-                    $recipe->[$amount_nr]{'percent'} = $args{'amount'}[$amount_nr];
+            if (exists $arg->{'amount'}){
+                return $help."Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n" if ref $arg->{'amount'} ne 'ARRAY'
+                             or @{$arg->{'amount'}} != @{$arg->{'with'}};
+                for my $amount_nr (0 .. $#{$arg->{'amount'}}){
+                    $recipe->[$amount_nr]{'percent'} = $arg->{'amount'}[$amount_nr];
                 }
             }
         }
     }
-    _new_from_value_obj( $self->{'values'}->mix( $recipe, $args{'in'} ) );
+    _new_from_value_obj( $self->{'values'}->mix( $recipe, $arg->{'in'} ) );
 }
 
 ## color set creation methods ##########################################
-sub gradient { # $to ~in + steps +dynamic +variance --> @_
-    my ($self, @args) = @_;
-    my $arg = _get_arg_hash( @args );
-    return unless ref $arg eq 'HASH';
-    my $c2 = _new_from_scalar( $arg->{'to'} );
-    return "need a second color under the key 'to' : ( to => ['HSL', 10, 20, 30])" unless ref $c2;
-    my $space_name = $arg->{'in'} // 'RGB';
-    my $steps = int(abs($arg->{'steps'} // 3));
-    my $power = $arg->{'dynamic'} // 0;
-    $power = ($power >= 0) ? $power + 1 : -(1/($power-1));
-    return $self if $steps == 1;
-    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return "color space $space_name is unknown" unless ref $space;
-    my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );
-    my @val2 =  $c2->{'values'}->get( $space_name, 'list', 'normal' );
-    my @delta_val = $space->delta (\@val1, \@val2 );
-    my @colors = ();
-    for my $nr (1 .. $steps-2){
-        my $pos = ($nr / ($steps-1)) ** $power;
-        my @rval = map {$val1[$_] + ($pos * $delta_val[$_])} 0 .. $space->dimensions - 1;
-        @rval = $space->denormalize ( \@rval );
-        push @colors, _new_from_scalar( [ $space_name, @rval ] );
-    }
-    return $self, @colors, $c2;
+sub gradient {
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, [qw/to steps/], [qw/tilt in/]);
+    my $help = <<EOH;
+    GTC method 'gradient' accepts four named arguments, the first two being required:
+    gradient (                    # no HASH ref around arguments
+        to => 'blue'              # scalar color definition or ARRAY ref thereof
+        steps =>  20              # count of produced colors
+        tilt  =>  1               # dynamics of color change
+        in => 'HSL'               # color space name, defaults to RGB
+EOH
+    return $help.$arg unless ref $arg;
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( @{$arg}[qw/to steps tilt in/] );
 }
 
+sub complement {
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, [], [qw/steps tilt/]);
+    my $help = <<EOH;
+    GTC method 'complement' accepts two named, optional arguments:
+    complement (                       # no HASH ref around arguments
+        steps => 20                    # count of produced colors
+        tilt => 10                     # or
+        tilt => {hue => 10, saturation => 20, lightness => 3} # or
+        tilt => {hue => 10, s => {hue => -20, amount => 20 }, l => {hue => -10, amount => 3}}
+EOH
+    return $help.$arg unless ref $arg;
+    return $help."Argument 'tilt' is malformed !\n" if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
+    if (ref $arg->{'tilt'} eq 'HASH'){
+        my @keys = sort keys( %{$arg->{'tilt'}} );
+        return $help."Argument 'tilt' needs hash with three keys: 'h', 's' and 'l' !\n" unless @keys == 3;
+        return $help."Argument 'tilt' got HASH ref which is missing key: 'hue' or 'h' !\n"
+            unless lc $keys[0] eq 'h' or lc $keys[0] eq 'hue';
+        return $help."Argument 'tilt' got HASH ref which is missing key: 'lightness' or 'l' !\n"
+            unless lc $keys[0] eq 'l' or lc $keys[0] eq 'lightness';
+        return $help."Argument 'tilt' got HASH ref which is missing key: 'saturation' or 's' !\n"
+            unless lc $keys[0] eq 's' or lc $keys[0] eq 'saturation';
 
-my $comp_help = 'set constructor "complement" accepts 4 named args: "steps" (positive int), '.
-                '"hue_tilt" or "h" (-180 .. 180), '.
-                '"saturation_tilt or "s" (-100..100) or { s => (-100..100), h => (-180..180)} and '.
-                '"lightness_tilt or "l" (-100..100) or { l => (-100..100), h => (-180..180)}';
-sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
-    my ($self) = shift;
-    my %arg = (not @_ % 2) ? @_ :
-              (@_ == 1)    ? (steps => $_[0]) : return $comp_help;
-    my $steps = int abs($arg{'steps'} // 1);
-    my $hue_tilt = (exists $arg{'h'}) ? (delete $arg{'h'}) :
-                   (exists $arg{'hue_tilt'}) ? (delete $arg{'hue_tilt'}) : 0;
-    return $comp_help if ref $hue_tilt;
-    my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
-                          (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
-    return $comp_help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
-    my $saturation_axis_offset = 0;
-    if (ref $saturation_tilt eq 'HASH'){
-        my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $saturation_tilt );
-        return carp $comp_help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{1};
-        $saturation_axis_offset = $pos_hash->{0} if exists $pos_hash->{0};
-        $saturation_tilt = $pos_hash->{1};
-    }
-    my $lightness_tilt = (exists $arg{'l'}) ? (delete $arg{'l'}) :
-                         (exists $arg{'lightness_tilt'}) ? (delete $arg{'lightness_tilt'}) : 0;
-    return carp $comp_help if ref $lightness_tilt and ref $lightness_tilt ne 'HASH';
-    my $lightness_axis_offset = 0;
-    if (ref $lightness_tilt eq 'HASH'){
-        my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $lightness_tilt );
-        return carp $comp_help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{2};
-        $lightness_axis_offset = $pos_hash->{0} if exists $pos_hash->{0};
-        $lightness_tilt = $pos_hash->{2};
-    }
 
-    my @hsl2 = my @hsl = $self->values('HSL');
-    my @hue_turn_point = ($hsl[0] + 90, $hsl[0] + 270, 800); # Dmax, Dmin and Pseudo-Inf
-    my @sat_turn_point  = ($hsl[0] + 90, $hsl[0] + 270, 800);
-    my @light_turn_point = ($hsl[0] + 90, $hsl[0] + 270, 800);
-    my $sat_max_hue = $hsl[0] + 90 + $saturation_axis_offset;
-    my $sat_step = $saturation_tilt * 4 / $steps;
-    my $light_max_hue = $hsl[0] + 90 + $lightness_axis_offset;
-    my $light_step = $lightness_tilt * 4 / $steps;
-    if ($saturation_axis_offset){
-        $sat_max_hue -= 360 while $sat_max_hue > $hsl[0]; # putting dmax in range
-        $sat_max_hue += 360 while $sat_max_hue <= $hsl[0]; # above c1->hue
-        my $dmin_first = $sat_max_hue > $hsl[0] + 180;
-        @sat_turn_point =  $dmin_first ? ($sat_max_hue - 180, $sat_max_hue, 800)
-                                       : ($sat_max_hue, $sat_max_hue + 180, 800);
-        $sat_step = - $sat_step if $dmin_first;
-        my $sat_start_delta = $dmin_first ? ((($sat_max_hue - 180 - $hsl[0]) / 90 * $saturation_tilt) - $saturation_tilt)
-                                          : (-(($sat_max_hue -      $hsl[0]) / 90 * $saturation_tilt) + $saturation_tilt);
-        $hsl[1] += $sat_start_delta;
-        $hsl2[1] -= $sat_start_delta;
-    }
-    if ($lightness_axis_offset){
-        $light_max_hue -= 360 while $light_max_hue > $hsl[0];
-        $light_max_hue += 360 while $light_max_hue <= $hsl[0];
-        my $dmin_first = $light_max_hue > $hsl[0] + 180;
-        @light_turn_point =  $dmin_first ? ($light_max_hue - 180, $light_max_hue, 800)
-                                         : ($light_max_hue, $light_max_hue + 180, 800);
-        $light_step = - $light_step if $dmin_first;
-        my $light_start_delta = $dmin_first ? ((($light_max_hue - 180 - $hsl[0]) / 90 * $lightness_tilt) - $lightness_tilt)
-                                            : (-(($light_max_hue -      $hsl[0]) / 90 * $lightness_tilt) + $lightness_tilt);
-        $hsl[2] += $light_start_delta;
-        $hsl2[2] -= $light_start_delta;
-    }
-    my $c1 = _new_from_scalar( [ 'HSL', @hsl ] );
-    $hsl2[0] += 180 + $hue_tilt;
-    my $c2 = _new_from_scalar( [ 'HSL', @hsl2 ] ); # main complementary color
-    return $c2 if $steps < 2;
-    return $c1, $c2 if $steps == 2;
+        return $help."Argument 'tilt' got HASH ref with 'hue' value which is not a integer number !\n"
+            if ref $arg->{'tilt'}{$keys[0]} or not $arg->{'tilt'}{$keys[0]} =~ /^\d+$/;
+        return $help."Argument 'tilt' got HASH ref with malformed 'lightness' value !\n"
+            if ref $arg->{'tilt'}{$keys[1]} and $arg->{'tilt'}{$keys[1]} ne 'HASH';
+        return $help."Argument 'tilt' got HASH ref with malformed 'saturation' value !\n"
+            if ref $arg->{'tilt'}{$keys[2]} and $arg->{'tilt'}{$keys[2]} ne 'HASH';
 
-    my (@result) = $c1;
-    my $hue_avg_step = 360 / $steps;
-    my $hue_c2_distance = $self->distance( to => $c2, in => 'HSL', select => 'hue');
-    my $hue_avg_tight_step = $hue_c2_distance * 2 / $steps;
-    my $hue_sec_deg_delta = 8 * ($hue_avg_step - $hue_avg_tight_step) / $steps; # second degree delta
-    $hue_sec_deg_delta = -$hue_sec_deg_delta if $hue_tilt < 0; # if c2 on right side
-    my $hue_last_step = my $hue_ak_step = $hue_avg_step; # bar height of pseudo integral
-    my $hue_current = my $hue_current_naive = $hsl[0];
-    my $saturation_current = $hsl[1];
-    my $lightness_current = $hsl[2];
-    my $hi = my $si = my $li = 0; # index of next turn point where hue step increase gets flipped (at Dmax and Dmin)
-    for my $i (1 .. $steps - 1){
-        $hue_current_naive += $hue_avg_step;
-
-        if ($hue_current_naive >= $hue_turn_point[$hi]){
-            my $bar_width = ($hue_turn_point[$hi] - $hue_current_naive + $hue_avg_step) / $hue_avg_step;
-            $hue_ak_step += $hue_sec_deg_delta * $bar_width;
-            $hue_current += ($hue_ak_step + $hue_last_step) / 2 * $bar_width;
-            $hue_last_step = $hue_ak_step;
-            $bar_width = 1 - $bar_width;
-            $hue_sec_deg_delta = -$hue_sec_deg_delta;
-            $hue_ak_step += $hue_sec_deg_delta * $bar_width;
-            $hue_current += ($hue_ak_step + $hue_last_step) / 2 * $bar_width;
-            $hi++;
-        } else {
-            $hue_ak_step += $hue_sec_deg_delta;
-            $hue_current += ($hue_ak_step + $hue_last_step) / 2;
+        if (ref $arg->{'tilt'}{$keys[1]}){
+            my @keys = sort keys( %{$arg->{'tilt'}{$keys[1]}} );
+            return $help."Argument 'tilt' key 'lightness' needs values 'hue' and 'amount' !\n"
+                if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
         }
-        $hue_last_step = $hue_ak_step;
-
-        if ($hue_current_naive >= $sat_turn_point[$si]){
-            my $bar_width = ($sat_turn_point[$si] - $hue_current_naive + $hue_avg_step) / $hue_avg_step;
-            $saturation_current += $sat_step * ((2 * $bar_width) - 1);
-            $sat_step = -$sat_step;
-            $si++;
-        } else {
-            $saturation_current += $sat_step;
+        if (ref $arg->{'tilt'}{$keys[2]}){
+            my @keys = sort keys( %{$arg->{'tilt'}{$keys[2]}} );
+            return $help."Argument 'tilt' key 'saturation' needs values 'hue' and 'amount' !\n"
+                if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
         }
 
-        if ($hue_current_naive >= $light_turn_point[$li]){
-            my $bar_width = ($light_turn_point[$li] - $hue_current_naive + $hue_avg_step) / $hue_avg_step;
-            $lightness_current += $light_step * ((2 * $bar_width) - 1);
-            $light_step = -$light_step;
-            $li++;
-        } else {
-            $lightness_current += $light_step;
-        }
-
-        $result[$i] = _new_from_scalar( [ HSL => $hue_current, $saturation_current, $lightness_current ] );
     }
-
-    return @result;
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/steps tilt/] );
 }
 
-sub cluster {# +radius +distance|count +variance ~in @range
-    my ($self, @args) = @_;
-    my $arg = _get_arg_hash( @args );
-    return unless ref $arg eq 'HASH';
-
+sub cluster {
+    my ($self, @args) = shift;
+    my $arg = split_named_args( @args, [qw/radius distance/], [qw/in/]);
+    my $help = <<EOH;
+    GTC method 'cluster' accepts three named arguments, the first two being required:
+    cluster (                          # no HASH ref around arguments
+        radius => [10, 5, 3]           # cuboid shaped cluster or
+        radius => 3                    # ball shaped cluster
+        distance => 0.5                # minimal distance between colors in cluster
+        in => 'HSL'                    # color space name, defaults to RGB
+EOH
+    return $help.$arg unless ref $arg;
+    return $help."Argument radius has to be a SCALAR or ARRAY ref\n"
+                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY';
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/radius distance in/] );
 }
 
 1;
@@ -354,7 +278,7 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color - calculate colors and color sets, IO many spaces and formats
+Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
 
 =head1 SYNOPSIS
 
@@ -380,26 +304,23 @@ will be removed with release of version 2.0.
 
 Graphics::Toolkit::Color, for short GTC, is the top level API of this
 release and the only one a regular user should be concerned with.
-Its main purpose is the creation of sets of related colors, such as
-gradients, complements and others.
 
-GTC are read only color holding objects with no additional dependencies.
+GTC are read only, color holding objects with no additional dependencies.
 Create them in many different ways (see section L</CONSTRUCTOR>).
 Access its values via methods from section L</GETTER>.
-Measure differences with the I<distance> method. L</SINGLE-COLOR>
+Measure differences with the L</distance> method. L</SINGLE-COLOR>
 methods create one object that is related to the current one and
-L</COLOR-SETS> methods will create a host of colors, that are not
+L</COLOR-SETS> methods will create a group of colors, that are not
 only related to the current color but also have relations between each other.
 
 While this module can understand and output color values in many spaces,
-such as HSL, YIQ and many more, RGB is the (internal) primal one,
+such as LAB, NCol, YIQ and many more, RGB is the (internal) primal one,
 because GTC is about colors that can be shown on the screen, and these
 are usually encoded in RGB.
-
 Humans access colors on hardware level (eye) in RGB, on cognition level
 in HSL (brain) and on cultural level (language) with names.
-Having easy access to all three and some color math should enable you to
-get the color palette you desire quickly.
+Having easy access to all of those plus some color math and many formats
+should enable you to get the color palette you desire quickly.
 
 
 =head1 CONSTRUCTOR
@@ -464,10 +385,10 @@ String format (good for serialisation) that maximizes readability.
 Triplet of integer RGB values (red, green and blue : 0 .. 255).
 Out of range values will be corrected to the closest value in range.
 
-    my $red = Graphics::Toolkit::Color->new( 255, 0, 0 );
-    my $red = Graphics::Toolkit::Color->new([255, 0, 0]);        # does the same
-    my $red = Graphics::Toolkit::Color->new('RGB' => 255, 0, 0);  # named tuple syntax
-    my $red = Graphics::Toolkit::Color->new(['RGB' => 255, 0, 0]); # named ARRAY
+    my $red = Graphics::Toolkit::Color->new(         255, 0, 0 );
+    my $red = Graphics::Toolkit::Color->new(        [255, 0, 0]); # does the same
+    my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named tuple syntax
+    my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # named ARRAY
 
 The named array syntax of the last example, as any here following,
 work for any supported color space.
@@ -512,6 +433,13 @@ was found in the I<X11> or I<HTML> (I<SVG>) standard or the I<Pantone report>.
 If several constants have matching values, the shortest name will be returned.
 All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
 (See also: L</new('name')>)
+
+=head2 closest_name
+
+Returns two values: 1. a color name as the method L</name> does.
+2. an Euclidean distance in I<RGB> as the method L</distance> does.
+It will be the name of the color that has the closest distance, to the
+color held by the current GTC object.
 
 =head2 values
 
@@ -604,12 +532,12 @@ method accepts these axis names as named arguments and disregards if
 characters are written upper or lower case. This method can not work,
 if you mix axis names from different spaces or choose one axis more than once.
 One solvable issue is when axis in different spaces have the same name.
-For instance I<HSL> and I<HSV> have a I<hue> axis. To disambiguate you
-have to put the axis names inside a HASH ref and add the named argument L</in>.
+For instance I<HSL> and I<HSV> have a I<saturation> axis. To disambiguate
+you can add the named argument L</in>.
 
-    $black->set( blue => 255 )->name;   # blue, same as #0000ff
-    $blue->set( saturation => 50 );     # pale blue, same as $blue->set( s => 50 );
-    $blue->set( {saturation => 50}, in => 'HSV' );  # previous example computed in HSL
+    $black->set( blue => 255 )->name;             # blue, same as #0000ff
+    $blue->set( saturation => 50 );               # pale blue, same as $blue->set( s => 50 );
+    $blue->set( saturation => 50, in => 'HSV' );  # previous example computed in HSL
 
 =head2 add
 
@@ -620,7 +548,7 @@ ones. The rest works as described in L</set>.
     my $blue = Graphics::Toolkit::Color->new('blue');
     my $darkblue = $blue->add( Lightness => -25 );      # dim it down
     my $blue2 = $blue->add( blue => 10 );               # can it get bluer than blue ?
-    my $blue3 = $blue->add( {l => 10}, in => 'LAB' );   # change lightness in CIELAB
+    my $blue3 = $blue->add( l => 10, in => 'LAB' );     # lighter color according in CIELAB
 
 =head2 mix
 
@@ -743,9 +671,10 @@ demanded minimal distance.
 =head1 ARGUMENTS
 
 Some named arguments of the above listed methods reappear in several methods.
-Thus they are explained here once.
+Thus they are explained here once. Please note that you must NOT wrap
+the named args in curly braces (HASH ref).
 
-=head2 in
+=head2 in (with)
 
 Expects the name of a color space as listed here:
 L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>. The default color

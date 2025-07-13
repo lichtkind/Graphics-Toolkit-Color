@@ -26,36 +26,32 @@ sub gradient { # $to, +steps -- +dynamic, ~in  @along --> @_
 }
 
 
-my $comp_help = 'color set constructor "complement" accepts 4 named args: "steps" (positive int), '.
-                '"hue_tilt" or "h" (-180 .. 180), '.
-                '"saturation_tilt or "s" (-100..100) or { s => (-100..100), h => (-180..180)} and '.
-                '"lightness_tilt or "l" (-100..100) or { l => (-100..100), h => (-180..180)}';
-
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     my ($self) = shift;
+    my $help = '';
     my %arg = (not @_ % 2) ? @_ :
-              (@_ == 1)    ? (steps => $_[0]) : return $comp_help;
+              (@_ == 1)    ? (steps => $_[0]) : return $help;
     my $steps = int abs($arg{'steps'} // 1);
     my $hue_tilt = (exists $arg{'h'}) ? (delete $arg{'h'}) :
                    (exists $arg{'hue_tilt'}) ? (delete $arg{'hue_tilt'}) : 0;
-    return $comp_help if ref $hue_tilt;
+    return $help if ref $hue_tilt;
     my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
                           (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
-    return $comp_help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
+    return $help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
     my $saturation_axis_offset = 0;
     if (ref $saturation_tilt eq 'HASH'){
         my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $saturation_tilt );
-        return carp $comp_help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{1};
+        return $help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{1};
         $saturation_axis_offset = $pos_hash->{0} if exists $pos_hash->{0};
         $saturation_tilt = $pos_hash->{1};
     }
     my $lightness_tilt = (exists $arg{'l'}) ? (delete $arg{'l'}) :
                          (exists $arg{'lightness_tilt'}) ? (delete $arg{'lightness_tilt'}) : 0;
-    return $comp_help if ref $lightness_tilt and ref $lightness_tilt ne 'HASH';
+    return $help if ref $lightness_tilt and ref $lightness_tilt ne 'HASH';
     my $lightness_axis_offset = 0;
     if (ref $lightness_tilt eq 'HASH'){
         my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::partial_hash_deformat( $lightness_tilt );
-        return $comp_help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{2};
+        return $help if not defined $space_name or $space_name ne 'HSL' or not exists $pos_hash->{2};
         $lightness_axis_offset = $pos_hash->{0} if exists $pos_hash->{0};
         $lightness_tilt = $pos_hash->{2};
     }

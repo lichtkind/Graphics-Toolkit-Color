@@ -19,7 +19,7 @@ my $read          = \&Graphics::Toolkit::Color::Space::Hub::read;
 my $write         = \&Graphics::Toolkit::Color::Space::Hub::write;
 
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
-is( Graphics::Toolkit::Color::Space::Hub::is_space($_),   1, "found $_ color space")
+is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space")
     for qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;
 my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  20, 'intalled 20 space names');
@@ -31,20 +31,21 @@ my $Tspace = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/], 
 
 my $ret = Graphics::Toolkit::Color::Space::Hub::add_space( $Tspace );
 is( $ret, 1, "could add test color space");
-is( Graphics::Toolkit::Color::Space::Hub::is_space('OTT'),          1, 'test space was installed');
+is( Graphics::Toolkit::Color::Space::Hub::is_space_name('OTT'),          1, 'test space was installed');
 is( Graphics::Toolkit::Color::Space::Hub::get_space('OTT'),   $Tspace, 'got access to test space');
 @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  21, 'intalled 21st space name');
 is( ref Graphics::Toolkit::Color::Space::Hub::remove_space('TTT'), '', 'try to delete unknown space');
 is( ref Graphics::Toolkit::Color::Space::Hub::remove_space('OTT'), $space_ref, 'removed test space');
-is( Graphics::Toolkit::Color::Space::Hub::is_space('OTT'),          0, 'test space is gone');
+is( Graphics::Toolkit::Color::Space::Hub::is_space_name('OTT'),          0, 'test space is gone');
 is( Graphics::Toolkit::Color::Space::Hub::get_space('OTT'),        '', 'no access to test space');
 is( ref Graphics::Toolkit::Color::Space::Hub::remove_space('OTT'), '', 'test space was already removed');
-is( Graphics::Toolkit::Color::Space::Hub::is_space('OTT'),          0, 'test space is still gone');
+is( Graphics::Toolkit::Color::Space::Hub::is_space_name('OTT'),          0, 'test space is still gone');
 @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  20, 'intalled again only 20 space names');
 
-my $default_space
+my $rgb_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
+is( Graphics::Toolkit::Color::Space::Hub::is_space_name($rgb_name),      1, 'default space is a space');
 
 __END__
 

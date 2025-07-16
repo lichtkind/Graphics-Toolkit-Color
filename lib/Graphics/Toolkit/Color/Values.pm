@@ -155,7 +155,8 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($self, $cv2, $space_name, $select, $range) = @_;
     return "need value object as second argument" unless ref $cv2 eq __PACKAGE__;
-    return "$space_name is not a color space name" if defined $space_name and not Graphics::Toolkit::Color::Space::is_space($space_name);
+    return "$space_name is not a known color space name"
+        if defined $space_name and not Graphics::Toolkit::Color::Space::is_space_name($space_name);
     Graphics::Toolkit::Color::Space::Hub::distance( $self->{'rgb'}, $cv2->{'rgb'}, $space_name, $select, $range);
 }
 

@@ -28,7 +28,7 @@ sub new {
     7. HASH or HASH ref with values from RGB or any other space:
        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
 EOH
-    @args = ([ @args ]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space( $args[0]);
+    @args = ([ @args ]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0]);
     @args = ({ @args }) if @args == 6 or @args == 8;
     return $help unless @args == 1;
     my $self = _new_from_scalar_def( $args[0] );

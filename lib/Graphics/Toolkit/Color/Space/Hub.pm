@@ -15,11 +15,11 @@ add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for default_s
 
 #### space API #########################################################
 sub all_space_names    { sort keys %space_obj }
+sub is_space_name { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 sub default_space_name { $default_space_name }
 
 sub default_space { $space_obj{ $default_space_name } }
 sub get_space     { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
-sub is_space      { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
 
 sub add_space {
     my $space = shift;
@@ -31,7 +31,7 @@ sub add_space {
     return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
      for my $converter_target (@converter_target){
         return "space object $name does convert into $converter_target, which is no known color space"
-            unless is_space( $converter_target );
+            unless is_space_name( $converter_target );
     }
     $space_obj{ uc $name } = $space;
     $space_obj{ uc $space->alias } = $space if $space->alias and not ref get_space( $space->alias );

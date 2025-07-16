@@ -37,12 +37,12 @@ EOH
 sub _new_from_scalar_def { # color defs for method args
     my ($color_def) = shift;
     return $color_def if ref $color_def eq __PACKAGE__;
-    _new_from_value_obj( Graphics::Toolkit::Color::Values::new_from_any_input( $color_def ) );
+    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def ) );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
     return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
-    bless {values => $value_obj};
+    return bless {values => $value_obj};
 }
 
 ## deprecated methods - deleted with 2.0

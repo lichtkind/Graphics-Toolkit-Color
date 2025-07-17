@@ -57,7 +57,7 @@ sub new_from_normal_tuple {
     my $source = '';
     if ($color_space->name ne  Graphics::Toolkit::Color::Space::Hub::default_space_name()){
         $source = $values;
-        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $values, $space_name, 'normal' );
+        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $space_name, $values, 'normal' );
     } else { $space_name = '' }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );

@@ -94,7 +94,7 @@ sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
-    return @{$self->{'convert'}{'normal'}{'from'}}{'in', 'out'};
+    return @{$self->{'convert'}{ uc $space_name }{'normal'}{$direction}}{'in', 'out'};
 }
 
 #### full pipe IO ops ##################################################

@@ -66,7 +66,6 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
     if ($target_space_name eq $default_space_name or $source_space eq $target_space) {
         return ($want_result_normalized) ? $values : $target_space->denormalize( $values );
     }
-
     # find conversion chain
     my $current_space = $target_space;
     my @convert_chain = ($target_space->name);
@@ -78,38 +77,37 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
     }
     # actual conversion
     my $values_are_normal = 1;
-    $current_space = default_space();
-    for my $next_space_name (@convert_chain){
-        if ($source_space eq $current_space){
+    my $space_name_before = default_space_name();
+    for my $space_name (@convert_chain){
+        my $current_space = get_space( $space_name );
+        if ($current_space eq $source_space){
             $values = $source_values;
-            $source_values = 0;
             $values_are_normal = 1;
         } else {
-            my @normal_in_out = $current_space->converter_normal_states( 'from', $next_space_name );
+            my @normal_in_out = $current_space->converter_normal_states( 'from', $space_name_before );
             $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
             $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
-            $values = $current_space->convert_from( $next_space_name, $values);
+            $values = $current_space->convert_from( $space_name_before, $values);
             $values_are_normal = $normal_in_out[1];
         }
-        $current_space = get_space( $next_space_name );
+        $space_name_before = $current_space->name;
     }
     $values = $target_space->normalize( $values ) if not $values_are_normal and $want_result_normalized;
     $values = $target_space->denormalize( $values ) if $values_are_normal and not $want_result_normalized;
     return $values;
 }
 sub deconvert { # normalizd value tuple --> RGB tuple
-    my ($values, $source_space_name, $want_result_normalized) = @_;
-    my $source_space = get_space( $source_space_name );
-    return "$source_space_name is an unknown color space, try: ".(join ', ', all_space_names()) unless ref $source_space;
+    my ($values, $space_name, $want_result_normalized) = @_;
+    my $original_space = get_space( $space_name );
     $want_result_normalized //= 0;
-    if ($source_space_name eq $default_space_name) { # nothing to convert
-        $values = $source_space->denormalize( $values ) unless $want_result_normalized;
-        return $values;
+    return "$space_name is an unknown color space, try: ".(join ', ', all_space_names()) unless ref $original_space;
+    if ($space_name eq $default_space_name) { # nothing to convert
+        return ($want_result_normalized) ? $values : $original_space->denormalize( $values );
     }
 
-    my $current_space = $source_space_name;
+    my $current_space = $original_space;
     my $values_are_normal = 1;
-    while (uc $current_space->name ne $default_space_name ){
+    while (uc $current_space->name ne $default_space_name){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
@@ -119,8 +117,7 @@ sub deconvert { # normalizd value tuple --> RGB tuple
         $values_are_normal = $normal_in_out[1];
         $current_space = get_space( $next_space_name );
     }
-    $values = $current_space->normalize( $values ) unless $values_are_normal;
-    return $values;
+    return ($want_result_normalized) ? $values : $current_space->denormalize( $values );
 }
 
 sub deformat { # formatted color def --> normalized values

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 100;
+use Test::More tests => 170;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
@@ -54,36 +54,42 @@ is( ref $convert->(),                       '', 'convert needs at least one argu
 is( ref $convert->({r => 1,g => 1,b => 1}), '', 'convert tule as ARRAY');
 is( ref $convert->([0,0,0]),                '', 'convert also needs target name space');
 is( ref $convert->([0,0,0], 'YO'),          '', 'convert needs a valid target name space');
+
 my $tuple = $convert->([0,1/255,1], 'RGB');
 is( ref $tuple,      'ARRAY', 'did minimal none conversion');
 is( int @$tuple,           3, 'RGB has 3 axis');
-is( $tuple->[0],           0, 'Red value is right');
+is( $tuple->[0],           0, 'red value is right');
 is( $tuple->[1],           1, 'green value is right');
 is( $tuple->[2],         255, 'blue value is right');
+
 $tuple = $convert->([0,1/255,1], 'RGB', 'normal');
 is( int @$tuple,           3, 'wanted  normalized result');
-is( $tuple->[0],           0, 'Red value is right');
+is( $tuple->[0],           0, 'red value is right');
 is( $tuple->[1],       1/255, 'green value is right');
 is( $tuple->[2],           1, 'blue value is right');
 
+$tuple = $convert->([.1, .2, .3], 'YUV', 1, 'YUV', [1, .1, 0]);
+is( int @$tuple,           3, 'take source values instead of convert RGB');
+is( $tuple->[0],           1, 'Red value is right');
+is( $tuple->[1],          .1, 'green value is right');
+is( $tuple->[2],           0, 'blue value is right');
+
+$tuple = $convert->([.1, .2, .3], 'YUV', undef, 'YUV', [1, 0.1, 0]);
+is( int @$tuple,           3, 'get normalized source values');
+is( $tuple->[0],           1, 'Red value is right');
+is( $tuple->[1],         -.4, 'green value is right');
+is( $tuple->[2],         -.5, 'blue value is right');
+
+$tuple = $convert->([0, 0.1, 1], 'CMY');
+is( int @$tuple,           3, 'invert values');
+is( $tuple->[0],           1, 'cyan value is right');
+is( $tuple->[1],         0.9, 'magenta value is right');
+is( $tuple->[2],           0, 'yellow value is right');
+
+exit 0;
 __END__
 
-convert deconvert deformat deformat_partial_hash distance
-
-
-is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  'Graphics::Toolkit::Color::Space', 'can get RGB space');
-
-
-my ($val, $space, $fmt) = ($read->([255,255,255]));
-is( $space,                        'RGB',  'only RGB has pure ARRAY format');
-is( $fmt,                        'array',  'only RGB has pure ARRAY format');
-is( ref $val,                    'ARRAY',  'deconverted white RGB ARRAYs');
-is( int @$val,                         3,  'right amount of values');
-is( $val->[0],                         1,  'first value good');
-is( $val->[1],                         1,  'second value good');
-is( $val->[2],                         1,  'third value good');
-
-is( $write->([1,1,1], 'rgb','css_string'),    'rgb(255, 255, 255)',  'wrote css string for color black');
+deconvert deformat deformat_partial_hash distance
 
 
 # add_space
@@ -113,7 +119,6 @@ is( $rgb->[2],   1,     'clamped blue even no conversion');
 like ($format->('112233', 'RGB', 'list'),      qr/ARRAY ref with 3 RGB/,  "dont format none vectors");
 like ($format->([11,22,33,44], 'RGB', 'list'), qr/ARRAY ref with 3 RGB/,  "dont format too long vectors");
 like ($format->([11,22], 'RGB', 'list'),       qr/ARRAY ref with 3 RGB/,  "dont format too short vectors");
-exit 0;
 
 my $str = $format->([11,22,33], 'RGB', 'hex');
 is( ref $str,           '',   'RGB string is not a reference');
@@ -219,15 +224,6 @@ is( $space_name,    'HSV',    'found keys in HSV');
 is( $pos_hash->{1},     1,    'value is on second position in HWB');
 is( $space_name,    'HWB',    'found keys in HWB');
 
-warning_like { $normalize->({})}  {carped => qr/need an ARRAY ref with 3 RGB/},     "normalize: first arg in bad format";
-warning_like { $normalize->([1,2])}  {carped => qr/need an ARRAY ref with 3 RGB/},  "normalize: not enough values in vector";
-warning_like { $normalize->([1,2,3], 'BAD')}  {carped => qr/unknown color space/},  "normalize: bas color space name";
-warning_like { $normalize->([1,2,3], 'HSL', {})}  {carped => qr/bad range/},        "normalize: bad range definition";
-warning_like { $denormalize->({})}  {carped => qr/need an ARRAY ref with 3 RGB/},     "denormalize: first arg in bad format";
-warning_like { $denormalize->([1,2])}  {carped => qr/need an ARRAY ref with 3 RGB/},  "denormalize: not enough values in vector";
-warning_like { $denormalize->([1,2,3], 'BAD')}  {carped => qr/unknown color space/},  "denormalize: bas color space name";
-warning_like { $denormalize->([1,2,3], 'HSL', {})}  {carped => qr/bad range/},        "denormalize: bad range definition";
-
 
 my @rgb_n = $normalize->([10,20,30]);
 is( int @rgb_n,         3,   'normalized RGB by default');
@@ -253,4 +249,3 @@ is( close_enough( $hsl_n[0], 1/3), 1,  'hue rotated down');
 is( $hsl_n[1],            .2,  'saturation value clamped up');
 is( $hsl_n[2],             0,  'lightness value is correct');
 
-exit 0;

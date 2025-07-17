@@ -10,16 +10,15 @@ use Carp;
 my %space_obj;
 our $default_space_name = 'RGB';
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for default_space_name(),
-                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # missing: CubeHelix OKLAB
-                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # search order
+                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # search order
+                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # missing: CubeHelix OKLAB
 
 #### space API #########################################################
-sub all_space_names    { sort keys %space_obj }
-sub is_space_name { (defined $_[0] and ref get_space($_[0])) ? 1 : 0 }
+sub get_space          { (defined $_[0] and exists $space_obj{ uc $_[0] }) ? $space_obj{ uc $_[0] } : '' }
+sub default_space      { get_space( $default_space_name ) }
 sub default_space_name { $default_space_name }
-
-sub default_space { $space_obj{ $default_space_name } }
-sub get_space     { $space_obj{ uc $_[0] } if exists $space_obj{ uc $_[0] } }
+sub all_space_names    { sort keys %space_obj }
+sub is_space_name      { (ref get_space($_[0])) ? 1 : 0 }
 
 sub add_space {
     my $space = shift;
@@ -49,22 +48,26 @@ sub remove_space {
 #### value API #########################################################
 
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
-    my ($values, $target_space_name, $want_result_normalized, $source_space, $source_values) = @_;
-    return "need a value ARRAY and a space name to convert to" unless defined $target_space_name;
+    my ($values, $target_space_name, $want_result_normalized, $source_space_name, $source_values) = @_;
     my $target_space = get_space( $target_space_name );
-    return "$target_space_name is an unknown color space, try: ".(join ', ', all_space_names()) unless ref $target_space;
+    my $source_space = get_space( $source_space_name );
+    $want_result_normalized //= 0;
     return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
         unless ref $values eq 'ARRAY' and @$values == 3;
-    $want_result_normalized //= 0;
-    if ($target_space_name eq $default_space_name) { # nothing to convert
-        $values = $target_space->denormalize( $values ) unless $want_result_normalized;
-        return $values;
-    }
-    if (ref $source_values and defined $source_space and $source_space eq $target_space_name) {
-        $source_values = $target_space->denormalize( $source_values ) unless $want_result_normalized;
-        return $source_values;
+    return "need a value ARRAY and a space name to convert to" unless defined $target_space_name;
+    return "$target_space_name is an unknown color space, try: ".(join ', ', all_space_names()) unless ref $target_space;
+    return "arguments source_space_name and source_values have to be provided both or none."
+        if defined $source_space_name xor defined $source_values;
+    return "argument source_values has to be a tuple"
+        if defined $source_values and (ref $source_values ne 'ARRAY' or  @$source_values < 3);
+
+    # none conversion cases
+    $values = $source_values if $source_space eq $target_space;
+    if ($target_space_name eq $default_space_name or $source_space eq $target_space) {
+        return ($want_result_normalized) ? $values : $target_space->denormalize( $values );
     }
 
+    # find conversion chain
     my $current_space = $target_space;
     my @convert_chain = ($target_space->name);
     while ($current_space->name ne $default_space_name ){
@@ -73,11 +76,12 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
         unshift @convert_chain, $next_space_name if $next_space_name ne $default_space_name;
         $current_space = get_space( $next_space_name );
     }
+    # actual conversion
     my $values_are_normal = 1;
     $current_space = default_space();
     for my $next_space_name (@convert_chain){
-        if (ref $source_values eq 'ARRAY' and $source_values->[0] eq $current_space){
-            $values = [@{$source_values}[1 .. $#$source_values]];
+        if ($source_space eq $current_space){
+            $values = $source_values;
             $source_values = 0;
             $values_are_normal = 1;
         } else {

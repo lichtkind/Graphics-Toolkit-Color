@@ -2,15 +2,17 @@
 
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
 use Test::More tests => 57;
-
 BEGIN { unshift @INC, 'lib', '../lib'}
+use Graphics::Toolkit::Color::Space::Util ':all';
+
 my $module = 'Graphics::Toolkit::Color::Name';
+my $space_ref = 'Graphics::Toolkit::Color::Space';
+
+use_ok( $module, 'could load the module');
 
 __END__
 
-use_ok( $module, 'could load the module');
 
 my @names = Graphics::Toolkit::Color::Name::all();
 is( @names > 700, 1, 'get a large list of names, all_names seems to working');

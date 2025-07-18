@@ -148,7 +148,7 @@ sub deformat_partial_hash { # convert partial hash into
     my @options = (defined $space_name and $space_name) ? ($space_name) : (all_space_names());
     for my $space_name (@options) {
         my $color_space = get_space( $space_name );
-        my $pos_hash = $color_space->basis->deformat_partial_hash( $value_hash );
+        my $pos_hash = $color_space->basis->pos_hash_from_partial_hash( $value_hash );
         next unless ref $pos_hash eq 'HASH';
         return wantarray ? ($pos_hash, $color_space->name) : $pos_hash;
     }

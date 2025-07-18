@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 210;
+use Test::More tests => 231;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -261,6 +261,8 @@ is( int keys %$pos_hash,                 1, 'position hash has one key');
 is( exists $pos_hash->{0},               1, 'and this is zero');
 is( $pos_hash->{0},                     20, 'and it has right value');
 
+($pos_hash, $space_name) = $dehash->(  );
+is( $space_name,                     undef, 'need a hash as input');
 ($pos_hash, $space_name) = $dehash->( {hue => 20, h => 10} );
 is( $space_name,                     undef, 'can not use axis name twice');
 ($pos_hash, $space_name) = $dehash->( {hue => 20, green => 10} );
@@ -293,7 +295,22 @@ is( exists $pos_hash->{3},               1, 'one key is two');
 is( $pos_hash->{3},                      0, 'and it has right value');
 
 ########################################################################
-# distance
+is( $distance->( ),                     undef, 'missing arguments');
+is( $distance->( [0,0,0] ),             undef, 'need two tuples');
+is( $distance->( [0,0], [0,0,0], ),     undef, 'first tuple is too short');
+is( $distance->( [0,0,0,0], [0,0,0], ), undef, 'first tuple is too long');
+is( $distance->( [0,0,0], [0,0], ),     undef, 'second tuple is too short');
+is( $distance->( [0,0,0], [0,0,0,0], ), undef, 'second tuple is too long');
+is( $distance->( [0,0,0], [0,0,0], ),       0, 'no distance');
+is( $distance->( [1,0,0], [0,0,0], ),     255, 'full red distance');
+my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
+is( close_enough( $d, sqrt(2)),             1, 'full red and blue distance, normalized');
+$d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );
+is(  $d, sqrt(3),              'distance in 4D space');
+$d = $distance->( [1,0,0], [0,0,0],  undef, [qw/red red/], 1  );
+is(  $d, sqrt(2),              'count red difference twice');
+$d = $distance->( [1,1,1], [0,0,0],  undef, [qw/blue/], 1  );
+is(  $d,       1,              'count only blue difference');
 
 exit 0;
 

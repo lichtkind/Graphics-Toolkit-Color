@@ -161,8 +161,10 @@ sub distance { # RGB tuples -- ~space, ~@select @range --> +
     return if ref $select_axis and ref $select_axis ne 'ARRAY';
     $space_name //= $default_space_name;
     my $color_space = get_space( $space_name );
+    my $default_space = default_space();
     return unless ref $color_space;
-    return unless $color_space->is_value_tuple( $values_a ) and $color_space->is_value_tuple( $values_b );
+    return unless $default_space->is_value_tuple( $values_a )
+              and $default_space->is_value_tuple( $values_b );
     unless ($space_name eq $default_space_name){
         $values_a = convert( $values_a, $space_name, defined $range);
         $values_b = convert( $values_b, $space_name, defined $range);
@@ -177,7 +179,7 @@ sub distance { # RGB tuples -- ~space, ~@select @range --> +
         $delta = \@selected_values;
     }
     my $d = 0;
-    map  { $d += $_ * $_ } @$delta;
+    map { $d += $_ * $_ } @$delta;
     return sqrt $d;
 }
 

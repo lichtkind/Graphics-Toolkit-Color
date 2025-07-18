@@ -16,16 +16,16 @@ is( $space->name,       'CIEXYZ',                  'color space has right name')
 is( $space->alias,         'XYZ',                  'color space has right alis name');
 is( $space->axis,              3,                     'color space has 3 axis');
 
-is( ref $space->range_check([0, 0, 0]),          'ARRAY',  'check minimal XYZ values are in bounds');
-is( ref $space->range_check([95.0, 100, 108.8]), 'ARRAY',  'check maximal XYZ values');
-is( ref $space->range_check([0,0]),              '',   "XYZ got too few values");
-is( ref $space->range_check([0, 0, 0, 0]),       '',   "XYZ got too many values");
-is( ref $space->range_check([-0.1, 0, 0]),       '',   "X value is too small");
-is( ref $space->range_check([96, 0, 0]),         '',   "X value is too big");
-is( ref $space->range_check([0, -0.1, 0]),       '',   "Y value is too small");
-is( ref $space->range_check([0, 100.1, 0]),      '',   "Y value is too big");
-is( ref $space->range_check([0, 0, -.1 ] ),      '',   "Z value is too small");
-is( ref $space->range_check([0, 0, 108.9] ),     '',   "Z value is too big");
+is( ref $space->check_range([0, 0, 0]),          'ARRAY',  'check minimal XYZ values are in bounds');
+is( ref $space->check_range([95.0, 100, 108.8]), 'ARRAY',  'check maximal XYZ values');
+is( ref $space->check_range([0,0]),              '',   "XYZ got too few values");
+is( ref $space->check_range([0, 0, 0, 0]),       '',   "XYZ got too many values");
+is( ref $space->check_range([-0.1, 0, 0]),       '',   "X value is too small");
+is( ref $space->check_range([96, 0, 0]),         '',   "X value is too big");
+is( ref $space->check_range([0, -0.1, 0]),       '',   "Y value is too small");
+is( ref $space->check_range([0, 100.1, 0]),      '',   "Y value is too big");
+is( ref $space->check_range([0, 0, -.1 ] ),      '',   "Z value is too small");
+is( ref $space->check_range([0, 0, 108.9] ),     '',   "Z value is too big");
 
 is( $space->is_value_tuple([0,0,0]),           1,   'vector has 3 elements');
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');

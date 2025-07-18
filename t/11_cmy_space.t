@@ -14,16 +14,16 @@ is( $def->name,       'CMY',                     'color space has right name');
 is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'CMY color space has 3 axis');
 
-is( ref $def->range_check([0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');
-is( ref $def->range_check([1, 1, 1]),  'ARRAY',   'check CMY values works on upper bound values');
-is( ref $def->range_check([0,0]),           '',   "CMY got too few values");
-is( ref $def->range_check([0, 0, 0, 0]),    '',   "CMY got too many values");
-is( ref $def->range_check([-1, 0, 0]),      '',   "cyan value is too small");
-is( ref $def->range_check([2, 0, 0]),       '',   "cyan value is too big");
-is( ref $def->range_check([0, -1, 0]),      '', "magenta value is too small");
-is( ref $def->range_check([0, 2, 0]),       '', "magenta value is too big");
-is( ref $def->range_check([0, 0, -1 ] ),    '',  "yellow value is too small");
-is( ref $def->range_check([0, 0, 2] ),      '',  "yellow value is too big");
+is( ref $def->check_range( [0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');
+is( ref $def->check_range( [1, 1, 1]),  'ARRAY',   'check CMY values works on upper bound values');
+is( ref $def->check_range( [0,0]),           '',   "CMY got too few values");
+is( ref $def->check_range( [0, 0, 0, 0]),    '',   "CMY got too many values");
+is( ref $def->check_range( [-1, 0, 0]),      '',   "cyan value is too small");
+is( ref $def->check_range( [2, 0, 0]),       '',   "cyan value is too big");
+is( ref $def->check_range( [0, -1, 0]),      '', "magenta value is too small");
+is( ref $def->check_range( [0, 2, 0]),       '', "magenta value is too big");
+is( ref $def->check_range( [0, 0, -1 ] ),    '',  "yellow value is too small");
+is( ref $def->check_range( [0, 0, 2] ),      '',  "yellow value is too big");
 
 
 my $cmy = $def->clamp([]);

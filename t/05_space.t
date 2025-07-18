@@ -55,8 +55,8 @@ is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid 
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
-is( ref $space->range_check([0,1,0.5,0.001]),       'ARRAY', 'default to normal range');
-is( ref $space->range_check([1,1.1,1,1]),                '', 'one value of tuple is out of range');
+is( ref $space->check_range([0,1,0.5,0.001]),       'ARRAY', 'default to normal range');
+is( ref $space->check_range([1,1.1,1,1]),                '', 'one value of tuple is out of range');
 my $val = $space->clamp([-1,1.1,1]);
 is( ref $val,                'ARRAY', 'clamped value tuple is a tuple');
 is( int @$val,                     4, 'filled mising value in');
@@ -71,9 +71,9 @@ is( $space->name,    'name', 'got back user set space name');
 is( $space->alias,  'alias', 'got back user set space name alias');
 is( ref $space,     $module, 'created color space with axis names and ranges');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
-is( ref $space->range_check([10,10,1,10]),                  'ARRAY', 'max values are in range');
-is( ref $space->range_check([0,0,0,-10]),                   'ARRAY', 'min values are in range');
-is( ref $space->range_check([0,0,2,-10]),                        '', 'one value is ou of range');
+is( ref $space->check_range([10,10,1,10]),                  'ARRAY', 'max values are in range');
+is( ref $space->check_range([0,0,0,-10]),                   'ARRAY', 'min values are in range');
+is( ref $space->check_range([0,0,2,-10]),                        '', 'one value is ou of range');
 $val = $space->clamp([-1,20.1,1]);
 is( ref $val,                'ARRAY', 'clamped value tuple is a tuple');
 is( int @$val,                     4, 'filled mising value in');
@@ -131,7 +131,7 @@ $val = $space->clamp([ -0.1111, 1.1111, 200, 0.1111]);
 is( ref $val,                'ARRAY', 'clamped value tuple into a tuple');
 is( int @$val,                     4, 'right amount of values');
 is( $val->[0],                     0, 'clamped up to min');
-is( $val->[1],                   1.1, 'second value correct');
+is( $val->[1],                1.1111, 'second value correct');
 is( $val->[2],                    10, 'third value correct');
 is( $val->[3],                0.1111, 'fourth value correct');
 

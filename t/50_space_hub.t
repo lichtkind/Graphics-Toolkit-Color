@@ -16,7 +16,6 @@ my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
 my $dehash        = \&Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash;
 my $distance      = \&Graphics::Toolkit::Color::Space::Hub::distance;
 
-
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space")
     for qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;
@@ -130,7 +129,7 @@ is( close_enough( $tuple->[1], 104.505/539), 1, 'C value is right');
 is( close_enough( $tuple->[2],  40.026/360), 1, 'H value is right');
 
 
-my $tuple = $deconvert->( 'RGB', [0,1/255,1], );
+$tuple = $deconvert->( 'RGB', [0,1/255,1], );
 is( ref $tuple,      'ARRAY', 'did minimal none deconversion');
 is( int @$tuple,           3, 'RGB has 3 axis');
 is( $tuple->[0],           0, 'red value is right');
@@ -167,6 +166,22 @@ is( close_enough( $tuple->[0],  1), 1, 'L value is right');
 is( close_enough( $tuple->[1],  1/255), 1, 'C value is right');
 is( close_enough( $tuple->[2],  0), 1, 'H value is right');
 
+
+my ($values, $space) = $deformat->([0, 255, 256]);
+is( $space,                     'RGB', 'color triple can only be RGB');
+is( ref $values,              'ARRAY', 'got ARRAY tuple');
+is( int @$values,                   3, 'RGB has 3 axis');
+is( close_enough( $values->[0], 0), 1, 'red value is right');
+is( close_enough( $values->[1], 1), 1, 'green value is right');
+is( close_enough( $values->[2], 1), 1, 'blue value got clamped to max');
+
+($values, $space) = $deformat->('#FF2200');
+is( $space,                     'RGB', 'color triple can only be RGB');
+is( ref $values,              'ARRAY', 'got ARRAY tuple');
+is( int @$values,                   3, 'RGB has 3 axis');
+is( close_enough( $values->[0], 1), 1, 'red value is right');
+is( close_enough( $values->[1], 0.133333333), 1, 'green value is right');
+is( close_enough( $values->[2], 0), 1, 'blue value has right value');
 
 exit 0;
 __END__

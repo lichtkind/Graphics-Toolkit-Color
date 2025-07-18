@@ -15,21 +15,21 @@ is( $space->name,       'CIELUV',                  'color space name is CIELUV')
 is( $space->alias,         'LUV',                  'color space alias is LUV');
 is( $space->axis,              3,                  'color space has 3 dimensions');
 
-is( ref $space->range_check([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
-is( ref $space->range_check([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELUV values');
-is( ref $space->range_check([0,0]),              '',   "CIELUV got too few values");
-is( ref $space->range_check([0, 0, 0, 0]),       '',   "CIELUV got too many values");
-is( ref $space->range_check([-0.1, 0, 0]),       '',   "L value is too small");
-is( ref $space->range_check([100, 0, 0]),   'ARRAY',   'L value is maximal');
-is( ref $space->range_check([101, 0, 0]),        '',   "L value is too big");
-is( ref $space->range_check([0, -134, 0]),  'ARRAY',   'u value is minimal');
-is( ref $space->range_check([0, -134.1, 0]),     '',   "u value is too small");
-is( ref $space->range_check([0, 220, 0]),   'ARRAY',   'u value is maximal');
-is( ref $space->range_check([0, 220.1, 0]),      '',   "u value is too big");
-is( ref $space->range_check([0, 0, -140]),  'ARRAY',   'v value is minimal');
-is( ref $space->range_check([0, 0, -140.1 ] ),   '',   "v value is too small");
-is( ref $space->range_check([0, 0, 122]),   'ARRAY',   'v value is maximal');
-is( ref $space->range_check([0, 0, 122.2] ),     '',   "v value is too big");
+is( ref $space->check_range([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
+is( ref $space->check_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELUV values');
+is( ref $space->check_range([0,0]),              '',   "CIELUV got too few values");
+is( ref $space->check_range([0, 0, 0, 0]),       '',   "CIELUV got too many values");
+is( ref $space->check_range([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $space->check_range([100, 0, 0]),   'ARRAY',   'L value is maximal');
+is( ref $space->check_range([101, 0, 0]),        '',   "L value is too big");
+is( ref $space->check_range([0, -134, 0]),  'ARRAY',   'u value is minimal');
+is( ref $space->check_range([0, -134.1, 0]),     '',   "u value is too small");
+is( ref $space->check_range([0, 220, 0]),   'ARRAY',   'u value is maximal');
+is( ref $space->check_range([0, 220.1, 0]),      '',   "u value is too big");
+is( ref $space->check_range([0, 0, -140]),  'ARRAY',   'v value is minimal');
+is( ref $space->check_range([0, 0, -140.1 ] ),   '',   "v value is too small");
+is( ref $space->check_range([0, 0, 122]),   'ARRAY',   'v value is maximal');
+is( ref $space->check_range([0, 0, 122.2] ),     '',   "v value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({u => 1, v => 0}), 1,  'found hash with some axis names');

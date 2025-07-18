@@ -147,19 +147,19 @@ is( $r->[1],  -0.2, 'rounded with precision 1');
 is( $r->[2], 20.33, 'rounded with precision 2');
 
 $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular', 'circular', 0], [[-5,5],[-5,5],[-5,5]], [0,1,-1]);
-$tr = $bshape->clamp( [-.1, 1.123, 2.54], ['normal',2,[-1,4]], [0,1,-1] );
+$tr = $bshape->clamp( [-.1, 1.123, 2.54], ['normal',2,[-1,4]]);
 is( int @$tr,    3, 'clamp kept right amount of values');
-is( $tr->[0],    1, 'rotated and rounded value to int');
-is( $tr->[1],  1.1, 'rounded in range value to set precision');
+is( $tr->[0],  0.9, 'rotated value to int');
+is( $tr->[1],  1.123, 'left second value untouched');
 is( $tr->[2], 2.54, 'in range value is kept');
 
-is( ref $shape->in_range(1,2,3),        '',  'need array ref, not list');
-is( ref $shape->in_range({}),           '',  'need array, not other ref');
-is( ref $shape->in_range([1,2,3]), 'ARRAY',  'all values in range');
-is( ref $shape->in_range([1,2]),        '',  "not enough values");
-is( ref $shape->in_range([1,2,3,4]),    '',  "too many values");
-is( ref $shape->in_range([1,22,3]),     '',  "too big second value");
-is( ref $shape->in_range([0,1,3.111]),  '',  "too many decimals in third value");
+is( ref $shape->check_range(1,2,3),        '',  'need array ref, not list');
+is( ref $shape->check_range({}),           '',  'need array, not other ref');
+is( ref $shape->check_range([1,2,3]), 'ARRAY',  'all values in range');
+is( ref $shape->check_range([1,2]),        '',  "not enough values");
+is( ref $shape->check_range([1,2,3,4]),    '',  "too many values");
+is( ref $shape->check_range([1,22,3]),     '',  "too big second value");
+is( ref $shape->check_range([0,1,3.111]),  '',  "too many decimals in third value");
 
 
 my $norm = $shape->normalize([-5, 0, 5]);

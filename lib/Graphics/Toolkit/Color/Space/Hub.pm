@@ -92,9 +92,9 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
         }
         $space_name_before = $current_space->name;
     }
-    $values = $target_space->normalize( $values ) if not $values_are_normal and $want_result_normalized;
-    $values = $target_space->round( $target_space->denormalize( $values ))
-                                                  if $values_are_normal and not $want_result_normalized;
+    $values = $target_space->normalize( $values )  if not $values_are_normal and $want_result_normalized;
+    $values = $target_space->denormalize( $values )if $values_are_normal and not $want_result_normalized;
+    $values = $target_space->round( $values ) unless $want_result_normalized;
     return $values;
 }
 sub deconvert { # normalizd value tuple --> RGB tuple
@@ -127,13 +127,11 @@ sub deconvert { # normalizd value tuple --> RGB tuple
 sub deformat { # formatted color def --> normalized values
     my ($color_def, $ranges, $suffix) = @_;
     return 'got no color definition' unless defined $color_def;
-    my ($values, $original_space_name, $original_space);
+    my ($values, $original_space, $format_name);
     for my $space_name (all_space_names()) {
         my $color_space = get_space( $space_name );
-        my ($val, $format_name) = $color_space->deformat( $color_def );
-        if (ref $val){
-            $values = $val;
-            $original_space_name = $space_name;
+        ($values, $format_name) = $color_space->deformat( $color_def );
+        if (defined $format_name){
             $original_space = $color_space;
             last;
         }
@@ -141,7 +139,7 @@ sub deformat { # formatted color def --> normalized values
     return 'could not deformat color definition: "$color_def"' unless ref $original_space;
     $values = $original_space->normalize( $values );
     $values = $original_space->clamp( $values, 'normal');
-    return $values, $original_space_name;
+    return $values, $original_space->name, $format_name;
 }
 
 sub deformat_partial_hash { # convert partial hash into

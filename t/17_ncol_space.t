@@ -22,19 +22,19 @@ is( $space->is_partial_hash({what => 1, blackness => 0}), 0, 'found hash with a 
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $space->can_convert('ncol'), 0,                'can not convert to itself');
 
-is( ref $space->range_check([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
-is( ref $space->range_check([600,100,100]), 'ARRAY',   'check HWB values works on upper bound values');
-is( ref $space->range_check([0,0]),              '',   "HWB got too few values");
-is( ref $space->range_check([0, 0, 0, 0]),       '',   "HWB got too many values");
-is( ref $space->range_check([-1, 0, 0]),         '',   "hue value is too small");
-is( ref $space->range_check([1.1, 0, 0]),        '',   "hue is not integer");
-is( ref $space->range_check([601, 0, 0]),        '',   "hue value is too big");
-is( ref $space->range_check([0, -1, 0]),         '',   "whiteness value is too small");
-is( ref $space->range_check([0, 1.1, 0]),        '',   "whiteness value is not integer");
-is( ref $space->range_check([0, 101, 0]),        '',   "whiteness value is too big");
-is( ref $space->range_check([0, 0, -1 ] ),       '',   "blackness value is too small");
-is( ref $space->range_check([0, 0, 1.1] ),       '',   "blackness value is not integer");
-is( ref $space->range_check([0, 0, 101] ),       '',   "blackness value is too big");
+is( ref $space->check_range([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
+is( ref $space->check_range([600,100,100]), 'ARRAY',   'check HWB values works on upper bound values');
+is( ref $space->check_range([0,0]),              '',   "HWB got too few values");
+is( ref $space->check_range([0, 0, 0, 0]),       '',   "HWB got too many values");
+is( ref $space->check_range([-1, 0, 0]),         '',   "hue value is too small");
+is( ref $space->check_range([1.1, 0, 0]),        '',   "hue is not integer");
+is( ref $space->check_range([601, 0, 0]),        '',   "hue value is too big");
+is( ref $space->check_range([0, -1, 0]),         '',   "whiteness value is too small");
+is( ref $space->check_range([0, 1.1, 0]),        '',   "whiteness value is not integer");
+is( ref $space->check_range([0, 101, 0]),        '',   "whiteness value is too big");
+is( ref $space->check_range([0, 0, -1 ] ),       '',   "blackness value is too small");
+is( ref $space->check_range([0, 0, 1.1] ),       '',   "blackness value is not integer");
+is( ref $space->check_range([0, 0, 101] ),       '',   "blackness value is too big");
 
 
 is( $space->format([0,0,0], 'css_string'), 'ncol(R00, 0%, 0%)', 'can format css string');
@@ -67,7 +67,7 @@ $val = $space->clamp([700,1.1,-2]);
 is( ref $val,                'ARRAY', 'clampd value tuple into tuple');
 is( int @$val,                     3, 'right amount of values');
 is( $val->[0],                   100, 'first value rotated in');
-is( $val->[1],                     1, 'second value rounded');
+is( $val->[1],                   1.1, 'second value rounded');
 is( $val->[2],                     0, 'third value clamped up');
 
 $val = $space->round([1,22.5, 11.111111]);

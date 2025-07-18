@@ -95,7 +95,7 @@ sub _precision { # check if precision def is valid and eval (exapand) it
 
 #### value adaptation methods ##########################################
 
-sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
+sub check_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
         unless $self->basis->is_value_tuple( $values );
@@ -118,26 +118,24 @@ sub in_range {  # $vals -- $range, $precision --> $@vals | ~!
 }
 
 sub clamp { # change values if outside of range, angles get rotated in std range
-    my ($self, $values, $range, $precision) = @_;
+    my ($self, $values, $range) = @_;
     $range = $self->_range( $range );
     return "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;
-    $precision = $self->_precision( $precision, $range );
-    return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
     $values = [] unless ref $values eq 'ARRAY';
     push @$values, 0 while @$values < $self->basis->axis_count;
     pop  @$values    while @$values > $self->basis->axis_count;
-    for my $i ($self->basis->axis_iterator){
-        next unless $self->is_axis_numeric($i);
-        my $delta = $range->[$i][1] - $range->[$i][0];
-        if ($self->{'type'}[$i]){
-            $values->[$i] = $range->[$i][0] if $values->[$i] < $range->[$i][0];
-            $values->[$i] = $range->[$i][1] if $values->[$i] > $range->[$i][1];
+    for my $axis_nr ($self->basis->axis_iterator){
+        next unless $self->is_axis_numeric( $axis_nr );
+        my $delta = $range->[$axis_nr][1] - $range->[$axis_nr][0];
+        if ($self->{'type'}[$axis_nr]){
+            $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] < $range->[$axis_nr][0];
+            $values->[$axis_nr] = $range->[$axis_nr][1] if $values->[$axis_nr] > $range->[$axis_nr][1];
         } else {
-            $values->[$i] += $delta while $values->[$i] < $range->[$i][0];
-            $values->[$i] -= $delta while $values->[$i] > $range->[$i][1];
-            $values->[$i] = $range->[$i][0] if $values->[$i] == $range->[$i][1];
+            $values->[$axis_nr] += $delta while $values->[$axis_nr] < $range->[$axis_nr][0];
+            $values->[$axis_nr] -= $delta while $values->[$axis_nr] > $range->[$axis_nr][1];
+            $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] == $range->[$axis_nr][1];
         }
-        $values->[$i] = round_decimals($values->[$i], $precision->[$i]) if $precision->[$i] >= 0;
+#        $values->[$axis_nr] = round_decimals($values->[$axis_nr], $precision->[$axis_nr]) if $precision->[$axis_nr] >= 0;
     }
     for my $constraint (values %{$self->{'constraint'}}){
         $values = $constraint->{'remedy'}->( $values ) unless $constraint->{'checker'}->( $values );

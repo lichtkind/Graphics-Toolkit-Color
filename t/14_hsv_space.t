@@ -14,19 +14,19 @@ is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by load
 is( $def->name,       'HSV',                     'color space has initials as name');
 is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,           3,                     'color space has 3 axis');
-is( ref $def->range_check([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');
-is( ref $def->range_check([360,100,100]), 'ARRAY',   'check HSV values works on upper bound values');
-is( ref $def->range_check([0,0]),              '',   "HSV got too few values");
-is( ref $def->range_check([0, 0, 0, 0]),       '',   "HSV got too many values");
-is( ref $def->range_check([-1, 0, 0]),         '',   "hue value is too small");
-is( ref $def->range_check([1.1, 0, 0]),        '',   "hue is not integer");
-is( ref $def->range_check([361, 0, 0]),        '',   "hue value is too big");
-is( ref $def->range_check([0, -1, 0]),         '',   "saturation value is too small");
-is( ref $def->range_check([0, 1.1, 0]),        '',   "saturation value is not integer");
-is( ref $def->range_check([0, 101, 0]),        '',   "saturation value is too big");
-is( ref $def->range_check([0, 0, -1 ] ),       '',   "value value is too small");
-is( ref $def->range_check([0, 0, 1.1] ),       '',   "value value is not integer");
-is( ref $def->range_check([0, 0, 101] ),       '',   "value value is too big");
+is( ref $def->check_range([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');
+is( ref $def->check_range([360,100,100]), 'ARRAY',   'check HSV values works on upper bound values');
+is( ref $def->check_range([0,0]),              '',   "HSV got too few values");
+is( ref $def->check_range([0, 0, 0, 0]),       '',   "HSV got too many values");
+is( ref $def->check_range([-1, 0, 0]),         '',   "hue value is too small");
+is( ref $def->check_range([1.1, 0, 0]),        '',   "hue is not integer");
+is( ref $def->check_range([361, 0, 0]),        '',   "hue value is too big");
+is( ref $def->check_range([0, -1, 0]),         '',   "saturation value is too small");
+is( ref $def->check_range([0, 1.1, 0]),        '',   "saturation value is not integer");
+is( ref $def->check_range([0, 101, 0]),        '',   "saturation value is too big");
+is( ref $def->check_range([0, 0, -1 ] ),       '',   "value value is too small");
+is( ref $def->check_range([0, 0, 1.1] ),       '',   "value value is not integer");
+is( ref $def->check_range([0, 0, 101] ),       '',   "value value is too big");
 
 
 my $hsv = $def->clamp([]);
@@ -41,7 +41,7 @@ is( $hsv->[1], 100,     'carried second max value');
 is( $hsv->[2],   0,     'set missing color value to zero (V)');
 $hsv = $def->clamp([-1.1,-1,101,4]);
 is( int @$hsv,   3,     'removed superfluous value');
-is( $hsv->[0], 359,     'rotated up (H) value and removed decimals');
+is( $hsv->[0], 358.9,     'rotated up (H) value and removed decimals');
 is( $hsv->[1],   0,     'clamped up too small (S) value');
 is( $hsv->[2], 100,     'clamped down too large (V) value');;
 

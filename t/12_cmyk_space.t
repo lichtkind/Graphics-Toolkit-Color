@@ -14,19 +14,19 @@ is( $def->name,       'CMYK',                    'color space has right name');
 is( $def->alias,         '',                     'color space has no alias name');
 is( $def->axis,            4,                    'color space has 4 axis');
 
-is( ref $def->range_check([0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
-is( ref $def->range_check([1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
-is( ref $def->range_check([0,0,0]),            '',   "CMYK got too few values");
-is( ref $def->range_check([0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
+is( ref $def->check_range( [0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
+is( ref $def->check_range( [1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
+is( ref $def->check_range( [0,0,0]),            '',   "CMYK got too few values");
+is( ref $def->check_range( [0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
 
-is( ref $def->range_check([-1, 0, 0, 0]),      '',   "cyan value is too small");
-is( ref $def->range_check([2, 0, 0, 0]),       '',   "cyan value is too big");
-is( ref $def->range_check([0, -1, 0, 0]),      '',   "magenta value is too small");
-is( ref $def->range_check([0, 2, 0, 0]),       '',   "magenta value is too big");
-is( ref $def->range_check([0, 0, -1, 0 ] ),    '',   "yellow value is too small");
-is( ref $def->range_check([0, 0, 2, 0] ),      '',   "yellow value is too big");
-is( ref $def->range_check([0, 0, 0, -1] ),     '',   "key value is too small");
-is( ref $def->range_check([0, 0, 0, 2] ),      '',   "key value is too big");
+is( ref $def->check_range( [-1, 0, 0, 0]),      '',   "cyan value is too small");
+is( ref $def->check_range( [2, 0, 0, 0]),       '',   "cyan value is too big");
+is( ref $def->check_range( [0, -1, 0, 0]),      '',   "magenta value is too small");
+is( ref $def->check_range( [0, 2, 0, 0]),       '',   "magenta value is too big");
+is( ref $def->check_range( [0, 0, -1, 0 ] ),    '',   "yellow value is too small");
+is( ref $def->check_range( [0, 0, 2, 0] ),      '',   "yellow value is too big");
+is( ref $def->check_range( [0, 0, 0, -1] ),     '',   "key value is too small");
+is( ref $def->check_range( [0, 0, 0, 2] ),      '',   "key value is too big");
 
 
 my $cmyk = $def->clamp([]);

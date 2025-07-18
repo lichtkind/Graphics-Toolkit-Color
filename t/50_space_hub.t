@@ -247,10 +247,57 @@ is( $values->[2], 0.2,    'blackness value got clamped to max');
 ########################################################################
 my ($pos_hash, $space_name) = $dehash->( {hue => 20} );
 is( $space_name,                     'HSL', 'HSL is first of the cylindrical spaces');
+is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
+is( int keys %$pos_hash,                 1, 'position hash has one key');
+is( exists $pos_hash->{0},               1, 'and this is zero');
+is( $pos_hash->{0},                     20, 'and it has right value');
+($pos_hash, $space_name) = $dehash->( {hUE => 20} );
+is( $space_name,                     'HSL', 'dehash ignores casing');
+
+($pos_hash, $space_name) = $dehash->( {hue => 20}, 'HSB' );
+is( $space_name,                     'HSL', 'did found hue in HSB space');
+is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
+is( int keys %$pos_hash,                 1, 'position hash has one key');
+is( exists $pos_hash->{0},               1, 'and this is zero');
+is( $pos_hash->{0},                     20, 'and it has right value');
+
+($pos_hash, $space_name) = $dehash->( {hue => 20, h => 10} );
+is( $space_name,                     undef, 'can not use axis name twice');
+($pos_hash, $space_name) = $dehash->( {hue => 20, green => 10} );
+is( $space_name,                     undef, 'can not mix axis names from spaces');
+($pos_hash, $space_name) = $dehash->( {red => 20, green => 10, blue => 10, yellow => 20} );
+is( $space_name,                     undef, 'can not use too my axis names');
+
+($pos_hash, $space_name) = $dehash->( {X => 20, y => 10, Z => 30} );
+is( $space_name,              'CIEXYZ', 'can mix upper and lower case axis names');
+is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
+is( int keys %$pos_hash,                 3, 'position hash has three keys');
+is( exists $pos_hash->{0},               1, 'one key is zero');
+is( $pos_hash->{0},                     20, 'and it has right value');
+is( exists $pos_hash->{1},               1, 'one key is one');
+is( $pos_hash->{1},                     10, 'and it has right value');
+is( exists $pos_hash->{2},               1, 'one key is two');
+is( $pos_hash->{2},                     30, 'and it has right value');
+
+($pos_hash, $space_name) = $dehash->( {C => 1, M => 0.3, Y => 0.4, K => 0} );
+is( $space_name,                    'CMYK', 'works also with 4 element hashes');
+is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
+is( int keys %$pos_hash,                 4, 'position hash has four keys');
+is( exists $pos_hash->{0},               1, 'one key is zero');
+is( $pos_hash->{0},                      1, 'and it has right value');
+is( exists $pos_hash->{1},               1, 'one key is one');
+is( $pos_hash->{1},                    0.3, 'and it has right value');
+is( exists $pos_hash->{2},               1, 'one key is two');
+is( $pos_hash->{2},                    0.4, 'and it has right value');
+is( exists $pos_hash->{3},               1, 'one key is two');
+is( $pos_hash->{3},                      0, 'and it has right value');
+
+########################################################################
+# distance
 
 exit 0;
 
 
-# deformat_partial_hash distance
+
 
 

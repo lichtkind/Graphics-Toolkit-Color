@@ -7,11 +7,12 @@ use warnings;
 use Carp;
 
 #### internal space loading ############################################
-my %space_obj;
 our $default_space_name = 'RGB';
-add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for default_space_name(),
-                       qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,   # search order
-                       qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;  # missing: CubeHelix OKLAB
+my @search_order = ($default_space_name,
+                   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/, # missing: CubeHelix OKLAB
+                   qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/);
+my %space_obj;
+add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 
 #### space API #########################################################
 sub get_space          { (defined $_[0] and exists $space_obj{ uc $_[0] }) ? $space_obj{ uc $_[0] } : '' }
@@ -146,7 +147,7 @@ sub deformat_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
     return unless ref $value_hash eq 'HASH';
     my @options = (defined $space_name and $space_name) ? ($space_name) : (all_space_names());
-    for my $space_name (@options) {
+    for my $space_name (@search_order) {
         my $color_space = get_space( $space_name );
         my $pos_hash = $color_space->basis->pos_hash_from_partial_hash( $value_hash );
         next unless ref $pos_hash eq 'HASH';
@@ -155,7 +156,7 @@ sub deformat_partial_hash { # convert partial hash into
     return undef;
 }
 
-sub distance { # _c1 _c2 -- ~space ~select @range --> +
+sub distance { # RGB tuples -- ~space, ~@select @range --> +
     my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
     return if ref $select_axis and ref $select_axis ne 'ARRAY';
     $space_name //= $default_space_name;

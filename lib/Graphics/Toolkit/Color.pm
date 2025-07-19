@@ -284,12 +284,12 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
 
     use Graphics::Toolkit::Color qw/color/;
 
-    my $red = Graphics::Toolkit::Color->new('red'); # create color object
-    say $red->add( 'blue' => 255 )->name;           # add blue value: 'fuchsia'
-    my $blue = color( 0, 0, 255)->values('HSL');    # 240, 100, 50 = blue
-    $blue->blend( with => [HSL => 0,0,80], pos => 0.1);# mix blue with a little grey in HSL
-    $red->gradient( to => '#0000FF', steps => 10);  # 10 colors from red to blue
-    $red->complement( 3 );                          # get fitting red green and blue
+    my $red = Graphics::Toolkit::Color->new('red');  # create color object
+    say $red->add( 'blue' => 255 )->name;            # add blue value: 'fuchsia'
+    my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
+    $red->mix( with => [HSL => 0,0,80], amount => 10);# mix red with a little grey
+    $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
+    my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
 
 =head1 WARNING
@@ -304,6 +304,9 @@ will be removed with release of version 2.0.
 
 Graphics::Toolkit::Color, for short GTC, is the top level API of this
 release and the only one a regular user should be concerned with.
+Its main purpose is the creation of related colors or sets of them,
+such as gradients, complements and others. But you can use it also to
+convert and/or reformat color definitions.
 
 GTC are read only, color holding objects with no additional dependencies.
 Create them in many different ways (see section L</CONSTRUCTOR>).
@@ -471,8 +474,9 @@ C<precision> is really exotic but sometimes you need to escape the numeric
 precision set by a color spaces definition.
 For instance C<LAB> values will have three decimals, no matter how precise
 the input was. In case you prefer 4 decimals, just use C<precision => 4>.
-A zero means no decimals and -1 is maximal precision which can spit more
-decimals than you prefer. Different precisions per axis ([1,2,3]) are possible.
+A zero means no decimals and -1 is maximal precision which can spit out
+more decimals than you prefer. Different precisions per axis ([1,2,3])
+are possible.
 
     $blue->values();                                  # get list in RGB: 0, 0, 255
     $blue->values( in => 'RGB', as => 'list');        # same call
@@ -492,25 +496,30 @@ decimals than you prefer. Different precisions per axis ([1,2,3]) are possible.
 =head2 distance
 
 Is a floating point number that measures the Euclidean distance between
-two colors. One color is the calling object itself and the second one,
-that has to be provided as either the only argument or the named argument
-L</to>, which is the only required one.
+two colors, which represent two points in a color space. One color
+is the calling object itself and the second one has to be provided as
+either the only argument or the named argument L</to>, which is the only
+required one.
 
 The C<distance> is measured in I<RGB> color space unless told otherwise
 by the argument L</in>.
 
 The third argument is named C<select>. It's useful if you want to regard
-only certain dimensions (axis). Long or short axis names are accepted.
-They all have to come from one color space and one short name can be used
-several times to heighten the weight of this dimension (axis).
+only certain dimensions (axis). For instance if you want to know only
+the difference in brightness between two colors, you type
+C<select => 'lightness'> or C<select => 'l'>. This works of course only
+if you choose I<HSL> or something similar like I<LAB> as color space.
+Long or short axis names are accepted, but they all have to come from one
+color space. You also can mention one axis several times for heightened
+emphasis on this dimension.
 
 The last argument is named L</range>, which can change the result drasticly.
 
-    my $d = $blue->distance( to => 'lapisblue' );              # how close is blue to lapis color?
-    $d = $blue->distance( to => 'airyblue', in => 'RGB', select => 'Blue'); # same amount of blue?
-    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );                  # same hue?
-    # compute distance when with all value ranges 0 .. 1
-    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue', range => 'normal' );
+    my $d = $blue->distance( 'lapisblue' );                 # how close is blue to lapis?
+    $d = $blue->distance( to => 'airyblue', select => 'b'); # have they the same amount of blue?
+    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );  # same hue?
+    $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
+    $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
 
 
 =head1 SINGLE COLOR
@@ -535,9 +544,9 @@ One solvable issue is when axis in different spaces have the same name.
 For instance I<HSL> and I<HSV> have a I<saturation> axis. To disambiguate
 you can add the named argument L</in>.
 
-    $black->set( blue => 255 )->name;             # blue, same as #0000ff
-    $blue->set( saturation => 50 );               # pale blue, same as $blue->set( s => 50 );
-    $blue->set( saturation => 50, in => 'HSV' );  # previous example computed in HSL
+    $black->set( blue => 255 )->name;                  # blue, same as #0000ff
+    my $new_color = $blue->set( saturation => 50 );    # pale blue, same as $blue->set( s => 50 );
+    my $new_color = $blue->set( saturation => 50, in => 'HSV' );  # same, computed in HSL
 
 =head2 add
 
@@ -549,6 +558,11 @@ ones. The rest works as described in L</set>.
     my $darkblue = $blue->add( Lightness => -25 );      # dim it down
     my $blue2 = $blue->add( blue => 10 );               # can it get bluer than blue ?
     my $blue3 = $blue->add( l => 10, in => 'LAB' );     # lighter color according in CIELAB
+
+This method was mainly created to get lighter, darker or more saturated
+colors by using it like:
+
+    my $new_color = $color->add( saturation => 10);
 
 =head2 mix
 
@@ -584,7 +598,7 @@ Creates a gradient (a list of color objects that build a transition)
 between the current color held by the object and a second color,
 provided by the named argument L</to>, which is a required.
 Optionally C<to> accepts an ARRAY ref (square braces) with a list of
-colors in order to create the most fancy, custom and nonelinear gradients.
+colors in order to create the most fancy, custom and nonlinear gradients.
 
 Also required is the named argument C<steps>, which is the gradient length
 or count of colors, which are part of this gradient. Included in there
@@ -597,7 +611,7 @@ Greater values of the argument let the color change rate start small,
 steadily getting bigger. Negative values work vice versa.
 The bigger the numeric value the bigger the effect.
 
-Optional is the named argument L<\in> (color space - details behind the link).
+Optional is the named argument L</in> (color space - details behind the link).
 
     # we turn to grey
     my @colors = $c->gradient( to => $grey, steps => 5);
@@ -614,7 +628,7 @@ I<saturation> and I<lightness>. They form a circle in I<HSL>, which will
 be referenced  often in this paragraph.
 
 If called with no arguments the method returns just THE complementary
-color on the opposite side "side" of the circle.
+color on the opposite "side" of the circle.
 
 The named argument C<steps> (as in L</gradient>) sets the number of colors
 computed, by dividing the perimeter of the circle in N equal parts
@@ -660,7 +674,7 @@ a ball with the given radius. If it is an ARRAY of values you get the a
 cuboid with the given dimensions.
 
 The minimal distance between the colors is set by the argument C<distance>,
-which is computed the same way as the method with taht name. In a cuboid
+which is computed the same way as the method with that name. In a cuboid
 shaped cluster the colors will be in a cubic grid inside the ball they
 form a cuboctahedral grid, which is packed tighter but still obey the
 demanded minimal distance.

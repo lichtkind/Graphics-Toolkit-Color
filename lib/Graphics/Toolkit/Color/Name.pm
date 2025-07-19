@@ -14,7 +14,7 @@ our (@name_from_rgb, @name_from_hsl);       # search caches
 _add_color_to_reverse_search( $_, @{$constants->{$_}} ) for all(); # (all color names)
 
 sub all      { sort keys %$constants }
-sub is_taken { exists  $constants->{ _clean_name($_[0]) } }
+sub is_taken { (exists  $constants->{ _clean_name($_[0]) }) ? 1 : 0 }
 sub rgb_from_name {
     my $name = _clean_name(shift);
     return [@{$constants->{$name}}[0..2]] if is_taken( $name );
@@ -26,7 +26,7 @@ sub hsl_from_name {
 
 sub name_from_rgb {
     my ($rgb) = @_;
-    return '' unless ref $RGB->range_check( $rgb );
+    return '' unless ref $RGB->check_range( $rgb );
     return '' unless exists $name_from_rgb[ $rgb->[0] ] and exists $name_from_rgb[ $rgb->[0] ][ $rgb->[1] ]
                  and exists $name_from_rgb[ $rgb->[0] ][ $rgb->[1] ][ $rgb->[2] ];
     my @names = ($name_from_rgb[ $rgb->[0] ][ $rgb->[1] ][ $rgb->[2] ]);
@@ -35,7 +35,7 @@ sub name_from_rgb {
 }
 sub name_from_hsl {
     my ($hsl) = @_;
-    return unless ref $HSL->range_check( $hsl );
+    return unless ref $HSL->check_range( $hsl );
     return '' unless exists $name_from_hsl[ $hsl->[0] ] and exists $name_from_hsl[ $hsl->[0] ][ $hsl->[1] ]
                  and exists $name_from_hsl[ $hsl->[0] ][ $hsl->[1] ][ $hsl->[2] ];
     my @names = ($name_from_hsl[ $hsl->[0] ][ $hsl->[1] ][ $hsl->[2] ]);
@@ -46,12 +46,12 @@ sub name_from_hsl {
 sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return if @_ != 2;
     my ($hsl_center, $radius) = @_;
-    return unless ref $HSL->range_check( $hsl_center );
+    return unless ref $HSL->check_range( $hsl_center ) and defined $radius;
     my %distance;
     if ((ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius){
-        my @border = (ref $radius) ? $radius : [$radius, $radius, $radius];
-        my @min = map {$hsl_center->[$_] - $border[$_]} 0 .. 2;
-        my @max = map {$hsl_center->[$_] + $border[$_]} 0 .. 2;
+        my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
+        my @min = map {$hsl_center->[$_] - $border->[$_]} 0 .. 2;
+        my @max = map {$hsl_center->[$_] + $border->[$_]} 0 .. 2;
         $min[0] += 360 if $min[0] <   0;
         $max[0] -= 360 if $min[0] > 359;
         for my $name (all()){
@@ -69,7 +69,11 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
             my $h_delta = abs ($hsl[0] - $hsl_center->[0]);
             $h_delta -= 360 if $h_delta > 180;
             my $d = sqrt( $h_delta**2 + ($hsl[1]-$hsl_center->[1])**2 + ($hsl[2]-$hsl_center->[2])**2 );
-            $distance{ $name } = $d if ref $radius or $d <= $radius;
+say "name $name";
+            if (ref $radius or $d <= $radius) {
+                if (ref $name eq 'ARRAY') { map {$distance{ $_ } = $d} @$name }
+                elsif (not ref $name)     {      $distance{ $name } = $d      }
+            }
         }
     } else { return; }
     my @names = sort { $distance{$a} <=> $distance{$b} } keys %distance;
@@ -80,14 +84,14 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
 sub add_rgb {
     my ($name, $rgb) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
-    return "second argument: RGB tuple is malformed or values are  out of range" unless ref $RGB->range_check( $rgb );
-    _add_color( $name, $rgb, $HSL->denormalize( $HSL->convert_from( 'RGB', [$RGB->normalize( $rgb )] ) ) );
+    return "second argument: RGB tuple is malformed or values are  out of range" unless ref $RGB->check_range( $rgb );
+    _add_color( $name, $rgb, $HSL->denormalize( $HSL->convert_from( 'RGB', $RGB->normalize( $rgb ) ) ) );
 }
 sub add_hsl {
     my ($name, $hsl) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
-    return "second argument: HSL tuple is malformed or values are  out of range" unless ref $HSL->range_check( $hsl );
-    _add_color( $name, $RGB->denormalize( $HSL->convert_to( 'RGB', [$HSL->normalize( $hsl )] ) ), $hsl );
+    return "second argument: HSL tuple is malformed or values are  out of range" unless ref $HSL->check_range( $hsl );
+    _add_color( $name, $RGB->denormalize( $HSL->convert_to( 'RGB', $HSL->normalize( $hsl ) ) ), $hsl );
 }
 sub _add_color {
     my ($name, $rgb, $hsl) = @_;
@@ -100,7 +104,7 @@ sub _add_color {
 
 sub _clean_name {
     my $name = shift;
-    $name =~ tr/_//d;
+    $name =~ tr/_'//d;
     lc $name;
 }
 

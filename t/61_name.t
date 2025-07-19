@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 57;
+use Test::More tests => 34;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -13,8 +13,6 @@ use_ok( $module, 'could load the module');
 my @names = Graphics::Toolkit::Color::Name::all();
 
 my $is_taken           = \&Graphics::Toolkit::Color::Name::is_taken;
-my $rgb_from_name      = \&Graphics::Toolkit::Color::Name::rgb_from_name;
-my $hsl_from_name      = \&Graphics::Toolkit::Color::Name::hsl_from_name;
 my $name_from_rgb      = \&Graphics::Toolkit::Color::Name::name_from_rgb;
 my $name_from_hsl      = \&Graphics::Toolkit::Color::Name::name_from_hsl;
 my $add_rgb            = \&Graphics::Toolkit::Color::Name::add_rgb;
@@ -28,93 +26,40 @@ is( $is_taken->("r_e'd"),       1,       'some special characters are also ignor
 is( $is_taken->('blue'),        1,       '"blue" is a known constant' );
 is( $is_taken->('coconut'),     0,       '"coconut" is not a known constant' );
 
-__END__
+my $val = Graphics::Toolkit::Color::Name::rgb_from_name('red');
+is( ref $val,         'ARRAY',       'got tuple with RGB values of "red"' );
+is( int @$val,              3,       'tuple contains three values' );
+is( $val->[0],            255,       'red value is correct' );
+is( $val->[1],              0,       'green value is correct' );
+is( $val->[2],              0,       'blue value is correct' );
+$val = Graphics::Toolkit::Color::Name::rgb_from_name('coconut');
+is( ref $val,              '',       'got no tuple for unknown color constant' );
 
-warning_like {$add_rgb->()} {carped => qr/missing first arg/},          "can't get color without name";
-warning_like {$add_rgb->( 'one',1,1)}    {carped => qr/needs 3 values/},'not enough args to add color';
-warning_like {$add_rgb->( 'one', 0, -1, 25)} {carped => qr/green/},     'too small green value got cought';
-warning_like {$add_rgb->( 'one', 0, 1, 256)} {carped => qr/blue/},      'too large blue value got cought';
-warning_like {$add_rgb->( 'white', 0, 3, 22 )} {carped => qr/already/}, 'got cought overwriting white';
+my $val = Graphics::Toolkit::Color::Name::hsl_from_name('red');
+is( ref $val,         'ARRAY',       'got tuple with HSL values of "red"' );
+is( int @$val,              3,       'tuple contains three values' );
+is( $val->[0],              0,       'hue value is correct' );
+is( $val->[1],            100,       'saturation value is correct' );
+is( $val->[2],             50,       'lightness value is correct' );
+$val = Graphics::Toolkit::Color::Name::hsl_from_name('coconut');
+is( ref $val,              '',       'got no tuple for unknown color constant' );
 
-is( $taken->('one'), '',                        'there is not color named "one"' );
-is( ref $add_rgb->('one', 1, 2, 3 ),  'ARRAY',  'could add color to store');
-is( $get_name_rgb->( 1, 2, 3 ), 'one',          'retrieve added color' );
-is( $taken->('one'), 1,                         'there is now a color named "one"' );
-is( $taken->('One'), 1,                         'even there with different spelling');
-is( ref $add_hsl->('lucky', 0,100, 50),'ARRAY', 'added red under different name');
-is( ref $add_hsl->('blob', 14, 10, 50),'ARRAY', 'added color by hsl definition');
+is( $name_from_rgb->([255,0,0]),             'red',       'found red constant by RGB values' );
+is( $name_from_rgb->([0,0,255]),            'blue',       'found blue constant by RGB' );
+is( $name_from_rgb->([1,1,255]),                '',       'no color with values 1, 1, 255' );
+is( ref $add_rgb->('blue', [1, 0, 255]),        '',       'name blue is already in store' );
+is( $add_rgb->('bluuu',  [1, 1, 255]),           0,       'could add my custom blue' );
+is( $name_from_rgb->([1,1,255]),           'bluuu',       'can retrieve newly stored constant' );
+is( $name_from_hsl->([0,100,50]),            'red',       'found red constant by HSL values' );
+is( $name_from_hsl->([240,100,50]),         'blue',       'found blue constant by HSL values' );
+is( $name_from_hsl->([241,100,50]),             '',       'custom blue is not in store yet' );
+is( ref $add_hsl->('blue', [240,100,50]),       '',       'name blue is already in store, also under HSL' );
+is( $add_hsl->('blauu',  [241,100,50]),          0,       'could add my custom blue' );
+is( $name_from_hsl->([241,100,50]),         'blauu',       'can retrieve newly stored blue as HSL constant' );
 
-is( $get_name_rgb->( 255 ,255, 255 ), 'white',       'could get a color def');
-is( scalar $get_name_rgb->( 255, 215,   0 ), 'gold', 'selects shorter name: gold instead of gold1');
-is( scalar $get_name_rgb->( [255, 215,   0]),'gold', 'array ref arg format works too');
-is( scalar $get_name_rgb->( 255,   0,   0 ), 'red',  'selects shorter name red instead of inserted lucky');
-is( $get_name_hsl->(  0, 100,  50 ), 'red',          'found red by hsl');
-is( $get_name_hsl->( 14,  10,  50 ), 'blob',         'found inserted color by hsl');
-
-my @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('white');
-my @hsl = Graphics::Toolkit::Color::Name::hsl_from_name('white');
-is( int @rgb,  3,     'white has 3 rgb values');
-is( $rgb[0], 255,     'white has full red value');
-is( $rgb[1], 255,     'white has full green value');
-is( $rgb[2], 255,     'white has full blue value');
-is( int @hsl,  3,     'white has 3 hsl values');
-is( $hsl[0],   0,     'white has zero hue value');
-is( $hsl[1],   0,     'white has zero sat value');
-is( $hsl[2], 100,     'white has full light value');
-
-@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('one');
-@hsl = Graphics::Toolkit::Color::Name::hsl_from_name('one');
-is( int @rgb,  3,     'self defined color has rgb values');
-is( $rgb[0],   1,     'self defined color has defined red value');
-is( $rgb[1],   2,     'self defined color has defined full green value');
-is( $rgb[2],   3,     'self defined color has defined full blue value');
-is( int @hsl,  3,     'self defined color has hsl values');
-is( $hsl[0], 210,     'self defined color has computed hue value');
-is( $hsl[1],  50,     'self defined color has computed saturation');
-is( $hsl[2],   1,     'self defined color has computed lightness');
-
-@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('One');
-is( int @rgb, 3,     'upper case gets cleaned from color name');
-@rgb = Graphics::Toolkit::Color::Name::rgb_from_name('O_ne');
-is( int @rgb, 3,     'under score gets cleaned from color name');
-
-warning_like{ $get_name_range->( []) }                     {carped => qr/array with h s l values/},"can't get names in range without hsl values";
-warning_like{ $get_name_range->( [1,1,1],[1,1,1],[1,1,1])} {carped => qr/array with h s l values/},'too many array arg';
-warning_like{ $get_name_range->( [1,2],[1,2,3])}           {carped => qr/in HSL needs 3 values/},'range center is missing a value';
-warning_like{ $get_name_range->( [1,2,3],[2,3])}     {carped => qr/in HSL needs 3 values/},    'tolerances are missing a value';
-warning_like{ $get_name_range->( [-1,2,3],[1,2,3])}  {carped => qr/hue value/},          'first value of search center is too small';
-warning_like{ $get_name_range->( [361,2,3],[1,2,3])} {carped => qr/hue value/},          'first value of search center is too large';
-warning_like{ $get_name_range->( [1,-1,3],[2,10,3])} {carped => qr/saturation value/},  'saturation center value is too small';
-warning_like{ $get_name_range->( [1,101,3],[2,1,3])} {carped => qr/saturation value/},  'saturation center value is too large';
-warning_like{ $get_name_range->( [1,1,-1],[2,10,3])} {carped => qr/lightness value/},   'first lightness value is too small';
-warning_like{ $get_name_range->( [1,2,101],[2,1,1])} {carped => qr/lightness value/},   'second lightness value is too large';
-
-@names = $get_name_range->( [0, 0, 100], 0);
-is( int @names, 1,          'only one color has distance of 0 to white');
-is( $names[0], 'white',     'only white has distance of 0 to white');
-
-@names = sort $get_name_range->( [0, 0, 100], 5);
-is( int @names, 5,             '5 colors are in short distance to white');
-@names = grep { /whitesmoke/ } @names;
-is( int @names, 1,  'whitesmoke is near to white');
-
-my @morenames = sort $get_name_range->( [0, 0, 100], 10);
-is( @names < @morenames, 1,  'bigger radius has to catch more colors');
-
-@names = sort $get_name_range->( [240, 100, 50], [10, 20, 30]);
-@names = grep { /navy/ } @names;
-is( int @names, 1,           'navy is a shade of blue');
-
-@names = sort $get_name_range->( [240, 100, 50], [100, 5, 5]);
-@names = grep { /aqua/ } @names;
-is( int @names, 1,           'aqua is a bluish color with high saturation and medium lightness');
-
-@names = sort $get_name_range->( [  0, 100, 50], [100, 5, 5]);
-@names = grep { /lightpurple/ } @names;
-is( int @names, 1,           'purple is near red because hue is circular');
-
-@names = sort $get_name_range->( [ 359, 100, 50], [100, 5, 5]);
-@names = grep { /chartreuse/ } @names;
-is( @names > 0, 1,           'chartreuse is near purple because hue is circular');
+my @names = $names_in_hsl_range->([240,100,50], 3);
+is( int @names,         2,       'found 2 names near blue' );
+is( $names[0],     'blue',       'one is blue' );
+is( $names[1],         2,       'found 2 names near blue' );
 
 exit 0;

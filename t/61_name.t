@@ -12,26 +12,23 @@ my $space_ref = 'Graphics::Toolkit::Color::Space';
 use_ok( $module, 'could load the module');
 my @names = Graphics::Toolkit::Color::Name::all();
 
-# use Graphics::Toolkit::Color::Name::Constant::;
-is( int @names, 716,                   'all consants are there' );
+my $is_taken           = \&Graphics::Toolkit::Color::Name::is_taken;
+my $rgb_from_name      = \&Graphics::Toolkit::Color::Name::rgb_from_name;
+my $hsl_from_name      = \&Graphics::Toolkit::Color::Name::hsl_from_name;
+my $name_from_rgb      = \&Graphics::Toolkit::Color::Name::name_from_rgb;
+my $name_from_hsl      = \&Graphics::Toolkit::Color::Name::name_from_hsl;
+my $add_rgb            = \&Graphics::Toolkit::Color::Name::add_rgb;
+my $add_hsl            = \&Graphics::Toolkit::Color::Name::add_hsl;
+my $names_in_hsl_range = \&Graphics::Toolkit::Color::Name::names_in_hsl_range;
+
+is( int @names,               716,       'all consants are there' );
+is( $is_taken->('red'),         1,       '"red" is a known constant' );
+is( $is_taken->('RED'),         1,       'color constants are case insensitive' );
+is( $is_taken->("r_e'd"),       1,       'some special characters are also ignored' );
+is( $is_taken->('blue'),        1,       '"blue" is a known constant' );
+is( $is_taken->('coconut'),     0,       '"coconut" is not a known constant' );
 
 __END__
-
-all is_taken
-rgb_from_name hsl_from_name name_from_rgb name_from_hsl
-add_rgb add_hsl
-names_in_hsl_range
-
-
-my @names = Graphics::Toolkit::Color::Name::all();
-is( @names > 700, 1, 'get a large list of names, all_names seems to working');
-
-my $add_rgb        = \&Graphics::Toolkit::Color::Name::add_rgb;
-my $add_hsl        = \&Graphics::Toolkit::Color::Name::add_hsl;
-my $taken          = \&Graphics::Toolkit::Color::Name::taken;
-my $get_name_rgb   = \&Graphics::Toolkit::Color::Name::name_from_rgb;
-my $get_name_hsl   = \&Graphics::Toolkit::Color::Name::name_from_hsl;
-my $get_name_range = \&Graphics::Toolkit::Color::Name::names_in_hsl_range;
 
 warning_like {$add_rgb->()} {carped => qr/missing first arg/},          "can't get color without name";
 warning_like {$add_rgb->( 'one',1,1)}    {carped => qr/needs 3 values/},'not enough args to add color';

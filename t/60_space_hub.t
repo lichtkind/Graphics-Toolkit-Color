@@ -313,8 +313,3 @@ $d = $distance->( [1,1,1], [0,0,0],  undef, [qw/blue/], 1  );
 is(  $d,       1,              'count only blue difference');
 
 exit 0;
-
-
-
-
-

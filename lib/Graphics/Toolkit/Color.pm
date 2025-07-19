@@ -478,19 +478,19 @@ A zero means no decimals and -1 is maximal precision which can spit out
 more decimals than you prefer. Different precisions per axis ([1,2,3])
 are possible.
 
-    $blue->values();                                  # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');        # same call
-    $blue->values( in => 'RGB', as => 'named_array'); # ['rgb', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');        # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');   # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'named_string');# 'rgb: 255, 0, 0'
-    $blue->values( in => 'RGB', as => 'css_string');  # 'rgb(255, 0, 0)'
-    $blue->values(              as => 'hex_string');  # '#00ffff'
-    $color->values('HSL');                            # 240, 100, 50
-    $color->values( in => 'HSL', range => 1, precision => 2); # 0.66, 1, 0.5
-    $color->values( in => 'RGB', range => 2**16);             # values in RGB16
-    $color->values( in => 'HSB', as => 'hash')->{'hue'};      # how to get single value
-   ($color->values( 'HSB'))[0];                               # same, but shorter
+    $blue->values();                                   # get list in RGB: 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');         # same call
+    $blue->values( in => 'RGB', as => 'named_array');  # ['rgb', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');         # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');    # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string'); # 'rgb: 255, 0, 0'
+    $blue->values( in => 'RGB', as => 'css_string');   # 'rgb(255, 0, 0)'
+    $blue->values(              as => 'hex_string');   # '#0000ff'
+    $red->values('HSL');                               # 0, 100, 50
+    $red->values(            range => 2**16);          # 65536, 0, 0
+    $red->values( in => 'HSB',  as => 'hash')->{'hue'};# 0
+   ($red->values( 'HSB'))[0];                          # same, but shorter
+    $color->values( range => 1, precision => 2);       # 0.66, 1, 0.5
 
 
 =head2 distance

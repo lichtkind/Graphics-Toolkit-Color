@@ -1,5 +1,5 @@
 
-# named colors from X11, HTML (SVG) standard and Pantone report
+# translate named colors from X11, HTML (SVG) standard and Pantone report
 
 package Graphics::Toolkit::Color::Name;
 use v5.12;
@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space::Hub;
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
-my $constants = require Graphics::Toolkit::Color::Name::Constant;
+my $constants = require Graphics::Toolkit::Color::Name::Constant; # store
 our (@name_from_rgb, @name_from_hsl);       # search caches
 _add_color_to_reverse_search( $_, @{$constants->{$_}} ) for all(); # (all color names)
 

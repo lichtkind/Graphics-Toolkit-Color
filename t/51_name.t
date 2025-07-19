@@ -10,8 +10,17 @@ my $module = 'Graphics::Toolkit::Color::Name';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
 
 use_ok( $module, 'could load the module');
+my @names = Graphics::Toolkit::Color::Name::all();
+
+# use Graphics::Toolkit::Color::Name::Constant::;
+is( int @names, 716,                   'all consants are there' );
 
 __END__
+
+all is_taken
+rgb_from_name hsl_from_name name_from_rgb name_from_hsl
+add_rgb add_hsl
+names_in_hsl_range
 
 
 my @names = Graphics::Toolkit::Color::Name::all();

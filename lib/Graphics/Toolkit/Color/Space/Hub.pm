@@ -9,7 +9,7 @@ use Carp;
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
 my @search_order = ($default_space_name,
-                   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/, # missing: CubeHelix OKLAB
+                   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/, # missing: CubeHelix OKLAB Hunterlab
                    qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/);
 my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;

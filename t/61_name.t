@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 60;
+use Test::More tests => 59;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -54,7 +54,7 @@ is( $color_name[1],                        'blue1',       'second one is "blue1"
 is( $name_from_rgb->([1,1,255]),                '',       'no color with values 1, 1, 255' );
 is( length $add_rgb->('blue', [1, 0, 255]),     61,       'name blue is already in store' );
 is( $add_rgb->('blue_top',  [0, 0, 255]),        0,       'added third name for blue on top' );
-my @color_name = $name_from_rgb->([0,0,255]);
+@color_name = $name_from_rgb->([0,0,255]);
 is( int @color_name,                             3,       'in ARRAY context you get several blue names' );
 is( $color_name[2],                      'bluetop',       'new blue name is last in list' );
 is( $add_rgb->('bluuu',  [1, 1, 255]),           0,       'could add my custom blue' );
@@ -74,9 +74,23 @@ is( ref $add_hsl->('blue', [240,100,50]),       '',       'name blue is already 
 is( $add_hsl->('blauu',  [241,100,50]),          0,       'could add my custom blue' );
 is( $name_from_hsl->([241,100,50]),        'blauu',       'can retrieve newly stored blue as HSL constant' );
 
-@color_name = $names_in_hsl_range->([240,100,50], 3);
-# is( int @names,         3,       'found 2 names near blue' );
-#~ is( $names[0],     'blue',       'one is blue' );
-#~ is( $names[1],         2,       'found 2 names near blue' );
+my ($names, $d) = $names_in_hsl_range->([240,100,50], 3);
+@color_name = sort @$names[0..3];
+is( ref $names,         'ARRAY',       'got near color names in an ARRAY' );
+is( ref $d,             'ARRAY',       'got near color distances in an ARRAY' );
+is( int @$names,              6,       'its six colors' );
+is( int @$d,                  6,       'has to be also six distances' );
+is( $names->[5],        'blue2',       'far away is "blue2"' );
+is( $d->[5],                  3,       '"blue2" has the greatest distance' );
+is( $names->[4],        'blauu',       'closer is "blauu"' );
+is( $d->[4],                  1,       '"blauu" has very little distance' );
+is( $color_name[0],      'blue',       '"blue" is the wanted color' );
+is( $d->[0],                  0,       '"blue" has no distance' );
+is( $color_name[1],     'blue1',       '"blue1" is the wanted color' );
+is( $d->[1],                  0,       '"blue1" has no distance' );
+is( $color_name[2],   'bluetop',       '"bluetop" is the wanted color' );
+is( $d->[2],                  0,       '"bluetop" has no distance' );
+is( $color_name[3],     'bluuu',       '"bluuu" is the wanted color' );
+is( $d->[3],                  0,       '"bluuu" has no distance' );
 
 exit 0;

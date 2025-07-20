@@ -69,7 +69,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
             my $h_delta = abs ($hsl[0] - $hsl_center->[0]);
             $h_delta -= 360 if $h_delta > 180;
             my $d = sqrt( $h_delta**2 + ($hsl[1]-$hsl_center->[1])**2 + ($hsl[2]-$hsl_center->[2])**2 );
-say "name $name";
+#say "name $name";
             if (ref $radius or $d <= $radius) {
                 if (ref $name eq 'ARRAY') { map {$distance{ $_ } = $d} @$name }
                 elsif (not ref $name)     {      $distance{ $name } = $d      }
@@ -85,13 +85,15 @@ sub add_rgb {
     my ($name, $rgb) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
     return "second argument: RGB tuple is malformed or values are  out of range" unless ref $RGB->check_range( $rgb );
-    _add_color( $name, $rgb, $HSL->denormalize( $HSL->convert_from( 'RGB', $RGB->normalize( $rgb ) ) ) );
+    my $hsl = $HSL->denormalize( $HSL->convert_from( 'RGB', $RGB->normalize( $rgb ) ) );
+    _add_color( $name, $RGB->round( $rgb ), $HSL->round( $hsl ) );
 }
 sub add_hsl {
     my ($name, $hsl) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
     return "second argument: HSL tuple is malformed or values are  out of range" unless ref $HSL->check_range( $hsl );
-    _add_color( $name, $RGB->denormalize( $HSL->convert_to( 'RGB', $HSL->normalize( $hsl ) ) ), $hsl );
+    my $rgb = $RGB->denormalize( $HSL->convert_to( 'RGB', $HSL->normalize( $hsl ) ) );
+    _add_color( $name, $RGB->round( $rgb ), $HSL->round( $hsl ) );
 }
 sub _add_color {
     my ($name, $rgb, $hsl) = @_;

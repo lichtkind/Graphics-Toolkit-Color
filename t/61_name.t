@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 60;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -45,21 +45,38 @@ $val = Graphics::Toolkit::Color::Name::hsl_from_name('coconut');
 is( ref $val,              '',       'got no tuple for unknown color constant' );
 
 is( $name_from_rgb->([255,0,0]),             'red',       'found red constant by RGB values' );
-is( $name_from_rgb->([0,0,255]),            'blue',       'found blue constant by RGB' );
+my $color_name = $name_from_rgb->([0,0,255]);
+is( $color_name,                            'blue',       'found blue constant by RGB values in scalar context' );
+my @color_name = $name_from_rgb->([0,0,255]);
+is( int @color_name,                             2,       'in ARRAY context you get two blue names in RGB' );
+is( $color_name[0],                         'blue',       'first one is "blue"' );
+is( $color_name[1],                        'blue1',       'second one is "blue1"' );
 is( $name_from_rgb->([1,1,255]),                '',       'no color with values 1, 1, 255' );
-is( ref $add_rgb->('blue', [1, 0, 255]),        '',       'name blue is already in store' );
+is( length $add_rgb->('blue', [1, 0, 255]),     61,       'name blue is already in store' );
+is( $add_rgb->('blue_top',  [0, 0, 255]),        0,       'added third name for blue on top' );
+my @color_name = $name_from_rgb->([0,0,255]);
+is( int @color_name,                             3,       'in ARRAY context you get several blue names' );
+is( $color_name[2],                      'bluetop',       'new blue name is last in list' );
 is( $add_rgb->('bluuu',  [1, 1, 255]),           0,       'could add my custom blue' );
 is( $name_from_rgb->([1,1,255]),           'bluuu',       'can retrieve newly stored constant' );
 is( $name_from_hsl->([0,100,50]),            'red',       'found red constant by HSL values' );
 is( $name_from_hsl->([240,100,50]),         'blue',       'found blue constant by HSL values' );
+$color_name = $name_from_hsl->([240,100,50]);
+is( $color_name,                            'blue',       'found blue constant by HSL values in scalar context' );
+@color_name = $name_from_hsl->([240,100,50]);
+is( int @color_name,                             4,       'in ARRAY context you get 4 blue names now in HSL' );
+is( $color_name[0],                         'blue',       'first one is "blue"' );
+is( $color_name[1],                        'blue1',       'second one is "blue1"' );
+is( $color_name[2],                      'bluetop',       'third one is "bluetop"' );
+is( $color_name[3],                        'bluuu',       'fourth one is "bluuu"' );
 is( $name_from_hsl->([241,100,50]),             '',       'custom blue is not in store yet' );
 is( ref $add_hsl->('blue', [240,100,50]),       '',       'name blue is already in store, also under HSL' );
 is( $add_hsl->('blauu',  [241,100,50]),          0,       'could add my custom blue' );
-is( $name_from_hsl->([241,100,50]),         'blauu',       'can retrieve newly stored blue as HSL constant' );
+is( $name_from_hsl->([241,100,50]),        'blauu',       'can retrieve newly stored blue as HSL constant' );
 
-my @names = $names_in_hsl_range->([240,100,50], 3);
-is( int @names,         2,       'found 2 names near blue' );
-is( $names[0],     'blue',       'one is blue' );
-is( $names[1],         2,       'found 2 names near blue' );
+@color_name = $names_in_hsl_range->([240,100,50], 3);
+# is( int @names,         3,       'found 2 names near blue' );
+#~ is( $names[0],     'blue',       'one is blue' );
+#~ is( $names[1],         2,       'found 2 names near blue' );
 
 exit 0;

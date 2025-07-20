@@ -1,8 +1,8 @@
-use v5.12;
 
 # named colors from X11, HTML (SVG) standard and Pantone report
 
 package Graphics::Toolkit::Color::Name::Constant;
+use v5.12;
 
 {
 # http://en.wikipedia.org/wiki/Web_colors#X11_color_names    # 2.6 MB

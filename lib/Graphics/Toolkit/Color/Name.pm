@@ -47,35 +47,33 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return if @_ != 2;
     my ($hsl_center, $radius) = @_;
     return unless ref $HSL->check_range( $hsl_center ) and defined $radius;
+    return unless (ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius;
     my %distance;
-    if ((ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius){
-        my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
-        my @min = map {$hsl_center->[$_] - $border->[$_]} 0 .. 2;
-        my @max = map {$hsl_center->[$_] + $border->[$_]} 0 .. 2;
-        $min[0] += 360 if $min[0] <   0;
-        $max[0] -= 360 if $min[0] > 359;
-        for my $name (all()){
-            my @hsl = @{$constants->{$name}}[3..5];
-            if ($min[0] <= $max[0]){
-                next if $hsl[0] < $min[0] and $hsl[0] > $max[0];
-            } else {
-                next if $hsl[0] < $min[0];
-                next if $hsl[0] > $max[0];
-            }
-            next if $hsl[1] < $min[1];
-            next if $hsl[1] > $max[1];
-            next if $hsl[2] < $min[2];
-            next if $hsl[2] > $max[2];
-            my $h_delta = abs ($hsl[0] - $hsl_center->[0]);
-            $h_delta -= 360 if $h_delta > 180;
-            my $d = sqrt( $h_delta**2 + ($hsl[1]-$hsl_center->[1])**2 + ($hsl[2]-$hsl_center->[2])**2 );
-#say "name $name";
-            if (ref $radius or $d <= $radius) {
-                if (ref $name eq 'ARRAY') { map {$distance{ $_ } = $d} @$name }
-                elsif (not ref $name)     {      $distance{ $name } = $d      }
-            }
+    my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
+    my @min = map {$hsl_center->[$_] - $border->[$_]} 0 .. 2;
+    my @max = map {$hsl_center->[$_] + $border->[$_]} 0 .. 2;
+    my $ignore_hue_filter = $border->[0] >= 180;
+    my $flip_hue_boundaries = $min[0] < 0 or $max[0] > 360;
+    $min[0] += 360 if $min[0] < 0;
+    $max[0] -= 360 if $max[0] > 360;
+    for my $name (all()){
+        my @hsl = @{$constants->{$name}}[3..5];
+        unless ($ignore_hue_filter){
+            if ($flip_hue_boundaries) { next if $hsl[0] > $min[0] and $hsl[0] < $max[0] }
+            else                      { next if $hsl[0] < $min[0]  or $hsl[0] > $max[0] }
         }
-    } else { return; }
+        next if $hsl[1] < $min[1] or $hsl[1] > $max[1];
+        next if $hsl[2] < $min[2] or $hsl[2] > $max[2];
+        my $h_delta = abs ($hsl[0] - $hsl_center->[0]);
+        $h_delta = 360 - $h_delta if $h_delta > 180;
+        my $d = sqrt( $h_delta**2 + ($hsl[1]-$hsl_center->[1])**2 + ($hsl[2]-$hsl_center->[2])**2 );
+say "name $name - $d";
+        if (ref $radius or $d <= $radius) {
+            $distance{ $name } = $d;
+            #~ if (ref $name eq 'ARRAY') { map {$distance{ $_ } = $d} @$name }
+            #~ elsif (not ref $name)     {      $distance{ $name } = $d      }
+        }
+    }
     my @names = sort { $distance{$a} <=> $distance{$b} } keys %distance;
     my @d = map {$distance{$_}} @names;
     return \@names, \@d;

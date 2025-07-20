@@ -26,23 +26,23 @@ is( $is_taken->("r_e'd"),       1,       'some special characters are also ignor
 is( $is_taken->('blue'),        1,       '"blue" is a known constant' );
 is( $is_taken->('coconut'),     0,       '"coconut" is not a known constant' );
 
-my $val = Graphics::Toolkit::Color::Name::rgb_from_name('red');
-is( ref $val,         'ARRAY',       'got tuple with RGB values of "red"' );
-is( int @$val,              3,       'tuple contains three values' );
-is( $val->[0],            255,       'red value is correct' );
-is( $val->[1],              0,       'green value is correct' );
-is( $val->[2],              0,       'blue value is correct' );
-$val = Graphics::Toolkit::Color::Name::rgb_from_name('coconut');
-is( ref $val,              '',       'got no tuple for unknown color constant' );
+my $values = Graphics::Toolkit::Color::Name::rgb_from_name('red');
+is( ref $values,      'ARRAY',       'got tuple with RGB values of "red"' );
+is( int @$values,           3,       'tuple contains three values' );
+is( $values->[0],         255,       'red value is correct' );
+is( $values->[1],           0,       'green value is correct' );
+is( $values->[2],           0,       'blue value is correct' );
+$values = Graphics::Toolkit::Color::Name::rgb_from_name('coconut');
+is( ref $values,           '',       'got no tuple for unknown color constant' );
 
-my $val = Graphics::Toolkit::Color::Name::hsl_from_name('red');
-is( ref $val,         'ARRAY',       'got tuple with HSL values of "red"' );
-is( int @$val,              3,       'tuple contains three values' );
-is( $val->[0],              0,       'hue value is correct' );
-is( $val->[1],            100,       'saturation value is correct' );
-is( $val->[2],             50,       'lightness value is correct' );
-$val = Graphics::Toolkit::Color::Name::hsl_from_name('coconut');
-is( ref $val,              '',       'got no tuple for unknown color constant' );
+$values = Graphics::Toolkit::Color::Name::hsl_from_name('red');
+is( ref $values,      'ARRAY',       'got tuple with HSL values of "red"' );
+is( int @$values,           3,       'tuple contains three values' );
+is( $values->[0],           0,       'hue value is correct' );
+is( $values->[1],         100,       'saturation value is correct' );
+is( $values->[2],          50,       'lightness value is correct' );
+$values = Graphics::Toolkit::Color::Name::hsl_from_name('coconut');
+is( ref $values,           '',       'got no tuple for unknown color constant' );
 
 is( $name_from_rgb->([255,0,0]),             'red',       'found red constant by RGB values' );
 my $color_name = $name_from_rgb->([0,0,255]);

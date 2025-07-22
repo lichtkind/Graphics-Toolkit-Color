@@ -215,6 +215,9 @@ EOH
             push @colors, $target_color;
         }
     }
+    return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
+    $arg->{'steps'} = int $arg->{'steps'};
+    $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( \@colors, @{$arg}[qw/steps tilt in/] );
 }
 

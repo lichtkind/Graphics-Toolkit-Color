@@ -7,9 +7,9 @@ use warnings;
 use Graphics::Toolkit::Color::Values;
 
 
-sub gradient { # $to, +steps -- +dynamic, ~in  @along --> @_
-    my ($self, $c2, $steps, $dynamic, $space_name, $path) = @_;
-    return $self if $steps == 1;
+sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values
+    my ($colors, $steps, $tilt, $space_name) = @_;
+    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "color space $space_name is unknown" unless ref $space;
     my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );

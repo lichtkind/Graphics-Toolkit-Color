@@ -27,8 +27,8 @@ sub new_from_normal_tuple { #
     return "need three normalized (0..1) values (RGB) in an ARRAY as first argument!"
         unless ref $values eq 'ARRAY' and @$values == 3;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $color_space;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
     $values = $color_space->clamp( $values, 'normal' );
     # return 'need a normalized (0..1) RGB tuple' unless $RGB->range_check( $values, 'normal' );
     my $source = '';
@@ -59,8 +59,8 @@ sub get_normal_tuple {
 sub get_custom_form { # get a value tuple in any color space, range and format
     my ($self, $space_name, $format_name, $range_def, $precision_def) = @_;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return "can not format values in unknown space name: $space_name" unless ref $color_space;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
     my $values = Graphics::Toolkit::Color::Space::Hub::convert (
         $self->{'rgb'}, $space_name, defined $range_def, $self->{'source_space_name'}, $self->{'source_values'},
     );
@@ -74,9 +74,11 @@ sub get_custom_form { # get a value tuple in any color space, range and format
 ########################################################################
 
 sub set { # %val --> _
-    my ($self, $val_hash, $space_name) = @_;
+    my ($self, $val_hash, $selected_space_name) = @_;
+    my $selected_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name );
+    return $selected_space unless ref $selected_space;
     my $pos_hash;
-    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $space_name );
+    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
@@ -87,9 +89,11 @@ sub set { # %val --> _
 }
 
 sub add { # %val --> _
-    my ($self, $val_hash, $space_name) = @_;
+    my ($self, $val_hash, $selected_space_name) = @_;
+    my $selected_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name );
+    return $selected_space unless ref $selected_space;
     my $pos_hash;
-    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $space_name );
+    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
@@ -134,6 +138,8 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     return "need value object as second argument" unless ref $cv2 eq __PACKAGE__;
     return "$space_name is not a known color space name"
         if defined $space_name and not Graphics::Toolkit::Color::Space::is_space_name($space_name);
+    return '"select" argument has to be an axis name or an ARRAY thereof'
+        if ref $select_axis and ref $select_axis ne 'ARRAY';
     Graphics::Toolkit::Color::Space::Hub::distance( $self->{'rgb'}, $cv2->{'rgb'}, $space_name, $select, $range);
 }
 

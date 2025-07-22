@@ -65,6 +65,21 @@ sub _new_from_value_obj {
     sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
     sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
     sub complementary { complement(@_) }
+sub _split_named_args {
+    my ($args, $required, $optional, $default) = shift;
+    unshift @$args, $required->[0] if defined $default and @$args == 1;
+    return "got odd number of values, either a key or value of an argument is missing!\n" if @$args % 2;
+    my %args = @$args;
+    my %clean_arg = map { $_ => delete $args{$_} } @$required, @$optional;
+    if (%args){
+        my @keys = keys %args;
+        return "Inserted unknown argument: @keys\n";
+    }
+    for my $arg_name ( @$required){
+        return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }
+    }
+    return \%clean_arg;
+}
 
 ## getter ##############################################################
 sub name         { $_[0]{'values'}->get_name }
@@ -76,7 +91,7 @@ sub closest_name {
 
 sub values       {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, ['in'], [qw/as precision range/], 'default');
+    my $arg = _split_named_args( @args, ['in'], [qw/as precision range/], 'default');
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values (                  # no HASH ref around arguments
@@ -86,13 +101,14 @@ sub values       {
         precision => 3,       # value precision definition (SCALAR or ARRAY)
 
 EOH
-    return $help.$arg unless ref $arg;
+    return $arg.$help unless ref $arg;
+    return $arg.$help unless ref $arg;
     $self->{'values'}->get_custom_form( @{$arg}[qw/in as range precision/] );
 }
 
 sub distance {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, ['to'], [qw/in select range/], 'default');
+    my $arg = _split_named_args( @args, ['to'], [qw/in select range/], 'default');
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
@@ -102,26 +118,10 @@ sub distance {
         select => 'red'       # axis name or names (ARRAY ref)
         range => 2**16        # value range definition
 EOH
-    return $help.$arg unless ref $arg;
+    return $arg.$help unless ref $arg;
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
     return "target color definition: $arg->{'to'} is ill formed" unless ref $target_color;
     $self->{'values'}->distance( $target_color->{'values'}, @{$arg}[qw/in select range/] );
-}
-
-sub split_named_args {
-    my ($args, $required, $optional, $default) = shift;
-    unshift @$args, $required->[0] if defined $default and @$args == 1;
-    return 'got odd number of values, either a key or value of an argument is missing' if @$args % 2;
-    my %args = @$args;
-    my %clean_arg = map { $_ => delete $args{$_} } @$required, @$optional;
-    if (%args){
-        my @keys = keys %args;
-        return "Inserted unknown argument: @keys\n";
-    }
-    for my $arg_name ( @$required){
-        return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }
-    }
-    return \%clean_arg;
 }
 
 ## single color creation methods #######################################
@@ -153,7 +153,7 @@ EOH
 
 sub mix {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, ['with'], [qw/amount in/]);
+    my $arg = _split_named_args( @args, ['with'], [qw/amount in/]);
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix (                              # no HASH ref around arguments
@@ -163,11 +163,11 @@ sub mix {
     Please note that either both or none of the first two arguments has to be an ARRAY.
     Both ARRAY have to have the same length.
 EOH
-    return $help.$arg unless ref $arg;
+    return $arg.$help unless ref $arg;
     my $recipe = _new_from_scalar_def( $arg->{'with'} );
     if (ref $recipe){
         $recipe = [{color => $recipe, percent => 50}];
-        return $help."Amount argument has to be a sacalar value if only one color is mixed !\n" if ref $arg->{'amount'};
+        return "Amount argument has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
         $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
     } else {
         if (ref $arg->{'with'} ne 'ARRAY'){
@@ -180,7 +180,7 @@ EOH
                 push @$recipe, { color => $color, percent => 50};
             }
             if (exists $arg->{'amount'}){
-                return $help."Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n" if ref $arg->{'amount'} ne 'ARRAY'
+                return "Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n".$help if ref $arg->{'amount'} ne 'ARRAY'
                              or @{$arg->{'amount'}} != @{$arg->{'with'}};
                 for my $amount_nr (0 .. $#{$arg->{'amount'}}){
                     $recipe->[$amount_nr]{'percent'} = $arg->{'amount'}[$amount_nr];
@@ -194,7 +194,7 @@ EOH
 ## color set creation methods ##########################################
 sub gradient {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, [qw/to steps/], [qw/tilt in/]);
+    my $arg = _split_named_args( @args, [qw/to steps/], [qw/tilt in/]);
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, the first two being required:
     gradient (                    # no HASH ref around arguments
@@ -203,13 +203,24 @@ sub gradient {
         tilt  =>  1               # dynamics of color change
         in => 'HSL'               # color space name, defaults to RGB
 EOH
-    return $help.$arg unless ref $arg;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( @{$arg}[qw/to steps tilt in/] );
+    return $arg.$help unless ref $arg;
+    my @colors = ($self->{'values'});
+    my $target_color = _new_from_scalar_def( $arg->{'to'} );
+    if (ref $target_color) { push @colors, $target_color }
+    else {
+        return "Argument 'to' contains malformed color definition!\n".$help if ref $arg->{'to'} ne 'ARRAY';
+        for my $color_def (@{$arg->{'to'}}){
+            my $target_color = _new_from_scalar_def( $arg->{'to'} );
+            return "Argument 'to' contains malformed color definition!\n".$help unless ref $target_color;
+            push @colors, $target_color;
+        }
+    }
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( \@colors, @{$arg}[qw/steps tilt in/] );
 }
 
 sub complement {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, [], [qw/steps tilt/]);
+    my $arg = _split_named_args( @args, [], [qw/steps tilt/]);
     my $help = <<EOH;
     GTC method 'complement' accepts two named, optional arguments:
     complement (                       # no HASH ref around arguments
@@ -218,44 +229,45 @@ sub complement {
         tilt => {hue => 10, saturation => 20, lightness => 3} # or
         tilt => {hue => 10, s => {hue => -20, amount => 20 }, l => {hue => -10, amount => 3}}
 EOH
-    return $help.$arg unless ref $arg;
-    return $help."Argument 'tilt' is malformed !\n" if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
+    return $arg.$help unless ref $arg;
+    return "Argument 'tilt' is malformed, has  !\n".$arg if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
     if (ref $arg->{'tilt'} eq 'HASH'){
         my @keys = sort keys( %{$arg->{'tilt'}} );
-        return $help."Argument 'tilt' needs hash with three keys: 'h', 's' and 'l' !\n" unless @keys == 3;
-        return $help."Argument 'tilt' got HASH ref which is missing key: 'hue' or 'h' !\n"
+        return "Argument 'tilt' needs hash with three keys: 'h', 's' and 'l' !\n".$help unless @keys == 3;
+        return "Argument 'tilt' got HASH ref which is missing key: 'hue' or 'h' !\n".$help
             unless lc $keys[0] eq 'h' or lc $keys[0] eq 'hue';
-        return $help."Argument 'tilt' got HASH ref which is missing key: 'lightness' or 'l' !\n"
+        return "Argument 'tilt' got HASH ref which is missing key: 'lightness' or 'l' !\n".$help
             unless lc $keys[0] eq 'l' or lc $keys[0] eq 'lightness';
-        return $help."Argument 'tilt' got HASH ref which is missing key: 'saturation' or 's' !\n"
+        return "Argument 'tilt' got HASH ref which is missing key: 'saturation' or 's' !\n".$help
             unless lc $keys[0] eq 's' or lc $keys[0] eq 'saturation';
 
 
-        return $help."Argument 'tilt' got HASH ref with 'hue' value which is not a integer number !\n"
+        return "Argument 'tilt' got HASH ref with 'hue' value which is not a integer number !\n".$help
             if ref $arg->{'tilt'}{$keys[0]} or not $arg->{'tilt'}{$keys[0]} =~ /^\d+$/;
-        return $help."Argument 'tilt' got HASH ref with malformed 'lightness' value !\n"
+        return "Argument 'tilt' got HASH ref with malformed 'lightness' value !\n".$help
             if ref $arg->{'tilt'}{$keys[1]} and $arg->{'tilt'}{$keys[1]} ne 'HASH';
-        return $help."Argument 'tilt' got HASH ref with malformed 'saturation' value !\n"
+        return "Argument 'tilt' got HASH ref with malformed 'saturation' value !\n".$help
             if ref $arg->{'tilt'}{$keys[2]} and $arg->{'tilt'}{$keys[2]} ne 'HASH';
 
         if (ref $arg->{'tilt'}{$keys[1]}){
             my @keys = sort keys( %{$arg->{'tilt'}{$keys[1]}} );
-            return $help."Argument 'tilt' key 'lightness' needs values 'hue' and 'amount' !\n"
+            return "Argument 'tilt' key 'lightness' needs values 'hue' and 'amount' !\n".$help
                 if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
         }
         if (ref $arg->{'tilt'}{$keys[2]}){
             my @keys = sort keys( %{$arg->{'tilt'}{$keys[2]}} );
-            return $help."Argument 'tilt' key 'saturation' needs values 'hue' and 'amount' !\n"
+            return "Argument 'tilt' key 'saturation' needs values 'hue' and 'amount' !\n".$help
                 if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
         }
 
+    } else {
     }
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/steps tilt/] );
 }
 
 sub cluster {
     my ($self, @args) = shift;
-    my $arg = split_named_args( @args, [qw/radius distance/], [qw/in/]);
+    my $arg = _split_named_args( @args, [qw/radius distance/], [qw/in/]);
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (                          # no HASH ref around arguments
@@ -264,9 +276,9 @@ sub cluster {
         distance => 0.5                # minimal distance between colors in cluster
         in => 'HSL'                    # color space name, defaults to RGB
 EOH
-    return $help.$arg unless ref $arg;
-    return $help."Argument radius has to be a SCALAR or ARRAY ref\n"
-                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY';
+    return $arg.$help unless ref $arg;
+    return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
+                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != 3;
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/radius distance in/] );
 }
 

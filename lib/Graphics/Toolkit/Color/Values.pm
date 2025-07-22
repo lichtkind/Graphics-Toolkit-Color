@@ -11,44 +11,21 @@ my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
     my ($pkg, $color_def) = @_;
-    if (not ref $color_def){
-        my $rgb = Graphics::Toolkit::Color::Name::rgb_from_name( $color_def );
+    if (not ref $color_def) { # try to resolve color name
+        my $rgb = Graphics::Toolkit::Color::Name::values( $color_def );
         if (ref $rgb){
             $rgb = $RGB->clamp( $RGB->normalize($rgb), 'normal' );
-            return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};
-        }
-        my $colon_pos = index( $color_def, ':');
-        if ($colon_pos > -1 ){                        # resolve pallet:name
-            $rgb = rgb_from_external_module( substr( $color_def, 0, $colon_pos ), substr( $color_def, $colon_pos+1 ) );
-            if (ref $rgb){
-                $rgb = $RGB->clamp( $RGB->normalize($rgb), 'normal' );
-                return bless { name => $color_def, rgb => $rgb, source => '', source_space => ''};
-            }
+            return bless { name => $color_def, rgb => $rgb, source_values => '', source_space_name => ''};
         }
     }
     my ($values, $source_space) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
     return "could not recognize color value format or color name: $color_def" unless ref $values;
     __PACKAGE__->new_from_normal_tuple( $values, $source_space);
 }
-
-sub rgb_from_external_module {
-    my ( $pallet_name, $color_name ) = @_;
-    return unless defined $color_name;
-    $color_name = Graphics::Toolkit::Color::Name::_clean_name($color_name);
-    my $module_base = 'Graphics::ColorNames';
-    eval "use $module_base";
-    return "$module_base is not installed, but it's needed to load external colors" if $@;
-    my $module = $module_base.'::'.$pallet_name;
-    eval "use $module";
-    return "$module is not installed, but needed to load color '$pallet_name:$color_name'" if $@;
-    my $pallet = Graphics::ColorNames->new( $pallet_name );
-    my @rgb = $pallet->rgb( $color_name );
-    return "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-    return \@rgb;
-}
-
-sub new_from_normal_tuple {
+sub new_from_normal_tuple { #
     my ($pkg, $values, $space_name) = @_;
+    return "need three normalized (0..1) values (RGB) in an ARRAY as first argument!"
+        unless ref $values eq 'ARRAY' and @$values == 3;
     $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "$space_name is an unknown color space, try: ".(join ', ', space_names()) unless ref $color_space;
@@ -61,7 +38,7 @@ sub new_from_normal_tuple {
     } else { $space_name = '' }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );
-    bless { name => $name, rgb => $values, source => $source, source_space => $space_name };
+    bless { name => $name, rgb => $values, source_values => $source, source_space_name => $space_name };
 }
 
 ########################################################################
@@ -76,7 +53,7 @@ sub get_closest_name {
 sub get_normal_tuple {
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
-        $self->{'rgb'}, $space_name, 'normal', $self->{'source_space'}, $self->{'source'},
+        $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},
     );
 }
 sub get_custom_form { # get a value tuple in any color space, range and format
@@ -85,7 +62,7 @@ sub get_custom_form { # get a value tuple in any color space, range and format
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     return "can not format values in unknown space name: $space_name" unless ref $color_space;
     my $values = Graphics::Toolkit::Color::Space::Hub::convert (
-        $self->{'rgb'}, $space_name, defined $range_def, $self->{'source_space'}, $self->{'source'},
+        $self->{'rgb'}, $space_name, defined $range_def, $self->{'source_space_name'}, $self->{'source_values'},
     );
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );

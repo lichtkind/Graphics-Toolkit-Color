@@ -4,10 +4,23 @@
 package Graphics::Toolkit::Color::Name;
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Name::Scheme;
 use Graphics::Toolkit::Color::Space::Hub;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
+
+sub values {
+    my $name = shift;
+    my $colon_pos = index( $name, ':');
+    if ($colon_pos > -1 ){                         # resolve scheme:name
+        my $scheme_name = substr( $name, 0, $colon_pos );
+        my $color_name = _clean_name( substr( $name, $colon_pos + 1 ) );
+        return Graphics::Toolkit::Color::Name::Scheme::rgb_from_name( $scheme_name, $color_name );
+    } else {
+        return rgb_from_name( $name );
+    }
+}
 
 my $constants = require Graphics::Toolkit::Color::Name::Constant; # store
 our (@name_from_rgb, @name_from_hsl);       # search caches
@@ -24,6 +37,7 @@ sub hsl_from_name {
     return [@{$constants->{$name}}[3..5]] if is_taken( $name );
 }
 
+########################################################################
 sub name_from_rgb {
     my ($rgb) = @_;
     return '' unless ref $RGB->check_range( $rgb );
@@ -74,6 +88,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return \@names, \@d;
 }
 
+########################################################################
 sub add_rgb {
     my ($name, $rgb) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
@@ -97,6 +112,7 @@ sub _add_color {
     return 0;
 }
 
+########################################################################
 sub _clean_name {
     my $name = shift;
     $name =~ tr/_'//d;

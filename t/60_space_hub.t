@@ -295,14 +295,14 @@ is( exists $pos_hash->{3},               1, 'one key is two');
 is( $pos_hash->{3},                      0, 'and it has right value');
 
 ########################################################################
-is( $distance->( ),                     undef, 'missing arguments');
-is( $distance->( [0,0,0] ),             undef, 'need two tuples');
-is( $distance->( [0,0], [0,0,0], ),     undef, 'first tuple is too short');
-is( $distance->( [0,0,0,0], [0,0,0], ), undef, 'first tuple is too long');
-is( $distance->( [0,0,0], [0,0], ),     undef, 'second tuple is too short');
-is( $distance->( [0,0,0], [0,0,0,0], ), undef, 'second tuple is too long');
-is( $distance->( [0,0,0], [0,0,0], ),       0, 'no distance');
-is( $distance->( [1,0,0], [0,0,0], ),     255, 'full red distance');
+is( $distance->( ) =~ /value/,                  1, 'missing arguments');
+is( $distance->([0,0,0] ) =~ /value/,           1, 'need two tuples');
+is( $distance->([0,0], [0,0,0]) =~ /value/,     1, 'first tuple is too short');
+is( $distance->([0,0,0,0], [0,0,0])=~ /value/,  1, 'first tuple is too long');
+is( $distance->([0,0,0], [0,0]) =~ /value/,     1, 'second tuple is too short');
+is( $distance->([0,0,0], [0,0,0,0]) =~ /value/, 1, 'second tuple is too long');
+is( $distance->([0,0,0], [0,0,0], ),       0, 'no distance');
+is( $distance->([1,0,0], [0,0,0], ),     255, 'full red distance');
 my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
 is( close_enough( $d, sqrt(2)),             1, 'full red and blue distance, normalized');
 $d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );

@@ -9,6 +9,7 @@ use Graphics::Toolkit::Color::Space qw/min max rmod/;
 my $hsv_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation value/],
                                                    range => [360, 100, 100], precision => 0,
                                                     type => [qw/angular linear linear/],
+                                                  suffix => ['', '%', '%'],
                                                   );
 
    $hsv_def->add_converter('RGB', \&to_rgb, \&from_rgb );

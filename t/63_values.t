@@ -19,7 +19,17 @@ is( $val_obj->{'rgb'}[0],             1,  'violet has a maximal red color');
 is( $val_obj->{'rgb'}[1],             0,  'violet has a no green color');
 is( $val_obj->{'rgb'}[2],             1,  'violet has a maximal blue color');
 
-$val_obj = Graphics::Toolkit::Color::Values->new_from_normal_tuple([1,0,1], 'CMY');
+my $cval_obj = Graphics::Toolkit::Color::Values->new_from_normal_tuple([0,1,0], 'CMY');
+is( ref $val_obj,                  $module,  'created values in CMY');
+is( ref $val_obj->{'source_values'}, 'ARRAY',  'found source values');
+is( $val_obj->{'source_values'}[0],        0,  'found source values');
+is( $val_obj->{'source_values'}[1],        1,  'found source values');
+is( $val_obj->{'source_values'}[2],        0,  'found source values');
+is( $val_obj->{'source_space_name'},   'CMY',  'cource space is correct');
+is( $val_obj->{'name'},            'fuchsia',  'color has name "fuchsia"');
+is( $val_obj->{'rgb'}[0],                  1,  'violet has a maximal red color');
+is( $val_obj->{'rgb'}[1],                  0,  'violet has a no green color');
+is( $val_obj->{'rgb'}[2],                  1,  'violet has a maximal blue color');
 
 exit 0;
 

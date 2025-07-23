@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 231;
+use Test::More tests => 238;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -204,6 +204,16 @@ is( int @$values,                   3, 'CMY has 3 axis');
 is( $values->[0], 1,     'cyan value is right');
 is( $values->[1], 0.1,   'magenta value is right');
 is( $values->[2], 0,     'yellow value has right value');
+
+($values, $space) = $deformat->('ncol:  y10, 22%, 5.1% ');
+is( ref $values,                '', 'wrong precision, NCol doesnt accept decimals');
+($values, $space) = $deformat->('ncol:  y20, 22%, 5 ');
+is( $space,                     'NCol', 'color char can be lower case and percent is not mandatory');
+is( ref $values,               'ARRAY', 'got ARRAY tuple even spacing was weird');
+is( int @$values,                    3, 'NCol has 3 axis');
+is( $values->[0],                  0.2, 'hue value is right');
+is( $values->[1],                  .22, 'w value is right');
+is( $values->[2],                  .05, 'b value is right');
 
 ($values, $space) = $deformat->('lab(0, -500, 200)');
 is( $space,                  'CIELAB', 'got LAB css_string right');

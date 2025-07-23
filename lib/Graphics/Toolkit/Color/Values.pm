@@ -77,8 +77,7 @@ sub set { # %val --> _
     my ($self, $val_hash, $selected_space_name) = @_;
     my $selected_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name );
     return $selected_space unless ref $selected_space;
-    my $pos_hash;
-    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
+    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
@@ -92,8 +91,7 @@ sub add { # %val --> _
     my ($self, $val_hash, $selected_space_name) = @_;
     my $selected_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name );
     return $selected_space unless ref $selected_space;
-    my $pos_hash;
-    ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
+    my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
     my $values = $self->get_custom_form( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
@@ -139,7 +137,7 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     return "$space_name is not a known color space name"
         if defined $space_name and not Graphics::Toolkit::Color::Space::is_space_name($space_name);
     return '"select" argument has to be an axis name or an ARRAY thereof'
-        if ref $select_axis and ref $select_axis ne 'ARRAY';
+        if ref $select and ref $select ne 'ARRAY';
     Graphics::Toolkit::Color::Space::Hub::distance( $self->{'rgb'}, $cv2->{'rgb'}, $space_name, $select, $range);
 }
 

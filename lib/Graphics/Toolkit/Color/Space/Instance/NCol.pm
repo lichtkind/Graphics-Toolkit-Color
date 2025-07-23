@@ -10,25 +10,25 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol', alias => '',
                                                     axis => [qw/hue whiteness blackness/],
                                                     type => [qw/angular linear linear/],
                                                    range => [600, 100, 100],  precision => 0,
-                                              value_form => ['[RYGCBM]\d{1,2}','\d{1,2}','\d{1,2}'],
+                                              value_form => ['[RYGCBMrygcbm]\d{1,2}','\d{1,2}','\d{1,2}'],
                                                   suffix => ['', '%', '%'],
                                                   );
 
    $hsl_def->set_value_formatter( \&pre_value, \&post_value );
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
-my @letter = qw/R Y G C B M/;
-my %pos = (map { $letter[$_] => $_ } 0 .. $#letter);
+my @color_char = qw/R Y G C B M/;
+my %char_value = (map { $color_char[$_] => $_ } 0 .. $#color_char);
 
 sub pre_value {
     my $val = shift;
-    my $hue = $pos{ substr($val->[0], 0, 1) } * 100 + substr($val->[0], 1);
+    my $hue = $char_value{ uc substr($val->[0], 0, 1) } * 100 + substr($val->[0], 1);
     return [$hue, $val->[1], $val->[2]];
 }
 sub post_value {
     my $val = shift;
     my $h = int($val->[0] / 100);
-    my $hue = $letter[ $h ] . sprintf( "%02u", ($val->[0] - $h*100));
+    my $hue = $color_char[ $h ] . sprintf( "%02u", ($val->[0] - $h*100));
     return [$hue, $val->[1], $val->[2]];
 }
 

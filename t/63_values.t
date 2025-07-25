@@ -14,22 +14,27 @@ my $val_obj = Graphics::Toolkit::Color::Values->new_from_normal_tuple([1,0,1]);
 is( ref $val_obj,             $module,  'created values object with minimal effort');
 is( $val_obj->{'source_values'},     '',  'object source are RGB values');
 is( $val_obj->{'source_space_name'}, '',  'not from any other space');
-is( $val_obj->{'name'},       'fuchsia',  'color has name "fuchsia"');
+is( $val_obj->name,           'fuchsia',  'color has name "fuchsia"');
 is( $val_obj->{'rgb'}[0],             1,  'violet has a maximal red color');
 is( $val_obj->{'rgb'}[1],             0,  'violet has a no green color');
 is( $val_obj->{'rgb'}[2],             1,  'violet has a maximal blue color');
 
 my $cval_obj = Graphics::Toolkit::Color::Values->new_from_normal_tuple([0,1,0], 'CMY');
-is( ref $val_obj,                  $module,  'created values in CMY');
-is( ref $val_obj->{'source_values'}, 'ARRAY',  'found source values');
-is( $val_obj->{'source_values'}[0],        0,  'found source values');
-is( $val_obj->{'source_values'}[1],        1,  'found source values');
-is( $val_obj->{'source_values'}[2],        0,  'found source values');
-is( $val_obj->{'source_space_name'},   'CMY',  'cource space is correct');
-is( $val_obj->{'name'},            'fuchsia',  'color has name "fuchsia"');
-is( $val_obj->{'rgb'}[0],                  1,  'violet has a maximal red color');
-is( $val_obj->{'rgb'}[1],                  0,  'violet has a no green color');
-is( $val_obj->{'rgb'}[2],                  1,  'violet has a maximal blue color');
+is( ref $cval_obj,                  $module,  'value object from CMY values');
+is( ref $cval_obj->{'source_values'}, 'ARRAY',  'found source values');
+is( int @{$cval_obj->{'source_values'}},    3,  'CMY has 3 axis');
+is( $cval_obj->{'source_values'}[0],        0,  'cyan calue is right');
+is( $cval_obj->{'source_values'}[1],        1,  'magenta value is right');
+is( $cval_obj->{'source_values'}[2],        0,  'yellow value is right');
+is( $cval_obj->{'source_space_name'},   'CMY',  'cource space is correct');
+is( $cval_obj->name,                'fuchsia',  'color has name "fuchsia"');
+is( $cval_obj->{'rgb'}[0],                  1,  'violet(fuchsia) has a maximal red color');
+is( $cval_obj->{'rgb'}[1],                  0,  'violet(fuchsia) has a no green color');
+is( $cval_obj->{'rgb'}[2],                  1,  'violet(fuchsia) has a maximal blue color');
+
+# my ($cname, $cd) = $val_obj->closest_name(2);
+# is( $cname,                         'fuchsia',  'closest name is same as name');
+# is( $cval_obj->closest_name,    'fuchsia',  'closest name is same as name');
 
 exit 0;
 

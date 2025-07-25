@@ -60,6 +60,7 @@ Hierarchy
           - deformat
           - deformat_partial_hash
           - distance
+      = ::Space::Instance::(*)
       = ::Space
           - format
           - deformat

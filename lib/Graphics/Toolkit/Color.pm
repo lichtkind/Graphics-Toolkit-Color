@@ -82,11 +82,11 @@ sub _split_named_args {
 }
 
 ## getter ##############################################################
-sub name         { $_[0]{'values'}->get_name }
+sub name         { $_[0]{'values'}->name }
 sub closest_name {
     my ($self) = shift;
     my $name = $self->name;
-    return ($name) ? ($name, 0) : $self->{'values'}->get_closest_name;
+    return ($name) ? ($name, 0) : $self->{'values'}->closest_name;
 }
 
 sub values       {

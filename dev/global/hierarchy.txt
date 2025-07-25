@@ -5,33 +5,34 @@ Hierarchy
 
 
     = G::T::Color    (public API)
-      - new        (GTC::Values::new)
+      - new          (GTC::Values::new)
       ------
-      - values     (GTC::Values::formatted)
-      - name       (GTC::Values::name)
-      - distance   (GTC::Values::distance)
+      - values       (GTC::Values::formatted)
+      - name         (GTC::Values::get_name)
+      - closest_name (GTC::Values::get_closest_name)
+      - distance     (GTC::Values::distance)
       ------
-      - set        (GTC::Values::set)
-      - add        (GTC::Values::add)
-      - blend      (GTC::Values::blend)
+      - set          (GTC::Values::set)
+      - add          (GTC::Values::add)
+      - mix          (GTC::Values::mix)
       ------
-      - gradient   (GTC::Operation::Set::gradient)
-      - complement (GTC::Operation::Set::complement)
-      - ball       (GTC::Operation::Set::ball)
-      - plane, snake?
+      - gradient     (GTC::Operation::Set::gradient)
+      - complement   (GTC::Operation::Set::complement)
+      - cluster      (GTC::Operation::Set::cluster)
+      ======
       = ::Operation::Set
-          - gradient   (Values::blend)
-          - complement (Values::add)
-          - ball       (Values::add)
+          - gradient    (Values::mix)
+          - complement  (Values::add)
+          - cluster     (Values::add)
       = ::Values
-          - new       (GTC::Space::Name::rgb_from_name | GTC::Space::Hub::convert_to_default_form)
-          - name      (GTC::Space::Name::name_from_rgb)
-          - tuple     (GTC::Space::Hub::convert)
-          - formatted (GTC::Space::Hub::format)
-          ------
+          - new         (GTC::Space::Name::rgb_from_name | GTC::Space::Hub::deformat, convert_to_default_form)
+          - name        (GTC::Space::Name::name_from_rgb)
+          - normal_tuple(GTC::Space::Hub::convert)
+          - formatted   (GTC::Space::Hub::format)
+          ----
           - set       (GTC::Space::Hub::partial_hash_deformat)
           - add       (GTC::Space::Hub::partial_hash_deformat)
-          - blend     (tuple, GTC::Space::clamp)
+          - mix       (tuple, GTC::Space::clamp)
           - distance  (GTC::Space::Hub::distance)
       = ::Space::Name
           - all
@@ -43,17 +44,31 @@ Hierarchy
           - names_in_hsl_range (GTC::Space::Hub::distance)
           - add_rgb
           - add_hsl
+        = ::Space::Name::Scheme
+        = ::Space::Name::Constant
+      ====
       = ::Space::Hub
+          - is_space_name
+          - all_space_names
+          - default_space
+          - try_get_space
+          - add_space
+          - remove_space
+          ----
           - convert
-          - convert_to_default_form
-          - partial_hash_deformat
+          - deconvert
+          - deformat
+          - deformat_partial_hash
           - distance
       = ::Space
+          - format
+          - deformat
           - clamp
           - round
           - normalize
+          - denormalize
+          - denormalize_delta
           - delta
-          - format
           = ::Space::Basis
           = ::Space::Shape
           = ::Space::Format

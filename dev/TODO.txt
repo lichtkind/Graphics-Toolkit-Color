@@ -9,7 +9,3 @@ TODO:
    + Yxy
 
 - Set methods
-    + bowl
-
-- Setter Method
-    + near_names

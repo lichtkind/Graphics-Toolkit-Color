@@ -83,7 +83,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
         my $d = sqrt( $h_delta**2 + ($hsl[1]-$hsl_center->[1])**2 + ($hsl[2]-$hsl_center->[2])**2 );
         $distance{ $name } = $d if ref $radius or $d <= $radius;
     }
-    my @names = sort { $distance{$a} <=> $distance{$b} } keys %distance;
+    my @names = sort { $distance{$a} <=> $distance{$b} || $a cmp $b } keys %distance;
     my @d = map {$distance{$_}} @names;
     return \@names, \@d;
 }

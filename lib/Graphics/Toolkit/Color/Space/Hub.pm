@@ -22,7 +22,6 @@ sub default_space      { get_space( $default_space_name ) }
 sub get_space          { (defined $_[0] and exists $space_obj{ uc $_[0] }) ? $space_obj{ uc $_[0] } : '' }
 sub try_get_space {
     my $name = shift || $default_space_name;
-say " try . $name";
     my $space = get_space( $name );
     return (ref $space) ? $space
                         : "$name is an unknown color space, try: ".(join ', ', all_space_names());
@@ -57,7 +56,6 @@ sub remove_space {
 
 sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
     my ($values, $target_space_name, $want_result_normalized, $source_space_name, $source_values) = @_;
-# say " convert. from $target_space_name to $source_space_name;  $want_result_normalized";
     my $target_space = try_get_space( $target_space_name );
     my $source_space = try_get_space( $source_space_name );
     $want_result_normalized //= 0;
@@ -66,14 +64,12 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
     return $target_space unless ref $target_space;
     return "arguments source_space_name and source_values have to be provided both or none."
         if defined $source_space_name xor defined $source_values;
-#say " convert. from $target_space to $source_space";
     return "argument source_values has to be a tuple, if provided"
         if $source_values and not $source_space->is_value_tuple( $source_values );
-#say " convert. from $target_space to $source_space";
 
     # none conversion cases
     $values = $source_values if ref $source_values and $source_space eq $target_space;
-    if ($target_space_name eq $default_space_name or $source_space eq $target_space) {
+    if ($target_space->name eq default_space()->name or $source_space eq $target_space) {
         return ($want_result_normalized) ? $values : $target_space->round($target_space->denormalize( $values ));
     }
     # find conversion chain

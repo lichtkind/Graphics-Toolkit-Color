@@ -22,7 +22,11 @@ is( $norm_rgb->{'rgb'}[1],             0,  'violet has a no green color');
 is( $norm_rgb->{'rgb'}[2],             1,  'violet has a maximal blue color');
 my $values = $norm_rgb->normalized();
 is( ref $values,                 'ARRAY',  'normalized value tuple is an ARRAY');
-exit 0;
+is( @$values,                          3,  'and has three values');
+is( $values->[0],                      1,  'red value is as expected');
+is( $values->[1],                      0,  'green value is as expected');
+is( $values->[2],                      1,  'blue value is as expected');
+is( $norm_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named string');
 
 my $norm_cmy = Graphics::Toolkit::Color::Values->new_from_normal_tuple([0,1,0], 'CMY');
 is( ref $norm_cmy,                  $module,  'value object from CMY values');
@@ -72,10 +76,12 @@ is( $hwb_blue->{'rgb'}[0],                  0,  'blue has a no red vlaue');
 is( $hwb_blue->{'rgb'}[1],                  0,  'blue has a no green value');
 is( $hwb_blue->{'rgb'}[2],                  1,  'blue has a maximal blue value');
 
-
-my ($cname, $cd) = $norm_rgb->closest_name(2);
-is( $cname,              'fuchsia',  'closest name is same as name');
-is( $cd,                         0,  'no distance to closest name');
+my ($hname, $hd) = $hwb_blue->closest_name(2);
+is( $hname,                 'blue',  'closest name to "blue" is the same as name');
+is( $hd,                         0,  'no distance to closest name');
+my ($cname, $cd) = $norm_cmy->closest_name(2);
+is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
+is( $cd,                            0,  'no distance to closest name');
 
 
 exit 0;
@@ -83,11 +89,6 @@ exit 0;
 
 __END__
 
-new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
-rgb_from_external_module {
-new_from_normal_tuple {
-get_name { $_[0]->{'name'} }
-get_closest_name
 get_normal_tuple
 get_custom_form { # get a value tuple in any color space, range and format
 set { # %val --> _

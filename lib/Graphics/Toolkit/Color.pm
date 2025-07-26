@@ -327,9 +327,10 @@ GTC are read only, color holding objects with no additional dependencies.
 Create them in many different ways (see section L</CONSTRUCTOR>).
 Access its values via methods from section L</GETTER>.
 Measure differences with the L</distance> method. L</SINGLE-COLOR>
-methods create one object that is related to the current one and
+methods create one new object that is related to the current one and
 L</COLOR-SETS> methods will create a group of colors, that are not
 only related to the current color but also have relations between each other.
+Error messages will appear as return values.
 
 While this module can understand and output color values in many spaces,
 such as LAB, NCol, YIQ and many more, RGB is the (internal) primal one,

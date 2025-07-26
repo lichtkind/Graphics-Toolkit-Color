@@ -45,11 +45,11 @@ sub name { $_[0]->{'name'} }
 sub closest_name {
     my ($self, $max_distance) = @_;
     my $values = $self->formatted( 'HSL' );
-say "close $max_distance:  $values";
     my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, $max_distance );
     return '' unless ref $names eq 'ARRAY' and @$names;
     return $names->[0], $distances->[0];
 }
+
 sub normalized {
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
@@ -58,12 +58,9 @@ sub normalized {
 }
 sub formatted { # get a value tuple in any color space, range and format
     my ($self, $space_name, $format_name, $range_def, $precision_def) = @_;
-    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    my $values = Graphics::Toolkit::Color::Space::Hub::convert (
-        $self->{'rgb'}, $space_name, defined $range_def, $self->{'source_space_name'}, $self->{'source_values'},
-    );
+    my $values = $self->normalized( $color_space->name );
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );
     $values = $color_space->round( $values, $precision_def ) if defined $precision_def;

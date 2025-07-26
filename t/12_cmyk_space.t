@@ -11,8 +11,8 @@ my $def = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'CMYK',                    'color space has right name');
-is( $def->alias,         '',                     'color space has no alias name');
-is( $def->axis,            4,                    'color space has 4 axis');
+is( $def->alias,          '',                    'color space has no alias name');
+is( $def->axis_count,      4,                    'color space has 4 axis');
 
 is( ref $def->check_range( [0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
 is( ref $def->check_range( [1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');

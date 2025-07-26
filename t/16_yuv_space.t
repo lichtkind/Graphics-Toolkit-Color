@@ -14,7 +14,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
 is( $space->name,       'YUV',                      'color space has initials as name');
 is( $space->alias,    'YPbPr',                      'color space has alias name YCbCr');
-is( $space->axis,           3,                      'color space has 3 axis');
+is( $space->axis_count,     3,                      'color space has 3 axis');
 is( ref $space->check_range([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
 is( ref $space->check_range([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
 is( ref $space->check_range([1, 0.5, 0.5]),   'ARRAY',   'check YUV values works on upper bound values');

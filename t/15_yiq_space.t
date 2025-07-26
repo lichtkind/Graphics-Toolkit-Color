@@ -14,7 +14,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,       'YIQ',                     'color space has axis initials as name');
 is( $space->alias,         '',                     'color space has no alias name');
-is( $space->axis,           3,                     'color space has 3 axis');
+is( $space->axis_count,     3,                     'color space has 3 axis');
 is( ref $space->check_range([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
 is( ref $space->check_range([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
 is( ref $space->check_range([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');

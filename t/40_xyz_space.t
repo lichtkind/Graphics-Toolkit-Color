@@ -14,7 +14,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,       'CIEXYZ',                  'color space has right name');
 is( $space->alias,         'XYZ',                  'color space has right alis name');
-is( $space->axis,              3,                     'color space has 3 axis');
+is( $space->axis_count,        3,                  'color space has 3 axis');
 
 is( ref $space->check_range([0, 0, 0]),          'ARRAY',  'check minimal XYZ values are in bounds');
 is( ref $space->check_range([95.0, 100, 108.8]), 'ARRAY',  'check maximal XYZ values');

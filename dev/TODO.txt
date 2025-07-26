@@ -8,4 +8,5 @@ TODO:
    + NCS
    + Yxy
 
-- Set methods
+
+Error handling

@@ -13,7 +13,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,       'CIELUV',                  'color space name is CIELUV');
 is( $space->alias,         'LUV',                  'color space alias is LUV');
-is( $space->axis,              3,                  'color space has 3 dimensions');
+is( $space->axis_count,        3,                  'color space has 3 dimensions');
 
 is( ref $space->check_range([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
 is( ref $space->check_range([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELUV values');

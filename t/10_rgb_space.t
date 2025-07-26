@@ -12,7 +12,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got right return value by loading module');
 is( $space->name,       'RGB',                     'color space has right name');
 is( $space->alias,         '',                     'color space has no alias name');
-is( $space->axis,           3,                     'color space has 3 axis');
+is( $space->axis_count,     3,                     'color space has 3 axis');
 
 is( ref $space->check_range( [0,0,0]),       'ARRAY', 'check RGB values works on lower bound values');
 is( ref $space->check_range( [255,255,255]), 'ARRAY', 'check RGB values works on upper bound values');

@@ -13,7 +13,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,       'CIELCHab',                  'color space name is CIELCHab');
 is( $space->alias,           'LCH',                  'color space name alias nameis LCH');
-is( $space->axis,                3,                  'color space has 3 dimensions');
+is( $space->axis_count,          3,                  'color space has 3 dimensions');
 
 is( ref $space->check_range([0,0]),              '',   "CIELCHab got too few values");
 is( ref $space->check_range([0, 0, 0, 0]),       '',   "CIELCHab got too many values");

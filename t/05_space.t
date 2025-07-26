@@ -16,7 +16,7 @@ my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/]);
 is( ref $space,     $module, 'created color space just with axis names');
 is( $space->name,    'ABCD', 'got space name from AXIS short names');
 is( $space->alias,       '', 'space name alias is empty');
-is( $space->axis,         4, 'counted axis right');
+is( $space->axis_count,   4, 'counted axis right');
 
 is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');
 is( $space->is_value_tuple([1,2,3,4,5]), 0, 'too long value tuple');

@@ -52,8 +52,8 @@ is( $sn{$rgb_name},  1  , 'default space is among color spaces');
 
 ########################################################################
 is( ref $convert->(),                       '', 'convert needs at least one argument');
-is( ref $convert->({r => 1,g => 1,b => 1}), '', 'convert tule as ARRAY');
-is( ref $convert->([0,0,0]),                '', 'convert also needs target name space');
+is( ref $convert->({r => 1,g => 1,b => 1}), '', 'convert only value ARRAY no HASH');
+is( ref $convert->([0,0]),                  '', 'tuple has not enough values');
 is( ref $convert->([0,0,0], 'Jou'),         '', 'convert needs a valid target name space');
 
 is( ref $deconvert->(),                       '', 'deconvert needs at least one argument');

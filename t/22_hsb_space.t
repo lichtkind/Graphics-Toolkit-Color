@@ -14,7 +14,7 @@ is( not($@), 1, 'could load the module');
 is( ref $def, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $def->name,       'HSB',                     'color space has initials as name');
 is( $def->alias,         '',                     'color space has no alias name');
-is( $def->axis,           3,                     'color space has 3 axis');
+is( $def->axis_count,     3,                     'color space has 3 axis');
 is( ref $def->check_range([0, 0, 0]),     'ARRAY',   'check HSB values works on lower bound values');
 is( ref $def->check_range([360,100,100]), 'ARRAY',   'check HSB values works on upper bound values');
 is( ref $def->check_range([0,0]),              '',   "HSB got too few values");

@@ -45,12 +45,12 @@ sub name { $_[0]->{'name'} }
 sub closest_name {
     my ($self, $max_distance) = @_;
     my $values = $self->formatted( 'HSL' );
-# say "close $max_distance:  $values";
+say "close $max_distance:  $values";
     my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, $max_distance );
     return '' unless ref $names eq 'ARRAY' and @$names;
     return $names->[0], $distances->[0];
 }
-sub normal_tuple {
+sub normalized {
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
         $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},

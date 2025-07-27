@@ -49,7 +49,8 @@ is( $norm_cmy->name,                'fuchsia',  'color has name "fuchsia"');
 is( $norm_cmy->{'rgb'}[0],                  1,  'violet(fuchsia) has a maximal red color');
 is( $norm_cmy->{'rgb'}[1],                  0,  'violet(fuchsia) has a no green color');
 is( $norm_cmy->{'rgb'}[2],                  1,  'violet(fuchsia) has a maximal blue color');
-is( $norm_cmy->formatted('RGB', 'hex_string'),  '#FF00FF',  'got color formatted into CMY CSS string');
+is( $norm_cmy->formatted('RGB', 'hex_string'),  '#FF00FF',  'got color formatted into RGB hex string');
+is( $norm_cmy->formatted('XYZ', 'hex_string'),         '',  'HEX string is RGB only');
 
 my $rgb_values = Graphics::Toolkit::Color::Values->new_from_any_input([255, 0, 256]);
 is( ref $rgb_values,               $module,  'object from regular RGB tuple');
@@ -69,6 +70,7 @@ is( $hsl_blue->{'source_values'}[1],        1,  'sat value is right');
 is( $hsl_blue->{'source_values'}[2],      0.5,  'light value is right');
 is( $hsl_blue->{'source_space_name'},   'HSL',  'cource space is correct');
 is( $hsl_blue->name,                   'blue',  'color has name "blue"');
+is( @{$hsl_blue->{'rgb'}},                  3,  'RGB tuple has three values');
 is( $hsl_blue->{'rgb'}[0],                  0,  'blue has a no red vlaue');
 is( $hsl_blue->{'rgb'}[1],                  0,  'blue has a no green value');
 is( $hsl_blue->{'rgb'}[2],                  1,  'blue has a maximal blue value');
@@ -82,6 +84,7 @@ is( $hwb_blue->{'source_values'}[1],        0,  'white value is right');
 is( $hwb_blue->{'source_values'}[2],        0,  'black value is right');
 is( $hwb_blue->{'source_space_name'},   'HWB',  'cource space is correct');
 is( $hwb_blue->name,                   'blue',  'color has name "blue"');
+is( @{$hwb_blue->{'rgb'}},                  3,  'RGB tuple has three values');
 is( $hwb_blue->{'rgb'}[0],                  0,  'blue has a no red vlaue');
 is( $hwb_blue->{'rgb'}[1],                  0,  'blue has a no green value');
 is( $hwb_blue->{'rgb'}[2],                  1,  'blue has a maximal blue value');
@@ -93,13 +96,30 @@ my ($cname, $cd) = $norm_cmy->closest_name(2);
 is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
 is( $cd,                            0,  'no distance to closest name');
 
+my $aqua = $hsl_blue->set( {green => 255} );
+is( ref $aqua,                   $module,  'aqua value object');
+is( $aqua->name,                  'aqua',  'color has the name "aqua"');
+$values = $aqua->normalized();
+is( ref $values,                 'ARRAY',  'RGB value ARRAY');
+is( @$values,                          3,  'has three values');
+is( $values->[0],                      0,  'red value is zero');
+is( $values->[1],                      1,  'green value is one (max)');
+is( $values->[2],                      1,  'blue value is one too');
+is( ref $hsl_blue->set( {green => 256}, 'CMY' ),  '',  'green is in RGB, not CMY');
+is( ref $hsl_blue->set( {green => 256, yellow => 0},  ),  '',  'green and yellow axis are from different spaces');
+$aqua = $hsl_blue->set( {green => 256}, 'RGB' );
+$values = $aqua->normalized();
+is( ref $aqua,                   $module,  'green is in RGB, and set green over max, got clamped');
+is( @$values,                          3,  'has three values');
+is( $values->[0],                      0,  'red value is zero');
+is( $values->[1],                      1,  'green value is one (max)');
+is( $values->[2],                      1,  'blue value is one too');
 
 exit 0;
 
 
 __END__
 
-set
 add
 mix
 distance

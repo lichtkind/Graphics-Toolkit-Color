@@ -11,3 +11,5 @@ TODO:
 
  + proper Error handling
  + strict mode for out of range tuple values
+ + value prefixes in formats
+ + constructor with name space arguments (XYZ with illuminant D50)

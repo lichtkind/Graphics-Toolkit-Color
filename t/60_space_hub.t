@@ -265,7 +265,7 @@ is( $pos_hash->{0},                     20, 'and it has right value');
 is( $space_name,                     'HSL', 'dehash ignores casing');
 
 ($pos_hash, $space_name) = $dehash->( {hue => 20}, 'HSB' );
-is( $space_name,                     'HSL', 'did found hue in HSB space');
+is( $space_name,                     'HSB', 'did found hue in HSB space');
 is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
 is( int keys %$pos_hash,                 1, 'position hash has one key');
 is( exists $pos_hash->{0},               1, 'and this is zero');

@@ -143,10 +143,10 @@ is( $space->has_format('hash'),1, 'hash is a format');
 is( $space->has_format('char_hash'),1, 'char_hash is a format');
 is( ref $space->format([1,2,3,4], 'hash'), 'HASH', 'formatted values into a hash');
 is( int($space->format([1,2,3,4], 'list')),     4, 'got long enough list of values');
-is( $space->format([1,2,3,4], 'bbb'),           0, 'got no value by key name');
-is( $space->format([1,2,3,4], 'AAA'),           0, 'got no value by uc key name');
-is( $space->format([1,2,3,4], 'c'),             0, 'got no value by shortcut name');
-is( $space->format([1,2,3,4], 'D'),             0, 'got no value by uc shortcut name');
+is( $space->format([1,2,3,4], 'bbb'),          '', 'got no value by key name');
+is( $space->format([1,2,3,4], 'AAA'),          '', 'got no value by uc key name');
+is( $space->format([1,2,3,4], 'c'),            '', 'got no value by shortcut name');
+is( $space->format([1,2,3,4], 'D'),            '', 'got no value by uc shortcut name');
 is( $space->has_format('str'),                  0, 'formatter not yet inserted');
 
 my $c = $space->add_formatter('str', sub { $_[1][0] .':'. $_[1][1] .':'. $_[1][2] .':'. $_[1][3]});

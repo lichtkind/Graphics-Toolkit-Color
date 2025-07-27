@@ -69,7 +69,6 @@ sub formatted { # get a value tuple in any color space, range and format
 }
 
 ########################################################################
-
 sub set { # %val --> _
     my ($self, $val_hash, $selected_space_name) = @_;
     my $selected_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name );
@@ -81,7 +80,7 @@ sub set { # %val --> _
         $values->[$pos] = $pos_hash->{ $pos };
     }
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    __PACKAGE__->new_from_normal_tuple( $color_space->normalize($values), $space_name);
+    __PACKAGE__->new_from_normal_tuple( $color_space->normalize($values), $color_space->name );
 }
 
 sub add { # %val --> _
@@ -127,7 +126,6 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
 }
 
 ########################################################################
-
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($self, $cv2, $space_name, $select, $range) = @_;
     return "need value object as second argument" unless ref $cv2 eq __PACKAGE__;
@@ -139,4 +137,3 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
 }
 
 1;
-

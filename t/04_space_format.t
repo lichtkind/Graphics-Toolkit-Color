@@ -195,7 +195,7 @@ is( $string,       'abg(0%, 2.2%, -3%)', 'string syntax ist correct');
 
 
 $string = $obj->format( [0,2.2,-3], 'pstring');
-is( $string,                   '0', 'no pstring format found by universal formatter');
+is( $string,                    '', 'no pstring format found by universal formatter');
 is( $obj->has_format('pstring'), 0, 'there is no pstring format');
 
 my $fref = $obj->add_formatter('pstring', sub {return '%'.join ',',@{$_[1]}});

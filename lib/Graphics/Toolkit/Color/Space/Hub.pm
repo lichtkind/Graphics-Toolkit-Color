@@ -153,8 +153,8 @@ sub deformat_partial_hash { # convert partial hash into
     return unless ref $value_hash eq 'HASH';
     my $space = try_get_space( $space_name );
     return $space unless ref $space;
-    my @options = (defined $space_name and $space_name) ? ($space_name) : (all_space_names());
-    for my $space_name (@search_order) {
+    my @space_name_options = (defined $space_name and $space_name) ? ($space->name) : (@search_order);
+    for my $space_name (@space_name_options) {
         my $color_space = get_space( $space_name );
         my $pos_hash = $color_space->basis->pos_hash_from_partial_hash( $value_hash );
         next unless ref $pos_hash eq 'HASH';

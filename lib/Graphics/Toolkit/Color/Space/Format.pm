@@ -57,10 +57,10 @@ sub get_suffix {
 
 #### public API: formatting value tuples ###############################
 
-sub basis            { $_[0]{'basis'}}
-sub has_format       { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
-sub has_deformat     { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
-sub add_formatter {
+sub basis           { $_[0]{'basis'}}
+sub has_format      { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
+sub has_deformat    { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
+sub add_formatter   {
     my ($self, $format, $code) = @_;
     return if not defined $format or ref $format or ref $code ne 'CODE';
     return if $self->has_format( $format );
@@ -94,11 +94,12 @@ sub deformat {
 }
 sub format {
     my ($self, $values, $format, $suffix, $prefix) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    return '' unless $self->basis->is_value_tuple( $values );
+    return '' unless $self->has_format( $format );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
     $values = $self->add_suffix( $values, $suffix );
-    $self->{'format'}{ lc $format }->($self, $values) if $self->has_format( $format );
+    $self->{'format'}{ lc $format }->($self, $values);
 }
 
 #### helper ############################################################

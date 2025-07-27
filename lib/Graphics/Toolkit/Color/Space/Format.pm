@@ -93,7 +93,7 @@ sub deformat {
     return undef;
 }
 sub format {
-    my ($self, $values, $format, $suffix) = @_;
+    my ($self, $values, $format, $suffix, $prefix) = @_;
     return unless $self->basis->is_value_tuple( $values );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;

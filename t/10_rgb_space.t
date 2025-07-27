@@ -128,7 +128,7 @@ is( $rgb->[1],    0,     'red in minimal');
 is( $rgb->[2],    256,   'green is too large');
 is( $rgb->[3],    3.3,   'blue still has decimal');
 
-is( $space->format([10,20,30], 'hex_string'), '#0a141e', 'formated rgb triplet into hex string');
+is( $space->format([10,20,30], 'hex_string'), '#0A141E', 'formated rgb triplet into hex string');
 
 my $d = $space->delta([0,44,256],[256,88,0]);
 is( int @$d,    3,      'delta vector has right length');

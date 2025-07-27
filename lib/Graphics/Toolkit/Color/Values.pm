@@ -64,7 +64,7 @@ sub formatted { # get a value tuple in any color space, range and format
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );
     $values = $color_space->round( $values, $precision_def ) if defined $precision_def;
-    $values = $color_space->format( $values, $format_name ) if defined $format_name;
+    $values = $color_space->format( $values, $format_name ) if defined $format_name and $format_name;
     return $values;
 }
 

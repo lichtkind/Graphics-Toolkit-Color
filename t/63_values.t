@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 80;
+use Test::More tests => 120;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -26,7 +26,16 @@ is( @$values,                          3,  'and has three values');
 is( $values->[0],                      1,  'red value is as expected');
 is( $values->[1],                      0,  'green value is as expected');
 is( $values->[2],                      1,  'blue value is as expected');
-is( $norm_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named string');
+is( $norm_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named RGB string');
+is( $norm_rgb->formatted('CMY', 'CSS_string', 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
+$values = $norm_rgb->formatted( '', 'ARRAY', [20,30,40]);
+is( ref $values,                 'ARRAY',  'RGB value ARRAY');
+is( @$values,                          3,  'has three values');
+is( $values->[0],                     20,  'red value is in hand crafted range');
+is( $values->[1],                      0,  'green value is as expected');
+is( $values->[2],                     40,  'blue value is in hand crafted range');
+$values = $norm_rgb->formatted( 'CMY', 'ARRAY', [20,30,40]);
+is( ref $values,                   '',  'ARRAY format is only for RGB');
 
 my $norm_cmy = Graphics::Toolkit::Color::Values->new_from_normal_tuple([0,1,0], 'CMY');
 is( ref $norm_cmy,                  $module,  'value object from CMY values');
@@ -40,6 +49,7 @@ is( $norm_cmy->name,                'fuchsia',  'color has name "fuchsia"');
 is( $norm_cmy->{'rgb'}[0],                  1,  'violet(fuchsia) has a maximal red color');
 is( $norm_cmy->{'rgb'}[1],                  0,  'violet(fuchsia) has a no green color');
 is( $norm_cmy->{'rgb'}[2],                  1,  'violet(fuchsia) has a maximal blue color');
+is( $norm_cmy->formatted('RGB', 'hex_string'),  '#FF00FF',  'got color formatted into CMY CSS string');
 
 my $rgb_values = Graphics::Toolkit::Color::Values->new_from_any_input([255, 0, 256]);
 is( ref $rgb_values,               $module,  'object from regular RGB tuple');
@@ -89,10 +99,8 @@ exit 0;
 
 __END__
 
-get_normal_tuple
-get_custom_form { # get a value tuple in any color space, range and format
-set { # %val --> _
-add { # %val --> _
-mix { #  @%(+percent _values)  -- ~space_name --> _values
-distance { # _c1 _c2 -- ~space ~select @range --> +
+set
+add
+mix
+distance
 

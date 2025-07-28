@@ -52,6 +52,7 @@ is( $norm_cmy->{'rgb'}[2],                  1,  'violet(fuchsia) has a maximal b
 is( $norm_cmy->formatted('RGB', 'hex_string'),  '#FF00FF',  'got color formatted into RGB hex string');
 is( $norm_cmy->formatted('XYZ', 'hex_string'),         '',  'HEX string is RGB only');
 
+########################################################################
 my $rgb_values = Graphics::Toolkit::Color::Values->new_from_any_input([255, 0, 256]);
 is( ref $rgb_values,               $module,  'object from regular RGB tuple');
 is( $rgb_values->{'source_values'},     '',  'object source are RGB values');
@@ -96,8 +97,9 @@ my ($cname, $cd) = $norm_cmy->closest_name(2);
 is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
 is( $cd,                            0,  'no distance to closest name');
 
+########################################################################
 my $aqua = $hsl_blue->set( {green => 255} );
-is( ref $aqua,                   $module,  'aqua value object');
+is( ref $aqua,                   $module,  'aqua (set green value to max) value object');
 is( $aqua->name,                  'aqua',  'color has the name "aqua"');
 $values = $aqua->normalized();
 is( ref $values,                 'ARRAY',  'RGB value ARRAY');
@@ -108,6 +110,26 @@ is( $values->[2],                      1,  'blue value is one too');
 is( ref $hsl_blue->set( {green => 256}, 'CMY' ),  '',  'green is in RGB, not CMY');
 is( ref $hsl_blue->set( {green => 256, yellow => 0},  ),  '',  'green and yellow axis are from different spaces');
 $aqua = $hsl_blue->set( {green => 256}, 'RGB' );
+$values = $aqua->normalized();
+is( ref $aqua,                   $module,  'green is in RGB, and set green over max, got clamped');
+is( @$values,                          3,  'has three values');
+is( $values->[0],                      0,  'red value is zero');
+is( $values->[1],                      1,  'green value is one (max)');
+is( $values->[2],                      1,  'blue value is one too');
+
+########################################################################
+$aqua = $hsl_blue->add( {green => 255} );
+is( ref $aqua,                   $module,  'aqua (add green value to max) value object');
+is( $aqua->name,                  'aqua',  'color has the name "aqua"');
+$values = $aqua->normalized();
+is( ref $values,                 'ARRAY',  'RGB value ARRAY');
+is( @$values,                          3,  'has three values');
+is( $values->[0],                      0,  'red value is zero');
+is( $values->[1],                      1,  'green value is one (max)');
+is( $values->[2],                      1,  'blue value is one too');
+is( ref $hsl_blue->add( {green => 256}, 'CMY' ),  '',  'green is in RGB, not CMY');
+is( ref $hsl_blue->add( {green => 256, yellow => 0},  ),  '',  'green and yellow axis are from different spaces');
+$aqua = $hsl_blue->add( {green => 256}, 'RGB' );
 $values = $aqua->normalized();
 is( ref $aqua,                   $module,  'green is in RGB, and set green over max, got clamped');
 is( @$values,                          3,  'has three values');

@@ -56,8 +56,12 @@ sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &d
 sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
 
 #### conversion ########################################################
-sub converter_names  { keys %{  $_[0]{'convert'} } }
-sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
+sub converter_names      { keys %{  $_[0]{'convert'} } }
+sub alias_converter_name {
+    my ($self, $space_name, $name_alias) = @_;
+    $self->{'convert'}{ uc $name_alias } = $self->{'convert'}{ uc $space_name };
+}
+sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $normal) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';

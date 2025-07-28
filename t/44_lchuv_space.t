@@ -31,8 +31,8 @@ is( $space->is_partial_hash({c => 1, h => 0}), 1,  'found hash with some axis na
 is( $space->is_partial_hash({l => 1, c => 0, h => 0}), 1, 'found hash with all short axis names');
 is( $space->is_partial_hash({luminance => 1, chroma => 0, hue => 0}), 1, 'found hash with all long axis names');
 is( $space->is_partial_hash({c => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
-is( $space->can_convert('CIELUV'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('cieLuv'), 1,                 'namespace can be written lower case');
+is( $space->can_convert('LUV'), 1,                 'do only convert from and to rgb');
+is( $space->can_convert('Luv'), 1,                 'namespace can be written lower case');
 is( $space->can_convert('CIELCHuv'), 0,               'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'cielchuv(0, 0, 0)', 'can format css string');
 
@@ -60,15 +60,15 @@ is( close_enough( $val->[0] , 0),      1,  'L value is good');
 is( close_enough( $val->[1] , 0),      1,  'C value is good');
 is( close_enough( $val->[2] , 0),      1,  'H value is good');
 
-my $lch = $space->convert_from( 'CIELUV', [ 0, .378531073, .534351145]);
-is( ref $lch,                    'ARRAY',  'deconverted black from CIELUV');
+my $lch = $space->convert_from( 'LUV', [ 0, .378531073, .534351145]);
+is( ref $lch,                    'ARRAY',  'deconverted black from LUV');
 is( int @$lch,                         3,  'right amount of values');
 is( close_enough( $lch->[0] , 0),      1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-my $luv = $space->convert_to( 'CIELUV', [ 0, 0, 0 ] );
-is( ref $luv,                    'ARRAY',  'converted black to CIELUV');
+my $luv = $space->convert_to( 'LUV', [ 0, 0, 0 ] );
+is( ref $luv,                    'ARRAY',  'converted black to LUV');
 is( int @$luv,                             3,  'right amount of values');
 is( close_enough( $luv->[0] , 0),          1,  'L* value is good');
 is( close_enough( $luv->[1] , .378531073), 1,  'u* value is good');
@@ -88,14 +88,14 @@ is( close_enough( $val->[0] , 1),            1,  'L value is good');
 is( close_enough( $val->[1] , 0),            1,  'C value is good');
 is( close_enough( $val->[2] , 0),            1,  'H value is good');
 
-$lch = $space->convert_from( 'CIELUV', [ 1, .378531073, .534351145]);
-is( int @$lch,                         3,  'deconverted white from CIELUV');
+$lch = $space->convert_from( 'LUV', [ 1, .378531073, .534351145]);
+is( int @$lch,                         3,  'deconverted white from LUV');
 is( close_enough( $lch->[0] , 1),      1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-$luv = $space->convert_to( 'CIELUV', [ 1, 0, 0 ] );
-is( int @$luv,                             3,  'converted white to CIELUV');
+$luv = $space->convert_to( 'LUV', [ 1, 0, 0 ] );
+is( int @$luv,                             3,  'converted white to LUV');
 is( close_enough( $luv->[0] , 1),          1,  'L value is good');
 is( close_enough( $luv->[1] , .378531073), 1,  'u value is good');
 is( close_enough( $luv->[2] , .534351145), 1,  'v value is good');
@@ -114,14 +114,14 @@ is( close_enough( $val->[0] , .53389),      1,  'L value good');
 is( close_enough( $val->[1] , 0),           1,  'C value good');
 is( close_enough( $val->[2] , 0.686386111), 1,  'H value good');
 
-$lch = $space->convert_from( 'CIELUV', [ .53389, .378531073, .534351145] );
-is( int @$lch,                         3,  'deconverted gray from CIELUV');
+$lch = $space->convert_from( 'LUV', [ .53389, .378531073, .534351145] );
+is( int @$lch,                         3,  'deconverted gray from LUV');
 is( close_enough( $lch->[0] , .53389), 1,  'L value is good');
 is( close_enough( $lch->[1] , 0),      1,  'C value is good');
 is( close_enough( $lch->[2] , 0),      1,  'H value is good');
 
-$luv = $space->convert_to( 'CIELUV', [ .53389, 0, 0.686386111 ] );
-is( int @$luv,                         3,  'converted gray to CIELUV');
+$luv = $space->convert_to( 'LUV', [ .53389, 0, 0.686386111 ] );
+is( int @$luv,                         3,  'converted gray to LUV');
 is( close_enough( $luv->[0] , .53389),      1,  'L value is good');
 is( close_enough( $luv->[1] , .378531073),  1,  'u value is good');
 is( close_enough( $luv->[2] , .534351145),  1,  'v value is good');
@@ -139,14 +139,14 @@ is( close_enough( $val->[0] , .53389),      1,  'L value good');
 is( close_enough( $val->[1] , 0.685980843),      1,  'C value good');
 is( close_enough( $val->[2] , 0.033816667),    1,  'H value good');
 
-$lch = $space->convert_from( 'CIELUV', [ .53389, .872923729, .678458015] );
-is( int @$lch,                         3,  'deconverted red from CIELUV');
+$lch = $space->convert_from( 'LUV', [ .53389, .872923729, .678458015] );
+is( int @$lch,                         3,  'deconverted red from LUV');
 is( close_enough( $lch->[0] , .53389), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.685980843),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.033816667),      1,  'H value good');
 
-$luv = $space->convert_to( 'CIELUV', [ .53389, 0.685980843, .033816667 ] );
-is( int @$luv,                         3,  'converted red to CIELUV');
+$luv = $space->convert_to( 'LUV', [ .53389, 0.685980843, .033816667 ] );
+is( int @$luv,                         3,  'converted red to LUV');
 is( close_enough( $luv->[0] , .53389),      1,  'L value good');
 is( close_enough( $luv->[1] , .872923729),  1,  'u value good');
 is( close_enough( $luv->[2] , .678458015),  1,  'v value good');
@@ -164,14 +164,14 @@ is( close_enough( $val->[0] , .32297),      1,  'L value good');
 is( close_enough( $val->[1] , 0.500693487),      1,  'C value good');
 is( close_enough( $val->[2] , 0.738536111),    1,  'H value good');
 
-$lch = $space->convert_from( 'CIELUV', [ .32297, .351963277, .036862595]);
-is( int @$lch,                         3,  'deconverted blue from CIELUV');
+$lch = $space->convert_from( 'LUV', [ .32297, .351963277, .036862595]);
+is( int @$lch,                         3,  'deconverted blue from LUV');
 is( close_enough( $lch->[0] , .32297), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.500693487),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.738536111),      1,  'H value good');
 
-$luv = $space->convert_to( 'CIELUV', [ .32297, 0.500693487, .738536111 ]);
-is( int @$luv,                         3,  'converted blue to CIELUV');
+$luv = $space->convert_to( 'LUV', [ .32297, 0.500693487, .738536111 ]);
+is( int @$luv,                         3,  'converted blue to LUV');
 is( close_enough( $luv->[0] , .32297),      1,  'L value good');
 is( close_enough( $luv->[1] , .351963277),  1,  'u value good');
 is( close_enough( $luv->[2] , .036862595),  1,  'v value good');
@@ -189,14 +189,14 @@ is( close_enough( $val->[0] , .24082),      1,  'L value good');
 is( close_enough( $val->[1] , 0.220954023),      1,  'C value good');
 is( close_enough( $val->[2] , 0.724533333),    1,  'H value good');
 
-$lch = $space->convert_from( 'CIELUV', [ .24082, .352573446, .317049618] );
-is( int @$lch,                         3,  'deconverted mid blue from CIELUV');
+$lch = $space->convert_from( 'LUV', [ .24082, .352573446, .317049618] );
+is( int @$lch,                         3,  'deconverted mid blue from LUV');
 is( close_enough( $lch->[0] , .24082), 1,  'L value good');
 is( close_enough( $lch->[1] , 0.220954023),      1,  'C value good');
 is( close_enough( $lch->[2] , 0.724533333),      1,  'H value good');
 
-$luv = $space->convert_to( 'CIELUV', [ .24082, 0.220954023, .724533333 ] );
-is( int @$luv,                         3,  'converted mid blue to CIELUV');
+$luv = $space->convert_to( 'LUV', [ .24082, 0.220954023, .724533333 ] );
+is( int @$luv,                         3,  'converted mid blue to LUV');
 is( close_enough( $luv->[0] , .24082),      1,  'L value good');
 is( close_enough( $luv->[1] , .352573446),  1,  'u value good');
 is( close_enough( $luv->[2] , .317049618),  1,  'v value good');

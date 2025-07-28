@@ -36,8 +36,9 @@ sub add_space {
     my @converter_target = $space->converter_names;
     return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
      for my $converter_target (@converter_target){
-        return "space object $name does convert into $converter_target, which is no known color space"
-            unless is_space_name( $converter_target );
+        my $target_space = get_space( $converter_target );
+        return "space object $name does convert into $converter_target, which is no known color space" unless $target_space;
+        $space->alias_converter_name( $converter_target, $target_space->alias ) if $target_space->alias;
     }
     $space_obj{ uc $name } = $space;
     $space_obj{ uc $space->alias } = $space if $space->alias and not ref get_space( $space->alias );

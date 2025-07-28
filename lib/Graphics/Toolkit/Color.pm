@@ -166,7 +166,7 @@ EOH
     return $arg.$help unless ref $arg;
     my $recipe = _new_from_scalar_def( $arg->{'with'} );
     if (ref $recipe){
-        $recipe = [{color => $recipe, percent => 50}];
+        $recipe = [{color => $recipe->{'values'}, percent => 50}];
         return "Amount argument has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
         $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
     } else {
@@ -177,7 +177,7 @@ EOH
             for my $color_def (@{$arg->{'with'}}){
                 my $color = _new_from_scalar_def( $color_def );
                 return "target color definition: '$color_def' is ill formed" unless ref $color;
-                push @$recipe, { color => $color, percent => 50};
+                push @$recipe, { color => $color->{'values'}, percent => 50};
             }
             if (exists $arg->{'amount'}){
                 return "Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n".$help if ref $arg->{'amount'} ne 'ARRAY'
@@ -188,6 +188,7 @@ EOH
             }
         }
     }
+    map {}
     _new_from_value_obj( $self->{'values'}->mix( $recipe, $arg->{'in'} ) );
 }
 

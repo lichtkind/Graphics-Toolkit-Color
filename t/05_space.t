@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 153;
+use Test::More tests => 146;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -209,22 +209,4 @@ is( $val->[1],  0.1, 'second value correctly deconverted');
 is( $val->[2],  0.2, 'third value correctly deconverted');
 is( $val->[3],  0.3, 'fourth value correctly deconverted');
 
-
-$val = $space->read( '1:2:3:4');
-is( ref $val,  'ARRAY',  'full pipe read of custom format');
-is( int @$val,       4,  'right amount of values');
-is( $val->[0],      .1,  'first value good');
-is( $val->[1],      .2,  'second value good');
-is( $val->[2],      .3,  'third value good');
-is( $val->[3],      .4,  'fourth value good');
-
-is( $space->write( [0.2, .1, .4, .3], 'str'),  '2:1:4:3',  'full pipe write back to same string');
-
 exit 0;
-
-
-
-
-
-
-

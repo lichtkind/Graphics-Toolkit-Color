@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util qw/:all/;
 our @EXPORT_OK = qw/round_int round_decimals rmod min max apply_d65 remove_d65 mult_matrix3 close_enough is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
-
+########################################################################
 sub new {
     my $pkg = shift;
     my %args = @_;
@@ -27,7 +27,6 @@ sub new {
 }
 
 ########################################################################
-
 sub basis              { $_[0]{'basis'} }
 sub name               { shift->basis->space_name }           #          --> ~
 sub alias              { shift->basis->alias_name }           #          --> ~
@@ -37,7 +36,6 @@ sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values --> ?
 sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_name(@_) }  # ~axis_name. %+values --> +
 
 ########################################################################
-
 sub shape              { $_[0]{'shape'} }
 sub check_range        { shift->shape->check_range( @_ ) }    # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
 sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
@@ -48,7 +46,6 @@ sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+ra
 sub delta              { shift->shape->delta( @_ ) }          # @+values1, @+values2               --> @+rvals|      # on normalized values
 
 ########################################################################
-
 sub form               { $_[0]{'format'} }
 sub format             { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
 sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
@@ -59,7 +56,6 @@ sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &d
 sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
 
 #### conversion ########################################################
-
 sub converter_names  { keys %{  $_[0]{'convert'} } }
 sub can_convert      { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
 sub add_converter {
@@ -95,24 +91,6 @@ sub converter_normal_states {
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
     return @{$self->{'convert'}{ uc $space_name }{'normal'}{$direction}}{'in', 'out'};
-}
-
-#### full pipe IO ops ##################################################
-
-sub read { # formatted color blob --> normalized values
-    my ($self, $color, $range, $precision, $suffix) = @_;
-    my ($values, $format_name) = $self->deformat( $color, $suffix);
-    $values = $self->round( $values, $precision) if defined $precision;
-    $values = $self->normalize( $values, $range);
-    return (not ref $values) ? $values :
-                   wantarray ? ($values, $format_name) : $values;
-}
-
-sub write { # normalized values --> formatted color
-    my ($self, $values, $format_name, $range, $precision, $suffix) = @_;
-    $values = $self->denormalize( $values, $range);
-    $values = $self->round( $values, $precision);
-    $self->format( $values, $format_name, $suffix);
 }
 
 

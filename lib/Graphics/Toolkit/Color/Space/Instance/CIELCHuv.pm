@@ -11,7 +11,7 @@ my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv',
                                                     range => [100, 261, 360],
                                                 precision => 3 );
 
-    $hcl_def->add_converter('CIELUV', \&to_luv, \&from_luv );
+    $hcl_def->add_converter('LUV', \&to_luv, \&from_luv );
 
 my $TAU = 6.283185307;
 

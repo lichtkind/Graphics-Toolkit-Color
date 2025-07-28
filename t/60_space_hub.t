@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 238;
+use Test::More tests => 239;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -94,6 +94,7 @@ is( $tuple->[1],         0.9, 'magenta value is right');
 is( $tuple->[2],           0, 'yellow value is right');
 
 $tuple = $convert->([0, 0, 0], 'LAB');
+is( ref $tuple,      'ARRAY', 'convert black to LAB (2 hop conversion)');
 is( int @$tuple,           3, 'convert black to LAB (2 hop conversion)');
 is( close_enough( $tuple->[0], 0), 1, 'L value is right');
 is( close_enough( $tuple->[1], 0), 1, 'a value is right');
@@ -216,7 +217,7 @@ is( $values->[1],                  .22, 'w value is right');
 is( $values->[2],                  .05, 'b value is right');
 
 ($values, $space) = $deformat->('lab(0, -500, 200)');
-is( $space,                  'CIELAB', 'got LAB css_string right');
+is( $space,                     'LAB', 'got LAB css_string right');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'CIELAB has 3 axis');
 is( $values->[0], 0,     'L* value is right');
@@ -281,7 +282,7 @@ is( $space_name,                     undef, 'can not mix axis names from spaces'
 is( $space_name,                     undef, 'can not use too my axis names');
 
 ($pos_hash, $space_name) = $dehash->( {X => 20, y => 10, Z => 30} );
-is( $space_name,              'CIEXYZ', 'can mix upper and lower case axis names');
+is( $space_name,                     'XYZ', 'can mix upper and lower case axis names');
 is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
 is( int keys %$pos_hash,                 3, 'position hash has three keys');
 is( exists $pos_hash->{0},               1, 'one key is zero');

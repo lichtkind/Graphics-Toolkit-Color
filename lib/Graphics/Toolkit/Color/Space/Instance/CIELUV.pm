@@ -11,7 +11,7 @@ my  $luv_def = Graphics::Toolkit::Color::Space->new(  alias => 'CIELUV',        
                                                       range => [100, [-134, 220], [-140, 122]],
                                                   precision => 3 );
 
-$luv_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
+$luv_def->add_converter('XYZ', \&to_xyz, \&from_xyz );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

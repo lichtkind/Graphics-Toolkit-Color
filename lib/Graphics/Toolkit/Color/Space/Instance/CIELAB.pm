@@ -11,7 +11,7 @@ my  $lab_def = Graphics::Toolkit::Color::Space->new( alias => 'CIELAB',         
                                                       range => [100, [-500, 500], [-200, 200]],
                                                   precision => 3 );             # lightness, cyan-orange balance, magenta-green balance
 
-$lab_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
+$lab_def->add_converter('XYZ', \&to_xyz, \&from_xyz );
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;

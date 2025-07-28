@@ -11,7 +11,7 @@ my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'LCH', alias => 'CI
                                                     range => [100, 539, 360],
                                                 precision => 3 );
 
-    $hcl_def->add_converter('CIELAB', \&to_lab, \&from_lab );
+    $hcl_def->add_converter('LAB', \&to_lab, \&from_lab );
 
 my $TAU = 6.283185307;
 

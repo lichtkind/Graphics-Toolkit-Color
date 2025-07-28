@@ -9,7 +9,7 @@ my $module = 'Graphics::Toolkit::Color::Space::Format';
 
 use_ok( $module, 'could load the module');
 use Graphics::Toolkit::Color::Space::Basis;
-my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/], undef, undef, undef, 'alias');
+my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/], undef, undef, 'alias');
 
 my $obj = Graphics::Toolkit::Color::Space::Format->new( );
 like( $obj,   qr/first argument/,      'constructor needs basis as first argument');
@@ -17,17 +17,17 @@ like( $obj,   qr/first argument/,      'constructor needs basis as first argumen
 $obj = Graphics::Toolkit::Color::Space::Format->new( $basis );
 is( ref $obj, $module,  'one constructor argument is enough');
 
-my $pobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%' );
+my $pobj = Graphics::Toolkit::Color::Space::Format->new( $basis, undef, undef,  '%' );
 is( ref $pobj, $module,  'used second argument: suffix');
-my $ppobj = Graphics::Toolkit::Color::Space::Format->new( $basis, ['%','%','%','%'] );
+my $ppobj = Graphics::Toolkit::Color::Space::Format->new( $basis, undef, undef, ['%','%','%','%'] );
 is( ref $ppobj, '',  'too many elements in suffix definition');
 
-my $vobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%', '\d{2}' );
+my $vobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '\d{2}', undef, '%' );
 is( ref $pobj, $module,  'used third argument argument: value format');
-my $vvobj = Graphics::Toolkit::Color::Space::Format->new( $basis, '%', [ '\d{2}','\d{2}','\d{2}','\d{2}' ] );
+my $vvobj = Graphics::Toolkit::Color::Space::Format->new( $basis, [ '\d{2}','\d{2}','\d{2}','\d{2}' ], undef, '%' );
 is( ref $vvobj, '',  'too many elements in value format definition');
 
-my $cobj = Graphics::Toolkit::Color::Space::Format->new( $basis, ['$','@','%'], [ '\d{1}','\d{2}','\d{3}' ] );
+my $cobj = Graphics::Toolkit::Color::Space::Format->new( $basis, [ '\d{1}','\d{2}','\d{3}' ], undef, ['$','@','%'] );
 is( ref $cobj, $module, 'fully custom format definition');
 
 

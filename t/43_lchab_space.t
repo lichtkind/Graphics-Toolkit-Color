@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 130;
+use Test::More tests => 131;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -11,8 +11,8 @@ my $space = eval "require $module";
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,       'CIELCHab',                  'color space name is CIELCHab');
-is( $space->alias,           'LCH',                  'color space name alias nameis LCH');
+is( $space->name,            'LCH',                  'color space name is LCH');
+is( $space->alias,      'CIELCHab',                  'color space name alias name is CIELCHab');
 is( $space->axis_count,          3,                  'color space has 3 dimensions');
 
 is( ref $space->check_range([0,0]),              '',   "CIELCHab got too few values");
@@ -34,7 +34,7 @@ is( $space->is_partial_hash({c => 1, v => 0, l => 0}), 0, 'found hash with one w
 is( $space->can_convert( 'CIELAB'), 1,                 'do only convert from and to rgb');
 is( $space->can_convert( 'CieLab'), 1,                 'namespace can be written lower case');
 is( $space->can_convert( 'CIELCHab'), 0,               'can not convert to itself');
-is( $space->format([0,0,0], 'css_string'), 'cielchab(0, 0, 0)', 'can format css string');
+is( $space->format([0,0,0], 'css_string'), 'lch(0, 0, 0)', 'can format css string');
 
 my $val = $space->deformat(['CIELCHab', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
@@ -42,7 +42,9 @@ is( int @$val,   3,     'right amount of values');
 is( $val->[0],   0,     'first value good');
 is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
-is( $space->format([0,11,350], 'css_string'), 'cielchab(0, 11, 350)', 'can format css string');
+$val = $space->deformat(['LCH', 0, -1, -0.1]);
+is( ref $val,  'ARRAY', 'space name (short) was recognized in named ARRAY format');
+is( $space->format([0,11,350], 'css_string'), 'lch(0, 11, 350)', 'can format css string');
 
 
 # black

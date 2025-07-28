@@ -6,7 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELAB, alias LAB
+my  $lab_def = Graphics::Toolkit::Color::Space->new( alias => 'CIELAB',         # space name LAB
                                                        axis => [qw/L* a* b*/],  # short l a b
                                                       range => [100, [-500, 500], [-200, 200]],
                                                   precision => 3 );             # lightness, cyan-orange balance, magenta-green balance

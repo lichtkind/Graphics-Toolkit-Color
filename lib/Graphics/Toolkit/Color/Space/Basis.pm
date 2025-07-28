@@ -6,7 +6,7 @@ use v5.12;
 use warnings;
 
 sub new {
-    my ($pkg, $axis_long_names, $axis_short_names, $space_prefix, $space_name, $alias_name) = @_;
+    my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name) = @_;
     return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_long_names eq 'ARRAY';
     return 'amount of shortcut names have to match that of full names'
         if defined $axis_short_names and (ref $axis_short_names ne 'ARRAY' or @$axis_long_names != @$axis_short_names);
@@ -20,10 +20,8 @@ sub new {
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
     my %short_name_order = map { $axis_short_name[$_] => $_ } @iterator;
     my $axis_initials    = uc join( '', @axis_short_name );
-    $space_prefix //= '';
-    $space_name //= $space_prefix.$axis_initials;
-    $alias_name //= $axis_initials;
-    $alias_name   = '' if $alias_name eq $space_name;
+    $space_name //= $axis_initials;
+    $alias_name //= '';
 
     bless { space_name => $space_name, alias_name => $alias_name,
             axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,

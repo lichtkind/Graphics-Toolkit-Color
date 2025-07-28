@@ -6,7 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-my  $luv_def = Graphics::Toolkit::Color::Space->new( prefix => 'CIE',           # space name is CIELUV, alias LUV
+my  $luv_def = Graphics::Toolkit::Color::Space->new(  alias => 'CIELUV',        # space name is LUV
                                                        axis => [qw/L* u* v*/],  # short l u v
                                                       range => [100, [-134, 220], [-140, 122]],
                                                   precision => 3 );

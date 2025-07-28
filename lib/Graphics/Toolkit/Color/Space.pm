@@ -17,11 +17,11 @@ our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 sub new {
     my $pkg = shift;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'prefix'}, $args{'name'}, $args{'alias'});
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'alias'});
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'} );
     return $shape unless ref $shape;
-    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'suffix'}, $args{'value_form'} );
+    my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'value_form'}, $args{'prefix'}, $args{'suffix'} );
     return $format unless ref $format;
     bless { basis => $basis, shape => $shape, format => $format, convert => {} };
 }
@@ -114,7 +114,6 @@ but provided by the instances.
     use Graphics::Toolkit::Color::Space;
 
     my $def = Graphics::Toolkit::Color::Space->new (
-                      prefix => 'pre',
                         name => 'demo',
                        alias => 'alias',
                         axis => [qw/one two three/],

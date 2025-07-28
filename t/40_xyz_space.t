@@ -12,8 +12,8 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,       'CIEXYZ',                  'color space has right name');
-is( $space->alias,         'XYZ',                  'color space has right alis name');
+is( $space->name,          'XYZ',                  'color space name is XYZ');
+is( $space->alias,      'CIEXYZ',                  'color space alias name is CIEXYZ');
 is( $space->axis_count,        3,                  'color space has 3 axis');
 
 is( ref $space->check_range([0, 0, 0]),          'ARRAY',  'check minimal XYZ values are in bounds');
@@ -39,7 +39,7 @@ is( int @$val,  3,     'deformated value triplet (vector)');
 is( $val->[0], 1,     'first value good');
 is( $val->[1], 0,     'second value good');
 is( $val->[2], -0.1,  'third value good');
-is( $space->format([0,1,0], 'css_string'), 'ciexyz(0, 1, 0)', 'can format css string');
+is( $space->format([0,1,0], 'css_string'), 'xyz(0, 1, 0)', 'can format css string');
 
 
 my $xyz = $space->convert_from( 'RGB', [ 0, 0, 0]);

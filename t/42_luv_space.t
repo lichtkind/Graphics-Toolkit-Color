@@ -11,8 +11,8 @@ my $space = eval "require $module";
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,       'CIELUV',                  'color space name is CIELUV');
-is( $space->alias,         'LUV',                  'color space alias is LUV');
+is( $space->name,          'LUV',                  'color space name is CIELUV');
+is( $space->alias,      'CIELUV',                  'color space alias is LUV');
 is( $space->axis_count,        3,                  'color space has 3 dimensions');
 
 is( ref $space->check_range([0, 0, 0]),          'ARRAY',   'check minimal CIELUV values are in bounds');
@@ -40,7 +40,7 @@ is( $space->can_convert( 'CIEXYZ'), 1,                 'do only convert from and
 is( $space->can_convert( 'ciexyz'), 1,                 'namespace can be written lower case');
 is( $space->can_convert( 'CIEluv'), 0,                 'can not convert to itself');
 is( $space->can_convert( 'luv'), 0,                    'can not convert to itself (alias)');
-is( $space->format([0,0,0], 'css_string'), 'cieluv(0, 0, 0)', 'can format css string');
+is( $space->format([0,0,0], 'css_string'), 'luv(0, 0, 0)', 'can format css string');
 
 my $val = $space->deformat(['CIELUV', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
@@ -48,7 +48,7 @@ is( int @$val,   3,     'right amount of values');
 is( $val->[0],   0,     'first value good');
 is( $val->[1],  -1,     'second value good');
 is( $val->[2], -0.1,    'third value good');
-is( $space->format([0,1,0], 'css_string'), 'cieluv(0, 1, 0)', 'can format css string');
+is( $space->format([0,1,0], 'css_string'), 'luv(0, 1, 0)', 'can format css string');
 
 # black
 $val = $space->denormalize( [0, .378531073, .534351145] );

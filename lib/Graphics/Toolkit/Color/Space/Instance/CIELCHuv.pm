@@ -6,7 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/close_enough/;
 
-my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv', alias => '',
+my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv',
                                                      axis => [qw/luminance chroma hue/],
                                                     range => [100, 261, 360],
                                                 precision => 3 );

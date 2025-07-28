@@ -24,19 +24,18 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
 }
 sub new_from_normal_tuple { #
     my ($pkg, $values, $space_name) = @_;
-    return "need three normalized (0..1) values (RGB) in an ARRAY as first argument!"
-        unless ref $values eq 'ARRAY' and (@$values == 3 or @$values == 4);
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
+    return "need ARRAY of ".$color_space->axis_count." normalized (0..1) ".$color_space->name." values as first argument!"
+        unless $color_space->is_value_tuple( $values );
     $values = $color_space->clamp( $values, 'normal' );
-    # return 'need a normalized (0..1) RGB tuple' unless $RGB->range_check( $values, 'normal' );
     my $source_values = '';
     if ($color_space->name ne $RGB->name){
         $source_values = $values;
         $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $space_name, $values, 'normal' );
     } else { $space_name = '' }
     $values = $RGB->clamp( $values, 'normal' );
-    my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->denormalize( $values ) );
+    my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->round( $RGB->denormalize( $values ) ) );
     bless { name => $name, rgb => $values, source_values => $source_values, source_space_name => $space_name };
 }
 
@@ -63,7 +62,7 @@ sub formatted { # get a value tuple in any color space, range and format
     my $values = $self->normalized( $color_space->name );
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );
-    $values = $color_space->round( $values, $precision_def ) if defined $precision_def;
+    $values = $color_space->round( $values, $precision_def );
     $values = $color_space->format( $values, $format_name ) if defined $format_name and $format_name;
     return $values;
 }
@@ -99,17 +98,18 @@ sub add { # %val --> _
 
 sub mix { #  @%(+percent _values)  -- ~space_name --> _values
     my ($self, $recipe, $space_name ) = @_;
-    $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    return "can not format values in unknown space name: $space_name" unless ref $color_space;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
     return if ref $recipe ne 'ARRAY';
     my $percentage_sum = 0;
-    for my $component (@{$recipe}){
-        return if ref $component ne 'HASH' or not exists $component->{'percent'}
-               or not exists $component->{'color'} or ref $component->{'color'} ne __PACKAGE__;
-        $percentage_sum += $component->{'percent'};
+    for my $ingredient (@{$recipe}){
+        return if ref $ingredient ne 'HASH' or not exists $ingredient->{'percent'};
+        return if ref $ingredient ne 'HASH' or not exists $ingredient->{'percent'}
+               or not exists $ingredient->{'color'} or ref $ingredient->{'color'} ne __PACKAGE__;
+        $percentage_sum += $ingredient->{'percent'};
     }
-    my $result = [(0) x $color_space->axis];
+say "mix: sum $percentage_sum ",$color_space;
+    my $result = [(0) x $color_space->axis_count];
     if ($percentage_sum < 100){
         my $values = $self->formatted( $space_name );
         my $mix_amount = (100 - $percentage_sum) / 100;
@@ -118,11 +118,11 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
         $percentage_sum /= 100;
         $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
     }
-    for my $component (@$recipe){
-        my $values = $component->{'color'}->formatted ($space_name);
-        $result->[$_] +=  $values->[$_] * $component->{'percent'} / 100 for 0 .. $#$values;
+    for my $ingredient (@$recipe){
+        my $values = $ingredient->{'color'}->formatted ($space_name);
+        $result->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }
-    __PACKAGE__->new_from_normal_tuple( $color_space->normalize($result), $space_name);
+    __PACKAGE__->new_from_normal_tuple( $color_space->normalize( $result ), $space_name );
 }
 
 ########################################################################

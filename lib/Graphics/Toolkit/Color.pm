@@ -188,7 +188,6 @@ EOH
             }
         }
     }
-    map {}
     _new_from_value_obj( $self->{'values'}->mix( $recipe, $arg->{'in'} ) );
 }
 

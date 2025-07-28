@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 120;
+use Test::More tests => 150;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -90,6 +90,12 @@ is( $hwb_blue->{'rgb'}[0],                  0,  'blue has a no red vlaue');
 is( $hwb_blue->{'rgb'}[1],                  0,  'blue has a no green value');
 is( $hwb_blue->{'rgb'}[2],                  1,  'blue has a maximal blue value');
 
+my $black = Graphics::Toolkit::Color::Values->new_from_any_input('ciexyz( 0, 0, 0)');
+is( $black->name,                   'black',  'created black from CSS string in XYZ');
+my $white = Graphics::Toolkit::Color::Values->new_from_any_input(['hsv', 0, 0, 100 ]);
+is( $white->name,                   'white',  'created white from named ARRAY in HSV');
+
+########################################################################
 my ($hname, $hd) = $hwb_blue->closest_name(2);
 is( $hname,                 'blue',  'closest name to "blue" is the same as name');
 is( $hd,                         0,  'no distance to closest name');
@@ -136,6 +142,17 @@ is( @$values,                          3,  'has three values');
 is( $values->[0],                      0,  'red value is zero');
 is( $values->[1],                      1,  'green value is one (max)');
 is( $values->[2],                      1,  'blue value is one too');
+
+########################################################################
+my $grey = $white->mix([{color => $black, percent => 50}]);
+is( ref $grey,                   $module,  'created gray by mixing black and white');
+my $values = $grey->formatted();
+is( @$values,                          3,  'get normalized RGB values of grey');
+is( $values->[0],                    128,  'red value of gray');
+is( $values->[1],                    128,  'green value of gray');
+is( $values->[2],                    128,  'blue value of gray');
+is( $grey->name(),                'gray',  'created gray by mixing black and white');
+########################################################################
 
 exit 0;
 

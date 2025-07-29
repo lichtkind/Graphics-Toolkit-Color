@@ -108,7 +108,6 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
                or not exists $ingredient->{'color'} or ref $ingredient->{'color'} ne __PACKAGE__;
         $percentage_sum += $ingredient->{'percent'};
     }
-say "mix: sum $percentage_sum ",$color_space;
     my $result = [(0) x $color_space->axis_count];
     if ($percentage_sum < 100){
         my $values = $self->formatted( $space_name );
@@ -127,13 +126,15 @@ say "mix: sum $percentage_sum ",$color_space;
 
 ########################################################################
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
-    my ($self, $cv2, $space_name, $select, $range) = @_;
-    return "need value object as second argument" unless ref $cv2 eq __PACKAGE__;
+    my ($self, $second_color_values, $space_name, $select, $range) = @_;
+    return "need value object as second argument" unless ref $second_color_values eq __PACKAGE__;
     return "$space_name is not a known color space name"
         if defined $space_name and not Graphics::Toolkit::Color::Space::is_space_name($space_name);
     return '"select" argument has to be an axis name or an ARRAY thereof'
         if ref $select and ref $select ne 'ARRAY';
-    Graphics::Toolkit::Color::Space::Hub::distance( $self->{'rgb'}, $cv2->{'rgb'}, $space_name, $select, $range);
+    Graphics::Toolkit::Color::Space::Hub::distance(
+        $self->{'rgb'}, $second_color_values->{'rgb'}, $space_name, $select, $range
+    );
 }
 
 1;

@@ -129,11 +129,11 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($self, $second_color_values, $space_name, $select, $range) = @_;
     return "need value object as second argument" unless ref $second_color_values eq __PACKAGE__;
     return "$space_name is not a known color space name"
-        if defined $space_name and not Graphics::Toolkit::Color::Space::is_space_name($space_name);
+        if defined $space_name and not Graphics::Toolkit::Color::Space::Hub::is_space_name($space_name);
     return '"select" argument has to be an axis name or an ARRAY thereof'
         if ref $select and ref $select ne 'ARRAY';
     Graphics::Toolkit::Color::Space::Hub::distance(
-        $self->{'rgb'}, $second_color_values->{'rgb'}, $space_name, $select, $range
+        $self->normalized, $second_color_values->normalized, $space_name, $select, $range
     );
 }
 

@@ -169,11 +169,14 @@ sub distance { # RGB tuples -- ~space, ~@select @range --> +
     my $color_space = try_get_space( $space_name );
     my $default_space = default_space();
     return $color_space unless ref $color_space;
-    return 'got malformed value ARRAY' unless $default_space->is_value_tuple( $values_a )
-                                          and $default_space->is_value_tuple( $values_b );
+    return 'first argument is no at well formed value ARRAY for '. $default_space->name
+        unless $default_space->is_value_tuple( $values_a );
+    return 'second argument is no at well formed value ARRAY for '. $default_space->name
+        unless $default_space->is_value_tuple( $values_b );
+
     unless ($color_space->name eq $default_space_name){
-        $values_a = convert( $values_a, $space_name, defined $range);
-        $values_b = convert( $values_b, $space_name, defined $range);
+        $values_a = convert( $values_a, $space_name, 'normal');
+        $values_b = convert( $values_b, $space_name, 'normal');
     }
     my $delta = $color_space->delta( $values_a, $values_b );
     $delta = $color_space->denormalize_delta( $delta, $range );

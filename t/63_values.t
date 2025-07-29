@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 150;
+use Test::More tests => 130;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -171,6 +171,18 @@ is( $values->[1],                     50,  'sat value is right');
 is( $values->[2],                     25,  'light value is right');
 
 ########################################################################
+is( $darkblue->distance( $darkblue ),    0,   'dark blue should have no distance to itself');
+is( int $black->distance( $white ),    441,  'black and white have maximal distance in RGB');
+is( $black->distance( $white, 'HSL' ), 100,  'black and white have maximal distance in HSL');
+is( $fuchsia_rgb->distance( $black, undef, undef, 'normal' ), sqrt 2,  'measure distance between magenta and black in RGB');
+is( $fuchsia_rgb->distance( $black, 'RGB', 'red', 'normal' ),      1,  'measure only red component');
+is( $fuchsia_rgb->distance( $black, 'RGB', 'green', 'normal' ),    0,  'measure only green component');
+is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', 'normal' ),     1,  'measure only blue component');
+is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', 'normal' ),     1,  'measure only blue component');
+is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r g/], 'normal' ),  1,  'measurered red and green component');
+is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r b/], 'normal' ),  sqrt 2,  'measurered red and blue component');
+is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', [8,9,10] ),    10,  'measure blue component woith custom scaling');
+
 
 exit 0;
 

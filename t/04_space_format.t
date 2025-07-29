@@ -30,7 +30,6 @@ is( ref $vvobj, '',  'too many elements in value format definition');
 my $cobj = Graphics::Toolkit::Color::Space::Format->new( $basis, [ '\d{1}','\d{2}','\d{3}' ], undef, ['$','@','%'] );
 is( ref $cobj, $module, 'fully custom format definition');
 
-
 my ($vals, $name) = $obj->deformat('abg:0,2.2,-3');
 is( ref $vals,        'ARRAY', 'could deformat values');
 is( @$vals,                 3, 'right amount of values');
@@ -55,7 +54,6 @@ is( $vals->[1],             2, 'second value');
 is( $vals->[2],             3, 'third value');
 is( $name,     'named_string', 'found right format name');
 
-
 ($vals, $name) = $pobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string');
 is( $name,     'named_string', 'recognized named string format');
@@ -69,7 +67,6 @@ is( ref $vals,        '', 'values custom format is not met');
 ($vals, $name) = $cobj->deformat(' abg: 1 $, 22 @ , 333% ');
 is( ref $vals,        'ARRAY', 'recognized custom format');
 is( $name,     'named_string', 'found named string as custom format');
-
 
 ($vals, $name) = $pobj->deformat(' abg( 1 %, 2 % , 3% ) ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in css string');
@@ -131,7 +128,6 @@ is( $vals->[0],              1, 'first value');
 is( $vals->[1],              2, 'second value');
 is( $vals->[2],              3, 'third value');
 
-
 ($vals, $name) = $obj->deformat( {a=>1, b=>2, g=>3} );
 is( $name,              'hash', 'recognized hash format');
 is( ref $vals,         'ARRAY', 'could deformat values');
@@ -150,8 +146,6 @@ is( $name,            'hash', 'recognized hash with suffixes');
 is( $name,             undef, 'values needed 2 digits in custom value format');
 ($vals, $name) = $vobj->deformat( {ALPHA =>'21 %', BETA =>'92% ', GAMMA=>' 13%'} );
 is( $name,            'hash', 'recognized hash with suffixes and custom value format');
-
-
 
 my (@list) = $obj->format( [0,2.2,-3], 'list');
 is( @list,                   3, 'got a list with right lengths');
@@ -208,7 +202,7 @@ is( $obj->has_format('pstring'), 1, 'there is now a pstring format');
 is( $name,                 undef, 'found no deformatter for pstring format');
 is( $obj->has_deformat('pstring'), 0, 'there is no pstring deformatter');
 
-my $dref = $obj->add_deformatter('pstring', sub { $_[0]->match_number_values( [split(',',substr($_[1],1))] ); });
+my $dref = $obj->add_deformatter('pstring', sub { $_[0]->check_number_values( [split(',',substr($_[1],1))] ); });
 is( ref $dref,       'CODE', 'added deformatter');
 
 is( $obj->has_deformat('pstring'), 1, 'there is now a pstring deformatter');

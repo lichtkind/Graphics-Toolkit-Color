@@ -31,7 +31,6 @@ sub new {
 sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 #### getter ############################################################
-
 sub space_name       {   $_[0]{'space_name'}  }      # color space name
 sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
 sub is_name          {
@@ -49,7 +48,6 @@ sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $
 sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef } # ~short_name --> +pos
 
 #### predicates ########################################################
-
 sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
 sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
 sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }       # ~name       --> ?
@@ -75,7 +73,6 @@ sub is_partial_hash { # with some axis names as keys
 sub is_value_tuple { (ref $_[1] eq 'ARRAY' and @{$_[1]} == $_[0]->axis_count) ? 1 : 0 }
 
 #### converter #########################################################
-
 sub short_axis_name_from_long {
     my ($self, $name) = @_;
     return unless $self->is_long_axis_name( $name );

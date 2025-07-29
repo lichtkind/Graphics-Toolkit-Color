@@ -183,10 +183,4 @@ is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r g/], 'normal' ),  1,  'measurer
 is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r b/], 'normal' ),  sqrt 2,  'measurered red and blue component');
 is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', [8,9,10] ),    10,  'measure blue component woith custom scaling');
 
-
 exit 0;
-
-
-__END__
-
- distance  $second_color_values, $space_name, $select, $range) = @_;

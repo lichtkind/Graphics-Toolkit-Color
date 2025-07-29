@@ -1,15 +1,23 @@
 #!/usr/bin/perl
-#
+
 use v5.12;
 use warnings;
-use Test::More tests => 128;
-
+use Test::More tests => 130;
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color';
+use Graphics::Toolkit::Color::Space::Util ':all';
 
+my $module = 'Graphics::Toolkit::Color';
+eval "use $module qw/color/";
+is( not( $@), 1, 'could load the module');
+
+is( ref Graphics::Toolkit::Color->new(),       '', 'constructor need arguments');
+is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts color name');
+is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
+
+
+exit 0;
 __END__
 
-eval "use $module";
 is( not( $@), 1, 'could load the module');
 
 warning_like {Graphics::Toolkit::Color->new()}                    {carped => qr/constructor of/},       "need argument to create object";

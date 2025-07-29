@@ -2,11 +2,20 @@
 
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util ':all';
-use Test::More tests => 57;
-
+use Test::More tests => 130;
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Set';
+use Graphics::Toolkit::Color::Space::Util ':all';
+
+my $module = 'Graphics::Toolkit::Color::Operation::Set';
+use_ok( $module, 'could load the module');
+
+
+
+exit 0;
+
 
 __END__
 
+gradient
+complement
+cluster

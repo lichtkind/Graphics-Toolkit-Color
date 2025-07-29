@@ -1,5 +1,5 @@
 
-# public, user level API: computing color (sets), measuring ,IO in many formats and spaces
+# public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
 our $VERSION = '1.8';

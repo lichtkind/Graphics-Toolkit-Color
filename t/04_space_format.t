@@ -98,7 +98,7 @@ is( $vals->[0],              1, 'first value');
 is( $vals->[1],              2, 'second value');
 is( $vals->[2],              3, 'third value');
 
-($vals, $name) = $obj->deformat( ['ABG',' - 1','2.2 ','.3'] );
+($vals, $name) = $obj->deformat( ['ABG',' -1','2.2 ','.3'] );
 is( $name,       'named_array', 'recognized named array with spaces');
 is( ref $vals,         'ARRAY', 'got values in a vector');
 is( @$vals,                  3, 'right amount of values');

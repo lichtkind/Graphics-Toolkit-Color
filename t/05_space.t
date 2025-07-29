@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 147;
+use Test::More tests => 156;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space';
@@ -38,20 +38,27 @@ is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid 
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], name => 'name');
 is( ref $space,     $module, 'created color space just with axis names and space name');
-is( $space->name,    'name', 'got given space name back');
+is( $space->name,    'NAME', 'got given space name back');
+is( $space->alias,       '', 'no space anme alias this time');
+is( $space->is_name('name'),    1,  'can ask if given name is right');
+is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
+is( $space->is_name(''),        0,  'empty string can never be a space name');
+
 is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid space basis sub object');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], alias => 'alias');
 is( $space->name,    'ABCD', 'got auto generated space name');
-is( $space->alias,    'alias', 'got user set space name alias');
+is( $space->alias,    'ALIAS', 'got user set space name alias');
+is( $space->is_name('abcd'),     1,  'axis initials are a space name');
+is( $space->is_name('alias'),    1,  'user set alias is name too');
 is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid space basis sub object');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
-$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], prefix => 'pre', name => 'Name');
-is( $space->name,        'Name', 'got space name with given prefix and givn Name');
+$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], name => 'Name');
+is( $space->name,        'NAME', 'got space name with given prefix and given Name');
 is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid space basis sub object');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
@@ -68,8 +75,12 @@ is( $val->[3],                     0, 'zero is default value');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => [10,20,'normal', [-10,10]],
                                               name => 'name', alias => 'alias' );
-is( $space->name,    'name', 'got back user set space name');
-is( $space->alias,  'alias', 'got back user set space name alias');
+is( $space->name,    'NAME', 'got back user set space name');
+is( $space->alias,  'ALIAS', 'got back user set space name alias');
+is( $space->is_name('name'),    1,  'axis initials are space name');
+is( $space->is_name('alias'),   1,  'user set alias is a space name');
+is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
+
 is( ref $space,     $module, 'created color space with axis names and ranges');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->check_range([10,10,1,10]),                  'ARRAY', 'max values are in range');

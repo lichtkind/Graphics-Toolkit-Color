@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 91;
+use Test::More tests => 93;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YUV';
@@ -12,9 +12,11 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
-is( $space->name,       'YUV',                      'color space has initials as name');
-is( $space->alias,    'YPbPr',                      'color space has alias name YCbCr');
-is( $space->axis_count,     3,                      'color space has 3 axis');
+is( $space->name,      'YUV',                       'color space has initials as name');
+is( $space->alias,   'YPBPR',                       'color space has alias name YCbCr');
+is( $space->is_name('YPbPr'),    1,                 'color space name YCbCr is correct');
+is( $space->is_name('YUV'),      1,                 'color space name YUV is correct');
+is( $space->axis_count,          3,                 'color space has 3 axis');
 is( ref $space->check_range([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
 is( ref $space->check_range([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
 is( ref $space->check_range([1, 0.5, 0.5]),   'ARRAY',   'check YUV values works on upper bound values');

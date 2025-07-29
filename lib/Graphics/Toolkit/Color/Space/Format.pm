@@ -186,9 +186,9 @@ sub tuple_from_css_string {
 
 sub tuple_from_named_array {
     my ($self, $array) = @_;
-    return 0 unless ref $array eq 'ARRAY' and @$array == $self->basis->axis_count+1;
-    return 0 unless uc $array->[0] eq uc $self->basis->space_name
-                or (uc $array->[0] eq uc $self->basis->alias_name and $self->basis->alias_name);
+    return 0 unless ref $array eq 'ARRAY';
+    return 0 unless @$array == $self->basis->axis_count+1;
+    return 0 unless $self->basis->is_name( $array->[0] );
     shift @$array;
     $self->match_number_values( $array );
 }

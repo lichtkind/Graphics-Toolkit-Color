@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 142;
+use Test::More tests => 148;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -179,16 +179,22 @@ is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name');
 is( ref $p5d,  $module,  'created space with user set name and user set axis short names');
-is( $p5d->space_name, 'name',  'space name is user set');
-is( $p5d->alias_name,     '', 'space name kept empty');
+is( $p5d->space_name, 'NAME',  'space name is user set');
+is( $p5d->alias_name,        '', 'space name kept empty');
+is( $p5d->is_name('mnopq'),   0,  'initials are not an accepted space name');
+is( $p5d->is_name('name'),    1,  '"name" is an accepted space name');
 
 my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef, 'alias');
 is( ref $p5p,  $module,  'created space with name prefix and user set axis short names');
 is( $p5p->space_name,    'MNOPQ',  'space name are initials');
-is( $p5p->alias_name,    'alias',  'space name alias is user set');
+is( $p5p->alias_name,    'ALIAS',  'space name alias is user set');
+is( $p5p->is_name('mnopq'),    1,  '"mnopq" is an accepted space name');
+is( $p5p->is_name('alias'),    1,  '"alias" is an accepted space name');
 
 my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name', 'alias');
-is( $p5pn->space_name,  'name',  'got correct name with prefix');
-is( $p5pn->alias_name,  'alias',  'got user set alias name');
+is( $p5pn->space_name,    'NAME',  'got correct name with prefix');
+is( $p5pn->alias_name,   'ALIAS',  'got user set alias name');
+is( $p5pn->is_name('name'),    1,  '"name" is an accepted space name');
+is( $p5pn->is_name('alias'),   1,  '"alias" is an accepted space name');
 
 exit 0;

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 131;
+use Test::More tests => 133;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -12,7 +12,9 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,            'LCH',                  'color space name is LCH');
-is( $space->alias,      'CIELCHab',                  'color space name alias name is CIELCHab');
+is( $space->alias,      'CIELCHAB',                  'color space name alias name is CIELCHab');
+is( $space->is_name('CIELCHab'),   1,                'color space name CIELCHab is correct');
+is( $space->is_name('LCH'),        1,                'color space name LCH is correct');
 is( $space->axis_count,          3,                  'color space has 3 dimensions');
 
 is( ref $space->check_range([0,0]),              '',   "CIELCHab got too few values");

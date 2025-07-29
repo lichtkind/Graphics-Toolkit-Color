@@ -30,6 +30,7 @@ sub new {
 sub basis              { $_[0]{'basis'} }
 sub name               { shift->basis->space_name }           #          --> ~
 sub alias              { shift->basis->alias_name }           #          --> ~
+sub is_name            { shift->basis->is_name(@_) }          #    ~name --> ?
 sub axis_count         { shift->basis->axis_count }           #          --> +
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values --> ?
 sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values --> ?

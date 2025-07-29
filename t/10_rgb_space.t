@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 94;
+use Test::More tests => 95;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
@@ -11,6 +11,7 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got right return value by loading module');
 is( $space->name,       'RGB',                     'color space has right name');
+is( $space->is_name('rgb'), 1,                     'asked for right space name');
 is( $space->alias,         '',                     'color space has no alias name');
 is( $space->axis_count,     3,                     'color space has 3 axis');
 

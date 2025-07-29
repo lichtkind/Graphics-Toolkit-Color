@@ -23,7 +23,7 @@ sub new {
     $space_name //= $axis_initials;
     $alias_name //= '';
 
-    bless { space_name => $space_name, alias_name => $alias_name,
+    bless { space_name => uc $space_name, alias_name => uc $alias_name,
             axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
             long_name_order => \%long_name_order, short_name_order => \%short_name_order,
             axis_iterator => \@iterator }
@@ -34,6 +34,12 @@ sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 sub space_name       {   $_[0]{'space_name'}  }      # color space name
 sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
+sub is_name          {
+    return 0 if not defined $_[1];
+    return 1 if uc $_[1] eq $_[0]{'space_name'};
+    return 1 if $_[0]{'alias_name'} and uc $_[1] eq $_[0]{'alias_name'};
+    return 0;
+}
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
 sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1

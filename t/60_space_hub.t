@@ -209,7 +209,7 @@ is( $values->[2], 0,     'yellow value has right value');
 ($values, $space) = $deformat->('ncol:  y10, 22%, 5.1% ');
 is( ref $values,                '', 'wrong precision, NCol doesnt accept decimals');
 ($values, $space) = $deformat->('ncol:  y20, 22%, 5 ');
-is( $space,                     'NCol', 'color char can be lower case and percent is not mandatory');
+is( $space,                     'NCOL', 'color char can be lower case and percent is not mandatory');
 is( ref $values,               'ARRAY', 'got ARRAY tuple even spacing was weird');
 is( int @$values,                    3, 'NCol has 3 axis');
 is( $values->[0],                  0.2, 'hue value is right');

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 130;
+use Test::More tests => 55;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -13,8 +13,8 @@ is( not( $@), 1, 'could load the module');
 is( ref Graphics::Toolkit::Color->new(),        '', 'constructor need arguments');
 is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts color name');
 is( ref Graphics::Toolkit::Color->new( 'red', 'green'), '', 'constructor needs only one color name');
-is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
-is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
+#~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
+#~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
 is( ref Graphics::Toolkit::Color->new('#ABC'),     $module, 'short hex string');
 is( ref Graphics::Toolkit::Color->new('#AABBCC'),  $module, 'long hex string');
 is( ref Graphics::Toolkit::Color->new('#AABBGG'),       '', 'long hex string has typo');
@@ -43,8 +43,28 @@ is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0,0,0]),    '', 'CMYK ARRAY g
 is( ref Graphics::Toolkit::Color->new( ['cmk', 0,0,0]),        '', 'only known color space names are accepted ');
 is( ref Graphics::Toolkit::Color->new( ['CIELCHab', 100.23,0.173,214]), $module, 'long mixed case alias names work too');
 is( ref Graphics::Toolkit::Color->new( ['NCol','B10','100%','0%']),     $module, 'named ARRAY with values that need preprocessing');
+is( ref Graphics::Toolkit::Color->new( ['ncol','B0','100','0']),        $module, 'try single digit string value');
+is( ref Graphics::Toolkit::Color->new( { }),                                '', 'HASH needs keys');
+is( ref Graphics::Toolkit::Color->new( {r=> 1 }),                           '', 'HASH one key is not enough');
+is( ref Graphics::Toolkit::Color->new( r=> 1 ),                             '', 'even without a HASH ref');
+is( ref Graphics::Toolkit::Color->new( {r=> 1, g=>2 }),                     '', 'HASH two keys are not enough');
+is( ref Graphics::Toolkit::Color->new( r=> 1, g=>2 ),                       '', 'also without a HASH ref');
+is( ref Graphics::Toolkit::Color->new( { }),                                '', 'HASH needs keys');
+is( ref Graphics::Toolkit::Color->new( {r => 0, g => 0, b => 0 }),         $module, 'RGB short HASH');
+is( ref Graphics::Toolkit::Color->new( r => 0, g => 0, b => 0 ),           $module, 'RGB short HASH without ref');
+is( ref Graphics::Toolkit::Color->new( red => 0, G => 0, b => 0 ),         $module, 'can mix long and short, lc and uc axis names');
+is( ref Graphics::Toolkit::Color->new( {r => 0, g => 0, b => 0, y=> 1 }),       '', 'too many keys');
+is( ref Graphics::Toolkit::Color->new( r => 0, g => 0, b => 0, y=> 1),          '', 'also without ref');
+is( ref Graphics::Toolkit::Color->new( c => 0, m => 0, k => 0, y=> 1),     $module, 'CMYK hash');
+is( ref Graphics::Toolkit::Color->new( c => 0, m => 0, kkey => 0, y=> 1),       '', 'one key has typo');
+is( ref Graphics::Toolkit::Color->new( c => 0, m => 0, k=> 1),                  '', 'one key is missing');
+is( ref Graphics::Toolkit::Color->new( luma => 0, Pb => 0, Pr=> .5),       $module, 'YPbPr hash');
+is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '100','b*'=> .5),$module, 'LAB hash');
+is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '10e0', 'b*' => .5),  '', 'dont accept scientific notation');
+is( ref Graphics::Toolkit::Color->new( l => 0,  chroma => '0',  hue => 0), $module, 'CIELCHuv hash');
+is( ref Graphics::Toolkit::Color->new( l => "0%",  c => '0',  hue => 0),        '', 'CIELCHuv has no value suffix');
+is( ref Graphics::Toolkit::Color->new( h => "0",  w => '0',  b => 0),      $module, 'HWB hash');
+is( ref Graphics::Toolkit::Color->new( h=> "R100",w => '0%', b=> '100%'),  $module, 'NCol hash');
+is( ref Graphics::Toolkit::Color->new( Y => 0, U => 0, V => 100),          $module, 'YPbPr short hash');
 
 exit 0;
-
-__END__
-

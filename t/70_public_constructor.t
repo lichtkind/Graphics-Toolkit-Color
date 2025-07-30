@@ -23,11 +23,14 @@ is( ref Graphics::Toolkit::Color->new('rgb(0, 0, 0)'),          $module, 'CSS st
 is( ref Graphics::Toolkit::Color->new('lab( 12.3, 5.4, 1.2)'),  $module, 'CSS string in LAB space');
 is( ref Graphics::Toolkit::Color->new('lab( 12.3, 5.4, 1.2%)'),      '', 'CSS string with bad suffix');
 is( ref Graphics::Toolkit::Color->new('YIQ:5.22,   0, -10  '), $module, 'named string in YIQ space and additional spacing');
+is( ref Graphics::Toolkit::Color->new('NCol: B10,  100, 0'),   $module, 'named string in Ncol space with min and max values');
 is( ref Graphics::Toolkit::Color->new( 4),      '', 'constructor needs more than one number');
 is( ref Graphics::Toolkit::Color->new( 4,5),    '', 'constructor needs more than two numbers');
 is( ref Graphics::Toolkit::Color->new( 4,5,6,7), '', 'constructor needs less than four numbers');
 is( ref Graphics::Toolkit::Color->new( 1,2,3), $module, 'constructor got three RGB numbers');
-is( ref Graphics::Toolkit::Color->new( 1,2,'e4'), '', 'all three RGB values have to be numbers');
+is( ref Graphics::Toolkit::Color->new( 1,2,'e4'),   '', 'third RGB value has to be number');
+is( ref Graphics::Toolkit::Color->new( 1, '2a', 4), '', 'second RGB value has to be number');
+is( ref Graphics::Toolkit::Color->new( '%', 2, 4), '', 'first RGB value has to be number');
 is( ref Graphics::Toolkit::Color->new( [4,5]),    '', 'constructor needs more than two numbers in an ARRAY');
 is( ref Graphics::Toolkit::Color->new( [4,5,6,7]), '', 'constructor needs less than four numbers in an ARRAY');
 is( ref Graphics::Toolkit::Color->new( [1,2,3]), $module, 'constructor got three RGB numbers in an ARRAY');
@@ -37,6 +40,9 @@ is( ref Graphics::Toolkit::Color->new( ['YUV',1,2,3,4]),    '', 'named ARRAY in 
 is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0,0]), $module, 'named ARRAY in CMYK space');
 is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0]),        '', 'CMYK ARRAY got not enough values');
 is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0,0,0]),    '', 'CMYK ARRAY got too much values');
+is( ref Graphics::Toolkit::Color->new( ['cmk', 0,0,0]),        '', 'only known color space names are accepted ');
+is( ref Graphics::Toolkit::Color->new( ['CIELCHab', 100.23,0.173,214]), $module, 'long mixed case alias names work too');
+is( ref Graphics::Toolkit::Color->new( ['NCol','B10','100%','0%']),     $module, 'named ARRAY with values that need preprocessing');
 
 exit 0;
 

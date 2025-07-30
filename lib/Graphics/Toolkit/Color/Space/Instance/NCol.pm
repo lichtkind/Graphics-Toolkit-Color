@@ -6,11 +6,11 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/min max/;
 
-my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol', alias => '',
+my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
                                                     axis => [qw/hue whiteness blackness/],
                                                     type => [qw/angular linear linear/],
                                                    range => [600, 100, 100],  precision => 0,
-                                              value_form => ['[RYGCBMrygcbm]\d{1,2}','\d{1,2}','\d{1,2}'],
+                                              value_form => ['[RYGCBMrygcbm]\d{1,3}','\d{1,3}','\d{1,3}'],
                                                   suffix => ['', '%', '%'],
                                                   );
 

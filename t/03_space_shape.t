@@ -161,7 +161,6 @@ is( ref $shape->check_range([1,2,3,4]),    '',  "too many values");
 is( ref $shape->check_range([1,22,3]),     '',  "too big second value");
 is( ref $shape->check_range([0,1,3.111]),  '',  "too many decimals in third value");
 
-
 my $norm = $shape->normalize([-5, 0, 5]);
 is( ref $norm,   'ARRAY', 'normalized values');
 is( int @$norm,   3, 'normalized 3 into 3 values');

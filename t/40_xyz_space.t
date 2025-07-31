@@ -18,21 +18,21 @@ is( $space->axis_count,        3,                  'color space has 3 axis');
 
 is( ref $space->check_range([0, 0, 0]),          'ARRAY',  'check minimal XYZ values are in bounds');
 is( ref $space->check_range([95.0, 100, 108.8]), 'ARRAY',  'check maximal XYZ values');
-is( ref $space->check_range([0,0]),              '',   "XYZ got too few values");
-is( ref $space->check_range([0, 0, 0, 0]),       '',   "XYZ got too many values");
-is( ref $space->check_range([-0.1, 0, 0]),       '',   "X value is too small");
-is( ref $space->check_range([96, 0, 0]),         '',   "X value is too big");
-is( ref $space->check_range([0, -0.1, 0]),       '',   "Y value is too small");
-is( ref $space->check_range([0, 100.1, 0]),      '',   "Y value is too big");
-is( ref $space->check_range([0, 0, -.1 ] ),      '',   "Z value is too small");
-is( ref $space->check_range([0, 0, 108.9] ),     '',   "Z value is too big");
+is( ref $space->check_range([0,0]),                   '',   "XYZ got too few values");
+is( ref $space->check_range([0, 0, 0, 0]),            '',   "XYZ got too many values");
+is( ref $space->check_range([-0.1, 0, 0]),            '',   "X value is too small");
+is( ref $space->check_range([96, 0, 0]),              '',   "X value is too big");
+is( ref $space->check_range([0, -0.1, 0]),            '',   "Y value is too small");
+is( ref $space->check_range([0, 100.1, 0]),           '',   "Y value is too big");
+is( ref $space->check_range([0, 0, -.1 ] ),           '',   "Z value is too small");
+is( ref $space->check_range([0, 0, 108.9] ),          '',   "Z value is too big");
 
-is( $space->is_value_tuple([0,0,0]),           1,   'vector has 3 elements');
-is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
-is( $space->can_convert('RGB'), 1,                 'namespace can be written upper case');
-is( $space->is_partial_hash({x => 1, y => 0}), 1,  'found hash with some keys');
-is( $space->is_partial_hash({x => 1, z => 0}), 1,  'found hash with some other keys');
-is( $space->can_convert('yiq'), 0,                 'can not convert to yiq');
+is( $space->is_value_tuple([0,0,0]),                   1,  'vector has 3 elements');
+is( $space->can_convert('rgb'),                        1,  'do only convert from and to rgb');
+is( $space->can_convert('RGB'),                        1,  'namespace can be written upper case');
+is( $space->is_partial_hash({x => 1, y => 0}),         1,  'found hash with some keys');
+is( $space->is_partial_hash({x => 1, z => 0}),         1,  'found hash with some other keys');
+is( $space->can_convert('yiq'),                        0,  'can not convert to yiq');
 
 my $val = $space->deformat(['CIEXYZ', 1, 0, -0.1]);
 is( int @$val,  3,     'deformated value triplet (vector)');

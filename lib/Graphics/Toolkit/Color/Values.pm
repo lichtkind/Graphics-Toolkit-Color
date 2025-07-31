@@ -36,17 +36,24 @@ sub new_from_normal_tuple { #
     } else { $space_name = '' }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->round( $RGB->denormalize( $values ) ) );
-    bless { name => $name, rgb => $values, source_values => $source_values, source_space_name => $space_name };
+    bless { name => $name, closest => '',
+            rgb => $values, source_values => $source_values, source_space_name => $space_name };
 }
 
 ########################################################################
 sub name { $_[0]->{'name'} }
 sub closest_name {
     my ($self, $max_distance) = @_;
-    my $values = $self->formatted( 'HSL' );
-    my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, $max_distance );
-    return '' unless ref $names eq 'ARRAY' and @$names;
-    return $names->[0], $distances->[0];
+    return ($self->{'name'}, 0) if $self->{'name'};
+    unless ($self->{'closest'}){
+        my $values = $self->formatted( 'HSL' );
+        my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, 25);
+        return ('','') unless ref $names eq 'ARRAY' and @$names;
+        return $names->[0], $distances->[0];
+        $self->{'closest'} = { name => $names->[0], distance => $distances->[0]};
+    }
+    return ($self->{'closest'}{'distance'} <= $max_distance) ?
+           ($self->{'closest'}{'name'}, $self->{'closest'}{'distance'}) : ('', '');
 }
 
 sub normalized {

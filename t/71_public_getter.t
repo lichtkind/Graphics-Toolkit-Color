@@ -62,38 +62,3 @@ is( $values[1],                 0, 'green value is correct');
 is( $values[2],               255, 'blue red value is correct');
 
 exit 0;
-
-__END__
-values
-
-my $na = $cc->new(15,12,13)->values(as => 'array');
-is( ref $na,        'ARRAY', 'named array output is ARRAY ref');
-is( int @$na,             4, 'ARRAY has right length');
-is( $na->[0],         'rgb', 'named array output is ARRAY ref');
-is( $na->[1],            15, 'correct red value');
-is( $na->[2],            12, 'correct green value');
-is( $na->[3],            13, 'correct blue value');
-
-$red = Graphics::Toolkit::Color->new('#FF0000');
-is( ref $red,        $module, 'could create object by hex value');
-is( $red->values(as => 'hex'), '#ff0000', 'red has correct value in hex format');
-is( $red->name,         'red', 'hex red has correct name');
-is(($red->values)[0],     255, 'hex red has correct rgb red component value');
-is(($red->values)[1],       0, 'hex red has correct rgb green component value');
-is(($red->values)[2],       0, 'hex red has correct rgb blue component value');
-my @hwb = $red->values( 'HWB');
-is($hwb[0],                 0, 'hex red has correct hsl hue component value');
-is($hwb[1],                 0, 'hex red has correct hsl whitness component value');
-is($hwb[2],                 0, 'hex red has correct hsl blackness component value');
-
-$red = Graphics::Toolkit::Color->new('#f00');
-is( ref $red,     $module, 'could create object by short hex value');
-is( $red->name,        'red', 'short hex red has correct name');
-
-$red = Graphics::Toolkit::Color->new('RGB: 255,0 ,0  ');
-is( ref $red,         $module, 'could create object by RGB string');
-is( $red->name,         'red', 'got correct name from RGB string');
-is(($red->values)[0],     255, 'red value from RGB string format');
-is(($red->values)[1],       0, 'green value from RGB string format');
-is(($red->values)[2],       0, 'blue value from RGB string format');
-

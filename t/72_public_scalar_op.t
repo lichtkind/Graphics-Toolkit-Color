@@ -1,11 +1,13 @@
 #!/usr/bin/perl
-#
+
 use v5.12;
 use warnings;
-use Test::More tests => 29;
-
+use Test::More tests => 90;
 BEGIN { unshift @INC, 'lib', '../lib'}
-# use Graphics::Toolkit::Color qw/color/;
+use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color qw/color/;
+
+exit 0;
 
 __END__
 
@@ -57,4 +59,3 @@ is( $red->blend( with => {H=> 240, S=> 100, L=>50}, in => 'RGB')->name,'purple',
 #     'lime'                => [   0, 255,   0, 120, 100,  50 ],
 #     'purple'              => [ 128,   0, 128, 300, 100,  25 ],
 
-exit 0;

@@ -12,7 +12,7 @@ use Graphics::Toolkit::Color::Space::Basis;
 my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/], undef, undef, 'alias');
 
 my $obj = Graphics::Toolkit::Color::Space::Format->new( );
-like( $obj,   qr/first argument/,      'constructor needs basis as first argument');
+like( $obj,   qr/First argument/,  'constructor needs basis as first argument');
 
 $obj = Graphics::Toolkit::Color::Space::Format->new( $basis );
 is( ref $obj, $module,  'one constructor argument is enough');

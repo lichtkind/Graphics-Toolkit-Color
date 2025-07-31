@@ -101,7 +101,7 @@ sub closest_name {
 
 sub values       {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, ['in'], [qw/as precision range/], 'in');
+    my $arg = _split_named_args( \@args, [], [qw/in as precision range/], 'in');
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values (                  # no HASH ref around arguments
@@ -112,8 +112,8 @@ sub values       {
 
 EOH
     return $arg.$help unless ref $arg;
-    return $arg.$help unless ref $arg;
-    $self->{'values'}->get_custom_form( @$arg{qw/in as range precision/} );
+    my $values = $self->{'values'}->formatted( @$arg{qw/in as range precision/} );
+    return @$values;
 }
 
 sub distance {

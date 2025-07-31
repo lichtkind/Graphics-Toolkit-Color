@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 60;
+use Test::More tests => 90;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color qw/color/;
@@ -52,11 +52,14 @@ is( close_enough($snow->distance(to => $white, select => 'red'), 1), 1, 'test re
 is( close_enough($snow->distance(to => $white, select => 'blue'), 0), 1, 'select axis with no value difference');
 is( close_enough($snow->distance(to => $white, select => ['red','blue']), 1), 1, 'select axis with and without value difference');
 is( close_enough($snow->distance(to => $white, in => 'cmy', range => 255), 1), 1, 'test reaction to the "in" argument');
-is( ref $snow->distance( blub => $white),        '', 'false arguments get caught');
-is( ref $snow->distance( in => 'LAB'),           '', 'missing required argument gets caught');
+is( ref $snow->distance( to => $white, blub => '-'),           '', 'false arguments get caught');
+is( ref $snow->distance( in => 'LAB'),                         '', 'missing required argument gets caught');
 
-
-
+my @values = $blue->values();
+is( int @values,                3, 'default result for "values" are 3 numbers');
+is( $values[0],                 0, 'red value is correct');
+is( $values[1],                 0, 'green value is correct');
+is( $values[2],               255, 'blue red value is correct');
 
 exit 0;
 

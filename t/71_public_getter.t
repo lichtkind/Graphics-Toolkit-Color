@@ -52,6 +52,11 @@ is( close_enough($snow->distance(to => $white, select => 'red'), 1), 1, 'test re
 is( close_enough($snow->distance(to => $white, select => 'blue'), 0), 1, 'select axis with no value difference');
 is( close_enough($snow->distance(to => $white, select => ['red','blue']), 1), 1, 'select axis with and without value difference');
 is( close_enough($snow->distance(to => $white, in => 'cmy', range => 255), 1), 1, 'test reaction to the "in" argument');
+is( ref $snow->distance( blub => $white),        '', 'false arguments get caught');
+is( ref $snow->distance( in => 'LAB'),           '', 'missing required argument gets caught');
+
+
+
 
 exit 0;
 

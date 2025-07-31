@@ -67,24 +67,23 @@ sub _new_from_value_obj {
     sub complementary { complement(@_) }
 
 sub _split_named_args {
-    my ($args, $required_parameter, $optional_parameter, $default_parameter) = @_;
+    my ($raw_args, $required_parameter, $optional_parameter, $default_parameter) = @_;
     my %clean_arg;
-    if (@$args == 1 and defined $default_parameter and $default_parameter){
+    if (@$raw_args == 1 and defined $default_parameter and $default_parameter){
         return "There is more than one required parameter, you can not have one default argument!"
             if @$required_parameter > 1;
-        %clean_arg = ($default_parameter => $args->[0]);
+        %clean_arg = ($default_parameter => $raw_args->[0]);
     } else {
-        if (@$args % 2) {
+        if (@$raw_args % 2) {
             return (defined $default_parameter and $default_parameter)
                  ? "Got odd number of values, please use key value pairs as arguments or one default argument !\n"
                  : "Got odd number of values, please use key value pairs as arguments !\n"
         }
-        my %args = @$args;
-        %clean_arg = map { $_ => delete $args{$_} } @$required_parameter, @$optional_parameter;
-        if (%args){
-            my @keys = keys %args;
-            return "Inserted unknown argument(s): @keys\n";
+        my %arg_hash = @$raw_args;
+        for my $parameter_name (@$required_parameter, @$optional_parameter){
+            $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name } if exists $arg_hash{$parameter_name};
         }
+        return "Inserted unknown argument(s): ".(join ',', keys %arg_hash)."\n" if %arg_hash;
     }
     for my $arg_name (@$required_parameter){
         return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }

@@ -10,15 +10,15 @@ my $number_form = '-?(?:\d+|\d+\.\d+|\.\d+)';
 
 sub new { # -, $::Basis, ~|@~suffix --> _
     my ($pkg, $basis, $value_form, $prefix, $suffix) = @_;
-    return 'first argument has to be an Color::Space::Basis reference'
+    return 'First argument has to be an Color::Space::Basis reference !'
         unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
     my $count = $basis->axis_count;
     $value_form = $number_form unless defined $value_form;
     $value_form = [($value_form) x $count] unless ref $value_form;
-    return "definition of the value format has to be as ARRAY reference" if ref $value_form ne 'ARRAY';
+    return "Definition of the value format has to be as ARRAY reference" if ref $value_form ne 'ARRAY';
     $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
-    return 'there has to be a value form definition for every axis' unless @$value_form == $count;
+    return 'Need a value form definition for every axis!' unless @$value_form == $count;
 
     $suffix = create_suffix_list( $basis, $suffix ) ;
     return $suffix unless ref $suffix;

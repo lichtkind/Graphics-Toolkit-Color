@@ -11,6 +11,7 @@ my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
     my ($pkg, $color_def) = @_;
+    return "Can not create color value object without color definition!" unless defined $color_def;
     if (not ref $color_def) { # try to resolve color name
         my $rgb = Graphics::Toolkit::Color::Name::values( $color_def );
         if (ref $rgb){
@@ -26,7 +27,7 @@ sub new_from_normal_tuple { #
     my ($pkg, $values, $space_name) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    return "need ARRAY of ".$color_space->axis_count." normalized (0..1) ".$color_space->name." values as first argument!"
+    return "Need ARRAY of ".$color_space->axis_count." normalized (0..1) ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $values );
     $values = $color_space->clamp( $values, 'normal' );
     my $source_values = '';
@@ -46,7 +47,7 @@ sub closest_name_and_distance {
     my ($self) = @_;
     return ($self->{'name'}, 0) if $self->{'name'};
     unless ($self->{'closest'}){
-        my $values = $self->formatted( 'HSL' );
+        my $values = $self->formatted( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
         my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
         ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
             unless ref $names eq 'ARRAY' and @$names;

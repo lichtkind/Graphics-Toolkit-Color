@@ -40,6 +40,13 @@ is( $d,                      0, 'and has no distance');
 is( $name,             'white', 'color name is "white" also in array context');
 is( $d,                      0, 'and has no distance');
 
+my $snow = color(['rgb', 254, 255, 255]);
+is( $snow->name,               '', 'this color has no name in default constants');
+($name, $d) = $snow->closest_name;
+is( $name,             'white', 'color "white" is closest to snow');
+is( $d,                      1, 'and has a distance of 1');
+is( close_enough($snow->distance($white), 1), 1, 'distance method calculates (almost) the same');
+
 exit 0;
 
 __END__

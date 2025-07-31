@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 60;
+use Test::More tests => 61;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -65,6 +65,7 @@ is( ref Graphics::Toolkit::Color->new( l => "0%",  c => '0',  hue => 0),        
 is( ref Graphics::Toolkit::Color->new( h => "0",  w => '0',  b => 0),      $module, 'HWB hash');
 is( ref Graphics::Toolkit::Color->new( h=> "R100",w => '0%', b=> '100%'),  $module, 'NCol hash');
 is( ref Graphics::Toolkit::Color->new( Y => 0, U => 0, V => 100),          $module, 'YPbPr short hash');
+is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $module, 'XYZ short hash (has no long names)');
 
 is( ref color( Y => 0, U => 0, V => 100),          $module, 'short named constructor method');
 is( ref color( ),                                       '', 'needs also args');

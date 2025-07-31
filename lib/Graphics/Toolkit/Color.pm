@@ -65,17 +65,28 @@ sub _new_from_value_obj {
     sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
     sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
     sub complementary { complement(@_) }
+
 sub _split_named_args {
-    my ($args, $required, $optional, $default) = shift;
-    unshift @$args, $required->[0] if defined $default and @$args == 1;
-    return "got odd number of values, either a key or value of an argument is missing!\n" if @$args % 2;
-    my %args = @$args;
-    my %clean_arg = map { $_ => delete $args{$_} } @$required, @$optional;
-    if (%args){
-        my @keys = keys %args;
-        return "Inserted unknown argument: @keys\n";
+    my ($args, $required_parameter, $optional_parameter, $default_parameter) = @_;
+    my %clean_arg;
+    if (@$args == 1 and defined $default_parameter and $default_parameter){
+        return "There is more than one required parameter, you can not have one default argument!"
+            if @$required_parameter > 1;
+        %clean_arg = ($default_parameter => $args->[0]);
+    } else {
+        if (@$args % 2) {
+            return (defined $default_parameter and $default_parameter)
+                 ? "Got odd number of values, please use key value pairs as arguments or one default argument !\n"
+                 : "Got odd number of values, please use key value pairs as arguments !\n"
+        }
+        my %args = @$args;
+        %clean_arg = map { $_ => delete $args{$_} } @$required_parameter, @$optional_parameter;
+        if (%args){
+            my @keys = keys %args;
+            return "Inserted unknown argument(s): @keys\n";
+        }
     }
-    for my $arg_name ( @$required){
+    for my $arg_name (@$required_parameter){
         return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }
     }
     return \%clean_arg;
@@ -90,8 +101,8 @@ sub closest_name {
 }
 
 sub values       {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, ['in'], [qw/as precision range/], 'default');
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, ['in'], [qw/as precision range/], 'in');
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values (                  # no HASH ref around arguments
@@ -103,12 +114,12 @@ sub values       {
 EOH
     return $arg.$help unless ref $arg;
     return $arg.$help unless ref $arg;
-    $self->{'values'}->get_custom_form( @{$arg}[qw/in as range precision/] );
+    $self->{'values'}->get_custom_form( @$arg{qw/in as range precision/} );
 }
 
 sub distance {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, ['to'], [qw/in select range/], 'default');
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, ['to'], [qw/in select range/], 'to');
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
@@ -121,7 +132,7 @@ EOH
     return $arg.$help unless ref $arg;
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
     return "target color definition: $arg->{'to'} is ill formed" unless ref $target_color;
-    $self->{'values'}->distance( $target_color->{'values'}, @{$arg}[qw/in select range/] );
+    $self->{'values'}->distance( $target_color->{'values'}, @$arg{qw/in select range/} );
 }
 
 ## single color creation methods #######################################
@@ -152,8 +163,8 @@ EOH
 }
 
 sub mix {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, ['with'], [qw/amount in/]);
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, ['with'], [qw/amount in/]);
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix (                              # no HASH ref around arguments
@@ -193,8 +204,8 @@ EOH
 
 ## color set creation methods ##########################################
 sub gradient {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, [qw/to steps/], [qw/tilt in/]);
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, [qw/to steps/], [qw/tilt in/]);
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, the first two being required:
     gradient (                    # no HASH ref around arguments
@@ -218,12 +229,12 @@ EOH
     return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( \@colors, @{$arg}[qw/steps tilt in/] );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( \@colors, @$arg{qw/steps tilt in/} );
 }
 
 sub complement {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, [], [qw/steps tilt/]);
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, [], [qw/steps tilt/], 'steps');
     my $help = <<EOH;
     GTC method 'complement' accepts two named, optional arguments:
     complement (                       # no HASH ref around arguments
@@ -265,12 +276,12 @@ EOH
 
     } else {
     }
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/steps tilt/] );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @$arg{qw/steps tilt/} );
 }
 
 sub cluster {
-    my ($self, @args) = shift;
-    my $arg = _split_named_args( @args, [qw/radius distance/], [qw/in/]);
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, [qw/radius distance/], [qw/in/]);
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (                          # no HASH ref around arguments
@@ -282,7 +293,7 @@ EOH
     return $arg.$help unless ref $arg;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
                      if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != 3;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @{$arg}[qw/radius distance in/] );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @$arg{qw/radius distance in/});
 }
 
 1;

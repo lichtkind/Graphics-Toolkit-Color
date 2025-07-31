@@ -57,6 +57,26 @@ sub name_from_hsl {
     return wantarray ? @names : $names[0];
 }
 
+sub names_in_rgb_range { # @center, (@d | $d) --> @names
+    return if @_ != 2;
+    my ($rgb_center, $radius) = @_;
+    return unless ref $RGB->check_range( $rgb_center ) and defined $radius;
+    return unless (ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius;
+    my %distance;
+    my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
+    my @min = map {$rgb_center->[$_] - $border->[$_]} 0 .. 2;
+    my @max = map {$rgb_center->[$_] + $border->[$_]} 0 .. 2;
+    for my $name (all()){
+        my @rgb = @{$constants->{$name}}[0..2];
+        next if $rgb[0] < $min[0]  or $rgb[0] > $max[0];
+        my @delta = map { ($rgb[$_] - $rgb_center->[$_]) ** 2 } 0 .. 2;
+        my $d = sqrt( $delta[0] + $delta[1] + $delta[2] );
+        $distance{ $name } = $d if ref $radius or $d <= $radius;
+    }
+    my @names = sort { $distance{$a} <=> $distance{$b} || $a cmp $b } keys %distance;
+    my @d = map {$distance{$_}} @names;
+    return \@names, \@d;
+}
 sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return if @_ != 2;
     my ($hsl_center, $radius) = @_;

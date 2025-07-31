@@ -42,21 +42,20 @@ sub new_from_normal_tuple { #
 
 ########################################################################
 sub name { $_[0]->{'name'} }
-sub closest_name {
-    my ($self, $max_distance) = @_;
+sub closest_name_and_distance {
+    my ($self) = @_;
     return ($self->{'name'}, 0) if $self->{'name'};
     unless ($self->{'closest'}){
         my $values = $self->formatted( 'HSL' );
-        my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_hsl_range( $values, 25);
-        return ('','') unless ref $names eq 'ARRAY' and @$names;
-        return $names->[0], $distances->[0];
+        my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
+        ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
+            unless ref $names eq 'ARRAY' and @$names;
         $self->{'closest'} = { name => $names->[0], distance => $distances->[0]};
     }
-    return ($self->{'closest'}{'distance'} <= $max_distance) ?
-           ($self->{'closest'}{'name'}, $self->{'closest'}{'distance'}) : ('', '');
+    return @{$self->{'closest'}}{'name', 'distance'};
 }
 
-sub normalized {
+sub normalized { # get a normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
         $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},

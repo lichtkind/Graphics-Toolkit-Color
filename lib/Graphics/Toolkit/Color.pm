@@ -85,8 +85,8 @@ sub _split_named_args {
 sub name         { $_[0]{'values'}->name }
 sub closest_name {
     my ($self) = shift;
-    my $name = $self->name;
-    return ($name) ? ($name, 0) : $self->{'values'}->closest_name;
+    my ($name, $distance) = $self->{'values'}->closest_name_and_distance;
+    return wantarray ? ($name, $distance) : $name;
 }
 
 sub values       {
@@ -455,10 +455,10 @@ All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
 =head2 closest_name
 
-Returns two values: 1. a color name as the method L</name> does.
-2. an Euclidean distance in I<RGB> as the method L</distance> does.
-It will be the name of the color that has the closest distance, to the
-color held by the current GTC object.
+Returns in list context two values, in scalar conext only one:
+a color name as the method L</name> does, which has the shortst distance
+in HSL to the currnt color. In list context you can additionally the
+just mentioned L</distance> as a second return value.
 
 =head2 values
 

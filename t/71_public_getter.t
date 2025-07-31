@@ -7,15 +7,43 @@ BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color qw/color/;
 
-my $red   = color('red');
-my $blue  = color('blue');
-my $black = color('black');
-my $white = color('white');
+my $red   = color(255,0,0);
+my $blue  = color({r => 0, g => 0, b=>255});
+my $purple = color({hue => 300, s => 100, l => 25});
+my $black = color([0,0,0]);
+my $white = color(['cmy',0,0,0]);
+
+is( $red->name,          'red', 'color name "red" is correct');
+is( $blue->name,        'blue', 'color name "blue" is correct');
+is( $purple->name,    'purple', 'color name "purple" is correct');
+is( $black->name,      'black', 'color name "black" is correct');
+is( $white->name,      'white', 'color name "white" is correct');
+
+is( $red->closest_name,          'red', 'color "red" is also closest name');
+is( $blue->closest_name,        'blue', 'color "blue" is also closest name');
+is( $purple->closest_name,    'purple', 'color "purple" is also closest name');
+is( $black->closest_name,      'black', 'color "black" is also closest name');
+is( $white->closest_name,      'white', 'color "white" is also closest name');
+my ($name, $d) = $red->closest_name;
+is( $name,               'red', 'color name is "red" also in array context');
+is( $d,                      0, 'and has no distance');
+($name, $d) = $blue->closest_name;
+is( $name,              'blue', 'color name is "blue" also in array context');
+is( $d,                      0, 'and has no distance');
+($name, $d) = $purple->closest_name;
+is( $name,            'purple', 'color name is "purple" also in array context');
+is( $d,                      0, 'and has no distance');
+($name, $d) = $black->closest_name;
+is( $name,             'black', 'color name is "black" also in array context');
+is( $d,                      0, 'and has no distance');
+($name, $d) = $white->closest_name;
+is( $name,             'white', 'color name is "white" also in array context');
+is( $d,                      0, 'and has no distance');
 
 exit 0;
 
 __END__
-values name closest_name distance
+values distance name closest_name
 
 my $red = Graphics::Toolkit::Color->new('red');
 my @rgb = $red->values;
@@ -82,98 +110,4 @@ is( $red->name,         'red', 'got correct name from RGB string');
 is(($red->values)[0],     255, 'red value from RGB string format');
 is(($red->values)[1],       0, 'green value from RGB string format');
 is(($red->values)[2],       0, 'blue value from RGB string format');
-
-$red = Graphics::Toolkit::Color->new('rgb( 255, 0 ,0 )');
-is( ref $red,         $module, 'could create object by RGB css_string');
-is( $red->name,         'red', 'got correct name from RGB css_string');
-is(($red->values)[0],     255, 'red value from RGB css_string format');
-is(($red->values)[1],       0, 'green value from RGB css_string format');
-is(($red->values)[2],       0, 'blue value from RGB css_string format');
-
-$red = Graphics::Toolkit::Color->new([255, 0, 0]);
-is( ref $red, $module, 'could create object by RGB array ref');
-is( $red->name,        'red', 'array ref red has correct name');
-is(($red->values)[0],     255, 'red value from default ARRAY format');
-is(($red->values)[1],       0, 'green value from default ARRAY format');
-is(($red->values)[2],       0, 'blue value from default ARRAY format');
-
-$red = Graphics::Toolkit::Color->new([RGB => 255, 0, 0]);
-is( ref $red, $module, 'could create object by RGB named ARRAY ref');
-is( $red->name,         'red', 'correct name from named ARRAY ref');
-is(($red->values)[0],     255, 'red value from named ARRAY ref format');
-is(($red->values)[1],       0, 'green value from named ARRAY ref format');
-is(($red->values)[2],       0, 'blue value from named ARRAY ref format');
-
-$red = Graphics::Toolkit::Color->new(RGB => 255, 0, 0);
-is( ref $red, $module, 'could create object by RGB named ARRAY');
-is( $red->name,         'red', 'correct name from named ARRAY');
-is(($red->values)[0],     255, 'red value from named ARRAY format');
-is(($red->values)[1],       0, 'green value from named ARRAY format');
-is(($red->values)[2],       0, 'blue value from named ARRAY format');
-
-$red = Graphics::Toolkit::Color->new(r => 255, g => 0, b => 0);
-is( ref $red, $module, 'could create object by RGB named args');
-is( $red->name,        'red', 'named arg red has correct name');
-is(($red->values)[0],     255, 'red value from default char_hash format');
-is(($red->values)[1],       0, 'green value from default char_hash format');
-is(($red->values)[2],       0, 'blue value from default char_hash format');
-
-$red = Graphics::Toolkit::Color->new({Red => 255, Green => 0, Blue => 0 });
-is( ref $red, $module, 'could create object by RGB hash ref');
-is( $red->name,        'red', 'got correct color name from HASH ref');
-is(($red->values)[0],     255, 'red value from default HASH format');
-is(($red->values)[1],       0, 'green value from default HASH format');
-is(($red->values)[2],       0, 'blue value from default HASH format');
-
-$red = Graphics::Toolkit::Color->new({h => 0, s => 100, l => 50 });
-is( ref $red, $module, 'could create object by HSL hash ref');
-is( $red->name,         'red', 'got name from hsl char HASH ref');
-is(($red->values)[0],     255, 'red value from hsl char HASH ref format');
-is(($red->values)[1],       0, 'green value from hsl char HASH ref format');
-is(($red->values)[2],       0, 'blue value from hsl char HASH ref format');
-
-$red = Graphics::Toolkit::Color->new( Hue => 0, Saturation => 100, Lightness => 50 );
-is( ref $red, $module, 'could create object by HSL named args');
-is( $red->name,        'red', 'hash ref red has correct name');
-is(($red->values)[0],     255, 'red value from hsl HASH format');
-is(($red->values)[1],       0, 'green value from hsl HASH format');
-is(($red->values)[2],       0, 'blue value from hsl HASH format');
-
-my $green = Graphics::Toolkit::Color->new(0, 128, 0);
-is( ref $green, $module, 'could create object by positional RGB');
-is( $green->name,       'green', 'positional red has correct name');
-is(($green->values)[0],       0, 'green has correct rgb red component value');
-is(($green->values)[1],     128, 'green has correct rgb green component value');
-is(($green->values)[2],       0, 'green has correct rgb blue component value');
-is(($green->values('HSL'))[0],     120, 'green has correct rgb red component value');
-is(($green->values('HSL'))[1],     100, 'green has correct rgb green component value');
-is(($green->values('HSL'))[2],      25, 'green has correct rgb blue component value');
-
-my $c = Graphics::Toolkit::Color->new( 1,2,3 );
-is( ref $red,     $module, 'could create object by random unnamed color');
-is(($c->values)[0],       1, 'random color has correct rgb red component value');
-is(($c->values)[1],       2, 'random color has correct rgb green component value');
-is(($c->values)[2],       3, 'random color has correct rgb blue component value');
-is( $c->name,          '', 'random color has no name');
-
-my $recursive = Graphics::Toolkit::Color->new( $red );
-is(  ref $recursive,                                  $module,   "recursive constructor option works");
-ok(  $recursive != $red,                                         "recursive constructor produced object is new");
-is(  $recursive->name,                                  'red',   "recursive constructor produced correct onject");
-
-
-eval "color('blue')";
-is( substr($@, 0, 20),  'Undefined subroutine', 'sub not there when not imported');
-
-package New;
-
-use Graphics::Toolkit::Color qw/color/;
-use Test::More;
-
-is (ref color('blue'), $module,                    'sub there when imported');
-is (ref color('#ABC'), $module,                    'created color from short RGB hex string');
-is (ref color('#AABBCC'), $module,                 'created color from long RGB hex string');
-is (ref color([1,2,3]),   $module,                 'created color from Array Input');
-is (ref color({r => 1, g => 2, b => 3,}), $module, 'created color from RGB hash');
-is (ref color({h => 1, s => 2, l => 3,}), $module, 'created color from HSL hash');
 

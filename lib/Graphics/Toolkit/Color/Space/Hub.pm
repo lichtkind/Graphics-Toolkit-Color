@@ -55,7 +55,7 @@ sub remove_space {
 
 #### value API #########################################################
 
-sub convert { # normalized RGB tuple, ~space_name -- normalized named original tuple
+sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wanted space
     my ($values, $target_space_name, $want_result_normalized, $source_space_name, $source_values) = @_;
     my $target_space = try_get_space( $target_space_name );
     my $source_space = try_get_space( $source_space_name );
@@ -99,10 +99,9 @@ sub convert { # normalized RGB tuple, ~space_name -- normalized named original t
         }
         $space_name_before = $current_space->name;
     }
-    $values = $target_space->normalize( $values )  if not $values_are_normal and $want_result_normalized;
-    $values = $target_space->denormalize( $values )if $values_are_normal and not $want_result_normalized;
-    $values = $target_space->round( $values ) unless $want_result_normalized;
-    return $values;
+    $values = $target_space->normalize( $values )   if not $values_are_normal and $want_result_normalized;
+    $values = $target_space->denormalize( $values ) if $values_are_normal and not $want_result_normalized;
+    return    $target_space->clamp( $values, ($want_result_normalized ? 'normal' : undef));
 }
 sub deconvert { # normalizd value tuple --> RGB tuple
     my ($space_name, $values, $want_result_normalized) = @_;

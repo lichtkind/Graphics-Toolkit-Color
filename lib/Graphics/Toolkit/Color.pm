@@ -118,7 +118,6 @@ sub values       {
 
 EOH
     return $arg.$help unless ref $arg;
-say $arg->{'as'};
     $self->{'values'}->formatted( @$arg{qw/in as range precision/} );
 }
 

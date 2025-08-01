@@ -47,7 +47,7 @@ sub closest_name_and_distance {
     my ($self) = @_;
     return ($self->{'name'}, 0) if $self->{'name'};
     unless ($self->{'closest'}){
-        my $values = $self->formatted( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
+        my $values = $self->in_shape( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
         my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
         ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
             unless ref $names eq 'ARRAY' and @$names;
@@ -56,22 +56,30 @@ sub closest_name_and_distance {
     return @{$self->{'closest'}}{'name', 'distance'};
 }
 
-sub normalized { # get a normalized (0..1) value tuple in any color space
+sub normalized { # normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
         $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},
     );
 }
-sub formatted { # get a value tuple in any color space, range and format
-    my ($self, $space_name, $format_name, $range_def, $precision_def) = @_;
+sub in_shape  { # in any color space, range and precision
+    my ($self, $space_name, $range_def, $precision_def) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     my $values = $self->normalized( $color_space->name );
     return $values unless ref $values;
     $values = $color_space->denormalize( $values, $range_def );
+    $values = $color_space->clamp( $values, $range_def );
     $values = $color_space->round( $values, $precision_def );
-    $values = $color_space->format( $values, $format_name ) if defined $format_name and $format_name;
     return $values;
+}
+sub formatted { # in shape values in any format
+    my ($self, $space_name, $format_name, $range_def, $precision_def, $suffix_def) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
+    my $values = $self->in_shape( $color_space->name, $range_def, $precision_def );
+    return $values unless ref $values;
+    return $color_space->format( $values, $format_name, $suffix_def );
 }
 
 ########################################################################
@@ -81,7 +89,7 @@ sub set { # %val --> _
     return $selected_space unless ref $selected_space;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
-    my $values = $self->formatted( $space_name ); # convert and denormalize values
+    my $values = $self->in_shape( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
         $values->[$pos] = $pos_hash->{ $pos };
     }
@@ -95,7 +103,7 @@ sub add { # %val --> _
     return $selected_space unless ref $selected_space;
     my ($pos_hash, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $val_hash, $selected_space_name );
     return 'key names: '.join(', ', keys %$val_hash). ' do not correlate to any supported color space' unless defined $space_name;
-    my $values = $self->formatted( $space_name ); # convert and denormalize values
+    my $values = $self->in_shape( $space_name ); # convert and denormalize values
     for my $pos (keys %$pos_hash){
         $values->[$pos] += $pos_hash->{ $pos };
     }
@@ -117,7 +125,7 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
     }
     my $result = [(0) x $color_space->axis_count];
     if ($percentage_sum < 100){
-        my $values = $self->formatted( $space_name );
+        my $values = $self->in_shape( $space_name );
         my $mix_amount = (100 - $percentage_sum) / 100;
         $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
     } else {
@@ -125,7 +133,7 @@ sub mix { #  @%(+percent _values)  -- ~space_name --> _values
         $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
     }
     for my $ingredient (@$recipe){
-        my $values = $ingredient->{'color'}->formatted ($space_name);
+        my $values = $ingredient->{'color'}->in_shape ($space_name);
         $result->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }
     __PACKAGE__->new_from_normal_tuple( $color_space->normalize( $result ), $space_name );

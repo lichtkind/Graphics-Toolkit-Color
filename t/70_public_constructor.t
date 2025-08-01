@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 61;
+use Test::More tests => 70;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -14,10 +14,15 @@ is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts colo
 is( ref Graphics::Toolkit::Color->new( 'red', 'green'), '', 'constructor needs only one color name');
 #~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
 #~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
-is( ref Graphics::Toolkit::Color->new('#ABC'),     $module, 'short hex string');
-is( ref Graphics::Toolkit::Color->new('#AABBCC'),  $module, 'long hex string');
+is( ref Graphics::Toolkit::Color->new('#000'),     $module, 'short hex string with min value');
+is( ref Graphics::Toolkit::Color->new('#FFFFFF'),  $module, 'long hex string with max value');
+is( ref Graphics::Toolkit::Color->new('#1ab2cc'),  $module, 'long hex string mixed lc vlaues');
+is( ref Graphics::Toolkit::Color->new('#abj'),          '', 'short hex string has typo');
 is( ref Graphics::Toolkit::Color->new('#AABBGG'),       '', 'long hex string has typo');
+is( ref Graphics::Toolkit::Color->new('#AA'),           '', 'short hex string is too short');
+is( ref Graphics::Toolkit::Color->new('#AABF'),         '', 'short hex string is too long');
 is( ref Graphics::Toolkit::Color->new('#AABBF'),        '', 'long hex string is too short');
+is( ref Graphics::Toolkit::Color->new('#AABBFFF'),      '', 'long hex string is too long');
 is( ref Graphics::Toolkit::Color->new('rgb(0, 0, 0)'),          $module, 'CSS string format');
 is( ref Graphics::Toolkit::Color->new('lab( 12.3, 5.4, 1.2)'),  $module, 'CSS string in LAB space');
 is( ref Graphics::Toolkit::Color->new('lab( 12.3, 5.4, 1.2%)'),      '', 'CSS string with bad suffix');
@@ -40,15 +45,16 @@ is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0,0]), $module, 'named ARRAY 
 is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0]),        '', 'CMYK ARRAY got not enough values');
 is( ref Graphics::Toolkit::Color->new( ['cmyk',1,0,0,0,0]),    '', 'CMYK ARRAY got too much values');
 is( ref Graphics::Toolkit::Color->new( ['cmk', 0,0,0]),        '', 'only known color space names are accepted ');
-is( ref Graphics::Toolkit::Color->new( ['CIELCHab', 100.23,0.173,214]), $module, 'long mixed case alias names work too');
+is( ref Graphics::Toolkit::Color->new( ['CIELCHab', 0, 0, 0]),          $module, 'long mixed case alias names work too');
+is( ref Graphics::Toolkit::Color->new( ['hsb', 100.23, 0.173, .214]),   $module, 'different number shapes');
 is( ref Graphics::Toolkit::Color->new( ['NCol','B10','100%','0%']),     $module, 'named ARRAY with values that need preprocessing');
 is( ref Graphics::Toolkit::Color->new( ['ncol','B0','100','0']),        $module, 'try single digit string value');
-is( ref Graphics::Toolkit::Color->new( { }),                                '', 'HASH needs keys');
-is( ref Graphics::Toolkit::Color->new( {r=> 1 }),                           '', 'HASH one key is not enough');
-is( ref Graphics::Toolkit::Color->new( r=> 1 ),                             '', 'even without a HASH ref');
-is( ref Graphics::Toolkit::Color->new( {r=> 1, g=>2 }),                     '', 'HASH two keys are not enough');
-is( ref Graphics::Toolkit::Color->new( r=> 1, g=>2 ),                       '', 'also without a HASH ref');
-is( ref Graphics::Toolkit::Color->new( { }),                                '', 'HASH needs keys');
+is( ref Graphics::Toolkit::Color->new( { }),                                 '', 'HASH needs keys');
+is( ref Graphics::Toolkit::Color->new( {r=> 1 }),                            '', 'HASH one key is not enough');
+is( ref Graphics::Toolkit::Color->new( r=> 1 ),                              '', 'even without a HASH ref');
+is( ref Graphics::Toolkit::Color->new( {r=> 1, g=>2 }),                      '', 'HASH two keys are not enough');
+is( ref Graphics::Toolkit::Color->new( r=> 1, g=>2 ),                        '', 'also without a HASH ref');
+is( ref Graphics::Toolkit::Color->new( { }),                                 '', 'HASH needs keys');
 is( ref Graphics::Toolkit::Color->new( {r => 0, g => 0, b => 0 }),         $module, 'RGB short HASH');
 is( ref Graphics::Toolkit::Color->new( r => 0, g => 0, b => 0 ),           $module, 'RGB short HASH without ref');
 is( ref Graphics::Toolkit::Color->new( red => 0, G => 0, b => 0 ),         $module, 'can mix long and short, lc and uc axis names');
@@ -71,6 +77,9 @@ is( ref color( Y => 0, U => 0, V => 100),          $module, 'short named constru
 is( ref color( ),                                       '', 'needs also args');
 is( ref color( 1,1),                                    '', 'two are not enough');
 is( ref color( 1,1,1,1),                                '', 'four are too many');
-is( ref color( '#0000ff'),                         $module, 'can also recieve lc hex sting');
+is( ref color( '#0000ff' ),                        $module, 'can also recieve lc hex sting');
+is( ref color( [1,2,3] ),                          $module, 'ARRAY ref');
+is( ref color( {l => 50, c => 12.4, h => .6} ),    $module, 'LCH short axis name HASH');
+is( ref color( {hue => 0, whiteness => '0%', blackness => '100%'} ), $module, 'HWB long axis name HASH');
 
 exit 0;

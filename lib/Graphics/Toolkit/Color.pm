@@ -2,13 +2,12 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.8';
+our $VERSION = '1.799_DEV';
 
 use v5.12;
 use warnings;
 use Exporter 'import';
-use Graphics::Toolkit::Color::Values;
-use Graphics::Toolkit::Color::Operation::Set;
+use Graphics::Toolkit::Color::Values::Set;
 
 our @EXPORT_OK = qw/color/;
 
@@ -98,27 +97,29 @@ sub _split_named_args {
 }
 
 ## getter ##############################################################
-sub name         { $_[0]{'values'}->name }
-sub closest_name {
-    my ($self) = shift;
-    my ($name, $distance) = $self->{'values'}->closest_name_and_distance;
-    return wantarray ? ($name, $distance) : $name;
-}
-
 sub values       {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'in', [], {in => 'RGB', as => 'list', precision => undef, range => undef});
+    my $arg = _split_named_args( \@args, 'in', [],
+                     {in => 'RGB', as => 'list', precision => undef, range => undef, suffix => undef});
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values (                  # no HASH ref around arguments
         in => 'HSL',          # color space name, defaults to "RGB"
         as => 'css_string',   # output format name, default is "list"
-        range => 1,           # value range definition (SCALAR or ARRAY)
-        precision => 3,       # value precision definition (SCALAR or ARRAY)
+        range => 1,           # value range (SCALAR or ARRAY), default set by space def
+        precision => 3,       # value precision (SCALAR or ARRAY), default set by space
+        suffix => '%',       # value suffix (SCALAR or ARRAY), default set by color space
 
 EOH
     return $arg.$help unless ref $arg;
-    $self->{'values'}->formatted( @$arg{qw/in as range precision/} );
+    $self->{'values'}->formatted( @$arg{qw/in as range precision suffix/} );
+}
+
+sub name         { $_[0]{'values'}->name }
+sub closest_name {
+    my ($self) = shift;
+    my ($name, $distance) = $self->{'values'}->closest_name_and_distance;
+    return wantarray ? ($name, $distance) : $name;
 }
 
 sub distance {
@@ -235,7 +236,7 @@ EOH
     return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::gradient( \@colors, @$arg{qw/steps tilt in/} );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::gradient( \@colors, @$arg{qw/steps tilt in/} );
 }
 
 sub complement {
@@ -282,7 +283,7 @@ EOH
 
     } else {
     }
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @$arg{qw/steps tilt/} );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::complement( @$arg{qw/steps tilt/} );
 }
 
 sub cluster {
@@ -299,7 +300,7 @@ EOH
     return $arg.$help unless ref $arg;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
                      if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != 3;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Operation::Set::complement( @$arg{qw/radius distance in/});
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::complement( @$arg{qw/radius distance in/});
 }
 
 1;
@@ -334,8 +335,8 @@ will be removed with release of version 2.0.
 
 =head1 DESCRIPTION
 
-Graphics::Toolkit::Color, for short GTC, is the top level API of this
-release and the only one a regular user should be concerned with.
+Graphics::Toolkit::Color, for short B<GTC>, is the top level API of this
+release and the only package a regular user should be concerned with.
 Its main purpose is the creation of related colors or sets of them,
 such as gradients, complements and others. But you can use it also to
 convert and/or reformat color definitions.
@@ -350,11 +351,11 @@ only related to the current color but also have relations between each other.
 Error messages will appear as return values.
 
 While this module can understand and output color values in many spaces,
-such as LAB, NCol, YIQ and many more, RGB is the (internal) primal one,
-because GTC is about colors that can be shown on the screen, and these
-are usually encoded in RGB.
-Humans access colors on hardware level (eye) in RGB, on cognition level
-in HSL (brain) and on cultural level (language) with names.
+such as I<LAB>, I<NCol>, I<YIQ> and many more, I<RGB> is the (internal),
+primal one, because GTC is about colors that can be shown on the screen,
+and these are usually encoded in I<RGB>.
+Humans access colors on hardware level (eye) in I<RGB>, on cognition level
+in I<HSL> (brain) and on cultural level (language) with names.
 Having easy access to all of those plus some color math and many formats
 should enable you to get the color palette you desire quickly.
 
@@ -369,6 +370,61 @@ L<here|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
 From now on any input that the constructor method C<new> accepts,
 is called a B<color definition>.
 
+
+=head2 new( [$r, $g, $b] )
+
+Triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
+They can, but don't have to be put into an ARRAY reference (square brackets).
+If you want to define a color by values from another color space, you have
+to insert the name of a supported color space into first position.
+Out of range values will be corrected (clamped) to the closest value in range.
+
+    my $red = Graphics::Toolkit::Color->new(         255, 0, 0 );
+    my $red = Graphics::Toolkit::Color->new(        [255, 0, 0]); # does the same
+    my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named ARRAY syntax
+    my $red = Graphics::Toolkit::Color->new(  RGB => 255, 0, 0 ); # with fat comma
+    my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # and brackets
+
+
+=head2 new({ r => $r, g => $g, b => $b })
+
+Hash with the keys C<red>, C<green> and Cblue> does the same as shown in
+previous paragraph, only more declarative. Casing of the key strings will
+be normalised and all axis names can be substituted with short ones, which
+are in most cases the first letters of the long name.
+
+    my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
+    my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
+                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
+              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
+                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
+
+
+=head2 new('rgb($r,$g,$b)')
+
+Variant of string format that is supported by CSS (I<css_string>).
+
+    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
+
+
+=head2 new('rgb: $r, $g, $b')
+
+String format (good for serialisation) that maximizes readability.
+
+    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
+    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
+
+
+=head2 new('#rgb')
+
+Color definitions in hexadecimal format as widely used in the web, are
+also acceptable.
+
+    my $color = Graphics::Toolkit::Color->new('#FF0000');
+    my $color = Graphics::Toolkit::Color->new('#f00');    # short works too
+
+
 =head2 new('name')
 
 Get a color by providing a name from the X11, HTML (CSS) or SVG standard
@@ -379,6 +435,7 @@ L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
     my @names = Graphics::Toolkit::Color::Name::all(); # select from these
+
 
 =head2 new('scheme:color')
 
@@ -394,53 +451,6 @@ The color name will be  normalized as above.
     my $color = Graphics::Toolkit::Color->new('SVG:green');
     my @schemes = Graphics::ColorNames::all_schemes();      # look up the installed
 
-=head2 new('#rgb')
-
-Color definitions in hexadecimal format as widely used in the web, are
-also acceptable.
-
-    my $color = Graphics::Toolkit::Color->new('#FF0000');
-    my $color = Graphics::Toolkit::Color->new('#f00');    # works too
-
-=head2 new('rgb($r,$g,$b)')
-
-Variant of string format that is supported by CSS.
-
-    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
-    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
-
-=head2 new('rgb: $r, $g, $b')
-
-String format (good for serialisation) that maximizes readability.
-
-    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
-    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
-
-=head2 new( [$r, $g, $b] )
-
-Triplet of integer RGB values (red, green and blue : 0 .. 255).
-Out of range values will be corrected to the closest value in range.
-
-    my $red = Graphics::Toolkit::Color->new(         255, 0, 0 );
-    my $red = Graphics::Toolkit::Color->new(        [255, 0, 0]); # does the same
-    my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named tuple syntax
-    my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # named ARRAY
-
-The named array syntax of the last example, as any here following,
-work for any supported color space.
-
-
-=head2 new({ r => $r, g => $g, b => $b })
-
-Hash with the keys 'r', 'g' and 'b' does the same as shown in previous
-paragraph, only more declarative. Casing of the keys will be normalised
-and only the first letter of each key is significant.
-
-    my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
-    my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
-                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
-              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
-                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
 
 =head2 color
 
@@ -448,8 +458,8 @@ If writing
 
     Graphics::Toolkit::Color->new( ...);
 
-is too much typing for you or takes to much space, import the subroutine
-C<color>, which takes all the same arguments as described above.
+is too much typing wrk for you or takes to much space in the code file,
+import the subroutine C<color>, which accepts all the same arguments as C<new>.
 
     use Graphics::Toolkit::Color qw/color/;
     my $green = color('green');
@@ -459,6 +469,62 @@ C<color>, which takes all the same arguments as described above.
 =head1 GETTER
 
 giving access to different parts of the objects data.
+
+=head2 values
+
+Returns the numeric values of the color, held by the object.
+The method accepts five optional, named arguments:
+L</in> (color space), C<as> (format), L</range>, C<precision> and C<suffix>.
+In most cases, only the first one is needed.
+
+When given no arguments, the method returns a list with the integer
+values: C<red>, C<green> and C<blue> in 0..255 range, since I<RGB> is the
+default color space of this module.
+
+If one argument is provided, the values get converted into the given color space.
+The same is done when using the named argument L</in> (see more behind the link).
+The also reoccurring argument L</range> is explained in its own section too.
+Please note you have to use the C<range> argument only, if you like to
+deviate from the value ranges defined by the chosen color space.
+
+The maybe most characteristic argument for this method is C<as>, which
+enables the same formats the constructor method C<new> accepts, since
+I<GTC> is built with the design principle of total serialisation -
+meaning every output can be evaluated back into a color object and any
+intput can be serialized into an output. To every format: C<list> (default),
+C<named_array>, C<hash>, C<char_hash>, C<named_string>, C<css_string>,
+C<array> (RGB only) and C<hex_string> (RGB only) is an example below.
+Format names are case insensitive. For more explanations, please see:
+L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+
+C<precision> is more exotic but sometimes you need to escape the numeric
+precision, set by a color spaces definition.
+For instance C<LAB> values will have maximally three decimals, no matter
+how precise the input was. In case you prefer 4 decimals, just use
+C<precision => 4>. A zero means no decimals and -1 stands for maximal
+precision -  which can spit out more decimals than you prefer.
+Different precisions per axis ([1,2,3]) are possible.
+
+In same way you can atach a little string per value by ussing the C<suffix>
+aregument. Normally these are percentage signs but in some spaces, where
+they appear by default you can surpress them by adding C<suffix => ''>
+
+    $blue->values();                                   # get list in RGB: 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');         # same result
+    $blue->values(              as => 'array');        # [0, 0, 255] - RGB only
+    $blue->values( in => 'RGB', as => 'named_array');  # ['RGB', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');         # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');    # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string'); # 'rgb: 0, 0, 255'
+    $blue->values( in => 'RGB', as => 'css_string');   # 'rgb( 0, 0, 255)'
+    $blue->values(              as => 'hex_string');   # '#0000ff' - RGB only
+    $blue->values(           range => 2**16 );         # 0, 0, 65536
+    $red->values('HSL');                               # 0, 100, 50
+    $red->values( in => 'HSL',suffix => ['', '%','%']);# 0, '100%', '50%'
+    $red->values( in => 'HSB',  as => 'hash')->{'hue'};# 0
+   ($red->values( 'HSB'))[0];                          # same result, but shorter
+    $color->values( range => 1, precision => 2);       # normalized, 2 decimals max.
+
 
 =head2 name
 
@@ -470,60 +536,13 @@ If several constants have matching values, the shortest name will be returned.
 All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
 (See also: L</new('name')>)
 
+
 =head2 closest_name
 
-Returns in list context two values, in scalar conext only one:
-a color name as the method L</name> does, which has the shortst distance
-in HSL to the currnt color. In list context you can additionally the
-just mentioned L</distance> as a second return value.
-
-=head2 values
-
-Returns the numeric values of the color, held by the object. With fitting
-arguments, the values from
-L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
-can be accessed and the values can be presented in many different
-L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
-When given no arguments, the method returns a list with the I<red>, I<greem>
-and I<blue> values, since I<RGB> is the default color space of this module.
-
-The next possibility is to give exactly one argument: the name or alias name
-of a L<color space|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
-Then you get the of values in list form according to this space.
-In other words: C<$color->values()> and C<$color->values('RGB')>
-give you the same result.
-
-The third and most powerful option is based upon named arguments, whithout
-surrounding curly braces. Here you have four named, optional arguments:
-L</in> (color space), C<as> (format), L</range> and C<precision>.
-C<in> and C<range> work as describd behind the links.
-
-C<as> has to be followed by the name of a recognized
-L<format|Graphics::Toolkit::Color::Space::Hub/FORMATS>. Among these are
-C<list> (default), C<hash>, C<char_hash>, C<array>, C<named_string> and C<css_string>.
-Please note that C<hex_string> is only supported by I<RGB>
-
-C<precision> is really exotic but sometimes you need to escape the numeric
-precision set by a color spaces definition.
-For instance C<LAB> values will have three decimals, no matter how precise
-the input was. In case you prefer 4 decimals, just use C<precision => 4>.
-A zero means no decimals and -1 is maximal precision which can spit out
-more decimals than you prefer. Different precisions per axis ([1,2,3])
-are possible.
-
-    $blue->values();                                   # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');         # same call
-    $blue->values( in => 'RGB', as => 'named_array');  # ['rgb', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');         # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');    # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'named_string'); # 'rgb: 255, 0, 0'
-    $blue->values( in => 'RGB', as => 'css_string');   # 'rgb(255, 0, 0)'
-    $blue->values(              as => 'hex_string');   # '#0000ff'
-    $red->values('HSL');                               # 0, 100, 50
-    $red->values(            range => 2**16);          # 65536, 0, 0
-    $red->values( in => 'HSB',  as => 'hash')->{'hue'};# 0
-   ($red->values( 'HSB'))[0];                          # same, but shorter
-    $color->values( range => 1, precision => 2);       # 0.66, 1, 0.5
+Returns in scalar context a color L</name>, which has the shortest
+L</distance> in RGB to the current color.
+In list context, you get additionally the just mentioned distance
+as a second return value.
 
 
 =head2 distance
@@ -715,20 +734,23 @@ demanded minimal distance.
     my @colors = $c->cluster( radius => [2,2,3], distance => 0.4, in => YUV );
 
 
+
 =head1 ARGUMENTS
 
 Some named arguments of the above listed methods reappear in several methods.
 Thus they are explained here once. Please note that you must NOT wrap
 the named args in curly braces (HASH ref).
 
-=head2 in (with)
 
-Expects the name of a color space as listed here:
-L<Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>. The default color
-space in this module is I<RGB>. Depending on the space the results
-can be very different, since colors are very differently arranged and
-have different distances to each other. Some colors might not even exists
-in some spaces.
+=head2 in
+
+The named argument I<in> or I<with> expects the name of a color space as
+L<listed here|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The default color space in this module is I<RGB>. Depending on the chosen
+space, the results of all methods can be very different, since colors
+are arranged there very differently and have different distances to each
+other. Some colors might not even exist in some spaces.
+
 
 =head2 range
 
@@ -746,6 +768,7 @@ refs even inside that. For instance in C<HSL> the C<hue> is normally
 0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
 to -100 .. 100 but keep the other two untouched you would have to insert:
 C<range => [[-100,100],100,100]>.
+
 
 =head2 to
 

@@ -1,7 +1,7 @@
 
 # color value operation generating color sets
 
-package Graphics::Toolkit::Color::Operation::Set;
+package Graphics::Toolkit::Color::Values::Set;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;

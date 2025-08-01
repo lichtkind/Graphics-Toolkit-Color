@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 110;
+use Test::More tests => 85;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 use Graphics::Toolkit::Color qw/color/;
@@ -80,6 +80,9 @@ is( $values[0][3],             255, 'blue value is correct');
 is( ref $blue->values( in => 'LAB', as => 'array'),       '', 'ARRAY ref format  is RGB only');
 is( ref $blue->values( in => 'LAB', as => 'hex_string'),  '', 'hex_string format is RGB only');
 is( ref $blue->values( in => 'LAB', was => 'array'),      '', 'reject fantasy arguments');
+is( ref $blue->values( in => 'LAB', suffix => {}),        '', 'bad ref type for suffix def');
+is( ref $blue->values( in => 'LAB', suffix => [1,2]),     '', 'suffix def too short');
+is( ref $blue->values( in => 'LAB', suffix => [1,2,3,4]), '', 'suffix def too long');
 
 @values = $blue->values(in => 'CMYK');
 is( int @values,                4, 'CMYK has 4 values');
@@ -94,7 +97,28 @@ is( $blue->values(as => 'hex_string'),             '#0000FF', 'blue in hex strin
 is( $snow->values(as => 'css_string'),      'rgb(254, 255, 255)', 'blue in CSS string format');
 is( $snow->values(as => 'named_string'),    'rgb: 254, 255, 255', 'blue in named string format');
 is( $snow->values(as => 'hex_string'),                 '#FEFFFF', 'blue in hex string format');
+is( $snow->values(as => 'HEX_string'),                 '#FEFFFF', 'format name is case insensitive');
 is( $red->values(in => 'HWB', as => 'named_string'), 'hwb: 0, 0%, 0%', 'red as named string in HWB');
-is( $red->values(in => 'HWB', as => 'named_string', suffix => ''), 'hwb: 0, 0, 0', 'without any suffix');
+is( $red->values(in => 'HWB', as => 'named_string', suffix => ''),        'hwb: 0, 0, 0',           'without any suffix');
+is( $red->values(in => 'RGB', as => 'css_string', suffix => ['-','/','']),'rgb(255-, 0/, 0)',       'RGB with taylor made suffix');
+is( $red->values(in => 'XYZ', as => 'css_string' ),                   'xyz(41.246, 21.267, 1.933)', 'XYZ red CSS string ');
+is( $red->values(in => 'XYZ', as => 'css_string', precision => 1 ),   'xyz(41.2, 21.3, 1.9)',       'XYZ red CSS string with reduced precision');
+is( $red->values(in => 'XYZ', as => 'css_string', precision => [3,2,0] ),'xyz(41.246, 21.27, 2)',   'XYZ red CSS string with inidividual precision');
+is( $blue->values(in => 'RGB', as => 'named_string', range => '10'),     'rgb: 0, 0, 10',           'RGB blue with custom ranges');
+is( $blue->values(in => 'RGB', as => 'named_string', range => [[-1,1],[-2,2],1]), 'rgb: -1, -2, 1', 'RGB blue with with very custom ranges');
+
+my $values = $blue->values( as => 'hash');
+is( ref $values,           'HASH', 'got a value HASH ref');
+is( keys %$values,              3, 'RGB has 3 keays');
+is( $values->{'red'},           0, '"red" value is correct');
+is( $values->{'green'},         0, '"green" value is correct');
+is( $values->{'blue'},        255, '"blue" value is correct');
+
+$values = $blue->values( in => 'HSL', as => 'char_hash', suffix => '');
+is( ref $values,           'HASH', 'got a value HASH ref');
+is( keys %$values,              3, 'HSL has 3 keays');
+is( $values->{'h'},           240, '"hue" value is correct');
+is( $values->{'s'},           100, '"saturation" value is correct');
+is( $values->{'l'},            50, '"lightness" value is correct');
 
 exit 0;

@@ -67,27 +67,33 @@ sub _new_from_value_obj {
     sub complementary { complement(@_) }
 
 sub _split_named_args {
-    my ($raw_args, $required_parameter, $optional_parameter, $default_parameter) = @_;
+    my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
+    if (@$raw_args == 1 and defined $only_parameter and $only_parameter){
+        return "The one default argument can not cover multiple, required parameter !" if @$required_parameter > 1;
+        return "The default argument does not cover the required argument!"
+            if @$required_parameter and $required_parameter->[0] ne $only_parameter;
+
+        my %defaults = %$optional_parameter;
+        delete $defaults{$only_parameter};
+        return {$only_parameter => $raw_args->[0], %defaults};
+    }
     my %clean_arg;
-    if (@$raw_args == 1 and defined $default_parameter and $default_parameter){
-        return "There is more than one required parameter, you can not have one default argument!"
-            if @$required_parameter > 1;
-        %clean_arg = ($default_parameter => $raw_args->[0]);
-    } else {
-        if (@$raw_args % 2) {
-            return (defined $default_parameter and $default_parameter)
-                 ? "Got odd number of values, please use key value pairs as arguments or one default argument !\n"
-                 : "Got odd number of values, please use key value pairs as arguments !\n"
-        }
-        my %arg_hash = @$raw_args;
-        for my $parameter_name (@$required_parameter, @$optional_parameter){
-            $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name } if exists $arg_hash{$parameter_name};
-        }
-        return "Inserted unknown argument(s): ".(join ',', keys %arg_hash)."\n" if %arg_hash;
+    if (@$raw_args % 2) {
+        return (defined $only_parameter and $only_parameter)
+             ? "Got odd number of values, please use key value pairs as arguments or one default argument !\n"
+             : "Got odd number of values, please use key value pairs as arguments !\n"
     }
-    for my $arg_name (@$required_parameter){
-        return "Argument $arg_name is missing\n" unless exists $clean_arg{ $arg_name }
+    my %arg_hash = @$raw_args;
+    for my $parameter_name (@$required_parameter){
+        return "Argument '$parameter_name' is missing\n" unless exists $arg_hash{$parameter_name};
+        $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name };
     }
+    for my $parameter_name (keys %$optional_parameter){
+        $clean_arg{ $parameter_name } = exists $arg_hash{$parameter_name}
+                                      ? delete $arg_hash{ $parameter_name }
+                                      : $optional_parameter->{ $parameter_name };
+    }
+    return "Inserted unknown argument(s): ".(join ',', keys %arg_hash)."\n" if %arg_hash;
     return \%clean_arg;
 }
 
@@ -101,32 +107,32 @@ sub closest_name {
 
 sub values       {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, [], [qw/in as precision range/], 'in');
+    my $arg = _split_named_args( \@args, 'in', [], {in => 'RGB', as => 'list', precision => undef, range => undef});
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values (                  # no HASH ref around arguments
-        in => 'HSL',          # color space name
-        as => 'css_string',   # output format name
+        in => 'HSL',          # color space name, defaults to "RGB"
+        as => 'css_string',   # output format name, default is "list"
         range => 1,           # value range definition (SCALAR or ARRAY)
         precision => 3,       # value precision definition (SCALAR or ARRAY)
 
 EOH
     return $arg.$help unless ref $arg;
-    my $values = $self->{'values'}->formatted( @$arg{qw/in as range precision/} );
-    return @$values;
+say $arg->{'as'};
+    $self->{'values'}->formatted( @$arg{qw/in as range precision/} );
 }
 
 sub distance {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, ['to'], [qw/in select range/], 'to');
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', select => undef, range => undef});
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
     distance (                # no HASH ref around arguments
         to => 'green'         # color object or color definition (required)
-        in => 'HSL'           # color space name
-        select => 'red'       # axis name or names (ARRAY ref)
-        range => 2**16        # value range definition
+        in => 'HSL'           # color space name, defaults to "RGB"
+        select => 'red'       # axis name or names (ARRAY ref), default is none
+        range => 2**16        # value range definition, defaults come from color space def
 EOH
     return $arg.$help unless ref $arg;
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
@@ -138,12 +144,13 @@ EOH
 sub set {
     my ($self, @args) = @_;
     return <<EOH if @args % 2 or not @args or @args > 10;
-    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or short names from
-    one color space. If the chosen axis name(s) is/are ambiguous, you might add the "in" argument:
+    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or
+    short names from one color space. If the chosen axis name(s) is/are ambiguous,
+    you might add the "in" argument:
         set( green => 20 ) or set( g => 20 ) or
         set( hue => 240, in => 'HWB' )
 EOH
-    my $partial_color = {@args};
+    my $partial_color = { @args };
     my $color_space = delete $partial_color->{'in'};
     _new_from_value_obj( $self->{'values'}->set( $partial_color, $color_space ) );
 }
@@ -151,25 +158,26 @@ EOH
 sub add {
     my ($self, @args) = @_;
     return <<EOH if @args % 2 or not @args or @args > 10;
-    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or short names from
-    one color space. If the chosen axis name(s) is/are ambiguous, you might add the "in" argument:
+    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or
+    short names from one color space. If the chosen axis name(s) is/are ambiguous,
+    you might add the "in" argument:
         add( blue => -10 ) or set( b => -10 )
         add( hue => 100 , in => 'HWB' )
 EOH
-    my $partial_color = {@args};
+    my $partial_color = { @args };
     my $color_space = delete $partial_color->{'in'};
     _new_from_value_obj( $self->{'values'}->add( $partial_color, $color_space ) );
 }
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, ['with'], [qw/amount in/]);
+    my $arg = _split_named_args( \@args, 'with', ['with'], {in => 'RGB', amount => 50});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix (                              # no HASH ref around arguments
         with => ['HSL', 240, 100, 50]  # scalar color definition or ARRAY ref thereof
-        amount => 20                   # percentage value or ARRAY ref thereof
-        in => 'HSL'                    # color space name, defaults to RGB
+        amount => 20                   # percentage value or ARRAY ref thereof, default is 50
+        in => 'HSL'                    # color space name, defaults to "RGB"
     Please note that either both or none of the first two arguments has to be an ARRAY.
     Both ARRAY have to have the same length.
 EOH
@@ -204,14 +212,14 @@ EOH
 ## color set creation methods ##########################################
 sub gradient {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, [qw/to steps/], [qw/tilt in/]);
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', steps => 10, tilt => 0});
     my $help = <<EOH;
-    GTC method 'gradient' accepts four named arguments, the first two being required:
+    GTC method 'gradient' accepts four named arguments, only the first is required:
     gradient (                    # no HASH ref around arguments
         to => 'blue'              # scalar color definition or ARRAY ref thereof
-        steps =>  20              # count of produced colors
-        tilt  =>  1               # dynamics of color change
-        in => 'HSL'               # color space name, defaults to RGB
+        steps =>  20              # count of produced colors, defaults to 10
+        tilt  =>  1               # dynamics of color change, defaults to 0
+        in => 'HSL'               # color space name, defaults to "RGB"
 EOH
     return $arg.$help unless ref $arg;
     my @colors = ($self->{'values'});
@@ -233,12 +241,12 @@ EOH
 
 sub complement {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, [], [qw/steps tilt/], 'steps');
+    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0});
     my $help = <<EOH;
-    GTC method 'complement' accepts two named, optional arguments:
+    GTC method 'complement' is computed in HSL and has two named, optional arguments:
     complement (                       # no HASH ref around arguments
-        steps => 20                    # count of produced colors
-        tilt => 10                     # or
+        steps => 20                    # count of produced colors, default is 1
+        tilt => 10                     # default is 0
         tilt => {hue => 10, saturation => 20, lightness => 3} # or
         tilt => {hue => 10, s => {hue => -20, amount => 20 }, l => {hue => -10, amount => 3}}
 EOH
@@ -280,14 +288,14 @@ EOH
 
 sub cluster {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, [qw/radius distance/], [qw/in/]);
+    my $arg = _split_named_args( \@args, undef, ['radius', 'distance'], {in => 'RGB'});
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (                          # no HASH ref around arguments
         radius => [10, 5, 3]           # cuboid shaped cluster or
         radius => 3                    # ball shaped cluster
         distance => 0.5                # minimal distance between colors in cluster
-        in => 'HSL'                    # color space name, defaults to RGB
+        in => 'HSL'                    # color space name, defaults to "RGB"
 EOH
     return $arg.$help unless ref $arg;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help

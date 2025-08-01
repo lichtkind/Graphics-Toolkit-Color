@@ -67,6 +67,8 @@ sub _new_from_value_obj {
 
 sub _split_named_args {
     my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
+    @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH';
+
     if (@$raw_args == 1 and defined $only_parameter and $only_parameter){
         return "The one default argument can not cover multiple, required parameter !" if @$required_parameter > 1;
         return "The default argument does not cover the required argument!"
@@ -124,6 +126,7 @@ sub closest_name {
 
 sub distance {
     my ($self, @args) = @_;
+    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', select => undef, range => undef});
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
@@ -143,6 +146,7 @@ EOH
 ## single color creation methods #######################################
 sub set {
     my ($self, @args) = @_;
+    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     return <<EOH if @args % 2 or not @args or @args > 10;
     GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
@@ -157,6 +161,7 @@ EOH
 
 sub add {
     my ($self, @args) = @_;
+    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     return <<EOH if @args % 2 or not @args or @args > 10;
     GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
@@ -171,35 +176,35 @@ EOH
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'with', ['with'], {in => 'RGB', amount => 50});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', amount => 50});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix (                              # no HASH ref around arguments
-        with => ['HSL', 240, 100, 50]  # scalar color definition or ARRAY ref thereof
+        to => ['HSL', 240, 100, 50]    # scalar color definition or ARRAY ref thereof
         amount => 20                   # percentage value or ARRAY ref thereof, default is 50
         in => 'HSL'                    # color space name, defaults to "RGB"
     Please note that either both or none of the first two arguments has to be an ARRAY.
-    Both ARRAY have to have the same length.
+    Both ARRAY have to have the same length. 'amount' refers to the color(s) picked with 'to'.
 EOH
     return $arg.$help unless ref $arg;
-    my $recipe = _new_from_scalar_def( $arg->{'with'} );
+    my $recipe = _new_from_scalar_def( $arg->{'to'} );
     if (ref $recipe){
         $recipe = [{color => $recipe->{'values'}, percent => 50}];
         return "Amount argument has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
         $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
     } else {
-        if (ref $arg->{'with'} ne 'ARRAY'){
-            return "target color definition (argument 'with'): $arg->{'with'} is ill formed";
+        if (ref $arg->{'to'} ne 'ARRAY'){
+            return "target color definition (argument 'to'): $arg->{to} is ill formed";
         } else {
             $recipe = [];
-            for my $color_def (@{$arg->{'with'}}){
+            for my $color_def (@{$arg->{'to'}}){
                 my $color = _new_from_scalar_def( $color_def );
                 return "target color definition: '$color_def' is ill formed" unless ref $color;
                 push @$recipe, { color => $color->{'values'}, percent => 50};
             }
             if (exists $arg->{'amount'}){
                 return "Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n".$help if ref $arg->{'amount'} ne 'ARRAY'
-                             or @{$arg->{'amount'}} != @{$arg->{'with'}};
+                             or @{$arg->{'amount'}} != @{$arg->{'to'}};
                 for my $amount_nr (0 .. $#{$arg->{'amount'}}){
                     $recipe->[$amount_nr]{'percent'} = $arg->{'amount'}[$amount_nr];
                 }
@@ -320,7 +325,7 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     my $red = Graphics::Toolkit::Color->new('red');  # create color object
     say $red->add( 'blue' => 255 )->name;            # add blue value: 'fuchsia'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
-    $red->mix( with => [HSL => 0,0,80], amount => 10);# mix red with a little grey
+    $red->mix( to => [HSL => 0,0,80], amount => 10);# mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
@@ -621,7 +626,7 @@ colors by using it like:
 Create a new GTC object, that has the average values
 between the calling object and another color (or several colors),
 which is the only required input.
-It takes three named arguments: C<with> (L</to>), C<amount> and L</in>.
+It takes three named arguments: L</to>, C<amount> and L</in>.
 
 C<with> works like L</to> in other methods with the exception that it
 also accepts an ARRAY ref with several color definitions C<to> would get.
@@ -631,13 +636,14 @@ employ the C<amount> argument which is the amount of the other color(s)
 in percent. Again, if you want to mix more than two colors, the previous
 and this argument has to hold an ARRAY reference with the same amount
 of values in the same order. This means the first amount value corresponds
-to the first color mentioned by argument C<with>.
-If the amounts add up to more than 100 percent the current color will not
-be present in the mix and the values will be recalculated by keeping the ratio.
+to the first color mentioned by argument C<to>.
+If the amounts add up to more than 100 percent the current color will
+not be present in the mix and the values will be recalculated by keeping
+the ratio.
 
-    $color->mix( with => 'silver', amount => 60 );
-    $color->mix( with => [qw/silver green/], amount => [10, 20]);      # mix three colors
-    $blue->mix( with => {H => 240, S =>100, L => 50}, in => 'RGB' );   # teal
+    $color->mix( to => 'silver', amount => 60 );
+    $color->mix( to => [qw/silver green/], amount => [10, 20]);      # mix three colors
+    $blue->mix( to => {H => 240, S =>100, L => 50}, in => 'RGB' );   # teal
 
 
 =head1 COLOR SETS
@@ -744,7 +750,7 @@ the named args in curly braces (HASH ref).
 
 =head2 in
 
-The named argument I<in> or I<with> expects the name of a color space as
+The named argument I<in> expects the name of a color space as
 L<listed here|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
 The default color space in this module is I<RGB>. Depending on the chosen
 space, the results of all methods can be very different, since colors

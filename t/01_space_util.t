@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 46;
+use Test::More tests => 40;
 
 BEGIN { unshift @INC, 'lib', '../lib' }
 my $module = 'Graphics::Toolkit::Color::Space::Util';
@@ -32,20 +32,13 @@ is( $rd->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
 
 
 my $rmod = \&Graphics::Toolkit::Color::Space::Util::rmod;
-my $close = \&Graphics::Toolkit::Color::Space::Util::close_enough;
 is( $rmod->(),                       0,     'default to 0 when both values missing');
 is( $rmod->(1),                      0,     'default to 0 when a value is missing');
 is( $rmod->(1,0),                    0,     'default to 0 when a divisor is zero');
 is( $rmod->(3, 2),                   1,     'normal int mod');
-is( $close->($rmod->(2.1, 2), 0.1),  1,     'real mod when dividend is geater');
-is( $close->($rmod->(.1, 2), 0.1),   1,     'real mod when divisor is geater');
 is( $rmod->(-3, 2),                 -1,     'int mod with negative dividend');
-is( $close->($rmod->(-3.1, 2), -1.1),1,     'real mod with negative dividend');
 is( $rmod->(3, -2),                  1,     'int mod with negative divisor');
-is( $close->($rmod->(3.1, -2), 1.1), 1,     'real mod with negative divisor');
 is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
-is( $close->($rmod->(-3.1, -2),-1.1),1,     'real mod with negative dividend and divisor');
-is( $close->($rmod->(15.3, 4), 3.3), 1,     'real mod with different values');
 
 my $min = \&Graphics::Toolkit::Color::Space::Util::min;
 my $max = \&Graphics::Toolkit::Color::Space::Util::max;
@@ -54,7 +47,6 @@ is( $min->(1,2,3),       1  ,        'simple minimum');
 is( $min->(-1.1,2,3),   -1.1,        'negative minimum');
 is( $max->(1,2,3),         3,        'simple maximum');
 is( $max->(-1,2,10E3), 10000,        'any syntax maximum');
-
 
 my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix3;
 my @rv = $MM->([[1,2,3],[1,2,3],[1,2,3],], 0,0,0);

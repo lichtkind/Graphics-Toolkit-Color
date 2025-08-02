@@ -14,16 +14,19 @@ my $hwb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue whiteness bl
 
    $hwb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
 
-# add condition W + B < 100
+ # add constraint W + B <= 100
+
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b);
     my $white = my $vmin = min($r, $g, $b);
+    return (0,1,0) if $white == 1;
     my $black = 1 - ($vmax);
+    return (0,0,1) if $black == 1;
 
     my $d = $vmax - $vmin;
     my $s = $d / $vmax;
-    my $h =     ($d == 0) ? 0 :
+    my $h =    ($d == 0)  ? 0 :
             ($vmax == $r) ? (($g - $b) / $d + ($g < $b ? 6 : 0)) :
             ($vmax == $g) ? (($b - $r) / $d + 2)
                           : (($r - $g) / $d + 4);

@@ -23,7 +23,6 @@ my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  20, 'intalled 20 space names');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),      1, "$_ is a space name") for @names;
 
-
 my $Tspace = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/], range => 10 );
    $Tspace->add_converter(          'RGB', \&p, \&p );
    sub p { @{$_[0]} }

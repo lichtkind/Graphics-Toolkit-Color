@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 130;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
-my $module = 'Graphics::Toolkit::Color::Values';
+my $module = 'Graphics::Toolkit::Color::Calculator';
 use_ok( $module, 'could load the module');
 
 is( ref Graphics::Toolkit::Color::Values->new_from_normal_tuple(),  '',  'new need at least one argument');

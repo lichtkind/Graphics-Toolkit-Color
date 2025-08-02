@@ -120,27 +120,27 @@ is( $rgb->[2], .5,    'converted white has right blue value');
 
 
 $yuv = $space->convert_from( 'RGB', [ 0.11, 0, 1]);
-is( int @$yuv,  3,                'reconverted nice blue has three YUV values');
-ok( close_enough( $yuv->[0], 0.15),    'reconverted nice blue has computed right luma value');
-ok( close_enough( $yuv->[1], 0.48+0.5),  'reconverted nice blue has computed right Pb');
-ok( close_enough( $yuv->[2], -0.03+0.5),  'reconverted nice blue has computed right Pr');
+is( int @$yuv,  3,                        'converted nice blue from RGB to YUV');
+is( round_decimals( $yuv->[0],5), 0.14689,    'reconverted nice blue has computed right luma value');
+is( round_decimals( $yuv->[1],5), 0.48144+0.5,  'reconverted nice blue has computed right Pb');
+is( round_decimals( $yuv->[2],5), -0.02631+0.5,  'reconverted nice blue has computed right Pr');
 
 $rgb = $space->convert_to( 'RGB', [0.14689, 0.48143904+0.5, -0.026312+0.5]);
 is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
-ok( close_enough( $rgb->[0], .11),   'converted nice blue color, has right red value');
-ok( close_enough( $rgb->[1],  0),    'converted nice blue color, has right green value');
-ok( close_enough( $rgb->[2],  1),    'converted nice blue color, has right blue value');
+is( round_decimals( $rgb->[0],5), .11,   'converted nice blue color, has right red value');
+is( round_decimals( $rgb->[1],5),  0,    'converted nice blue color, has right green value');
+is( round_decimals( $rgb->[2],5),  1,    'converted nice blue color, has right blue value');
 
 $yuv = $space->convert_from( 'RGB', [ 0.8156, 0.0470588, 0.137254]);
 is( int @$yuv,  3,                'reconverted nice red has three YUV values');
-ok( close_enough( $yuv->[0],  0.2871),    'reconverted nice red has computed right luma value');
-ok( close_enough( $yuv->[1], -0.0846+0.5),  'reconverted nice red has computed right Pb');
-ok( close_enough( $yuv->[2],  0.3769+0.5),  'reconverted nice red has computed right Pr');
+is( round_decimals( $yuv->[0],5),  0.28713,    'reconverted nice red has computed right luma value');
+is( round_decimals( $yuv->[1],5), -0.08458+0.5,  'reconverted nice red has computed right Pb');
+is( round_decimals( $yuv->[2],5),  0.37694+0.5,  'reconverted nice red has computed right Pr');
 
-$rgb = $space->convert_to( 'RGB', [0.2871, -0.0846+0.5, 0.3769+0.5]);
+$rgb = $space->convert_to( 'RGB', [0.2871348716, -0.0845829679232+0.5, 0.3769366478976+0.5]);
 is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
-ok( close_enough( $rgb->[0], 0.8156),    'converted red blue color, has right red value');
-ok( close_enough( $rgb->[1], 0.04705),    'converted red blue color, has right green value');
-ok( close_enough( $rgb->[2], 0.137254),    'converted red blue color, has right blue value');
+is( round_decimals( $rgb->[0],5), 0.8156,    'converted red blue color, has right red value');
+is( round_decimals( $rgb->[1],5), 0.04706,    'converted red blue color, has right green value');
+is( round_decimals( $rgb->[2],5), 0.13725,    'converted red blue color, has right blue value');
 
 exit 0;

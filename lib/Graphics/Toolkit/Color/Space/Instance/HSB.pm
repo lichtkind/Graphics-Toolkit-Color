@@ -4,14 +4,14 @@
 package Graphics::Toolkit::Color::Space::Instance::HSB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space ':all';
+use Graphics::Toolkit::Color::Space qw/min max/;
 
 my $hsb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation brightness/],
                                                    range => [360, 100, 100],  precision => 0,
-                                                    type => [qw/angular linear linear/]);
+                                                    type => [qw/angular linear linear/],
+                                                  suffix => ['', '%', '%'], );
 
    $hsb_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-
 
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};

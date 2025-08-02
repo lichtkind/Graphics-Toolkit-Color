@@ -10,6 +10,8 @@ TODO:
    - NCS
    - Yxy
 
+ + implement space constaints HWB
+ + implement normalisation shortcuts
  + proper Error handling
  + strict mode for out of range tuple values
  + value prefixes in formats

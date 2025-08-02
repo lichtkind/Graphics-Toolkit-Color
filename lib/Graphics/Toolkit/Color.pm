@@ -7,7 +7,7 @@ our $VERSION = '1.7_99';
 use v5.12;
 use warnings;
 use Exporter 'import';
-use Graphics::Toolkit::Color::Values::Set;
+use Graphics::Toolkit::Color::SetCalculator;
 
 our @EXPORT_OK = qw/color/;
 
@@ -214,6 +214,10 @@ EOH
     _new_from_value_obj( $self->{'values'}->mix( $recipe, $arg->{'in'} ) );
 }
 
+sub invert {
+    my ($self, @args) = @_;
+}
+
 ## color set creation methods ##########################################
 sub gradient {
     my ($self, @args) = @_;
@@ -241,7 +245,7 @@ EOH
     return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::gradient( \@colors, @$arg{qw/steps tilt in/} );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt in/} );
 }
 
 sub complement {
@@ -288,7 +292,7 @@ EOH
 
     } else {
     }
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::complement( @$arg{qw/steps tilt/} );
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/} );
 }
 
 sub cluster {
@@ -305,7 +309,7 @@ EOH
     return $arg.$help unless ref $arg;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
                      if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != 3;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::Values::Set::complement( @$arg{qw/radius distance in/});
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/radius distance in/});
 }
 
 1;

@@ -2,22 +2,21 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 73;
-
+use Test::More tests => 80;
 BEGIN { unshift @INC, 'lib', '../lib'}
+use Graphics::Toolkit::Color::Space::Util 'round_decimals';
+
+
 my $module = 'Graphics::Toolkit::Color::Space::Instance::NCol';
-
 my $space = eval "require $module";
-use Graphics::Toolkit::Color::Space::Util ':all';
-
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,         'NCOL',                  'color space has user set name');
-is( $space->alias,            '',                  'color space has no alias name');
-is( $space->is_name('NCol'),   1,                  'color space name NCol is correct');
-
-is( $space->axis_count,        3,                  'color space has 3 axis');
-is( $space->is_value_tuple([0,0,0]), 1,            'value tuple has 3 elements');
+is( $space->name,                          'NCOL', 'color space has user set name');
+is( $space->alias,                             '', 'color space has no alias name');
+is( $space->is_name('NCol'),                    1, 'color space name NCol is correct');
+is( $space->is_name('hwb'),                     0, 'axis initials do not equal space name this time');
+is( $space->axis_count,                         3, 'color space has 3 axis');
+is( $space->is_value_tuple([0,0,0]),            1, 'value tuple has 3 elements');
 is( $space->is_partial_hash({whiteness => 1, blackness => 0}), 1, 'found hash with some axis name');
 is( $space->is_partial_hash({what => 1, blackness => 0}), 0, 'found hash with a bad axis name');
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
@@ -38,8 +37,11 @@ is( ref $space->check_range([0, 0, 1.1] ),       '',   "blackness value is not i
 is( ref $space->check_range([0, 0, 101] ),       '',   "blackness value is too big");
 
 
-is( $space->format([0,0,0], 'css_string'), 'ncol(R00, 0%, 0%)', 'can format css string');
+is( $space->format([0,0,0], 'css_string'),     'ncol(R0, 0%, 0%)',       'can format css string with zeroes');
 is( $space->format([212,34,56], 'css_string'), 'ncol(G12, 34%, 56%)', 'can format css string');
+is( $space->format([600, 100, 0], 'css_string'),      'ncol(R0, 100%, 0%)', 'converted tuple into css string');
+is( $space->format([600, 100, 0], 'css_string', ''),  'ncol(R0, 100, 0)',  'converted tuple into css string without suffixes');
+
 
 my $val = $space->deformat('ncol(R00, 0%, 0%)');
 is( ref $val, 'ARRAY', 'deformated CSS string into tuple (ARRAY)');
@@ -78,38 +80,43 @@ is( $val->[0],                     1, 'first value kept');
 is( $val->[1],                    23, 'second value rounded up');
 is( $val->[2],                    11, 'third value rounded down');
 
-my $hwb = $space->convert_from( 'RGB', [ .5, .5, .5]);
-is( int @$hwb,   3,     'converted color grey has three hwb values');
-is( $hwb->[0],   0,     'converted color grey has computed right hue value');
-is( $hwb->[1],  .5,     'converted color grey has computed right whiteness');
-is( $hwb->[2],  .5,     'converted color grey has computed right blackness');
 
-my $rgb = $space->convert_to( 'RGB', [0, 0.5, .5]);
-is( int @$rgb,     3,   'converted back color grey has three rgb values');
-is( $rgb->[0],   0.5,   'converted back color grey has right red value');
-is( $rgb->[1],   0.5,   'converted back color grey has right green value');
-is( $rgb->[2],   0.5,   'converted back color grey has right blue value');
-
-$hwb = $space->convert_from( 'RGB', [210/255, 20/255, 70/255]);
-is( int @$hwb,                          3,     'converted nice magents has three hwb values');
-is( close_enough( $hwb->[0], 0.95555),  1,  'converted nice magenta has computed right hue value');
-is( close_enough( $hwb->[1], 0.08,   ), 1,  'converted nice magenta has computed right whiteness');
-is( close_enough( $hwb->[2], 0.18,   ), 1,  'converted nice magenta has computed right blackness');
-
-$rgb = $space->convert_to( 'RGB', [0.95555, 0.08, 0.18]);
-is( int @$rgb,                         3,   'converted back nice magenta');
-is( close_enough( $rgb->[0], 210/255), 1,   'right red value');
-is( close_enough( $rgb->[1], 20/255) , 1,   'right green value');
-is( close_enough( $rgb->[2], 70/255) , 1,   'right blue value');
-
-$rgb = $space->convert_to( 'RGB', [0.83333, 0, 1]); # should become black despite color value
-is( int @$rgb,   3,    'converted black');
+my $rgb = $space->convert_to( 'RGB', [0.83333, 0, 1]); # should become black despite color value
+is( int @$rgb,   3,    'convert black from NCol to RGB');
 is( $rgb->[0],   0,    'right red value');
 is( $rgb->[1],   0,    'right green value');
 is( $rgb->[2],   0,    'right blue value');
 
+my $hwb = $space->convert_from( 'RGB', [ 0, 0, 0]);
+is( int @$hwb,   3,     'convert black from RGB to NCol');
+is( $hwb->[0],   0,     'right hue value');
+is( $hwb->[1],   0,     'right whiteness');
+is( $hwb->[2],   1,     'right blackness');
+
+
+$rgb = $space->convert_to( 'RGB', [0, 0.5, .5]);
+is( int @$rgb,     3,   'convert grey from NCol to RGB');
+is( $rgb->[0],   0.5,   'right red value');
+is( $rgb->[1],   0.5,   'right green value');
+is( $rgb->[2],   0.5,   'right blue value');
+
+$hwb = $space->convert_from( 'RGB', [ .5, .5, .5]);
+is( int @$hwb,   3,     'convert grey from RGB to NCol');
+is( $hwb->[0],   0,     'right hue value');
+is( $hwb->[1],  .5,     'right whiteness');
+is( $hwb->[2],  .5,     'right blackness');
+
+
+$hwb = $space->convert_from( 'RGB', [210/255, 20/255, 70/255]);
+is( int @$hwb,                          3,   'convert nice magenta from RGB to NCol');
+is( round_decimals( $hwb->[0], 5), 0.95614,  'right hue value');
+is( round_decimals( $hwb->[1], 5), 0.07843,  'right whiteness');
+is( round_decimals( $hwb->[2], 5), 0.17647,  'right blackness');
+
+$rgb = $space->convert_to( 'RGB', [0.956140350877193, 0.0784313725490196, 0.176470588235294]);
+is( int @$rgb,                         3,   'converted back nice magenta');
+is( round_decimals( $rgb->[0],5),  0.82353,   'right red value');
+is( round_decimals( $rgb->[1],5),  0.07843,   'right green value');
+is( round_decimals( $rgb->[2],5),  round_decimals(70/255, 5),  'right blue value');
 
 exit 0;
-
-__END__
-

@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals rmod min max apply_d65 remove_d65 mult_matrix3 close_enough is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals rmod min max apply_d65 remove_d65 mult_matrix3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half      = 0.50000000000008;
@@ -22,7 +22,6 @@ sub round_decimals {
     $precision = 10 ** $precision;
     round_int( $nr * $precision ) / $precision;
 }
-sub close_enough { abs($_[0] - $_[1]) < 0.005 if defined $_[1]}
 
 
 sub rmod { # real value modulo

@@ -1,10 +1,10 @@
 
 # color value operation generating color sets
 
-package Graphics::Toolkit::Color::Values::Set;
+package Graphics::Toolkit::Color::SetCalculator;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Values;
+use Graphics::Toolkit::Color::Calculator;
 
 
 sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values

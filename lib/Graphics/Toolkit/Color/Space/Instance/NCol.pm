@@ -1,5 +1,5 @@
 
-# NCol color space specific code (HWB with human readable hus values)
+# NCol color space (HWB with human readable hue values) / Karl Ewald Konstantin Hering (1834 - 1918)
 
 package Graphics::Toolkit::Color::Space::Instance::NCol;
 use v5.12;
@@ -27,16 +27,19 @@ sub pre_value {
 }
 sub post_value {
     my $val = shift;
-    my $h = int($val->[0] / 100);
-    my $hue = $color_char[ $h ] . sprintf( "%02u", ($val->[0] - $h*100));
-    return [$hue, $val->[1], $val->[2]];
+    my $hue = ($val->[0] < 600) ? $val->[0] : 0;
+    my $digit = int($hue / 100);
+    my $hue_str = $color_char[ $digit ] . sprintf( "%u", ($hue - ($digit * 100)));
+    return [$hue_str, $val->[1], $val->[2]];
 }
 
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b);
     my $white = my $vmin = min($r, $g, $b);
+    return (0,1,0) if $white == 1;
     my $black = 1 - ($vmax);
+    return (0,0,1) if $black == 1;
 
     my $d = $vmax - $vmin;
     my $s = $d / $vmax;

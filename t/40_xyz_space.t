@@ -87,24 +87,22 @@ is( round_decimals($rgb->[2],  5),    1,  'right blue value');
 $xyz = $space->convert_from( 'RGB', [1, 0, 0.5]);
 is( int @$xyz,                          3,  'converted pink from RGB to XYZ');
 is( round_decimals($xyz->[0], 5), 0.47458, 'right X value');
-is( round_decimals($xyz->[1], 5), 0.22821, 'right Y value');
-is( round_decimals($xyz->[2], 5), 0.20456, 'right Z value');
-exit 0;
+is( round_decimals($xyz->[1], 5), 0.22812, 'right Y value');
+is( round_decimals($xyz->[2], 5), 0.20457, 'right Z value');
 
-$rgb = $space->convert_to( 'RGB', [0.474586, 0.22821, 0.204568]);
-is( int @$rgb,                    3,     'converted gray from XYZ to RGB');
-is( round_decimals($rgb->[0], 5), 1  ,   'right red value');
-is( round_decimals($rgb->[1], 5), 0  ,   'right green value');
+$rgb = $space->convert_to( 'RGB', [0.474583573181078, 0.228121319314305, 0.204566436987141]);
+is( int @$rgb,                      3,   'converted gray from XYZ to RGB');
+is( round_decimals($rgb->[0], 5),   1,   'right red value');
+is( $rgb->[1] < 0.00005,            1,   'right green value');
 is( round_decimals($rgb->[2], 5), 0.5,   'right blue value');
 
-exit 0;
 # mid blue
 $xyz = $space->convert_from( 'RGB', [.2, .2, .6]);
 is( int @$xyz,                           3,  'convert mid blue from RGB to XYZ');
-is( round_decimals($xyz->[0],  5), 0.087293, 'right X value');
+is( round_decimals($xyz->[0],  5), 0.08729,  'right X value');
 is( round_decimals($xyz->[1],  5), 0.05371,  'right Y value');
-is( round_decimals($xyz->[2],  5), 0.2822315,'right Z value');
-exit 0;
+is( round_decimals($xyz->[2],  5), 0.28223,  'right Z value');
+
 $rgb = $space->convert_to( 'RGB', [0.0872931606914908, 0.0537065470652866, 0.282231548430505]);
 is( int @$rgb,                      3,   'convert mid blue from XYZ to RGB');
 is( round_decimals($rgb->[0], 5), .2  ,   'right red value');

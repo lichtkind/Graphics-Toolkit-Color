@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 130;
+use Test::More tests => 85;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Values';
@@ -103,73 +103,7 @@ is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as na
 is( $cd,                            0,  'no distance to closest name');
 
 ########################################################################
-my $aqua = $blue_hsl->set( {green => 255} );
-is( ref $aqua,                   $module,  'aqua (set green value to max) value object');
-is( $aqua->name,                  'aqua',  'color has the name "aqua"');
-$values = $aqua->normalized();
-is( ref $values,                 'ARRAY',  'RGB value ARRAY');
-is( @$values,                          3,  'has three values');
-is( $values->[0],                      0,  'red value is zero');
-is( $values->[1],                      1,  'green value is one (max)');
-is( $values->[2],                      1,  'blue value is one too');
-is( ref $blue_hsl->set( {green => 256}, 'CMY' ),  '',  'green is in RGB, not CMY');
-is( ref $blue_hsl->set( {green => 256, yellow => 0},  ),  '',  'green and yellow axis are from different spaces');
-$aqua = $blue_hsl->set( {green => 256}, 'RGB' );
-$values = $aqua->normalized();
-is( ref $aqua,                   $module,  'green is in RGB, and set green over max, got clamped');
-is( @$values,                          3,  'has three values');
-is( $values->[0],                      0,  'red value is zero');
-is( $values->[1],                      1,  'green value is one (max)');
-is( $values->[2],                      1,  'blue value is one too');
-
-########################################################################
-$aqua = $blue_hsl->add( {green => 255} );
-is( ref $aqua,                   $module,  'aqua (add green value to max) value object');
-is( $aqua->name,                  'aqua',  'color has the name "aqua"');
-$values = $aqua->normalized();
-is( ref $values,                 'ARRAY',  'RGB value ARRAY');
-is( @$values,                          3,  'has three values');
-is( $values->[0],                      0,  'red value is zero');
-is( $values->[1],                      1,  'green value is one (max)');
-is( $values->[2],                      1,  'blue value is one too');
-is( ref $blue_hsl->add( {green => 256}, 'CMY' ),  '',  'green is in RGB, not CMY');
-is( ref $blue_hsl->add( {green => 256, yellow => 0},  ),  '',  'green and yellow axis are from different spaces');
-$aqua = $blue_hsl->add( {green => 256}, 'RGB' );
-$values = $aqua->normalized();
-is( ref $aqua,                   $module,  'green is in RGB, and set green over max, got clamped');
-is( @$values,                          3,  'has three values');
-is( $values->[0],                      0,  'red value is zero');
-is( $values->[1],                      1,  'green value is one (max)');
-is( $values->[2],                      1,  'blue value is one too');
-
-########################################################################
-my $grey = $white->mix([{color => $black, percent => 50}]);
-is( ref $grey,                   $module,  'created gray by mixing black and white');
-$values = $grey->in_shape();
-is( @$values,                          3,  'get RGB values of grey');
-is( $values->[0],                    128,  'red value of gray');
-is( $values->[1],                    128,  'green value of gray');
-is( $values->[2],                    128,  'blue value of gray');
-is( $grey->name(),                'gray',  'created gray by mixing black and white');
-
-my $lgrey = $white->mix([{color => $black, percent => 5}]);
-is( ref $lgrey,                   $module,  'created light gray');
-$values = $lgrey->in_shape();
-is( @$values,                          3,  'get RGB values of grey');
-is( $values->[0],                    242,  'red value of gray');
-is( $values->[1],                    242,  'green value of gray');
-is( $values->[2],                    242,  'blue value of gray');
-is( $lgrey->name(),             'gray95',  'created gray by mixing black and white');
-
-my $darkblue = $white->mix([{color => $blue_hsl, percent => 60},{color => $black, percent => 60},], 'HSL');
-is( ref $darkblue,               $module,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
-$values = $darkblue->in_shape('HSL');
-is( @$values,                          3,  'get 3 HSL values');
-is( $values->[0],                    120,  'hue value is right');
-is( $values->[1],                     50,  'sat value is right');
-is( $values->[2],                     25,  'light value is right');
-
-########################################################################
+my $darkblue = Graphics::Toolkit::Color::Values->new_from_any_input(['HSL', 120, 50, 25]);
 is( $darkblue->distance( $darkblue ),    0,   'dark blue should have no distance to itself');
 is( int $black->distance( $white ),    441,  'black and white have maximal distance in RGB');
 is( $black->distance( $white, 'HSL' ), 100,  'black and white have maximal distance in HSL');

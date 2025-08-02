@@ -16,10 +16,10 @@ my  $xyz_def = Graphics::Toolkit::Color::Space->new( alias => 'CIEXYZ',
 
 sub from_rgb {
     my ($rgb) = shift;
-    my @RGB = map {apply_d65( $_ )} @$rgb;
+    my @rgb = map {apply_d65( $_ )} @$rgb;
     return mult_matrix3([[0.433949941, 0.37620977,  0.18984029], # conversion + normalisation
                          [0.2126729,   0.7151522,   0.0721750],
-                         [0.017756583, 0.109467961, 0.872775456]], @RGB);
+                         [0.017756583, 0.109467961, 0.872775456]], @rgb);
 
 
 }

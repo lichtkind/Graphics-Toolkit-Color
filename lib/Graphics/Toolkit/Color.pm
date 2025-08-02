@@ -144,30 +144,30 @@ EOH
 }
 
 ## single color creation methods #######################################
-sub set {
+sub set_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     return <<EOH if @args % 2 or not @args or @args > 10;
-    GTC method 'set' needs a value HASH (not a ref) whose keys are axis names or
+    GTC method 'set_value' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
     you might add the "in" argument:
-        set( green => 20 ) or set( g => 20 ) or
-        set( hue => 240, in => 'HWB' )
+        set_value( green => 20 ) or set( g => 20 ) or
+        set_value( hue => 240, in => 'HWB' )
 EOH
     my $partial_color = { @args };
     my $color_space = delete $partial_color->{'in'};
     _new_from_value_obj( $self->{'values'}->set( $partial_color, $color_space ) );
 }
 
-sub add {
+sub add_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     return <<EOH if @args % 2 or not @args or @args > 10;
-    GTC method 'add' needs a value HASH (not a ref) whose keys are axis names or
+    GTC method 'add_value' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
     you might add the "in" argument:
-        add( blue => -10 ) or set( b => -10 )
-        add( hue => 100 , in => 'HWB' )
+        add_value( blue => -10 ) or set( b => -10 )
+        add_value( hue => 100 , in => 'HWB' )
 EOH
     my $partial_color = { @args };
     my $color_space = delete $partial_color->{'in'};

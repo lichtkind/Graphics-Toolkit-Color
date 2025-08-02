@@ -5,13 +5,13 @@
     * * added support of 5 color spaces: NCol YUV CIELUV CIELCHab CIELCHuv,
                                  rewrote CIEXYZ CIELAB
     * + extended range definitions with explicit type names
-    * + color spaces can now define value procision,
+    * + color spaces can now define value precision,
                                     value suffix ('%') and
                                     value parsing regex
     * ? added documentation for color space object and missing formats
-    * & moved code into Space::Format space attr object class
+    * & moved code into Space::Format space attribute object class
     * & removed Carp and Test::Warn as dependencies
-    * & moved color set function into own package
+    * & moved color and color set calculators into own packages
     * ~ renamed blend method to mix
     * ~ default space of methods 'distance', 'mix' and 'gradient'
         went from HSL to RGB, consistent with Space::Hub defaults (complement has to be HSL)

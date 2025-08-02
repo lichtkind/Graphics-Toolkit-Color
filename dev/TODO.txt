@@ -1,13 +1,14 @@
 TODO:
 ------
 
- + Color spaces
-   + Cubehelix
-   + OKLAB
-   + HunterLAB
-   + HSI
-   + NCS
-   + Yxy
+ + Color spaces :
+   - OKLAB
+   - HunterLAB
+   - RYB
+   - Cubehelix
+   - HSI
+   - NCS
+   - Yxy
 
  + proper Error handling
  + strict mode for out of range tuple values

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 130;
+use Test::More tests => 50;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
@@ -78,5 +78,12 @@ is( @$values,                          3,  'get 3 HSL values');
 is( $values->[0],                    120,  'hue value is right');
 is( $values->[1],                     50,  'sat value is right');
 is( $values->[2],                     25,  'light value is right');
+
+########################################################################
+is( $white->invert->name,             'black',  'black is white inverted');
+is( $black->invert->name,             'white',  'white is black inverted');
+is( $blue->invert->name,             'yellow',  'yellow is blue inverted');
+
+
 
 exit 0;

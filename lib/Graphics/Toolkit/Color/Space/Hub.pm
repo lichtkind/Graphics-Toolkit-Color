@@ -54,7 +54,6 @@ sub remove_space {
 }
 
 #### value API #########################################################
-
 sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wanted space
     my ($values, $target_space_name, $want_result_normalized, $source_space_name, $source_values) = @_;
     my $target_space = try_get_space( $target_space_name );
@@ -147,7 +146,6 @@ sub deformat { # formatted color def --> normalized values
     $values = $original_space->clamp( $values, 'normal');
     return $values, $original_space->name, $format_name;
 }
-
 sub deformat_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
     return unless ref $value_hash eq 'HASH';

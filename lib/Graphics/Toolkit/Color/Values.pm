@@ -105,24 +105,24 @@ sub _values_from_partial_hash {
     return ($values, $space_name);
 }
 
-sub set_value { # .values, %val -- ~space_name --> _
+sub set { # .values, %val -- ~space_name --> _
     my $self = shift;
     my ($new_values, $space_name) = _values_from_partial_hash( @_ );
     return $new_values unless ref $new_values;
-    my $values = $value_object->in_shape( $space_name );
+    my $values = $self->in_shape( $space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    for my $pos ($color_space->axis_iterator) {
+    for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
     }
     $self->new_from_normal_tuple( $color_space->normalize( $values ), $color_space->name );
 }
-sub add_value { # .values, %val -- ~space_name --> _
+sub add { # .values, %val -- ~space_name --> _
     my $self = shift;
     my ($new_values, $space_name) = _values_from_partial_hash( @_ );
     return $new_values unless ref $new_values;
-    my $values = $value_object->in_shape( $space_name );
+    my $values = $self->in_shape( $space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    for my $pos ($color_space->axis_iterator) {
+    for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
     }
     $self->new_from_normal_tuple( $color_space->normalize( $values ), $color_space->name );

@@ -107,27 +107,27 @@ is( round_decimals( $tuple->[2], 5), .5, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'LAB');
 is( int @$tuple,           3, 'convert bright red to LAB');
-is( round_decimals( $tuple->[0], 5), 53.264, 'L value is right');
-is( round_decimals( $tuple->[1], 5), 80.024, 'a value is right');
-is( round_decimals( $tuple->[2], 5), 67.211, 'b value is right');
+is( round_decimals( $tuple->[0], 3), 53.264, 'L value is right');
+is( round_decimals( $tuple->[1], 3), 80.024, 'a value is right');
+is( round_decimals( $tuple->[2], 3), 67.211, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'LAB', 0 , 'XYZ', [0,0,0] );
-is( int @$tuple,           3, 'convert to LAB with original source in XYZ');
-is( round_decimals( $tuple->[0], 0), 1, 'L value is right');
-is( round_decimals( $tuple->[1], 0), 1, 'a value is right');
-is( round_decimals( $tuple->[2], 0), 1, 'b value is right');
+is( int @$tuple,                      3, 'convert to LAB with original source in XYZ');
+is( round_decimals( $tuple->[0], 5),  0, 'L value is right');
+is( round_decimals( $tuple->[1], 5),  0, 'a value is right');
+is( round_decimals( $tuple->[2], 5),  0, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'CIELCHab');
 is( int @$tuple,           3, 'convert bright red to LCH (3 hop conversion)');
-is( round_decimals( $tuple->[0],  53.264), 1, 'L value is right');
-is( round_decimals( $tuple->[1], 104.505), 1, 'C value is right');
-is( round_decimals( $tuple->[2],  40.026), 1, 'H value is right');
+is( round_decimals( $tuple->[0],  3),  53.264, 'L value is right');
+is( round_decimals( $tuple->[1],  3), 104.505, 'C value is right');
+is( round_decimals( $tuple->[2],  3),  40.026, 'H value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'CIELCHab', 1);
 is( int @$tuple,           3, 'convert bright red to normalized LCH');
-is( round_decimals( $tuple->[0],  .53264), 1, 'L value is right');
-is( round_decimals( $tuple->[1], 104.505/539), 1, 'C value is right');
-is( round_decimals( $tuple->[2],  40.026/360), 1, 'H value is right');
+is( round_decimals( $tuple->[0],  5), .53264, 'L value is right');
+is( round_decimals( $tuple->[1],  5), .19389, 'C value is right');
+is( round_decimals( $tuple->[2],  5), 0.11118, 'H value is right');
 
 ########################################################################
 $tuple = $deconvert->( 'RGB', [0,1/255,1], );
@@ -157,40 +157,40 @@ is( $tuple->[2],           0, 'blue value is right');
 
 $tuple = $deconvert->('LAB', [0, 0.5, 0.5] );
 is( int @$tuple,           3, 'convert black from LAB');
-is( round_decimals( $tuple->[0], 0), 1, 'red value is right');
-is( round_decimals( $tuple->[1], 0), 1, 'green value is right');
-is( round_decimals( $tuple->[2], 0), 1, 'blue value is right');
+is( round_decimals( $tuple->[0], 5), 0, 'red value is right');
+is( round_decimals( $tuple->[1], 5), 0, 'green value is right');
+is( round_decimals( $tuple->[2], 5), 0, 'blue value is right');
 
 $tuple = $deconvert->('LCH', [.53264, 104.505/539, 40.026/360], 1);
 is( int @$tuple,           3, 'convert bright red from LCH');
-is( round_decimals( $tuple->[0],  1), 1, 'L value is right');
-is( round_decimals( $tuple->[1],  1/255), 1, 'C value is right');
-is( round_decimals( $tuple->[2],  0), 1, 'H value is right');
+is( round_decimals( $tuple->[0], 5), 1, 'L value is right');
+is( round_decimals( $tuple->[1], 4), 0.0039, 'C value is right');
+is( round_decimals( $tuple->[2], 5), 0, 'H value is right');
 
 ########################################################################
 my ($values, $space) = $deformat->([0, 255, 256]);
 is( $space,                     'RGB', 'color triple can only be RGB');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 0), 1, 'red value is right');
-is( round_decimals( $values->[1], 1), 1, 'green value is right');
-is( round_decimals( $values->[2], 1), 1, 'blue value got clamped to max');
+is( round_decimals( $values->[0], 5), 0, 'red value is right');
+is( round_decimals( $values->[1], 5), 1, 'green value is right');
+is( round_decimals( $values->[2], 5), 1, 'blue value got clamped to max');
 
 ($values, $space) = $deformat->('#FF2200');
 is( $space,                     'RGB', 'RGB hex string');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 1), 1, 'red value is right');
-is( round_decimals( $values->[1], 0.133333333), 1, 'green value is right');
-is( round_decimals( $values->[2], 0), 1, 'blue value has right value');
+is( round_decimals( $values->[0], 5), 1, 'red value is right');
+is( round_decimals( $values->[1], 5), 0.13333, 'green value is right');
+is( round_decimals( $values->[2], 5), 0, 'blue value has right value');
 
 ($values, $space) = $deformat->('#f20');
 is( $space,                     'RGB', 'short RGB hex string');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 1), 1, 'red value is right');
-is( round_decimals( $values->[1], 0.133333333), 1, 'green value is right');
-is( round_decimals( $values->[2], 0), 1, 'blue value has right value');
+is( round_decimals( $values->[0], 5), 1, 'red value is right');
+is( round_decimals( $values->[1], 5), 0.13333, 'green value is right');
+is( round_decimals( $values->[2], 5), 0, 'blue value has right value');
 
 ($values, $space) = $deformat->('blue');
 is( $space,                     undef, 'deformat is not for color names');
@@ -255,54 +255,54 @@ is( $values->[1], 0,      'whiteness value is right');
 is( $values->[2], 0.2,    'blackness value got clamped to max');
 
 ########################################################################
-my ($pos_hash, $space_name) = $dehash->( {hue => 20} );
-is( $space_name,                     'HSL', 'HSL is first of the cylindrical spaces');
-is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
-is( int keys %$pos_hash,                 1, 'position hash has one key');
-is( exists $pos_hash->{0},               1, 'and this is zero');
-is( $pos_hash->{0},                     20, 'and it has right value');
-($pos_hash, $space_name) = $dehash->( {hUE => 20} );
+my ($part_values, $space_name) = $dehash->( {hue => 20} );
+is( $space_name,                   'HSL', 'HSL is first of the cylindrical spaces');
+is( ref $part_values,             'ARRAY', 'partial value array is an ARRAY');
+is( int @$part_values,                  1, 'value is on first position');
+is( exists $part_values->[0],           1, 'and there is a value');
+is( $part_values->[0],                 20, 'and it is the right value');
+($part_values, $space_name) = $dehash->( {hUE => 20} );
 is( $space_name,                     'HSL', 'dehash ignores casing');
 
-($pos_hash, $space_name) = $dehash->( {hue => 20}, 'HSB' );
-is( $space_name,                     'HSB', 'did found hue in HSB space');
-is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
-is( int keys %$pos_hash,                 1, 'position hash has one key');
-is( exists $pos_hash->{0},               1, 'and this is zero');
-is( $pos_hash->{0},                     20, 'and it has right value');
+($part_values, $space_name) = $dehash->( {hue => 19}, 'HSB' );
+is( $space_name,                     'HSB', 'did found hue in HSB space when forced to');
+is( ref $part_values,             'ARRAY', 'partial value array is an ARRAY');
+is( int @$part_values,                  1, 'value is on first position');
+is( exists $part_values->[0],           1, 'and there is a value');
+is( $part_values->[0],                 19, 'and it is the right value');
 
-($pos_hash, $space_name) = $dehash->(  );
-is( $space_name,                     undef, 'need a hash as input');
-($pos_hash, $space_name) = $dehash->( {hue => 20, h => 10} );
-is( $space_name,                     undef, 'can not use axis name twice');
-($pos_hash, $space_name) = $dehash->( {hue => 20, green => 10} );
+($part_values, $space_name) = $dehash->(  );
+is( $part_values,                     undef, 'need a hash as input');
+($part_values, $space_name) = $dehash->( {hue => 20, h => 10} );
+is( $part_values,                     undef, 'can not use axis name twice');
+($part_values, $space_name) = $dehash->( {hue => 20, green => 10} );
 is( $space_name,                     undef, 'can not mix axis names from spaces');
-($pos_hash, $space_name) = $dehash->( {red => 20, green => 10, blue => 10, yellow => 20} );
+($part_values, $space_name) = $dehash->( {red => 20, green => 10, blue => 10, yellow => 20} );
 is( $space_name,                     undef, 'can not use too my axis names');
 
-($pos_hash, $space_name) = $dehash->( {X => 20, y => 10, Z => 30} );
+($part_values, $space_name) = $dehash->( {X => 20, y => 10, Z => 30} );
 is( $space_name,                     'XYZ', 'can mix upper and lower case axis names');
-is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
-is( int keys %$pos_hash,                 3, 'position hash has three keys');
-is( exists $pos_hash->{0},               1, 'one key is zero');
-is( $pos_hash->{0},                     20, 'and it has right value');
-is( exists $pos_hash->{1},               1, 'one key is one');
-is( $pos_hash->{1},                     10, 'and it has right value');
-is( exists $pos_hash->{2},               1, 'one key is two');
-is( $pos_hash->{2},                     30, 'and it has right value');
+is( ref $part_values,              'ARRAY', 'partial value array is an ARRAY');
+is( int @$part_values,                   3, 'partial value tuple has three keys');
+is( defined $part_values->[0],           1, 'one key is on pos zero');
+is( $part_values->[0],                  20, 'and it has right value');
+is( defined $part_values->[1],           1, 'one key is on pos one');
+is( $part_values->[1],                  10, 'and it has right value');
+is( defined $part_values->[2],           1, 'one key is on pos two');
+is( $part_values->[2],                  30, 'and it has right value');
 
-($pos_hash, $space_name) = $dehash->( {C => 1, M => 0.3, Y => 0.4, K => 0} );
+($part_values, $space_name) = $dehash->( {C => 1, M => 0.3, Y => 0.4, K => 0} );
 is( $space_name,                    'CMYK', 'works also with 4 element hashes');
-is( ref $pos_hash,                  'HASH', 'position hash is a HASH');
-is( int keys %$pos_hash,                 4, 'position hash has four keys');
-is( exists $pos_hash->{0},               1, 'one key is zero');
-is( $pos_hash->{0},                      1, 'and it has right value');
-is( exists $pos_hash->{1},               1, 'one key is one');
-is( $pos_hash->{1},                    0.3, 'and it has right value');
-is( exists $pos_hash->{2},               1, 'one key is two');
-is( $pos_hash->{2},                    0.4, 'and it has right value');
-is( exists $pos_hash->{3},               1, 'one key is two');
-is( $pos_hash->{3},                      0, 'and it has right value');
+is( ref $part_values,              'ARRAY', 'partial value array is an ARRAY');
+is( int @$part_values,                   4, 'partial value tuple has four keys');
+is( defined $part_values->[0],           1, 'one key is zero');
+is( $part_values->[0],                   1, 'and it has right value');
+is( defined $part_values->[1],           1, 'one key is on pos one');
+is( $part_values->[1],                 0.3, 'and it has right value');
+is( defined $part_values->[2],           1, 'one key is on pos two');
+is( $part_values->[2],                 0.4, 'and it has right value');
+is( defined $part_values->[3],           1, 'one key is on pos three');
+is( $part_values->[3],                   0, 'and it has right value');
 
 ########################################################################
 is( $distance->( ) =~ /value/,                  1, 'missing arguments');
@@ -314,7 +314,7 @@ is( $distance->([0,0,0], [0,0,0,0]) =~ /value/, 1, 'second tuple is too long');
 is( $distance->([0,0,0], [0,0,0], ),       0, 'no distance');
 is( $distance->([1,0,0], [0,0,0], ),     255, 'full red distance');
 my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
-is( round_decimals( $d, sqrt(2)),             1, 'full red and blue distance, normalized');
+is( round_decimals( $d, 5), round_decimals( sqrt(2), 5), 'full red and blue distance, normalized');
 $d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );
 is(  $d, sqrt(3),              'distance in 4D space');
 $d = $distance->( [1,0,0], [0,0,0],  undef, [qw/red red/], 1  );

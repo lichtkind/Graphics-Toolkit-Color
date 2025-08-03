@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::CIELCHuv;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/close_enough/;
+use Graphics::Toolkit::Color::Space qw/round_decimals/;
 
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv',
                                                      axis => [qw/luminance chroma hue/],
@@ -19,8 +19,8 @@ sub from_luv {
     my ($luv) = shift;
     my $u = $luv->[1] *  354 - 134;
     my $v = $luv->[2] *  262 - 140;
-    $u = 0 if close_enough($u , 0);
-    $v = 0 if close_enough($v , 0);
+    $u = 0 if round_decimals($u, 5) == 0;
+    $v = 0 if round_decimals($v, 5) == 0;
     my $c = sqrt( ($u**2) + ($v**2));
     my $h = atan2($v, $u);
     $h += $TAU if $h < 0;

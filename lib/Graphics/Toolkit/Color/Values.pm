@@ -136,7 +136,7 @@ sub invert {
     $self->new_from_normal_tuple( [ map {1 - $_} @$values ], $space_name );
 }
 
-sub mix { #  @%(+percent _values)  -- ~space_name --> _
+sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     my ($self, $recipe, $space_name ) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;

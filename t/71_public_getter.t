@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use Test::More tests => 85;
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color qw/color/;
 
 my $red   = color(255,0,0);
@@ -45,13 +45,13 @@ is( $snow->name,               '', 'this color has no name in default constants'
 ($name, $d) = $snow->closest_name;
 is( $name,             'white', 'color "white" is closest to snow');
 is( $d,                      1, 'and has a distance of 1');
-is( close_enough($snow->distance($white), 1), 1, 'distance method calculates (almost) the same');
-is( close_enough($snow->distance(to => $white), 1), 1, 'use named argument to calculate distance');
-is( close_enough($snow->distance(to => $white, range => 511), 2), 1, 'test reaction to the "range" argument');
-is( close_enough($snow->distance(to => $white, select => 'red'), 1), 1, 'test reaction to the "select" argument');
-is( close_enough($snow->distance(to => $white, select => 'blue'), 0), 1, 'select axis with no value difference');
-is( close_enough($snow->distance(to => $white, select => ['red','blue']), 1), 1, 'select axis with and without value difference');
-is( close_enough($snow->distance(to => $white, in => 'cmy', range => 255), 1), 1, 'test reaction to the "in" argument');
+is( round_decimals($snow->distance($white), 5), 1, 'distance method calculates (almost) the same');
+is( round_decimals($snow->distance(to => $white), 5), 1, 'use named argument to calculate distance');
+is( round_decimals($snow->distance(to => $white, range => 510), 3), 2, 'test reaction to the "range" argument');
+is( round_decimals($snow->distance(to => $white, select => 'red'), 5), 1, 'test reaction to the "select" argument');
+is( round_decimals($snow->distance(to => $white, select => 'blue'), 5), 0, 'select axis with no value difference');
+is( round_decimals($snow->distance(to => $white, select => ['red','blue']), 5), 1, 'select axis with and without value difference');
+is( round_decimals($snow->distance(to => $white, in => 'cmy', range => 255), 5), 1, 'test reaction to the "in" argument');
 is( ref $snow->distance( to => $white, blub => '-'),           '', 'false arguments get caught');
 is( ref $snow->distance( in => 'LAB'),                         '', 'missing required argument gets caught');
 

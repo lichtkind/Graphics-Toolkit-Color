@@ -106,16 +106,16 @@ sub tuple_from_hash {
     }
     return \@values;
 }
-sub pos_hash_from_partial_hash {
+sub tuple_from_partial_hash {
     my ($self, $value_hash) = @_;
     return unless $self->is_partial_hash( $value_hash );
-    my $pos = {};
+    my $values = [];
     for my $key (keys %$value_hash) {
-        if    ( $self->is_long_axis_name( $key ) ) { $pos->{ $self->pos_from_long_axis_name($key) } = $value_hash->{ $key } }
-        elsif ( $self->is_short_axis_name( $key )) { $pos->{ $self->pos_from_short_axis_name($key) } = $value_hash->{ $key } }
+        if    ( $self->is_long_axis_name( $key ) ) { $values->[$self->pos_from_long_axis_name($key) ] = $value_hash->{ $key } }
+        elsif ( $self->is_short_axis_name( $key )) { $values->[$self->pos_from_short_axis_name($key)] = $value_hash->{ $key } }
         else                                       { return "value of $key is missing" }
     }
-    return $pos;
+    return $values;
 }
 
 sub select_tuple_value_from_axis_name {

@@ -59,7 +59,7 @@ sub _new_from_value_obj {
     sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
     sub distance_to { distance(@_) }
     sub blend       { mix( @_ ) }
-    sub blend_with { $_[0]->mix( with => $_[1], amount => $_[2], in => 'HSL') }
+    sub blend_with  { $_[0]->mix( with => $_[1], amount => $_[2], in => 'HSL') }
     sub gradient_to     { hsl_gradient_to( @_ ) }
     sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
     sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
@@ -105,7 +105,7 @@ sub values       {
                      {in => 'RGB', as => 'list', precision => undef, range => undef, suffix => undef});
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
-    values (                  # no HASH ref around arguments
+    values ( ...
         in => 'HSL',          # color space name, defaults to "RGB"
         as => 'css_string',   # output format name, default is "list"
         range => 1,           # value range (SCALAR or ARRAY), default set by space def
@@ -131,7 +131,7 @@ sub distance {
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
-    distance (                # no HASH ref around arguments
+    distance ( ...
         to => 'green'         # color object or color definition (required)
         in => 'HSL'           # color space name, defaults to "RGB"
         select => 'red'       # axis name or names (ARRAY ref), default is none
@@ -179,7 +179,7 @@ sub mix {
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', amount => 50});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
-    mix (                              # no HASH ref around arguments
+    mix ( ...
         to => ['HSL', 240, 100, 50]    # scalar color definition or ARRAY ref thereof
         amount => 20                   # percentage value or ARRAY ref thereof, default is 50
         in => 'HSL'                    # color space name, defaults to "RGB"
@@ -216,6 +216,14 @@ EOH
 
 sub invert {
     my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'in', [], {in => 'RGB'});
+    my $help = <<EOH;
+    GTC method 'invert' accepts one optional argument, which can be positional or named:
+    invert (                           # no HASH ref around arguments
+        in => 'HSL'                    # color space name, defaults to "RGB"
+EOH
+    return $arg.$help unless ref $arg;
+    _new_from_value_obj( $self->{'values'}->invert( $arg->{'in'} ) );
 }
 
 ## color set creation methods ##########################################
@@ -224,7 +232,7 @@ sub gradient {
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', steps => 10, tilt => 0});
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, only the first is required:
-    gradient (                    # no HASH ref around arguments
+    gradient ( ...
         to => 'blue'              # scalar color definition or ARRAY ref thereof
         steps =>  20              # count of produced colors, defaults to 10
         tilt  =>  1               # dynamics of color change, defaults to 0
@@ -253,7 +261,7 @@ sub complement {
     my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0});
     my $help = <<EOH;
     GTC method 'complement' is computed in HSL and has two named, optional arguments:
-    complement (                       # no HASH ref around arguments
+    complement ( ...
         steps => 20                    # count of produced colors, default is 1
         tilt => 10                     # default is 0
         tilt => {hue => 10, saturation => 20, lightness => 3} # or
@@ -300,7 +308,7 @@ sub cluster {
     my $arg = _split_named_args( \@args, undef, ['radius', 'distance'], {in => 'RGB'});
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
-    cluster (                          # no HASH ref around arguments
+    cluster (  ...
         radius => [10, 5, 3]           # cuboid shaped cluster or
         radius => 3                    # ball shaped cluster
         distance => 0.5                # minimal distance between colors in cluster
@@ -329,7 +337,7 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     my $red = Graphics::Toolkit::Color->new('red');  # create color object
     say $red->add( 'blue' => 255 )->name;            # add blue value: 'fuchsia'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
-    $red->mix( to => [HSL => 0,0,80], amount => 10);# mix red with a little grey
+    $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
@@ -583,11 +591,13 @@ The last argument is named L</range>, which can change the result drasticly.
     $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
 
 
+
 =head1 SINGLE COLOR
 
-Methods to construct colors that are related to the current object.
+Methods to generate one new color object that is related to the current object.
 
-=head2 set
+
+=head2 set_value
 
 Creates a new GTC color object that shares some values with the current one,
 but differs in others. The altered values are provided as absoltue numbers.
@@ -605,49 +615,62 @@ One solvable issue is when axis in different spaces have the same name.
 For instance I<HSL> and I<HSV> have a I<saturation> axis. To disambiguate
 you can add the named argument L</in>.
 
-    $black->set( blue => 255 )->name;                  # blue, same as #0000ff
-    my $new_color = $blue->set( saturation => 50 );    # pale blue, same as $blue->set( s => 50 );
-    my $new_color = $blue->set( saturation => 50, in => 'HSV' );  # same, computed in HSL
+    my $blue = $black->set_value( blue => 255 );              # same as #0000ff
+    my $pale_blue = $blue->set_value( saturation => 50 );        # ->( s => 50) works too
+    my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # previous was HSL
 
-=head2 add
+
+=head2 add_value
 
 Creates a new GTC color object that shares some values with the current one,
 but differs in others. The altered values are provided relative to the current
-ones. The rest works as described in L</set>.
-
-    my $blue = Graphics::Toolkit::Color->new('blue');
-    my $darkblue = $blue->add( Lightness => -25 );      # dim it down
-    my $blue2 = $blue->add( blue => 10 );               # can it get bluer than blue ?
-    my $blue3 = $blue->add( l => 10, in => 'LAB' );     # lighter color according in CIELAB
-
+ones. The rest works as described in L</set_value>.
 This method was mainly created to get lighter, darker or more saturated
 colors by using it like:
 
-    my $new_color = $color->add( saturation => 10);
+
+    my $blue = Graphics::Toolkit::Color->new('blue');
+    my $darkblue = $blue->add_value( Lightness => -25 );  # get a darker tone
+    my $blue2 = $blue->add_value( blue => 10 );           # bluer than blue ?
+    my $blue3 = $blue->add_value( l => 10, in => 'LAB' ); # lighter color according CIELAB
+
 
 =head2 mix
 
 Create a new GTC object, that has the average values
-between the calling object and another color (or several colors),
-which is the only required input.
-It takes three named arguments: L</to>, C<amount> and L</in>.
+between the calling object and another color (or several colors).
+It accepts three named arguments: L</to>, C<amount> and L</in>, but only
+the first one is required.
 
-C<with> works like L</to> in other methods with the exception that it
-also accepts an ARRAY ref with several color definitions C<to> would get.
+L</to> works like in other methods, with the exception that it also
+accepts an ARRAY ref (square brackets) with several color definitions.
 
 Per default I<mix> computes a 50-50 (1:1) mix. In order to change that,
-employ the C<amount> argument which is the amount of the other color(s)
-in percent. Again, if you want to mix more than two colors, the previous
-and this argument has to hold an ARRAY reference with the same amount
-of values in the same order. This means the first amount value corresponds
-to the first color mentioned by argument C<to>.
-If the amounts add up to more than 100 percent the current color will
-not be present in the mix and the values will be recalculated by keeping
-the ratio.
+employ the C<amount> argument, which is the weight the mixed in color(s)
+get, counted in percentages. The remaining percentage to 100 is the weight
+of the color, held by the caller object. This would be naturally nothing,
+if the C<amount> is greater than hundret, which is especially something
+to consider, if mixing more than two colors. Then you provide the argument
+C<to> and C<amount> with an array of colors and respectively their amounts.
+Obviously both arrays MUST have the same length. If the sum of amounts is
+greater than 100 the original color is ignored but the weight ratios will
+be kept.
 
     $color->mix( to => 'silver', amount => 60 );
     $color->mix( to => [qw/silver green/], amount => [10, 20]);      # mix three colors
     $blue->mix( to => {H => 240, S =>100, L => 50}, in => 'RGB' );   # teal
+
+
+=head2 invert
+
+Computes the a new color object, where all values are inverted according
+to the ranges of the chosen color space (see L</in>). It takes only one
+optional, positional argument, a space name.
+
+    my $black = $white->invert();         # to state the obvious
+    my $blue = $yellow->invert( 'LUV' );  # invert in LUV space
+    $yellow->invert( in => 'LUV' );       # would work too
+
 
 
 =head1 COLOR SETS

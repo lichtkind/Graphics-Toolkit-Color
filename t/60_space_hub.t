@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use Test::More tests => 239;
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
@@ -95,39 +95,39 @@ is( $tuple->[2],           0, 'yellow value is right');
 $tuple = $convert->([0, 0, 0], 'LAB');
 is( ref $tuple,      'ARRAY', 'convert black to LAB (2 hop conversion)');
 is( int @$tuple,           3, 'convert black to LAB (2 hop conversion)');
-is( close_enough( $tuple->[0], 0), 1, 'L value is right');
-is( close_enough( $tuple->[1], 0), 1, 'a value is right');
-is( close_enough( $tuple->[2], 0), 1, 'b value is right');
+is( round_decimals( $tuple->[0], 5), 0, 'L value is right');
+is( round_decimals( $tuple->[1], 5), 0, 'a value is right');
+is( round_decimals( $tuple->[2], 5), 0, 'b value is right');
 
 $tuple = $convert->([0, 0, 0], 'LAB', 1);
 is( int @$tuple,           3, 'convert black to normal LAB');
-is( close_enough( $tuple->[0], 0), 1, 'L value is right');
-is( close_enough( $tuple->[1], 0.5), 1, 'a value is right');
-is( close_enough( $tuple->[2], 0.5), 1, 'b value is right');
+is( round_decimals( $tuple->[0], 5),  0, 'L value is right');
+is( round_decimals( $tuple->[1], 5), .5, 'a value is right');
+is( round_decimals( $tuple->[2], 5), .5, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'LAB');
 is( int @$tuple,           3, 'convert bright red to LAB');
-is( close_enough( $tuple->[0], 53.264), 1, 'L value is right');
-is( close_enough( $tuple->[1], 80.024), 1, 'a value is right');
-is( close_enough( $tuple->[2], 67.211), 1, 'b value is right');
+is( round_decimals( $tuple->[0], 5), 53.264, 'L value is right');
+is( round_decimals( $tuple->[1], 5), 80.024, 'a value is right');
+is( round_decimals( $tuple->[2], 5), 67.211, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'LAB', 0 , 'XYZ', [0,0,0] );
 is( int @$tuple,           3, 'convert to LAB with original source in XYZ');
-is( close_enough( $tuple->[0], 0), 1, 'L value is right');
-is( close_enough( $tuple->[1], 0), 1, 'a value is right');
-is( close_enough( $tuple->[2], 0), 1, 'b value is right');
+is( round_decimals( $tuple->[0], 0), 1, 'L value is right');
+is( round_decimals( $tuple->[1], 0), 1, 'a value is right');
+is( round_decimals( $tuple->[2], 0), 1, 'b value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'CIELCHab');
 is( int @$tuple,           3, 'convert bright red to LCH (3 hop conversion)');
-is( close_enough( $tuple->[0],  53.264), 1, 'L value is right');
-is( close_enough( $tuple->[1], 104.505), 1, 'C value is right');
-is( close_enough( $tuple->[2],  40.026), 1, 'H value is right');
+is( round_decimals( $tuple->[0],  53.264), 1, 'L value is right');
+is( round_decimals( $tuple->[1], 104.505), 1, 'C value is right');
+is( round_decimals( $tuple->[2],  40.026), 1, 'H value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'CIELCHab', 1);
 is( int @$tuple,           3, 'convert bright red to normalized LCH');
-is( close_enough( $tuple->[0],  .53264), 1, 'L value is right');
-is( close_enough( $tuple->[1], 104.505/539), 1, 'C value is right');
-is( close_enough( $tuple->[2],  40.026/360), 1, 'H value is right');
+is( round_decimals( $tuple->[0],  .53264), 1, 'L value is right');
+is( round_decimals( $tuple->[1], 104.505/539), 1, 'C value is right');
+is( round_decimals( $tuple->[2],  40.026/360), 1, 'H value is right');
 
 ########################################################################
 $tuple = $deconvert->( 'RGB', [0,1/255,1], );
@@ -157,40 +157,40 @@ is( $tuple->[2],           0, 'blue value is right');
 
 $tuple = $deconvert->('LAB', [0, 0.5, 0.5] );
 is( int @$tuple,           3, 'convert black from LAB');
-is( close_enough( $tuple->[0], 0), 1, 'red value is right');
-is( close_enough( $tuple->[1], 0), 1, 'green value is right');
-is( close_enough( $tuple->[2], 0), 1, 'blue value is right');
+is( round_decimals( $tuple->[0], 0), 1, 'red value is right');
+is( round_decimals( $tuple->[1], 0), 1, 'green value is right');
+is( round_decimals( $tuple->[2], 0), 1, 'blue value is right');
 
 $tuple = $deconvert->('LCH', [.53264, 104.505/539, 40.026/360], 1);
 is( int @$tuple,           3, 'convert bright red from LCH');
-is( close_enough( $tuple->[0],  1), 1, 'L value is right');
-is( close_enough( $tuple->[1],  1/255), 1, 'C value is right');
-is( close_enough( $tuple->[2],  0), 1, 'H value is right');
+is( round_decimals( $tuple->[0],  1), 1, 'L value is right');
+is( round_decimals( $tuple->[1],  1/255), 1, 'C value is right');
+is( round_decimals( $tuple->[2],  0), 1, 'H value is right');
 
 ########################################################################
 my ($values, $space) = $deformat->([0, 255, 256]);
 is( $space,                     'RGB', 'color triple can only be RGB');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( close_enough( $values->[0], 0), 1, 'red value is right');
-is( close_enough( $values->[1], 1), 1, 'green value is right');
-is( close_enough( $values->[2], 1), 1, 'blue value got clamped to max');
+is( round_decimals( $values->[0], 0), 1, 'red value is right');
+is( round_decimals( $values->[1], 1), 1, 'green value is right');
+is( round_decimals( $values->[2], 1), 1, 'blue value got clamped to max');
 
 ($values, $space) = $deformat->('#FF2200');
 is( $space,                     'RGB', 'RGB hex string');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( close_enough( $values->[0], 1), 1, 'red value is right');
-is( close_enough( $values->[1], 0.133333333), 1, 'green value is right');
-is( close_enough( $values->[2], 0), 1, 'blue value has right value');
+is( round_decimals( $values->[0], 1), 1, 'red value is right');
+is( round_decimals( $values->[1], 0.133333333), 1, 'green value is right');
+is( round_decimals( $values->[2], 0), 1, 'blue value has right value');
 
 ($values, $space) = $deformat->('#f20');
 is( $space,                     'RGB', 'short RGB hex string');
 is( ref $values,              'ARRAY', 'got ARRAY tuple');
 is( int @$values,                   3, 'RGB has 3 axis');
-is( close_enough( $values->[0], 1), 1, 'red value is right');
-is( close_enough( $values->[1], 0.133333333), 1, 'green value is right');
-is( close_enough( $values->[2], 0), 1, 'blue value has right value');
+is( round_decimals( $values->[0], 1), 1, 'red value is right');
+is( round_decimals( $values->[1], 0.133333333), 1, 'green value is right');
+is( round_decimals( $values->[2], 0), 1, 'blue value has right value');
 
 ($values, $space) = $deformat->('blue');
 is( $space,                     undef, 'deformat is not for color names');
@@ -314,7 +314,7 @@ is( $distance->([0,0,0], [0,0,0,0]) =~ /value/, 1, 'second tuple is too long');
 is( $distance->([0,0,0], [0,0,0], ),       0, 'no distance');
 is( $distance->([1,0,0], [0,0,0], ),     255, 'full red distance');
 my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
-is( close_enough( $d, sqrt(2)),             1, 'full red and blue distance, normalized');
+is( round_decimals( $d, sqrt(2)),             1, 'full red and blue distance, normalized');
 $d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );
 is(  $d, sqrt(3),              'distance in 4D space');
 $d = $distance->( [1,0,0], [0,0,0],  undef, [qw/red red/], 1  );

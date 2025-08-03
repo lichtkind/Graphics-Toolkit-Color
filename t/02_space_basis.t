@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 148;
+use Test::More tests => 153;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
@@ -139,43 +139,47 @@ is( $tuple->[4],   5, 'fifth extracted value is correct');
 $tuple = $s5d->tuple_from_hash( {aleph => 1, beth => 2, O => 3, daleth => 4, y => 5} );
 is( ref $tuple,  '', 'no values extraced because one key was wrong');
 
-is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2,3]), 1,   'got correct first value from list by key');
-is( $s3d->select_tuple_value_from_axis_name('beta',  [1,2,3]), 2,   'got correct second value from list by key');
-is( $s3d->select_tuple_value_from_axis_name('gamma', [1,2,3]), 3,   'got correct third value from list by key');
-is( $s3d->select_tuple_value_from_axis_name('he',    [1,2,3]), undef, 'get undef when asking with unknown key');
-is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2  ]), undef, 'get undef when giving not enough values');
+is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2,3]), 1,    'got correct first value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('beta',  [1,2,3]), 2,    'got correct second value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('gamma', [1,2,3]), 3,    'got correct third value from list by key');
+is( $s3d->select_tuple_value_from_axis_name('he',    [1,2,3]), undef,'get undef when asking with unknown key');
+is( $s3d->select_tuple_value_from_axis_name('alpha', [1,2  ]), undef,'get undef when giving not enough values');
 
 is( $s3d->select_tuple_value_from_axis_name('a', [1,2,3]), 1,       'got correct first value from list by shortcut');
 is( $s3d->select_tuple_value_from_axis_name('b', [1,2,3]), 2,       'got correct second value from list by shortcut');
 is( $s3d->select_tuple_value_from_axis_name('g', [1,2,3]), 3,       'got correct third value from list by shortcut');
 is( $s3d->select_tuple_value_from_axis_name('h', [1,2,3]), undef,   'get undef when asking with unknown key');
-is( $s3d->select_tuple_value_from_axis_name('a ',[1,2  ]), undef,         'get undef when giving not enough values');
+is( $s3d->select_tuple_value_from_axis_name('a ',[1,2  ]), undef,   'get undef when giving not enough values');
 
 
-is( ref $s3d->pos_hash_from_partial_hash(),   '',       'partial deformat needs an HASH');
-is( $s3d->pos_hash_from_partial_hash({}),  undef,       'partial deformat needs an not empty HASH');
-is( $s3d->pos_hash_from_partial_hash({a=>1,b=>1,g=>1,k=>1}), undef,       'partial HASH is too long');
-is( ref $s3d->pos_hash_from_partial_hash({a=>1,b=>2,g=>3}), 'HASH',       'partial HASH has all the keys');
-my $ph = $s3d->pos_hash_from_partial_hash({Alpha=>1,b=>2,g=>3});
-is( ref $ph, 'HASH',   'deparse all keys with mixed case and shortcut');
-is( $ph->{0}, 1,       'first key has right value');
-is( $ph->{1}, 2,       'second key has right value');
-is( $ph->{2}, 3,       'third key has right value');
-is( int keys %$ph, 3,  'right amount of keys in deparsed hash');
+is( ref $s3d->tuple_from_partial_hash(),                        '', 'partial deformat needs an HASH');
+is( $s3d->tuple_from_partial_hash({}),                       undef, 'partial deformat needs an not empty HASH');
+is( $s3d->tuple_from_partial_hash({a=>1,b=>1,g=>1,k=>1}),    undef, 'partial HASH is too long');
+is( ref $s3d->tuple_from_partial_hash({a=>1,b=>2,g=>3}),   'ARRAY', 'partial HASH has all the keys');
+my $ph = $s3d->tuple_from_partial_hash({Alpha=>1,b=>2,g=>3});
+is( ref $ph, 'ARRAY',  'deparse all keys with mixed case and shortcut');
+is( int @$ph, 3,       'right amount of values in deparsed hash');
+is( $ph->[0], 1,       'first key has right value');
+is( $ph->[1], 2,       'second key has right value');
+is( $ph->[2], 3,       'third key has right value');
 
-$ph = $s3d->pos_hash_from_partial_hash({gamma => 3});
-is( ref $ph, 'HASH',   'deparse just one key with mixed case and shortcut');
-is( $ph->{2}, 3,       'third and only key has right value');
-is( int keys %$ph, 1,  'right amount of keys in deparsed hash');
-$ph = $s3d->pos_hash_from_partial_hash({alda => 3});
+$ph = $s3d->tuple_from_partial_hash({gamma => 3});
+is( ref $ph, 'ARRAY',  'deparse just one key with mixed case and shortcut');
+is( int @$ph, 3,       'right amount of values in deparsed hash');
+is( $ph->[0], undef,   'first position in ARRAY is empty');
+is( $ph->[0], undef,   'second position in ARRAY is empty');
+is( $ph->[2], 3,       'third and only key has right value');
+$ph = $s3d->tuple_from_partial_hash({alda => 3});
 is( ref $ph, '',       'wrong keys to be partial hash');
+$ph = $s5d->tuple_from_partial_hash({Aleph => 6, p => 5});
+is( ref $ph, 'ARRAY',  'deparse just two keys with mixed case and shortcut');
+is( int @$ph,      4,  'last filled position in ARRAY is Nr. 4');
+is( $ph->[0],      6,  'first key aleph has right value');
+is( $ph->[1],  undef,  'second key was omitted');
+is( $ph->[2],  undef,  'third key was omitted');
+is( $ph->[3],      5,  'fourth key was set by short axis name p');
+is( $ph->[4],  undef,  'fifth key was omitted');
 
-
-$ph = $s5d->pos_hash_from_partial_hash({Aleph => 6, q => 5});
-is( ref $ph, 'HASH',   'deparse just two keys with mixed case and shortcut');
-is( $ph->{0}, 6,       'first key aleph has right value');
-is( $ph->{4}, 5,       'second key He has right value');
-is( int keys %$ph, 2,  'right amount of keys in deparsed hash');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name');
 is( ref $p5d,  $module,  'created space with user set name and user set axis short names');

@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use Test::More tests => 133;
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color::Space::Util ':all';
+use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELCHab';
 my $space = eval "require $module";

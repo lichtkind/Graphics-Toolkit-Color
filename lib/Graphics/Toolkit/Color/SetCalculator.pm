@@ -4,7 +4,9 @@
 package Graphics::Toolkit::Color::SetCalculator;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Calculator;
+use Graphics::Toolkit::Color::Values;
+
+my $value_ref = 'Graphics::Toolkit::Color::Values';
 
 
 sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values

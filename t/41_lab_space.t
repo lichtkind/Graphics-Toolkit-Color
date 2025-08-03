@@ -152,5 +152,5 @@ is( int @$val,                         3,  'normalized pink');
 is( round_decimals( $val->[0], 5), 0.57250,  'L value of pink good');
 is( round_decimals( $val->[1], 5), 0.57766,  'a* value of pink good');
 is( round_decimals( $val->[2], 5), 0.51939,  'b* value of pink good');
-exit 0;
 
+exit 0;

@@ -34,6 +34,7 @@ sub is_name            { shift->basis->is_name(@_) }          #    ~name --> ?
 sub axis_count         { shift->basis->axis_count }           #          --> +
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values --> ?
 sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values --> ?
+sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) }  # %+values --> ?
 sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_name(@_) }  # ~axis_name. %+values --> +
 
 ########################################################################

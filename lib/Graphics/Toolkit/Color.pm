@@ -219,7 +219,7 @@ sub invert {
     my $arg = _split_named_args( \@args, 'in', [], {in => 'RGB'});
     my $help = <<EOH;
     GTC method 'invert' accepts one optional argument, which can be positional or named:
-    invert (                           # no HASH ref around arguments
+    invert ( ...
         in => 'HSL'                    # color space name, defaults to "RGB"
 EOH
     return $arg.$help unless ref $arg;

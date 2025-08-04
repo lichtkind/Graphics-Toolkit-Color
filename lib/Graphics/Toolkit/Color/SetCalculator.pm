@@ -29,7 +29,7 @@ sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values
 
 
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
-    my ($self) = shift;
+    my ($self, $steps, $tilt) = shift;
     #~ my $help = '';
     #~ my %arg = (not @_ % 2) ? @_ :
               #~ (@_ == 1)    ? (steps => $_[0]) : return $help;
@@ -151,7 +151,7 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
 }
 
 sub cluster {# +radius +distance|count +variance ~in @range
-    my ($self, @args) = @_;
+    my ($self, $radius, $distance, $space_name) = @_;
     my $arg = _get_arg_hash( @args );
     return unless ref $arg eq 'HASH';
 

@@ -147,8 +147,8 @@ EOH
     if (defined $arg->{'select'}){
         if (not ref $arg->{'select'}){
             return $arg->{'select'}." is not an axis name in color space: ".$color_space->name
-                unless $color_space->is_axis_name( $select );
-        } elsif (ref $select eq 'ARRAY'){
+                unless $color_space->is_axis_name( $arg->{'select'} );
+        } elsif (ref $arg->{'select'} eq 'ARRAY'){
             for my $axis_name (@{$arg->{'select'}}) {
                 return "$axis_name is not an axis name in color space: ".$color_space->name
                     unless $color_space->is_axis_name( $axis_name );
@@ -173,8 +173,10 @@ sub set_value {
         set_value( hue => 240, in => 'HWB' )
 EOH
     my $partial_color = { @args };
-    my $color_space = delete $partial_color->{'in'};
-    _new_from_value_obj( $self->{'values'}->set( $partial_color, $color_space ) );
+    my $space_name = delete $partial_color->{'in'};
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
+    _new_from_value_obj( $self->{'values'}->set( $partial_color, $space_name ) );
 }
 
 sub add_value {
@@ -188,8 +190,10 @@ sub add_value {
         add_value( hue => 100 , in => 'HWB' )
 EOH
     my $partial_color = { @args };
-    my $color_space = delete $partial_color->{'in'};
-    _new_from_value_obj( $self->{'values'}->add( $partial_color, $color_space ) );
+    my $space_name = delete $partial_color->{'in'};
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return $color_space unless ref $color_space;
+    _new_from_value_obj( $self->{'values'}->add( $partial_color, $space_name ) );
 }
 
 sub mix {
@@ -212,7 +216,7 @@ EOH
         $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
     } else {
         if (ref $arg->{'to'} ne 'ARRAY'){
-            return "target color definition (argument 'to'): $arg->{to} is ill formed";
+            return "target color definition (argument 'to'): $arg->{to} is ill formed, has to be one color definition or an ARRAY of";
         } else {
             $recipe = [];
             for my $color_def (@{$arg->{'to'}}){
@@ -220,16 +224,15 @@ EOH
                 return "target color definition: '$color_def' is ill formed" unless ref $color;
                 push @$recipe, { color => $color->{'values'}, percent => 50};
             }
-            if (exists $arg->{'amount'}){
-                return "Amount argument has to be an ARRAY of values if multiple colors are mixed in !\n".$help if ref $arg->{'amount'} ne 'ARRAY'
-                             or @{$arg->{'amount'}} != @{$arg->{'to'}};
-                for my $amount_nr (0 .. $#{$arg->{'amount'}}){
-                    $recipe->[$amount_nr]{'percent'} = $arg->{'amount'}[$amount_nr];
-                }
-            }
+            return "Amount argument has to be an ARRAY of same length as argument 'to' (color definitions)!\n".$help
+                if ref $arg->{'to'} eq 'ARRAY' and ref $arg->{'amount'} eq 'ARRAY' and @{$arg->{'amount'}} != @{$arg->{'to'}};
+            $arg->{'amount'} = [($arg->{'amount'}) x @{$arg->{'to'}}] if ref $arg->{'to'} and not ref $arg->{'amount'};
+            $recipe->[$_]{'percent'} = $arg->{'amount'}[$_] for 0 .. $#{$arg->{'amount'}};
         }
     }
-    _new_from_value_obj( $self->{'values'}->mix( $recipe, $arg->{'in'} ) );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
+    return $color_space unless ref $color_space;
+    _new_from_value_obj( $self->{'values'}->mix( $recipe, $color_space ) );
 }
 
 sub invert {
@@ -241,7 +244,9 @@ sub invert {
         in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
-    _new_from_value_obj( $self->{'values'}->invert( $arg->{'in'} ) );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return $color_space unless ref $color_space;
+    _new_from_value_obj( $self->{'values'}->invert( $color_space ) );
 }
 
 ## color set creation methods ##########################################
@@ -271,7 +276,9 @@ EOH
     return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt in/} );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return $color_space unless ref $color_space;
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
 }
 
 sub complement {
@@ -333,8 +340,10 @@ sub cluster {
         in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return $color_space unless ref $color_space;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
-                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != 3;
+                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != $color_space->axis_count;
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/radius distance in/});
 }
 
@@ -672,11 +681,15 @@ to consider, if mixing more than two colors. Then you provide the argument
 C<to> and C<amount> with an array of colors and respectively their amounts.
 Obviously both arrays MUST have the same length. If the sum of amounts is
 greater than 100 the original color is ignored but the weight ratios will
-be kept.
+be kept. You may actually give C<amount> a scalar value while mixing a list
+of colors. Then the amount is applied to every color mentioned unter the
+C<to> argument. In this case you go over the sum of 100% very quickly.
 
-    $color->mix( to => 'silver', amount => 60 );
-    $color->mix( to => [qw/silver green/], amount => [10, 20]);      # mix three colors
-    $blue->mix( to => {H => 240, S =>100, L => 50}, in => 'RGB' );   # teal
+    $blue->mix( 'silver');                                         # 50% silver, 50% blue
+    $blue->mix( to => 'silver', amount => 60 );                    # 60% silver, 40% blue
+    $blue->mix( to => [qw/silver green/], amount => [10, 20]);     # 10% silver, 20% green, 70% blue
+    $blue->mix( to => [qw/silver green/] );                        # 50% silver, 50% green
+    $blue->mix( to => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
 
 
 =head2 invert

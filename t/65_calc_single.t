@@ -2,16 +2,21 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 50;
+use Test::More tests => 52;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
-
 
 my $module = 'Graphics::Toolkit::Color::Values';
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
+
+my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
+my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
+my $HWB = Graphics::Toolkit::Color::Space::Hub::get_space('HWB');
+my $LAB = Graphics::Toolkit::Color::Space::Hub::get_space('LAB');
+
 ########################################################################
 my $aqua = $blue->set( {green => 255} );
 is( ref $aqua,                   $module,  'aqua (set green value to max) value object');
@@ -53,7 +58,7 @@ is( $values->[1],                      1,  'green value is one (max)');
 is( $values->[2],                      1,  'blue value is one too');
 
 ########################################################################
-my $grey = $white->mix([{color => $black, percent => 50}]);
+my $grey = $white->mix([{color => $black, percent => 50}], $RGB);
 is( ref $grey,                   $module,  'created gray by mixing black and white');
 $values = $grey->in_shape();
 is( @$values,                          3,  'get RGB values of grey');
@@ -62,7 +67,7 @@ is( $values->[1],                    128,  'green value of gray');
 is( $values->[2],                    128,  'blue value of gray');
 is( $grey->name(),                'gray',  'created gray by mixing black and white');
 
-my $lgrey = $white->mix([{color => $black, percent => 5}]);
+my $lgrey = $white->mix([{color => $black, percent => 5}], $RGB);
 is( ref $lgrey,                   $module,  'created light gray');
 $values = $lgrey->in_shape();
 is( @$values,                          3,  'get RGB values of grey');
@@ -71,7 +76,7 @@ is( $values->[1],                    242,  'green value of gray');
 is( $values->[2],                    242,  'blue value of gray');
 is( $lgrey->name(),             'gray95',  'created gray by mixing black and white');
 
-my $darkblue = $white->mix([{color => $blue, percent => 60},{color => $black, percent => 60},], 'HSL');
+my $darkblue = $white->mix([{color => $blue, percent => 60},{color => $black, percent => 60},], $HSL);
 is( ref $darkblue,               $module,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
 $values = $darkblue->in_shape('HSL');
 is( @$values,                          3,  'get 3 HSL values');
@@ -80,29 +85,12 @@ is( $values->[1],                     50,  'sat value is right');
 is( $values->[2],                     25,  'light value is right');
 
 ########################################################################
-is( $white->invert->name,             'black',  'black is white inverted');
-is( $black->invert->name,             'white',  'white is black inverted');
-is( $blue->invert->name,             'yellow',  'yellow is blue inverted');
-
-
+is( $white->invert($RGB)->name,             'black',  'black is white inverted');
+is( $black->invert($RGB)->name,             'white',  'white is black inverted');
+is( $blue->invert($RGB)->name,             'yellow',  'yellow is blue inverted');
+is( $blue->invert($HSL)->name,               'gray',  'in HSL is gray opposite to any color');
+is( $blue->invert($LAB)->name,                   '',  'LAB is not symmetrical');
+is( $white->invert($HSL)->name,             'black',  'primary contrast works in HSL');
+is( $white->invert($HWB)->name,             'black',  'primary contrast works in HWB');
 
 exit 0;
-
-__END__
-########################################################################
-is( $distance->( ) =~ /value/,                  1, 'missing arguments');
-is( $distance->([0,0,0] ) =~ /value/,           1, 'need two tuples');
-is( $distance->([0,0], [0,0,0]) =~ /value/,     1, 'first tuple is too short');
-is( $distance->([0,0,0,0], [0,0,0])=~ /value/,  1, 'first tuple is too long');
-is( $distance->([0,0,0], [0,0]) =~ /value/,     1, 'second tuple is too short');
-is( $distance->([0,0,0], [0,0,0,0]) =~ /value/, 1, 'second tuple is too long');
-is( $distance->([0,0,0], [0,0,0], ),       0, 'no distance');
-is( $distance->([1,0,0], [0,0,0], ),     255, 'full red distance');
-my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
-is( round_decimals( $d, 5), round_decimals( sqrt(2), 5), 'full red and blue distance, normalized');
-$d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );
-is(  $d, sqrt(3),              'distance in 4D space');
-$d = $distance->( [1,0,0], [0,0,0],  undef, [qw/red red/], 1  );
-is(  $d, sqrt(2),              'count red difference twice');
-$d = $distance->( [1,1,1], [0,0,0],  undef, [qw/blue/], 1  );
-is(  $d,       1,              'count only blue difference');

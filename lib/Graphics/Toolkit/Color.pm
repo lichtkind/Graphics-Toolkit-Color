@@ -10,6 +10,7 @@ use Exporter 'import';
 use Graphics::Toolkit::Color::SetCalculator;
 
 our @EXPORT_OK = qw/color/;
+my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
 
 ## constructor #########################################################
 
@@ -21,7 +22,7 @@ sub new {
     constructor new of Graphics::Toolkit::Color object needs either:
     1. a color name: new('red') or new('SVG:red')
     3. RGB hex string new('#FF0000') or new('#f00')
-    4. RGB array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
+    4. $default_space_name array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
     5. named array or ARRAY ref:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
     6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
     7. HASH or HASH ref with values from RGB or any other space:
@@ -102,15 +103,16 @@ sub _split_named_args {
 sub values       {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'in', [],
-                     {in => 'RGB', as => 'list', precision => undef, range => undef, suffix => undef});
+                     {in => $default_space_name, as => 'list',
+                      precision => undef, range => undef, suffix => undef });
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values ( ...
-        in => 'HSL',          # color space name, defaults to "RGB"
+        in => 'HSL',          # color space name, defaults to "$default_space_name"
         as => 'css_string',   # output format name, default is "list"
         range => 1,           # value range (SCALAR or ARRAY), default set by space def
         precision => 3,       # value precision (SCALAR or ARRAY), default set by space
-        suffix => '%',       # value suffix (SCALAR or ARRAY), default set by color space
+        suffix => '%',        # value suffix (SCALAR or ARRAY), default set by color space
 
 EOH
     return $arg.$help unless ref $arg;
@@ -127,20 +129,36 @@ sub closest_name {
 sub distance {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', select => undef, range => undef});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, select => undef, range => undef});
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
     distance ( ...
         to => 'green'         # color object or color definition (required)
-        in => 'HSL'           # color space name, defaults to "RGB"
+        in => 'HSL'           # color space name, defaults to "$default_space_name"
         select => 'red'       # axis name or names (ARRAY ref), default is none
         range => 2**16        # value range definition, defaults come from color space def
 EOH
     return $arg.$help unless ref $arg;
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
-    return "target color definition: $arg->{'to'} is ill formed" unless ref $target_color;
-    $self->{'values'}->distance( $target_color->{'values'}, @$arg{qw/in select range/} );
+    return "target color definition: $arg->{to} is ill formed" unless ref $target_color;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return $color_space unless ref $color_space;
+    if (defined $arg->{'select'}){
+        if (not ref $arg->{'select'}){
+            return $arg->{'select'}." is not an axis name in color space: ".$color_space->name
+                unless $color_space->is_axis_name( $select );
+        } elsif (ref $select eq 'ARRAY'){
+            for my $axis_name (@{$arg->{'select'}}) {
+                return "$axis_name is not an axis name in color space: ".$color_space->name
+                    unless $color_space->is_axis_name( $axis_name );
+            }
+        } else { return "The 'select' argument needs one axis name or an ARRAY with several axis names".
+                       " from the same color space!" }
+    }
+    my $range_def = $color_space->shape->check_range_definition( $arg->{'range'} );
+    return $range_def unless ref $range_def;
+    $self->{'values'}->distance( $target_color->{'values'}, $color_space, $arg->{'select'}, $range_def);
 }
 
 ## single color creation methods #######################################
@@ -176,13 +194,13 @@ EOH
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', amount => 50});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => 50});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
         to => ['HSL', 240, 100, 50]    # scalar color definition or ARRAY ref thereof
         amount => 20                   # percentage value or ARRAY ref thereof, default is 50
-        in => 'HSL'                    # color space name, defaults to "RGB"
+        in => 'HSL'                    # color space name, defaults to "$default_space_name"
     Please note that either both or none of the first two arguments has to be an ARRAY.
     Both ARRAY have to have the same length. 'amount' refers to the color(s) picked with 'to'.
 EOH
@@ -216,11 +234,11 @@ EOH
 
 sub invert {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'in', [], {in => 'RGB'});
+    my $arg = _split_named_args( \@args, 'in', [], {in => $default_space_name});
     my $help = <<EOH;
     GTC method 'invert' accepts one optional argument, which can be positional or named:
     invert ( ...
-        in => 'HSL'                    # color space name, defaults to "RGB"
+        in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
     _new_from_value_obj( $self->{'values'}->invert( $arg->{'in'} ) );
@@ -229,14 +247,14 @@ EOH
 ## color set creation methods ##########################################
 sub gradient {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'RGB', steps => 10, tilt => 0});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, steps => 10, tilt => 0});
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, only the first is required:
     gradient ( ...
         to => 'blue'              # scalar color definition or ARRAY ref thereof
         steps =>  20              # count of produced colors, defaults to 10
         tilt  =>  1               # dynamics of color change, defaults to 0
-        in => 'HSL'               # color space name, defaults to "RGB"
+        in => 'HSL'               # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
     my @colors = ($self->{'values'});
@@ -305,14 +323,14 @@ EOH
 
 sub cluster {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, ['radius', 'distance'], {in => 'RGB'});
+    my $arg = _split_named_args( \@args, undef, ['radius', 'distance'], {in => $default_space_name});
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (  ...
         radius => [10, 5, 3]           # cuboid shaped cluster or
         radius => 3                    # ball shaped cluster
         distance => 0.5                # minimal distance between colors in cluster
-        in => 'HSL'                    # color space name, defaults to "RGB"
+        in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help

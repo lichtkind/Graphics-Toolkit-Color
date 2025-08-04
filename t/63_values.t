@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 85;
+use Test::More tests => 74;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Values';
@@ -101,19 +101,5 @@ is( $hd,                         0,  'no distance to closest name');
 my ($cname, $cd) = $fuchsia_cmy->closest_name_and_distance(2);
 is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
 is( $cd,                            0,  'no distance to closest name');
-
-########################################################################
-my $darkblue = Graphics::Toolkit::Color::Values->new_from_any_input(['HSL', 120, 50, 25]);
-is( $darkblue->distance( $darkblue ),    0,   'dark blue should have no distance to itself');
-is( int $black->distance( $white ),    441,  'black and white have maximal distance in RGB');
-is( $black->distance( $white, 'HSL' ), 100,  'black and white have maximal distance in HSL');
-is( $fuchsia_rgb->distance( $black, undef, undef, 'normal' ), sqrt 2,  'measure distance between magenta and black in RGB');
-is( $fuchsia_rgb->distance( $black, 'RGB', 'red', 'normal' ),      1,  'measure only red component');
-is( $fuchsia_rgb->distance( $black, 'RGB', 'green', 'normal' ),    0,  'measure only green component');
-is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', 'normal' ),     1,  'measure only blue component');
-is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', 'normal' ),     1,  'measure only blue component');
-is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r g/], 'normal' ),  1,  'measurered red and green component');
-is( $fuchsia_rgb->distance( $black, 'RGB', [qw/r b/], 'normal' ),  sqrt 2,  'measurered red and blue component');
-is( $fuchsia_rgb->distance( $black, 'RGB', 'blue', [8,9,10] ),    10,  'measure blue component woith custom scaling');
 
 exit 0;

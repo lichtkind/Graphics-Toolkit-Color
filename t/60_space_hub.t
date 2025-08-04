@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 239;
+use Test::More tests => 227;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
@@ -303,23 +303,5 @@ is( defined $part_values->[2],           1, 'one key is on pos two');
 is( $part_values->[2],                 0.4, 'and it has right value');
 is( defined $part_values->[3],           1, 'one key is on pos three');
 is( $part_values->[3],                   0, 'and it has right value');
-
-########################################################################
-is( $distance->( ) =~ /value/,                  1, 'missing arguments');
-is( $distance->([0,0,0] ) =~ /value/,           1, 'need two tuples');
-is( $distance->([0,0], [0,0,0]) =~ /value/,     1, 'first tuple is too short');
-is( $distance->([0,0,0,0], [0,0,0])=~ /value/,  1, 'first tuple is too long');
-is( $distance->([0,0,0], [0,0]) =~ /value/,     1, 'second tuple is too short');
-is( $distance->([0,0,0], [0,0,0,0]) =~ /value/, 1, 'second tuple is too long');
-is( $distance->([0,0,0], [0,0,0], ),       0, 'no distance');
-is( $distance->([1,0,0], [0,0,0], ),     255, 'full red distance');
-my $d = $distance->( [1,0,1], [0,0,0],  undef, undef, 'normal' );
-is( round_decimals( $d, 5), round_decimals( sqrt(2), 5), 'full red and blue distance, normalized');
-$d = $distance->( [1,0,0], [0,0,0],  'CMYK'  );
-is(  $d, sqrt(3),              'distance in 4D space');
-$d = $distance->( [1,0,0], [0,0,0],  undef, [qw/red red/], 1  );
-is(  $d, sqrt(2),              'count red difference twice');
-$d = $distance->( [1,1,1], [0,0,0],  undef, [qw/blue/], 1  );
-is(  $d,       1,              'count only blue difference');
 
 exit 0;

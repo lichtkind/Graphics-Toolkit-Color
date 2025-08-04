@@ -77,17 +77,18 @@ sub axis_value_precision { # --> +precision?
     return undef unless ref $precision eq 'ARRAY' and exists $precision->[$axis_nr];
     $precision->[$axis_nr];
 }
-sub _range { # check if range def is valid and eval (exapand) it
+
+sub check_range_definition { # check if range def is valid and eval (exapand) it
     my ($self, $external_range) = @_;
     return $self->{'range'} unless defined $external_range;
     $external_range = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'},  $self->{'type'}, $external_range,);
     return (ref $external_range) ? $external_range->{'range'} : undef ;
 }
 
-sub _precision { # check if precision def is valid and eval (exapand) it
+sub check_precision_definition { # check if precision def is valid and eval (exapand) it
     my ($self, $external_precision, $external_range) = @_;
     return $self->{'precision'} unless defined $external_precision;
-    my $range = $self->_range($external_range);
+    my $range = $self->check_range_definition($external_range);
     return $range unless ref $range;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $range, $external_precision);
     return (ref $shape) ? $shape->{'precision'} : undef;
@@ -99,9 +100,9 @@ sub check_range {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
         unless $self->basis->is_value_tuple( $values );
-    $range = $self->_range( $range );
+    $range = $self->check_range_definition( $range );
     return "got bad range definition" unless ref $range;
-    $precision = $self->_precision( $precision );
+    $precision = $self->check_precision_definition( $precision );
     return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
     my @names = $self->basis->long_axis_names;
     for my $i ($self->basis->axis_iterator){
@@ -119,7 +120,7 @@ sub check_range {  # $vals -- $range, $precision --> $@vals | ~!
 
 sub clamp { # change values if outside of range, angles get rotated in std range
     my ($self, $values, $range) = @_;
-    $range = $self->_range( $range );
+    $range = $self->check_range_definition( $range );
     return "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;
     $values = [] unless ref $values eq 'ARRAY';
     push @$values, 0 while @$values < $self->basis->axis_count;
@@ -146,7 +147,7 @@ sub clamp { # change values if outside of range, angles get rotated in std range
 sub round {
     my ($self, $values, $precision) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $precision = $self->_precision( $precision );
+    $precision = $self->check_precision_definition( $precision );
     return "round got bad precision definition" unless ref $precision;
     [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
 }
@@ -156,7 +157,7 @@ sub round {
 sub normalize {
     my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $range = $self->_range( $range );
+    $range = $self->check_range_definition( $range );
     return "bad range definition" unless ref $range;
     [ map { ($self->is_axis_numeric( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
                                            : $values->[$_]    } $self->basis->axis_iterator ];
@@ -165,7 +166,7 @@ sub normalize {
 sub denormalize {
     my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $range = $self->_range( $range );
+    $range = $self->check_range_definition( $range );
     return "bad range definition" unless ref $range;
 
     return [ map { ($self->is_axis_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
@@ -175,7 +176,7 @@ sub denormalize {
 sub denormalize_delta {
     my ($self, $delta_values, $range) = @_;
     return unless $self->basis->is_value_tuple( $delta_values );
-    $range = $self->_range( $range );
+    $range = $self->check_range_definition( $range );
     return "bad range definition" unless ref $range;
     [ map { ($self->is_axis_numeric( $_ ))
              ? ($delta_values->[$_] * ($range->[$_][1]-$range->[$_][0]))

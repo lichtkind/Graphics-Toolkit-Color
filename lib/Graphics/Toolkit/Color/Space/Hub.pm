@@ -24,7 +24,7 @@ sub try_get_space {
     my $name = shift || $default_space_name;
     my $space = get_space( $name );
     return (ref $space) ? $space
-                        : "$name is an unknown color space, try: ".(join ', ', all_space_names());
+                        : "$name is an unknown color space, try one of: ".(join ', ', all_space_names());
 }
 
 sub add_space {
@@ -159,34 +159,6 @@ sub deformat_partial_hash { # convert partial hash into
         return wantarray ? ($values, $color_space->name) : $values;
     }
     return undef;
-}
-
-sub distance { # RGB tuples -- ~space, ~@select @range --> +
-    my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
-    my $color_space = try_get_space( $space_name );
-    my $default_space = default_space();
-    return $color_space unless ref $color_space;
-    return 'first argument is no at well formed value ARRAY for '. $default_space->name
-        unless $default_space->is_value_tuple( $values_a );
-    return 'second argument is no at well formed value ARRAY for '. $default_space->name
-        unless $default_space->is_value_tuple( $values_b );
-
-    unless ($color_space->name eq $default_space_name){
-        $values_a = convert( $values_a, $space_name, 'normal');
-        $values_b = convert( $values_b, $space_name, 'normal');
-    }
-    my $delta = $color_space->delta( $values_a, $values_b );
-    $delta = $color_space->denormalize_delta( $delta, $range );
-    if (defined $select_axis){
-        $select_axis = [$select_axis] unless ref $select_axis;
-        my @selected_values = grep {defined $_}
-                              map {$color_space->select_tuple_value_from_name($_, $delta) } @$select_axis;
-        return unless @selected_values == @$select_axis;
-        $delta = \@selected_values;
-    }
-    my $d = 0;
-    map { $d += $_ * $_ } @$delta;
-    return sqrt $d;
 }
 
 1;

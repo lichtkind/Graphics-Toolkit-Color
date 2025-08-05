@@ -151,12 +151,10 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
 }
 
 sub cluster {# +radius +distance|count +variance ~in @range
-    my ($self, $radius, $distance, $space_name) = @_;
+    my ($self, $radius, $distance, $color_space) = @_;
 
 
 }
 
-sub snake {}
-sub plane {}
 
 1;

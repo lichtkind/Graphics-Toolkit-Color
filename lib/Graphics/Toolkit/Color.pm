@@ -68,7 +68,8 @@ sub _new_from_value_obj {
 
 sub _split_named_args {
     my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
-    @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH';
+    @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH' and not
+                  (exists $only_parameter and $only_parameter eq 'to' and ref _new_from_scalar_def( $raw_args ) );
 
     if (@$raw_args == 1 and defined $only_parameter and $only_parameter){
         return "The one default argument can not cover multiple, required parameter !" if @$required_parameter > 1;
@@ -287,13 +288,13 @@ sub complement {
     my $help = <<EOH;
     GTC method 'complement' is computed in HSL and has two named, optional arguments:
     complement ( ...
-        steps => 20                    # count of produced colors, default is 1
-        tilt => 10                     # default is 0
-        tilt => {hue => 10, saturation => 20, lightness => 3} # or
+        steps => 20                                     # count of produced colors, default is 1
+        tilt => 10                                         # default is 0
+        tilt => {hue => 10, saturation => 20, lightness => 3} # use these keys independently
         tilt => {hue => 10, s => {hue => -20, amount => 20 }, l => {hue => -10, amount => 3}}
 EOH
     return $arg.$help unless ref $arg;
-    return "Argument 'tilt' is malformed, has  !\n".$arg if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
+    return "Argument 'tilt' is malformed !\n".$arg if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
     if (ref $arg->{'tilt'} eq 'HASH'){
         my @keys = sort keys( %{$arg->{'tilt'}} );
         return "Argument 'tilt' needs hash with three keys: 'h', 's' and 'l' !\n".$help unless @keys == 3;
@@ -343,8 +344,8 @@ EOH
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
     return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
-                     if ref $arg->{'ardius'} and ref $arg->{'ardius'} ne 'ARRAY' and @{$arg->{'ardius'}} != $color_space->axis_count;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/radius distance in/});
+        if ref $arg->{'radius'} and (ref $arg->{'radius'} ne 'ARRAY' or @{$arg->{'radius'}} != $color_space->axis_count);
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance in/});
 }
 
 1;
@@ -553,21 +554,21 @@ In same way you can atach a little string per value by ussing the C<suffix>
 aregument. Normally these are percentage signs but in some spaces, where
 they appear by default you can surpress them by adding C<suffix => ''>
 
-    $blue->values();                                   # get list in RGB: 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');         # same result
-    $blue->values(              as => 'array');        # [0, 0, 255] - RGB only
-    $blue->values( in => 'RGB', as => 'named_array');  # ['RGB', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');         # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');    # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'named_string'); # 'rgb: 0, 0, 255'
-    $blue->values( in => 'RGB', as => 'css_string');   # 'rgb( 0, 0, 255)'
-    $blue->values(              as => 'hex_string');   # '#0000ff' - RGB only
-    $blue->values(           range => 2**16 );         # 0, 0, 65536
-    $red->values('HSL');                               # 0, 100, 50
-    $red->values( in => 'HSL',suffix => ['', '%','%']);# 0, '100%', '50%'
-    $red->values( in => 'HSB',  as => 'hash')->{'hue'};# 0
-   ($red->values( 'HSB'))[0];                          # same result, but shorter
-    $color->values( range => 1, precision => 2);       # normalized, 2 decimals max.
+    $blue->values();                                    # 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');          # 0, 0, 255 # explicit arguments
+    $blue->values(              as => 'array');         # [0, 0, 255] - RGB only
+    $blue->values( in => 'RGB', as => 'named_array');   # ['RGB', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');          # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');     # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string');  # 'rgb: 0, 0, 255'
+    $blue->values( in => 'RGB', as => 'css_string');    # 'rgb( 0, 0, 255)'
+    $blue->values(              as => 'hex_string');    # '#0000ff' - RGB only
+    $blue->values(           range => 2**16 );          # 0, 0, 65536
+    $blue->values('HSL');                               # 240, 100, 50
+    $blue->values( in => 'HSL',suffix => ['', '%','%']);# 240, '100%', '50%'
+    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};# 240
+   ($blue->values( 'HSB'))[0];                          # 240
+    $blue->values( in => 'XYZ', range => 1, precision => 2);# normalized, 2 decimals max.
 
 
 =head2 name

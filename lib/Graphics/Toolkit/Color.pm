@@ -253,7 +253,7 @@ EOH
 ## color set creation methods ##########################################
 sub gradient {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, steps => 10, tilt => 0});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, in => $default_space_name});
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, only the first is required:
     gradient ( ...
@@ -267,14 +267,14 @@ EOH
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
     if (ref $target_color) { push @colors, $target_color }
     else {
-        return "Argument 'to' contains malformed color definition!\n".$help if ref $arg->{'to'} ne 'ARRAY';
+        return "Argument 'to' contains malformed color definition!\n".$help if ref $arg->{'to'} ne 'ARRAY' or not @{$arg->{'to'}};
         for my $color_def (@{$arg->{'to'}}){
-            my $target_color = _new_from_scalar_def( $arg->{'to'} );
-            return "Argument 'to' contains malformed color definition!\n".$help unless ref $target_color;
+            my $target_color = _new_from_scalar_def( $color_def );
+            return "Argument 'to' contains malformed color definition: $color_def !\n".$help unless ref $target_color;
             push @colors, $target_color;
         }
     }
-    return "Value of argument 'steps' has to be a whole number greater than zero !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
+    return "Value of argument 'steps' has to be at least one or greater !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );

@@ -6,14 +6,19 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;
 
-my $value_ref = 'Graphics::Toolkit::Color::Values';
-
-
-sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values
-    my ($colors, $steps, $tilt, $space_name) = @_;
-    #~ $space_name //= Graphics::Toolkit::Color::Space::Hub::default_space_name();
-    #~ my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-    #~ return "color space $space_name is unknown" unless ref $space;
+sub gradient { # @:colors, +steps, +tilt, :space --> @:values
+    my ($colors, $steps, $tilt, $color_space) = @_;
+    if (@{$colors} == 2){
+        return $colors->[0] if $steps == 1;
+        return @$colors     if $steps == 2;
+        my @result = ($colors->[0]);
+        my $step_size = 100 / ($steps - 1);
+        my $percent = $step_size;
+        for my $step_nr (1 .. $steps - 2 ){
+            push @result, $colors->[0]->mix( [{color => $colors->[1], percent => $percent}], $color_space->name );
+        }
+    } else {
+    }
     #~ my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );
     #~ my @val2 =  $c2->{'values'}->get( $space_name, 'list', 'normal' );
     #~ my @delta_val = $space->delta (\@val1, \@val2 );
@@ -25,18 +30,13 @@ sub gradient { # @.colors, +steps -- +tilt, ~space --> @.values
         #~ push @colors, [ $space_name, @rval ];
     #~ }
     #~ return $self, @colors, $c2;
+    return @result;
 }
 
 
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
     my ($self, $steps, $tilt) = shift;
-    #~ my $help = '';
-    #~ my %arg = (not @_ % 2) ? @_ :
-              #~ (@_ == 1)    ? (steps => $_[0]) : return $help;
-    #~ my $steps = int abs($arg{'steps'} // 1);
-    #~ my $hue_tilt = (exists $arg{'h'}) ? (delete $arg{'h'}) :
-                   #~ (exists $arg{'hue_tilt'}) ? (delete $arg{'hue_tilt'}) : 0;
-    #~ return $help if ref $hue_tilt;
+# Graphics::Toolkit::Color::Values->new_from_normal_tuple
     #~ my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
                           #~ (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
     #~ return $help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';

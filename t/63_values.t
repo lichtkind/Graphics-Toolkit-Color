@@ -8,8 +8,8 @@ BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Values';
 use_ok( $module, 'could load the module');
 
-is( ref Graphics::Toolkit::Color::Values->new_from_normal_tuple(),  '',  'new need at least one argument');
-my $fuchsia_rgb = Graphics::Toolkit::Color::Values->new_from_normal_tuple([1,0,1]);
+is( ref Graphics::Toolkit::Color::Values->new_from_tuple(),  '',  'new need at least one argument');
+my $fuchsia_rgb = Graphics::Toolkit::Color::Values->new_from_tuple([255,0,256], 'RGB');
 is( ref $fuchsia_rgb,               $module,  'created values object from normalized RGB values');
 is( $fuchsia_rgb->{'source_values'},     '',  'object source are RGB values');
 is( $fuchsia_rgb->{'source_space_name'}, '',  'not from any other space');
@@ -18,7 +18,7 @@ is( ref $fuchsia_rgb->{'rgb'},      'ARRAY',  'RGB tuple is an ARRAY');
 is( @{$fuchsia_rgb->{'rgb'}},             3,  'RGB tuple has three values');
 is( $fuchsia_rgb->{'rgb'}[0],             1,  'violet has a maximal red color');
 is( $fuchsia_rgb->{'rgb'}[1],             0,  'violet has a no green color');
-is( $fuchsia_rgb->{'rgb'}[2],             1,  'violet has a maximal blue color');
+is( $fuchsia_rgb->{'rgb'}[2],             1,  'violet has a maximal blue color, got clamped');
 my $values = $fuchsia_rgb->normalized();
 is( ref $values,                 'ARRAY',  'normalized value tuple is an ARRAY');
 is( @$values,                          3,  'and has three values');
@@ -36,7 +36,7 @@ is( $values->[2],                     40,  'blue value is in hand crafted range'
 $values = $fuchsia_rgb->formatted( 'CMY', 'ARRAY', [20,30,40]);
 is( ref $values,                   '',  'ARRAY format is only for RGB');
 
-my $fuchsia_cmy = Graphics::Toolkit::Color::Values->new_from_normal_tuple([0,1,0], 'CMY');
+my $fuchsia_cmy = Graphics::Toolkit::Color::Values->new_from_tuple([0,1,0], 'CMY');
 is( ref $fuchsia_cmy,                  $module,  'value object from CMY values');
 is( ref $fuchsia_cmy->{'source_values'}, 'ARRAY',  'found source values');
 is( int @{$fuchsia_cmy->{'source_values'}},    3,  'CMY has 3 axis');
@@ -101,5 +101,11 @@ is( $hd,                         0,  'no distance to closest name');
 my ($cname, $cd) = $fuchsia_cmy->closest_name_and_distance(2);
 is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
 is( $cd,                            0,  'no distance to closest name');
+
+#### normalized ########################################################
+
+#### in_shape ##########################################################
+
+#### formatted #########################################################
 
 exit 0;

@@ -142,10 +142,9 @@ sub deformat { # formatted color def --> normalized values
         }
     }
     return 'could not deformat color definition: "$color_def"' unless ref $original_space;
-    $values = $original_space->normalize( $values );
-    $values = $original_space->clamp( $values, 'normal');
     return $values, $original_space->name, $format_name;
 }
+
 sub deformat_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
     return unless ref $value_hash eq 'HASH';

@@ -6,31 +6,35 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;
 
+
 sub gradient { # @:colors, +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;
     my @result = ($colors->[0]);
-    my $direction = ($tilt >= 0) ? 1 : -1;
     my $exponent = abs($tilt) + 1;
     my $scale_max = ($steps ** $exponent) - 1;
     my $segment_count = @$colors - 1;
     my $segment_size = $scale_max / $segment_count;
     for my $step_nr (2 .. $steps - 1){
-        my $percent = ($step_nr ** $exponent) - 1;
-        $percent = $scale_max - $percent if $direction < 0;
-        $percent = $percent / $scale_max * 100;
+        my $linear_pos = ($step_nr ** $exponent) - 1;
+        $linear_pos = $scale_max - $linear_pos if $tilt < 0;
+        my $percent = $linear_pos / $scale_max * 100;
         my $color_index = int ($percent / $segment_size);
         $percent = $segment_count * ($percent - ($segment_size * $color_index));
         push @result, $colors->[$color_index]->mix(
-            [{color => $colors->[$color_index+1], percent => $percent}], $color_space->name );
+                          [{color => $colors->[$color_index+1], percent => $percent}], $color_space );
     }
     push @result, pop @$colors if $steps > 1;
     return @result;
 }
 
+########################################################################
+my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
 sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
-    my ($self, $steps, $tilt) = shift;
-# Graphics::Toolkit::Color::Values->new_from_normal_tuple
+    my ($value_object, $steps, $tilt) = shift;
+    my @result = ();
+    my $start_values = $value_object->in_shape('HSL');
+    # Graphics::Toolkit::Color::Values->new_from_tuple( $values, $HSL->name)
     #~ my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
                           #~ (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
     #~ return $help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
@@ -140,14 +144,15 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
 
         #~ $result[$i] = _new_from_scalar( [ HSL => $hue_current, $saturation_current, $lightness_current ] );
     #~ }
-
-    #~ return @result;
+    return @result;
 }
 
-sub cluster {# +radius +distance|count +variance ~in @range
-    my ($self, $radius, $distance, $color_space) = @_;
+########################################################################
+sub cluster {# :values, +radius @+|+distance, :space --> @:values
+    my ($center, $radius, $distance, $color_space) = @_;
+    my @result = ();
 
-
+    return @result;
 }
 
 

@@ -19,43 +19,35 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
             return bless { name => $color_def, rgb => $rgb, source_values => '', source_space_name => ''};
         }
     }
-    my ($values, $source_space) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
+    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
     return "could not recognize color value format or color name: $color_def" unless ref $values;
-    __PACKAGE__->new_from_normal_tuple( $values, $source_space);
+    new_from_tuple( '', $values, $space_name);
 }
-sub new_from_normal_tuple { #
-    my ($pkg, $values, $space_name) = @_;
+sub new_from_tuple { #
+    my ($pkg, $values, $space_name, $range_def) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     return "Need ARRAY of ".$color_space->axis_count." normalized (0..1) ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $values );
-    $values = $color_space->clamp( $values, 'normal' );
+    $values = $color_space->normalize( $values, $range_def );
+    $values = $color_space->clamp( $values, 'normal');
+    _new_from_normal_tuple($values, $color_space);
+}
+sub _new_from_normal_tuple { #
+    my ($values, $color_space) = @_;
     my $source_values = '';
+    my $source_space_name = '';
     if ($color_space->name ne $RGB->name){
         $source_values = $values;
-        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $space_name, $values, 'normal' );
-    } else { $space_name = '' }
+        $source_space_name = $color_space->name;
+        $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $color_space->name, $values, 'normal' );
+    }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->round( $RGB->denormalize( $values ) ) );
-    bless { name => $name, closest => '',
-            rgb => $values, source_values => $source_values, source_space_name => $space_name };
+    bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, name => $name, closest => '', };
 }
 
 ########################################################################
-sub name { $_[0]->{'name'} }
-sub closest_name_and_distance {
-    my ($self) = @_;
-    return ($self->{'name'}, 0) if $self->{'name'};
-    unless ($self->{'closest'}){
-        my $values = $self->in_shape( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
-        my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
-        ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
-            unless ref $names eq 'ARRAY' and @$names;
-        $self->{'closest'} = { name => $names->[0], distance => $distances->[0]};
-    }
-    return @{$self->{'closest'}}{'name', 'distance'};
-}
-
 sub normalized { # normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
@@ -80,6 +72,19 @@ sub formatted { # in shape values in any format
     my $values = $self->in_shape( $color_space->name, $range_def, $precision_def );
     return $values unless ref $values;
     return $color_space->format( $values, $format_name, $suffix_def );
+}
+sub name { $_[0]->{'name'} }
+sub closest_name_and_distance {
+    my ($self) = @_;
+    return ($self->{'name'}, 0) if $self->{'name'};
+    unless ($self->{'closest'}){
+        my $values = $self->in_shape( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
+        my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
+        ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
+            unless ref $names eq 'ARRAY' and @$names;
+        $self->{'closest'} = { name => $names->[0], distance => $distances->[0]};
+    }
+    return @{$self->{'closest'}}{'name', 'distance'};
 }
 
 ########################################################################
@@ -115,7 +120,7 @@ sub set { # .values, %val -- .space --> _
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
     }
-    $self->new_from_normal_tuple( $color_space->normalize( $values ), $color_space->name );
+    $self->new_from_tuple( $values, $color_space->name );
 }
 
 sub add { # .values, %val -- .space --> _
@@ -132,13 +137,13 @@ sub add { # .values, %val -- .space --> _
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
     }
-    $self->new_from_normal_tuple( $color_space->normalize( $values ), $color_space->name );
+    $self->new_from_tuple( $values, $color_space->name );
 }
 
 sub invert {
     my ($self, $color_space ) = @_;
     my $values = $self->normalized( $color_space->name );
-    $self->new_from_normal_tuple( [ map {1 - $_} @$values ], $color_space->name );
+    $self->new_from_tuple( [ map {1 - $_} @$values ], $color_space->name, 'normal' );
 }
 
 sub mix { #  @%(+percent, _color)  -- ~space_name --> _
@@ -151,20 +156,20 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
                or not exists $ingredient->{'color'} or ref $ingredient->{'color'} ne __PACKAGE__;
         $percentage_sum += $ingredient->{'percent'};
     }
-    my $result = [(0) x $color_space->axis_count];
+    my $result_values = [(0) x $color_space->axis_count];
     if ($percentage_sum < 100){
         my $values = $self->in_shape( $color_space->name );
         my $mix_amount = (100 - $percentage_sum) / 100;
-        $result->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
+        $result_values->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
     } else {
         $percentage_sum /= 100;
         $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
     }
     for my $ingredient (@$recipe){
         my $values = $ingredient->{'color'}->in_shape( $color_space->name );
-        $result->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
+        $result_values->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }
-    $self->new_from_normal_tuple( $color_space->normalize( $result ), $color_space->name );
+    $self->new_from_tuple( $result_values, $color_space->name );
 }
 
 

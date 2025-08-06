@@ -8,28 +8,22 @@ use Graphics::Toolkit::Color::Values;
 
 sub gradient { # @:colors, +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;
-    if (@{$colors} == 2){
-        return $colors->[0] if $steps == 1;
-        return @$colors     if $steps == 2;
-        my @result = ($colors->[0]);
-        my $step_size = 100 / ($steps - 1);
-        my $percent = $step_size;
-        for my $step_nr (1 .. $steps - 2 ){
-            push @result, $colors->[0]->mix( [{color => $colors->[1], percent => $percent}], $color_space->name );
-        }
-    } else {
+    my @result = ($colors->[0]);
+    my $direction = ($tilt >= 0) ? 1 : -1;
+    my $exponent = abs($tilt) + 1;
+    my $scale_max = ($steps ** $exponent) - 1;
+    my $segment_count = @$colors - 1;
+    my $segment_size = $scale_max / $segment_count;
+    for my $step_nr (2 .. $steps - 1){
+        my $percent = ($step_nr ** $exponent) - 1;
+        $percent = $scale_max - $percent if $direction < 0;
+        $percent = $percent / $scale_max * 100;
+        my $color_index = int ($percent / $segment_size);
+        $percent = $segment_count * ($percent - ($segment_size * $color_index));
+        push @result, $colors->[$color_index]->mix(
+            [{color => $colors->[$color_index+1], percent => $percent}], $color_space->name );
     }
-    #~ my @val1 =  $self->{'values'}->get( $space_name, 'list', 'normal' );
-    #~ my @val2 =  $c2->{'values'}->get( $space_name, 'list', 'normal' );
-    #~ my @delta_val = $space->delta (\@val1, \@val2 );
-    #~ my @colors = ();
-    #~ for my $nr (1 .. $steps-2){
-        #~ my $pos = ($nr / ($steps-1)) ** $dynamic;
-        #~ my @rval = map {$val1[$_] + ($pos * $delta_val[$_])} 0 .. $space->dimensions - 1;
-        #~ @rval = $space->denormalize ( \@rval );
-        #~ push @colors, [ $space_name, @rval ];
-    #~ }
-    #~ return $self, @colors, $c2;
+    push @result, pop @$colors if $steps > 1;
     return @result;
 }
 

@@ -16,7 +16,7 @@
     * ~ renamed method "mix" argument "with" to "to"
     * ~ renamed method "gradient" argument "dynamic" to "tilt"
     * ~ default space of methods 'distance', 'mix' and 'gradient'
-        went from HSL to RGB, consistent with Space::Hub defaults (complement has to be HSL)
+        went from HSL to RGB, consistent with defaults (complement has to be HSL)
 
 1.71     2023-09-21    lichtkind
 -------

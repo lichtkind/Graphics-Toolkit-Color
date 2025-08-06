@@ -69,7 +69,7 @@ sub _new_from_value_obj {
 sub _split_named_args {
     my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
     @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH' and not
-                  (exists $only_parameter and $only_parameter eq 'to' and ref _new_from_scalar_def( $raw_args ) );
+                  (defined $only_parameter and $only_parameter eq 'to' and ref _new_from_scalar_def( $raw_args ) );
 
     if (@$raw_args == 1 and defined $only_parameter and $only_parameter){
         return "The one default argument can not cover multiple, required parameter !" if @$required_parameter > 1;
@@ -277,6 +277,7 @@ EOH
     return "Value of argument 'steps' has to be at least one or greater !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
     $arg->{'steps'} = int $arg->{'steps'};
     $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
+    $arg->{'tilt'} += 0; # numify argument
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);

@@ -10,6 +10,7 @@ use Graphics::Toolkit::Color::Space::Hub;
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
+########################################################################
 sub values {
     my $name = shift;
     my $colon_pos = index( $name, ':');
@@ -108,7 +109,7 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return \@names, \@d;
 }
 
-########################################################################
+##### extend store #####################################################
 sub add_rgb {
     my ($name, $rgb) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );

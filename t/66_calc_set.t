@@ -16,9 +16,14 @@ my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
 
 #### gradient ##########################################################
+# @:colors, +steps, +tilt, :space --> @:values
+my $gradient = \&Graphics::Toolkit::Color::SetCalculator::gradient;
+
 
 #### complement ########################################################
+my $complement = \&Graphics::Toolkit::Color::SetCalculator::complement;
 
 #### cluster ###########################################################
+my $cluster = \&Graphics::Toolkit::Color::SetCalculator::cluster;
 
 exit 0;

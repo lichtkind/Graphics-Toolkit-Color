@@ -26,25 +26,29 @@ sub new {
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
-    # check range settings
-    if    (not defined $range or $range eq 'normal') { $range = [([0,1]) x $basis->axis_count] }       # default range
-    elsif (                     $range eq 'percent') { $range = [([0,100]) x $basis->axis_count] }
-    elsif (not ref $range and $range > 0 )           { $range = [([0, $range]) x $basis->axis_count] } # single int range def
-    elsif (ref $range eq 'ARRAY' and @$range == $basis->axis_count ) {                                 # check elements of range def
-        for my $i ($basis->axis_iterator) {
-            my $drange = $range->[$i]; # range def of this dimension
-
-            if (not ref $drange and $drange and $drange eq 'normal') { $range->[$i] = [0,  1] }
-            elsif                            ( $drange eq 'percent') { $range->[$i] = [0,100] }
-            elsif (not ref $drange and $drange > 0)                  { $range->[$i] = [0, $drange] }
-            elsif (ref $drange eq 'ARRAY') {
-                return 'range definition element number '.$i.' has to have two elements' unless @$drange == 2;
-                return 'none numeric range definition at lower bound of element number '.$i unless is_nr( $drange->[0] );
-                return 'none numeric range definition at upper bound of element number '.$i unless is_nr( $drange->[1] );
-                return 'lower bound is greater or equal than upper bound at element number '.$i if $drange->[0] >= $drange->[1];
-            } else { return 'invalid range definition at ARRAY element number '.$i }
-        }
-    } else { return 'invalid range definition in color space '.$basis->space_name }
+    # check and complete range definition into most explicit form
+    my $error_msg = 'Bad value range definition!';
+    $range =   1 if not defined $range or $range eq 'normal';
+    $range = 100 if                       $range eq 'percent';
+    return $error_msg." It has to be 'normal', 'percent', a number or ARRAY of numbers or ARRAY of ARRAY's with two number!"
+        unless (not ref $range and is_nr( $range )) or (ref $range eq 'ARRAY') ;
+    $range = [$range] unless ref $range;
+    $range = [(@$range) x $basis->axis_count] if @$range == 1;
+    return "Range definition needs inside an ARRAY either one definition for all axis or one definition".
+           " for each axis!"                  if @$range != $basis->axis_count;
+    for my $axis_index ($basis->axis_iterator) {
+        my $axis_range = $range->[$axis_index];
+        if (not ref $axis_range){
+            if    ($axis_range eq 'normal')  {$range->[$axis_index] = [0, 1]}
+            elsif ($axis_range eq 'percent') {$range->[$axis_index] = [0, 100]}
+            else                             {$range->[$axis_index] = [0, $axis_range+0]}
+        } elsif (ref $axis_range eq 'ARRAY') {
+            return $error_msg.' Array at axis number '.$axis_index.' has to have two elements' unless @$axis_range == 2;
+            return $error_msg.' None numeric value at lower bound for axis number '.$axis_index unless is_nr( $axis_range->[0] );
+            return $error_msg.' None numeric value at upper bound for axis number '.$axis_index unless is_nr( $axis_range->[1] );
+            return $error_msg.' Lower bound (first value) is >= than upper bound at axis number '.$axis_index if $axis_range->[0] >= $axis_range->[1];
+        } else { return "Range definitin for axis $axis_index was not an two element ARRAY!" }
+    }
 
     $precision = -1 unless defined $precision;
     $precision = [($precision) x $basis->axis_count] unless ref $precision;

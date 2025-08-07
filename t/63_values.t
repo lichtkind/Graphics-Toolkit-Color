@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 106;
+use Test::More tests => 112;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Values';
@@ -27,8 +27,8 @@ is( $values->[0],                      1,  'red value is as expected');
 is( $values->[1],                      0,  'green value is as expected');
 is( $values->[2],                      1,  'blue value is as expected');
 is( $fuchsia_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named RGB string');
-is( $fuchsia_rgb->formatted('CMY', 'CSS_string', 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
-$values = $fuchsia_rgb->formatted( '', 'ARRAY', [20,30,40]);
+is( $fuchsia_rgb->formatted('CMY', 'CSS_string', undef, 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
+$values = $fuchsia_rgb->formatted( '', 'ARRAY', undef, [20,30,40]);
 is( ref $values,                 'ARRAY',  'RGB value ARRAY');
 is( @$values,                          3,  'has three values');
 is( $values->[0],                     20,  'red value is in hand crafted range');
@@ -146,5 +146,12 @@ is( $values->[1],   28.5,  'Y value is right');
 is( $values->[2],   96.96, 'Z value is right');
 
 #### formatted #########################################################
-
+#~space, @~|~format, @~|~range, @~|~suffix
+is( ref $fuchsia_rgb->formatted(), '',  'formatted needs arguments');
+is( $fuchsia_rgb->formatted(undef, 'named_string'), 'rgb: 255, 0, 255',       'just format name is enough');
+is( $fuchsia_rgb->formatted('CMY', 'named_string'), 'cmy: 0, 1, 0',           'understand color spaces');
+is( $fuchsia_rgb->formatted('CMY', 'css_string', '+'), 'cmy(0+, 1+, 0+)',     'and value suffix');
+is( $fuchsia_rgb->formatted('CMY', 'css_string', '+', 10), 'cmy(0+, 10+, 0+)','and ranges');
+is( $fuchsia_rgb->formatted('XYZ', 'css_string', undef, undef, [2,1,0]), 'xyz(59.29, 28.5, 97)','and precision');
+#my $values =
 exit 0;

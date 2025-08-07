@@ -117,7 +117,7 @@ sub values       {
 
 EOH
     return $arg.$help unless ref $arg;
-    $self->{'values'}->formatted( @$arg{qw/in as range precision suffix/} );
+    $self->{'values'}->formatted( @$arg{qw/in as suffix range precision/} );
 }
 
 sub name         { $_[0]{'values'}->name }

@@ -40,7 +40,7 @@ sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_na
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
-sub check_value_shape  { shift->shape->check_values( @_ ) }   # @+values -- @+range, @+precision   --> @+values|!~   # errmsg
+sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+values -- @+range, @+precision   --> @+values|!~   # errmsg
 sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
 sub round              { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
 sub normalize          { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~

@@ -27,15 +27,16 @@ sub new {
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
-    $range = check_range_definition( $range, $basis);
+    $range = check_range_definition( $basis, $range );
     return $range unless ref $range;
-    $precision = check_precision_definition( $precision, $basis );
+    $precision = check_precision_definition( $basis, $precision );
     return $precision unless ref $precision;
 
     bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
 }
 sub check_range_definition { # check if range def is valid and eval (expand) it
-    my ($range, $basis) = @_;
+    my ($basis, $range) = @_;
+    $basis = $basis->{'basis'} if ref $basis eq __PACKAGE__;
     my $error_msg = 'Bad value range definition!';
     $range =   1 if not defined $range or $range eq 'normal';
     $range = 100 if                       $range eq 'percent';
@@ -61,7 +62,8 @@ sub check_range_definition { # check if range def is valid and eval (expand) it
     return $range;
 }
 sub check_precision_definition { # check if precision def is valid and eval (exapand) it
-    my ($precision, $basis) = @_;
+    my ($basis, $precision) = @_;
+    $basis = $basis->{'basis'} if ref $basis eq __PACKAGE__;
     $precision = -1 unless defined $precision;
     $precision = [($precision) x $basis->axis_count] unless ref $precision;
     return 'need an ARRAY as definition of axis value precision' unless ref $precision eq 'ARRAY';
@@ -90,12 +92,12 @@ sub axis_value_precision { # --> +precision?
 sub try_check_range_definition { # check if range def is valid and eval (expand) it
     my ($self, $range) = @_;
     return $self->{'range'} unless defined $range;
-    return check_range_definition( $range, $self->{'basis'} );
+    return check_range_definition( $self->{'basis'}, $range );
 }
 sub try_check_precision_definition { # check if range def is valid and eval (expand) it
     my ($self, $precision) = @_;
     return $self->{'precision'} unless defined $precision;
-    return check_precision_definition( $precision, $self->{'basis'} );
+    return check_precision_definition( $self->{'basis'}, $precision );
 }
 
 sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!

@@ -3,8 +3,9 @@
 use v5.12;
 use warnings;
 use Test::More tests => 156;
-
 BEGIN { unshift @INC, 'lib', '../lib'}
+
+#### basic object construction #########################################
 my $module = 'Graphics::Toolkit::Color::Space';
 eval "use $module";
 is( not($@), 1, 'could load the module');
@@ -18,6 +19,7 @@ is( $space->name,    'ABCD', 'got space name from AXIS short names');
 is( $space->alias,       '', 'space name alias is empty');
 is( $space->axis_count,   4, 'counted axis right');
 
+#### invalid args ######################################################
 is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');
 is( $space->is_value_tuple([1,2,3,4,5]), 0, 'too long value tuple');
 is( $space->is_value_tuple([1,2,3,]),    0, 'too short value tuple');
@@ -36,6 +38,7 @@ is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid 
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
+#### getter ############################################################
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], name => 'name');
 is( ref $space,     $module, 'created color space just with axis names and space name');
 is( $space->name,    'NAME', 'got given space name back');
@@ -63,8 +66,8 @@ is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid 
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
-is( ref $space->check_range([0,1,0.5,0.001]),       'ARRAY', 'default to normal range');
-is( ref $space->check_range([1,1.1,1,1]),                '', 'one value of tuple is out of range');
+is( ref $space->check_value_shape([0,1,0.5,0.001]),       'ARRAY', 'default to normal range');
+is( ref $space->check_value_shape([1,1.1,1,1]),                '', 'one value of tuple is out of range');
 my $val = $space->clamp([-1,1.1,1]);
 is( ref $val,                'ARRAY', 'clamped value tuple is a tuple');
 is( int @$val,                     4, 'filled mising value in');
@@ -83,9 +86,9 @@ is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
 
 is( ref $space,     $module, 'created color space with axis names and ranges');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
-is( ref $space->check_range([10,10,1,10]),                  'ARRAY', 'max values are in range');
-is( ref $space->check_range([0,0,0,-10]),                   'ARRAY', 'min values are in range');
-is( ref $space->check_range([0,0,2,-10]),                        '', 'one value is ou of range');
+is( ref $space->check_value_shape([10,10,1,10]),                  'ARRAY', 'max values are in range');
+is( ref $space->check_value_shape([0,0,0,-10]),                   'ARRAY', 'min values are in range');
+is( ref $space->check_value_shape([0,0,2,-10]),                        '', 'one value is ou of range');
 $val = $space->clamp([-1,20.1,1]);
 is( ref $val,                'ARRAY', 'clamped value tuple is a tuple');
 is( int @$val,                     4, 'filled mising value in');

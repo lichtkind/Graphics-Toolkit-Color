@@ -22,19 +22,19 @@ is( $space->is_partial_hash({what => 1, blackness => 0}), 0, 'found hash with a 
 is( $space->can_convert('rgb'), 1,                 'do only convert from and to rgb');
 is( $space->can_convert('ncol'), 0,                'can not convert to itself');
 
-is( ref $space->check_range([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
-is( ref $space->check_range([600,100,100]), 'ARRAY',   'check HWB values works on upper bound values');
-is( ref $space->check_range([0,0]),              '',   "HWB got too few values");
-is( ref $space->check_range([0, 0, 0, 0]),       '',   "HWB got too many values");
-is( ref $space->check_range([-1, 0, 0]),         '',   "hue value is too small");
-is( ref $space->check_range([1.1, 0, 0]),        '',   "hue is not integer");
-is( ref $space->check_range([601, 0, 0]),        '',   "hue value is too big");
-is( ref $space->check_range([0, -1, 0]),         '',   "whiteness value is too small");
-is( ref $space->check_range([0, 1.1, 0]),        '',   "whiteness value is not integer");
-is( ref $space->check_range([0, 101, 0]),        '',   "whiteness value is too big");
-is( ref $space->check_range([0, 0, -1 ] ),       '',   "blackness value is too small");
-is( ref $space->check_range([0, 0, 1.1] ),       '',   "blackness value is not integer");
-is( ref $space->check_range([0, 0, 101] ),       '',   "blackness value is too big");
+is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY',   'check HWB values works on lower bound values');
+is( ref $space->check_value_shape([600,100,100]), 'ARRAY',   'check HWB values works on upper bound values');
+is( ref $space->check_value_shape([0,0]),              '',   "HWB got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "HWB got too many values");
+is( ref $space->check_value_shape([-1, 0, 0]),         '',   "hue value is too small");
+is( ref $space->check_value_shape([1.1, 0, 0]),        '',   "hue is not integer");
+is( ref $space->check_value_shape([601, 0, 0]),        '',   "hue value is too big");
+is( ref $space->check_value_shape([0, -1, 0]),         '',   "whiteness value is too small");
+is( ref $space->check_value_shape([0, 1.1, 0]),        '',   "whiteness value is not integer");
+is( ref $space->check_value_shape([0, 101, 0]),        '',   "whiteness value is too big");
+is( ref $space->check_value_shape([0, 0, -1 ] ),       '',   "blackness value is too small");
+is( ref $space->check_value_shape([0, 0, 1.1] ),       '',   "blackness value is not integer");
+is( ref $space->check_value_shape([0, 0, 101] ),       '',   "blackness value is too big");
 
 
 is( $space->format([0,0,0], 'css_string'),     'ncol(R0, 0%, 0%)',       'can format css string with zeroes');

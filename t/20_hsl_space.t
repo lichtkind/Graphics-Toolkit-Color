@@ -17,19 +17,19 @@ is( $space->alias,                             '', 'color space has no alias nam
 is( $space->is_name('Hsl'),                     1, 'recognized name');
 is( $space->is_name('HSV'),                     0, 'ignored wrong name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
-is( ref $space->check_range( [0, 0, 0]),     'ARRAY',   'check HSL values works on lower bound values');
-is( ref $space->check_range( [360,100,100]), 'ARRAY',   'check HSL values works on upper bound values');
-is( ref $space->check_range( [0,0]),              '',   "HSL got too few values");
-is( ref $space->check_range( [0, 0, 0, 0]),       '',   "HSL got too many values");
-is( ref $space->check_range( [-1, 0, 0]),         '',   "hue value is too small");
-is( ref $space->check_range( [1.1, 0, 0]),        '',   "hue is not integer");
-is( ref $space->check_range( [361, 0, 0]),        '',   "hue value is too big");
-is( ref $space->check_range( [0, -1, 0]),         '',   "saturation value is too small");
-is( ref $space->check_range( [0, 1.1, 0]),        '',   "saturation value is not integer");
-is( ref $space->check_range( [0, 101, 0]),        '',   "saturation value is too big");
-is( ref $space->check_range( [0, 0, -1 ] ),       '',  "lightness value is too small");
-is( ref $space->check_range( [0, 0, 1.1] ),       '',  "lightness value is not integer");
-is( ref $space->check_range( [0, 0, 101] ),       '',  "lightness value is too big");
+is( ref $space->check_value_shape( [0, 0, 0]),     'ARRAY',   'check HSL values works on lower bound values');
+is( ref $space->check_value_shape( [360,100,100]), 'ARRAY',   'check HSL values works on upper bound values');
+is( ref $space->check_value_shape( [0,0]),              '',   "HSL got too few values");
+is( ref $space->check_value_shape( [0, 0, 0, 0]),       '',   "HSL got too many values");
+is( ref $space->check_value_shape( [-1, 0, 0]),         '',   "hue value is too small");
+is( ref $space->check_value_shape( [1.1, 0, 0]),        '',   "hue is not integer");
+is( ref $space->check_value_shape( [361, 0, 0]),        '',   "hue value is too big");
+is( ref $space->check_value_shape( [0, -1, 0]),         '',   "saturation value is too small");
+is( ref $space->check_value_shape( [0, 1.1, 0]),        '',   "saturation value is not integer");
+is( ref $space->check_value_shape( [0, 101, 0]),        '',   "saturation value is too big");
+is( ref $space->check_value_shape( [0, 0, -1 ] ),       '',  "lightness value is too small");
+is( ref $space->check_value_shape( [0, 0, 1.1] ),       '',  "lightness value is not integer");
+is( ref $space->check_value_shape( [0, 0, 101] ),       '',  "lightness value is too big");
 
 
 my $hsl = $space->clamp([]);

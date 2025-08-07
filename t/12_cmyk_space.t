@@ -14,19 +14,19 @@ is( $space->name,       'CMYK',                    'color space has right name')
 is( $space->alias,          '',                    'color space has no alias name');
 is( $space->axis_count,      4,                    'color space has 4 axis');
 
-is( ref $space->check_range( [0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
-is( ref $space->check_range( [1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
-is( ref $space->check_range( [0,0,0]),            '',   "CMYK got too few values");
-is( ref $space->check_range( [0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
+is( ref $space->check_value_shape( [0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
+is( ref $space->check_value_shape( [1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
+is( ref $space->check_value_shape( [0,0,0]),            '',   "CMYK got too few values");
+is( ref $space->check_value_shape( [0, 0, 0, 0, 0]),    '',   "CMYK got too many values");
 
-is( ref $space->check_range( [-1, 0, 0, 0]),      '',   "cyan value is too small");
-is( ref $space->check_range( [2, 0, 0, 0]),       '',   "cyan value is too big");
-is( ref $space->check_range( [0, -1, 0, 0]),      '',   "magenta value is too small");
-is( ref $space->check_range( [0, 2, 0, 0]),       '',   "magenta value is too big");
-is( ref $space->check_range( [0, 0, -1, 0 ] ),    '',   "yellow value is too small");
-is( ref $space->check_range( [0, 0, 2, 0] ),      '',   "yellow value is too big");
-is( ref $space->check_range( [0, 0, 0, -1] ),     '',   "key value is too small");
-is( ref $space->check_range( [0, 0, 0, 2] ),      '',   "key value is too big");
+is( ref $space->check_value_shape( [-1, 0, 0, 0]),      '',   "cyan value is too small");
+is( ref $space->check_value_shape( [2, 0, 0, 0]),       '',   "cyan value is too big");
+is( ref $space->check_value_shape( [0, -1, 0, 0]),      '',   "magenta value is too small");
+is( ref $space->check_value_shape( [0, 2, 0, 0]),       '',   "magenta value is too big");
+is( ref $space->check_value_shape( [0, 0, -1, 0 ] ),    '',   "yellow value is too small");
+is( ref $space->check_value_shape( [0, 0, 2, 0] ),      '',   "yellow value is too big");
+is( ref $space->check_value_shape( [0, 0, 0, -1] ),     '',   "key value is too small");
+is( ref $space->check_value_shape( [0, 0, 0, 2] ),      '',   "key value is too big");
 
 
 my $cmyk = $space->clamp([]);

@@ -157,7 +157,7 @@ EOH
         } else { return "The 'select' argument needs one axis name or an ARRAY with several axis names".
                        " from the same color space!" }
     }
-    my $range_def = $color_space->shape->check_range_definition( $arg->{'range'} );
+    my $range_def = $color_space->shape->try_check_range_definition( $arg->{'range'} );
     return $range_def unless ref $range_def;
     $self->{'values'}->distance( $target_color->{'values'}, $color_space, $arg->{'select'}, $range_def);
 }

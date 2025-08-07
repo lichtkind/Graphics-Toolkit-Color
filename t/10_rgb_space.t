@@ -15,19 +15,19 @@ is( $space->is_name('rgb'), 1,                     'asked for right space name')
 is( $space->alias,         '',                     'color space has no alias name');
 is( $space->axis_count,     3,                     'color space has 3 axis');
 
-is( ref $space->check_range( [0,0,0]),       'ARRAY', 'check RGB values works on lower bound values');
-is( ref $space->check_range( [255,255,255]), 'ARRAY', 'check RGB values works on upper bound values');
-is( ref $space->check_range( [0,0]),              '', "RGB got too few values");
-is( ref $space->check_range( [0, 0, 0, 0]),       '', "RGB got too many values");
-is( ref $space->check_range( [-1, 0, 0]),         '', "red value is too small");
-is( ref $space->check_range( [0.5, 0, 0]),        '', "red value is not integer");
-is( ref $space->check_range( [256, 0, 0]),        '', "red value is too big");
-is( ref $space->check_range( [0, -1, 0]),         '', "green value is too small");
-is( ref $space->check_range( [0, 0.5, 0]),        '', "green value is not integer");
-is( ref $space->check_range( [0, 256, 0]),        '', "green value is too big");
-is( ref $space->check_range( [0, 0, -1 ] ),       '', "blue value is too small");
-is( ref $space->check_range( [0, 0, 0.5] ),       '', "blue value is not integer");
-is( ref $space->check_range( [0, 0, 256] ),       '', "blue value is too big");
+is( ref $space->check_value_shape( [0,0,0]),       'ARRAY', 'check RGB values works on lower bound values');
+is( ref $space->check_value_shape( [255,255,255]), 'ARRAY', 'check RGB values works on upper bound values');
+is( ref $space->check_value_shape( [0,0]),              '', "RGB got too few values");
+is( ref $space->check_value_shape( [0, 0, 0, 0]),       '', "RGB got too many values");
+is( ref $space->check_value_shape( [-1, 0, 0]),         '', "red value is too small");
+is( ref $space->check_value_shape( [0.5, 0, 0]),        '', "red value is not integer");
+is( ref $space->check_value_shape( [256, 0, 0]),        '', "red value is too big");
+is( ref $space->check_value_shape( [0, -1, 0]),         '', "green value is too small");
+is( ref $space->check_value_shape( [0, 0.5, 0]),        '', "green value is not integer");
+is( ref $space->check_value_shape( [0, 256, 0]),        '', "green value is too big");
+is( ref $space->check_value_shape( [0, 0, -1 ] ),       '', "blue value is too small");
+is( ref $space->check_value_shape( [0, 0, 0.5] ),       '', "blue value is not integer");
+is( ref $space->check_value_shape( [0, 0, 256] ),       '', "blue value is too big");
 
 
 my $rgb = $space->clamp([]);

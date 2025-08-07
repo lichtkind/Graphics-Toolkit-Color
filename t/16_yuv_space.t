@@ -17,17 +17,17 @@ is( $space->alias,   'YPBPR',                       'color space has alias name 
 is( $space->is_name('YPbPr'),    1,                 'color space name YCbCr is correct');
 is( $space->is_name('YUV'),      1,                 'color space name YUV is correct');
 is( $space->axis_count,          3,                 'color space has 3 axis');
-is( ref $space->check_range([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
-is( ref $space->check_range([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
-is( ref $space->check_range([1, 0.5, 0.5]),   'ARRAY',   'check YUV values works on upper bound values');
-is( ref $space->check_range([0,0]),              '',   "YUV got too few values");
-is( ref $space->check_range([0, 0, 0, 0]),       '',   "YUV got too many values");
-is( ref $space->check_range([-1, 0, 0]),         '',   "luma value is too small");
-is( ref $space->check_range([1.1, 0, 0]),        '',   "luma value is too big");
-is( ref $space->check_range([0, -.51, 0]),       '',   "Cb value is too small");
-is( ref $space->check_range([0, .51, 0]),        '',   "Cb value is too big");
-is( ref $space->check_range([0, 0, -.51] ),      '',   "Cr value is too small");
-is( ref $space->check_range([0, 0, 0.51] ),      '',   "Cr value is too big");
+is( ref $space->check_value_shape([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
+is( ref $space->check_value_shape([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
+is( ref $space->check_value_shape([1, 0.5, 0.5]),   'ARRAY',   'check YUV values works on upper bound values');
+is( ref $space->check_value_shape([0,0]),              '',   "YUV got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "YUV got too many values");
+is( ref $space->check_value_shape([-1, 0, 0]),         '',   "luma value is too small");
+is( ref $space->check_value_shape([1.1, 0, 0]),        '',   "luma value is too big");
+is( ref $space->check_value_shape([0, -.51, 0]),       '',   "Cb value is too small");
+is( ref $space->check_value_shape([0, .51, 0]),        '',   "Cb value is too big");
+is( ref $space->check_value_shape([0, 0, -.51] ),      '',   "Cr value is too small");
+is( ref $space->check_value_shape([0, 0, 0.51] ),      '',   "Cr value is too big");
 
 
 is( $space->is_value_tuple([0,0,0]),            1,  'value vector has 3 elements');

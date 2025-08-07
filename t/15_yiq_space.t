@@ -15,17 +15,17 @@ is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by lo
 is( $space->name,       'YIQ',                     'color space has axis initials as name');
 is( $space->alias,         '',                     'color space has no alias name');
 is( $space->axis_count,     3,                     'color space has 3 axis');
-is( ref $space->check_range([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
-is( ref $space->check_range([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
-is( ref $space->check_range([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');
-is( ref $space->check_range([0,0]),              '',   "YIQ got too few values");
-is( ref $space->check_range([0, 0, 0, 0]),       '',   "YIQ got too many values");
-is( ref $space->check_range([-0.1, 0, 0]),       '',   "luminance value is too small");
-is( ref $space->check_range([1.1, 0, 0]),        '',   "luminance value is too big");
-is( ref $space->check_range([0, -0.6, 0]),       '',   "in_phase value is too small");
-is( ref $space->check_range([0, 0.6, 0]),        '',   "in_phase value is too big");
-is( ref $space->check_range([0, 0, .6 ] ),       '',   "quadrature value is too small");
-is( ref $space->check_range([0, 0, -.6] ),       '',   "quadrature value is too big");
+is( ref $space->check_value_shape([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
+is( ref $space->check_value_shape([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
+is( ref $space->check_value_shape([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');
+is( ref $space->check_value_shape([0,0]),              '',   "YIQ got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "YIQ got too many values");
+is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "luminance value is too small");
+is( ref $space->check_value_shape([1.1, 0, 0]),        '',   "luminance value is too big");
+is( ref $space->check_value_shape([0, -0.6, 0]),       '',   "in_phase value is too small");
+is( ref $space->check_value_shape([0, 0.6, 0]),        '',   "in_phase value is too big");
+is( ref $space->check_value_shape([0, 0, .6 ] ),       '',   "quadrature value is too small");
+is( ref $space->check_value_shape([0, 0, -.6] ),       '',   "quadrature value is too big");
 
 
 is( $space->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');

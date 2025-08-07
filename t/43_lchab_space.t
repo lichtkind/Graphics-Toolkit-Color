@@ -18,16 +18,16 @@ is( $space->is_name('LCH'),                     1, 'color space name LCH is corr
 is( $space->is_name('hab'),                     0, 'color space name LCH is correct');
 is( $space->axis_count,                         3, 'color space has 3 dimensions');
 
-is( ref $space->check_range([0,0]),              '',   "CIELCHab got too few values");
-is( ref $space->check_range([0, 0, 0, 0]),       '',   "CIELCHab got too many values");
-is( ref $space->check_range([0, 0, 0]),          'ARRAY',   'check minimal CIELCHab values are in bounds');
-is( ref $space->check_range([100, 539, 360]),    'ARRAY',   'check maximal CIELCHab values are in bounds');
-is( ref $space->check_range([-0.1, 0, 0]),       '',   "L value is too small");
-is( ref $space->check_range([100.01, 0, 0]),     '',   'L value is too big');
-is( ref $space->check_range([0, -0.1, 0]),       '',   "c value is too small");
-is( ref $space->check_range([0, 539.1, 0]),      '',   'c value is too big');
-is( ref $space->check_range([0, 0, -0.1]),       '',   'h value is too small');
-is( ref $space->check_range([0, 0, 360.2] ),     '',   "h value is too big");
+is( ref $space->check_value_shape([0,0]),              '',   "CIELCHab got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "CIELCHab got too many values");
+is( ref $space->check_value_shape([0, 0, 0]),          'ARRAY',   'check minimal CIELCHab values are in bounds');
+is( ref $space->check_value_shape([100, 539, 360]),    'ARRAY',   'check maximal CIELCHab values are in bounds');
+is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "L value is too small");
+is( ref $space->check_value_shape([100.01, 0, 0]),     '',   'L value is too big');
+is( ref $space->check_value_shape([0, -0.1, 0]),       '',   "c value is too small");
+is( ref $space->check_value_shape([0, 539.1, 0]),      '',   'c value is too big');
+is( ref $space->check_value_shape([0, 0, -0.1]),       '',   'h value is too small');
+is( ref $space->check_value_shape([0, 0, 360.2] ),     '',   "h value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({c => 1, h => 0}), 1,  'found hash with some axis names');

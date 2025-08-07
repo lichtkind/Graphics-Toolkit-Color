@@ -41,7 +41,7 @@ sub hsl_from_name {
 ########################################################################
 sub name_from_rgb {
     my ($rgb) = @_;
-    return '' unless ref $RGB->check_range( $rgb );
+    return '' unless ref $RGB->check_value_shape( $rgb );
     return '' unless exists $name_from_rgb[ $rgb->[0] ] and exists $name_from_rgb[ $rgb->[0] ][ $rgb->[1] ]
                  and exists $name_from_rgb[ $rgb->[0] ][ $rgb->[1] ][ $rgb->[2] ];
     my @names = ($name_from_rgb[ $rgb->[0] ][ $rgb->[1] ][ $rgb->[2] ]);
@@ -50,7 +50,7 @@ sub name_from_rgb {
 }
 sub name_from_hsl {
     my ($hsl) = @_;
-    return unless ref $HSL->check_range( $hsl );
+    return unless ref $HSL->check_value_shape( $hsl );
     return '' unless exists $name_from_hsl[ $hsl->[0] ] and exists $name_from_hsl[ $hsl->[0] ][ $hsl->[1] ]
                  and exists $name_from_hsl[ $hsl->[0] ][ $hsl->[1] ][ $hsl->[2] ];
     my @names = ($name_from_hsl[ $hsl->[0] ][ $hsl->[1] ][ $hsl->[2] ]);
@@ -61,7 +61,7 @@ sub name_from_hsl {
 sub names_in_rgb_range { # @center, (@d | $d) --> @names
     return if @_ != 2;
     my ($rgb_center, $radius) = @_;
-    return unless ref $RGB->check_range( $rgb_center ) and defined $radius;
+    return unless ref $RGB->check_value_shape( $rgb_center ) and defined $radius;
     return unless (ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius;
     my %distance;
     my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
@@ -81,7 +81,7 @@ sub names_in_rgb_range { # @center, (@d | $d) --> @names
 sub names_in_hsl_range { # @center, (@d | $d) --> @names
     return if @_ != 2;
     my ($hsl_center, $radius) = @_;
-    return unless ref $HSL->check_range( $hsl_center ) and defined $radius;
+    return unless ref $HSL->check_value_shape( $hsl_center ) and defined $radius;
     return unless (ref $radius eq 'ARRAY' and @$radius == 3) or not ref $radius;
     my %distance;
     my $border = (ref $radius) ? $radius : [$radius, $radius, $radius];
@@ -113,14 +113,14 @@ sub names_in_hsl_range { # @center, (@d | $d) --> @names
 sub add_rgb {
     my ($name, $rgb) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
-    return "second argument: RGB tuple is malformed or values are  out of range" unless ref $RGB->check_range( $rgb );
+    return "second argument: RGB tuple is malformed or values are  out of range" unless ref $RGB->check_value_shape( $rgb );
     my $hsl = $HSL->denormalize( $HSL->convert_from( 'RGB', $RGB->normalize( $rgb ) ) );
     _add_color( $name, $RGB->round( $rgb ), $HSL->round( $hsl ) );
 }
 sub add_hsl {
     my ($name, $hsl) = @_;
     return 'need a color name that is not already taken as first argument' unless defined $name and not is_taken( $name );
-    return "second argument: HSL tuple is malformed or values are  out of range" unless ref $HSL->check_range( $hsl );
+    return "second argument: HSL tuple is malformed or values are  out of range" unless ref $HSL->check_value_shape( $hsl );
     my $rgb = $RGB->denormalize( $HSL->convert_to( 'RGB', $HSL->normalize( $hsl ) ) );
     _add_color( $name, $RGB->round( $rgb ), $HSL->round( $hsl ) );
 }

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 112;
+use Test::More tests => 150;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Values';
@@ -151,7 +151,51 @@ is( ref $fuchsia_rgb->formatted(), '',  'formatted needs arguments');
 is( $fuchsia_rgb->formatted(undef, 'named_string'), 'rgb: 255, 0, 255',       'just format name is enough');
 is( $fuchsia_rgb->formatted('CMY', 'named_string'), 'cmy: 0, 1, 0',           'understand color spaces');
 is( $fuchsia_rgb->formatted('CMY', 'css_string', '+'), 'cmy(0+, 1+, 0+)',     'and value suffix');
-is( $fuchsia_rgb->formatted('CMY', 'css_string', '+', 10), 'cmy(0+, 10+, 0+)','and ranges');
+is( $fuchsia_rgb->formatted('CMY', 'css_string', '+', [[-2,10]]), 'cmy(-2+, 10+, -2+)','and ranges');
 is( $fuchsia_rgb->formatted('XYZ', 'css_string', undef, undef, [2,1,0]), 'xyz(59.29, 28.5, 97)','and precision');
-#my $values =
+is( $blue_hsl->formatted('HSL', 'css_string', '', 1, [2,0,1]), 'hsl(0.67, 1, 0.5)' ,'all arguments at once');
+is( ref $fuchsia_rgb->formatted('CMY', 'array'),      '',  'array format is RGB only');
+is( ref $fuchsia_rgb->formatted('CMY', 'hex_string'), '',  'hex_string formatis RGB only');
+is( $fuchsia_rgb->formatted('RGB', 'hex_string'), '#FF00FF', 'but works under RGB');
+$values = $fuchsia_rgb->formatted('RGB', 'array');
+is( ref $values,  'ARRAY',  'get fuchsia RGB values in array format');
+is( @$values,           3,  'all 3 values');
+is( $values->[0],     255,  'red value is right');
+is( $values->[1],       0,  'green value is right');
+is( $values->[2],     255,  'blue value is right');
+$values = $fuchsia_rgb->formatted( undef, 'named_array');
+is( ref $values,  'ARRAY',  'get fuchsia RGB values in named array format');
+is( @$values,           4,  'all 4 values');
+is( $values->[0],    'RGB', 'first value is space name');
+is( $values->[1],     255,  'red value is right');
+is( $values->[2],       0,  'green value is right');
+is( $values->[3],     255,  'blue value is right');
+$values = $fuchsia_rgb->formatted( 'CMYK', 'named_array',['','','-','+'], 10);
+is( ref $values,  'ARRAY',  'fuchsia CMYK values as named array with custom suffix and special range');
+is( @$values,           5,  'all 5 values');
+is( $values->[0],  'CMYK', 'first value is space name');
+is( $values->[1],       0,  'red value is right');
+is( $values->[2],      10,  'magenta value is right');
+is( $values->[3],    '0-',  'yellow value is right');
+is( $values->[4],    '0+',  'key value is right');
+my @values = $fuchsia_rgb->formatted('RGB', 'list');
+is( @values,            3,  'got RGB tuple in list format');
+is( $values[0],       255,  'red value is right');
+is( $values[1],         0,  'green value is right');
+is( $values[2],       255,  'blue value is right');
+$values = $fuchsia_rgb->formatted( 'CMYK', 'hash');
+is( ref $values,    'HASH',  'fuchsia CMYK values as hash');
+is( int keys %$values,   4,  'has 4 keys');
+is( $values->{'cyan'},   0, 'cyan value is right');
+is( $values->{'magenta'},1, 'magenta value is right');
+is( $values->{'yellow'}, 0, 'yellow value is right');
+is( $values->{'key'},    0, 'key value is right');
+$values = $fuchsia_rgb->formatted( 'CMYK', 'char_hash');
+is( ref $values,    'HASH',  'fuchsia CMYK values as hash with character long keys');
+is( int keys %$values,   4,  'has 4 keys');
+is( $values->{'c'},      0, 'cyan value is right');
+is( $values->{'m'},      1, 'magenta value is right');
+is( $values->{'y'},      0, 'yellow value is right');
+is( $values->{'k'},      0, 'key value is right');
+
 exit 0;

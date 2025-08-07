@@ -61,8 +61,7 @@ sub in_shape  { # in any color space, range and precision
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     my $values = $self->normalized( $color_space->name );
-    return $values if not ref $values or
-                     (defined $range_def and ($range_def eq 1 or $range_def eq 'normal'));
+    return $values if not ref $values;
     $values = $color_space->denormalize( $values, $range_def );
     $values = $color_space->clamp( $values, $range_def );
     $values = $color_space->round( $values, $precision_def );

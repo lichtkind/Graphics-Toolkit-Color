@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 134;
+use Test::More tests => 147;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -14,7 +14,9 @@ is( $obj,  undef,       'constructor needs arguments');
 my $basis = Graphics::Toolkit::Color::Space::Basis->new( [qw/AAA BBB CCC/] );
 my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis);
 is( ref $shape,  $module, 'created shape with default settings');
+my $values;
 
+#### invalid args ######################################################
 like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, {}), qr/invalid axis type/, 'type definition needs to be an ARRAY');
 like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, []), qr/invalid axis type/, 'type definition needs to have same length');
 like(   Graphics::Toolkit::Color::Space::Shape->new( $basis, ['yes','no','maybe']), qr/invalid axis type/, 'undefined values');
@@ -36,23 +38,44 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1],[
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,2,3],[1,2]]), '', 'one range def element is too big');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[1,2],[1,'-'],[1,2]]), '', 'one range def element has a none number');
 
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, 0), $module, 'accepting third constructor arg - precision zero');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, 2), $module, 'precision 2');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, -1), $module, 'precision -1');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [0,1,-1]), $module, 'full precision def');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2]), '', 'precision def too short');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef, [1,2,3,-1]), '', 'precision def too long');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef,undef,undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, 0), $module, 'accepting third constructor arg - precision zero');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, 2), $module, 'precision 2');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, -1), $module, 'precision -1');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [0,1,-1]), $module, 'full precision def');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [1,2]), '', 'precision def too short');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [1,2,3,-1]), '', 'precision def too long');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
 
 
-$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no'], 20, [-1,0,1]);
-is( ref $shape,  $module, 'created shape with 0..20 range');
+#### arg eval ##########################################################
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no']);
+is( ref $shape,  $module, 'created shape with all axis types');
 is( $shape->is_axis_numeric(0), 1, 'first dimension is numeric');
 is( $shape->is_axis_numeric(1), 1, 'second dimension is numeric');
 is( $shape->is_axis_numeric(2), 0, 'third dimension is not numeric');
 is( $shape->is_axis_numeric(3), 0, 'there is no fourth dimension ');
+
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[0,1],[-1,1],[1,10]]);
+is( ref $shape,  $module, 'created shape with most complex range definition');
+$values = $shape->clamp([0, 1, 10, 1] );
+is( ref $values, 'ARRAY', 'clamped in bound values after complex range def');
+is( int @$values,      3, 'clamp down to correct tuple length = 3');
+is( $values->[0],      0, 'value that touched on lower bound was not altered');
+is( $values->[1],      1, 'value that touched on upper bound was not altered');
+is( $values->[2],     10, 'value in middle of range was not altered');
+$values = $shape->clamp([-.1,1.1] );
+is( ref $values, 'ARRAY', 'clamp out of bounds values after complex range def');
+is( int @$values,      3, 'filled to correct tuple length = 3');
+is( $values->[0],      0, 'value below lower bound was clamped up');
+is( $values->[1],      1, 'value above upper bound was clamped down');
+is( $values->[2],      1, 'filled in missing value with lower bounds, since 0 is out of range');
+
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [-1,0,1]);
+is( ref $shape,  $module, 'created shape with complex precision definition');
 is( $shape->axis_value_precision(0), -1, 'first dimension precision');
 is( $shape->axis_value_precision(1), 0, 'second dimension precision');
+is( $shape->axis_value_precision(2), 1, 'third dimension precision');
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no'], undef, [-1,0,1]);
 is( $shape->axis_value_precision(2), undef, 'third dimension precision does not count (not numeric)');
 
 my $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular', 'circular', 0], [[-5,5],[0,5],[-5,0]], );
@@ -77,7 +100,7 @@ is( $oshape->axis_value_precision(0), 2, 'first dimension has set precision');
 is( $oshape->axis_value_precision(1), 0, 'second dimension has set precision');
 is( $oshape->axis_value_precision(2), -1,'third dimension has set precision');
 
-
+#### delta #############################################################
 my $d = $bshape->delta(1, [1,5,4,5] );
 is( ref $d,  '', 'reject compute delta on none vector on first arg position');
 $d = $shape->delta([1,5,4,5], 1 );
@@ -105,6 +128,7 @@ is( $d->[0],   -0.2, 'first delta value correct');
 is( $d->[1],     .2, 'second delta value correct');
 is( $d->[2],   -0.4, 'third delta value correct');
 
+#### clamp & round #####################################################
 my $tr = $shape->clamp([-1.1, 0, 20.1, 21, 1] );
 is( ref $tr, 'ARRAY', 'got back a value ARRAY (vector) from clamp');
 is( int @$tr,   3, 'clamp down to correct vector length = 3');
@@ -153,6 +177,7 @@ is( $tr->[0],  0.9, 'rotated value to int');
 is( $tr->[1],  1.123, 'left second value untouched');
 is( $tr->[2], 2.54, 'in range value is kept');
 
+#### check range #######################################################
 is( ref $shape->check_range(1,2,3),        '',  'need array ref, not list');
 is( ref $shape->check_range({}),           '',  'need array, not other ref');
 is( ref $shape->check_range([1,2,3]), 'ARRAY',  'all values in range');
@@ -161,6 +186,7 @@ is( ref $shape->check_range([1,2,3,4]),    '',  "too many values");
 is( ref $shape->check_range([1,22,3]),     '',  "too big second value");
 is( ref $shape->check_range([0,1,3.111]),  '',  "too many decimals in third value");
 
+#### normalize #########################################################
 my $norm = $shape->normalize([-5, 0, 5]);
 is( ref $norm,   'ARRAY', 'normalized values');
 is( int @$norm,   3, 'normalized 3 into 3 values');
@@ -204,5 +230,5 @@ is( $norm->[0],    0, 'denormalized min delta');
 is( $norm->[1],    5, 'denormalized second mid delta');
 is( $norm->[2],   10, 'denormalized third max delta');
 
-
 exit 0;
+

@@ -17,7 +17,7 @@ my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 my $HWB = Graphics::Toolkit::Color::Space::Hub::get_space('HWB');
 my $LAB = Graphics::Toolkit::Color::Space::Hub::get_space('LAB');
 
-########################################################################
+#### set ###############################################################
 my $aqua = $blue->set( {green => 255} );
 is( ref $aqua,                   $module,  'aqua (set green value to max) value object');
 is( $aqua->name,                  'aqua',  'color has the name "aqua"');
@@ -37,7 +37,7 @@ is( $values->[0],                      0,  'red value is zero');
 is( $values->[1],                      1,  'green value is one (max)');
 is( $values->[2],                      1,  'blue value is one too');
 
-########################################################################
+#### add ###############################################################
 $aqua = $blue->add( {green => 255} );
 is( ref $aqua,                   $module,  'aqua (add green value to max) value object');
 is( $aqua->name,                  'aqua',  'color has the name "aqua"');
@@ -57,7 +57,7 @@ is( $values->[0],                      0,  'red value is zero');
 is( $values->[1],                      1,  'green value is one (max)');
 is( $values->[2],                      1,  'blue value is one too');
 
-########################################################################
+#### mix ###############################################################
 my $grey = $white->mix([{color => $black, percent => 50}], $RGB);
 is( ref $grey,                   $module,  'created gray by mixing black and white');
 $values = $grey->in_shape();
@@ -84,7 +84,7 @@ is( $values->[0],                    120,  'hue value is right');
 is( $values->[1],                     50,  'sat value is right');
 is( $values->[2],                     25,  'light value is right');
 
-########################################################################
+#### invert ############################################################
 is( $white->invert($RGB)->name,             'black',  'black is white inverted');
 is( $black->invert($RGB)->name,             'white',  'white is black inverted');
 is( $blue->invert($RGB)->name,             'yellow',  'yellow is blue inverted');

@@ -27,8 +27,9 @@ sub new_from_tuple { #
     my ($pkg, $values, $space_name, $range_def) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    return "Need ARRAY of ".$color_space->axis_count." normalized (0..1) ".$color_space->name." values as first argument!"
+    return "Need ARRAY of ".$color_space->axis_count." ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $values );
+    $values = $color_space->clamp( $values, $range_def);
     $values = $color_space->normalize( $values, $range_def );
     $values = $color_space->clamp( $values, 'normal');
     _new_from_normal_tuple($values, $color_space);
@@ -59,7 +60,8 @@ sub in_shape  { # in any color space, range and precision
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     my $values = $self->normalized( $color_space->name );
-    return $values unless ref $values;
+    return $values if not ref $values or
+                     (defined $range_def and ($range_def eq 1 or $range_def eq 'normal'));
     $values = $color_space->denormalize( $values, $range_def );
     $values = $color_space->clamp( $values, $range_def );
     $values = $color_space->round( $values, $precision_def );

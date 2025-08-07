@@ -15,13 +15,10 @@ my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
 
+#### gradient ##########################################################
 
+#### complement ########################################################
+
+#### cluster ###########################################################
 
 exit 0;
-
-
-__END__
-
-gradient
-complement
-cluster

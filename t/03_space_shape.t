@@ -137,7 +137,7 @@ is( $tr->[1],   0, 'do not touch minimal value');
 is( $tr->[2],   5, 'clamp too large nr into upper bound');
 
 my $r = $shape->round([-1.0001, -0.009, 20.1], 0);
-is( ref $r,'ARRAY', 'got back a value ARRAY (vector) from round');
+is( ref $r,'ARRAY', 'got back a value ARRAY (tuple) from round');
 is( int @$r,     3, 'rounded three values');
 is( $r->[0],    -1, 'rounded negative value');
 is( $r->[1],     0, 'rounded zero');
@@ -177,14 +177,14 @@ is( $tr->[0],  0.9, 'rotated value to int');
 is( $tr->[1],  1.123, 'left second value untouched');
 is( $tr->[2], 2.54, 'in range value is kept');
 
-#### check range #######################################################
-is( ref $shape->check_range(1,2,3),        '',  'need array ref, not list');
-is( ref $shape->check_range({}),           '',  'need array, not other ref');
-is( ref $shape->check_range([1,2,3]), 'ARRAY',  'all values in range');
-is( ref $shape->check_range([1,2]),        '',  "not enough values");
-is( ref $shape->check_range([1,2,3,4]),    '',  "too many values");
-is( ref $shape->check_range([1,22,3]),     '',  "too big second value");
-is( ref $shape->check_range([0,1,3.111]),  '',  "too many decimals in third value");
+#### check value shape #################################################
+is( ref $shape->check_value_shape(1,2,3),        '',  'need array ref, not list');
+is( ref $shape->check_value_shape({}),           '',  'need array, not other ref');
+is( ref $shape->check_value_shape([1,2,3]), 'ARRAY',  'all values in range');
+is( ref $shape->check_value_shape([1,2]),        '',  "not enough values");
+is( ref $shape->check_value_shape([1,2,3,4]),    '',  "too many values");
+is( ref $shape->check_value_shape([1,22,3]),     '',  "too big second value");
+is( ref $shape->check_value_shape([0,1,3.111]),  '',  "too many decimals in third value");
 
 #### normalize #########################################################
 my $norm = $shape->normalize([-5, 0, 5]);

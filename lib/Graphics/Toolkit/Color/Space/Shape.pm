@@ -27,7 +27,15 @@ sub new {
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
-    # check and complete range definition into most explicit form
+    $range = check_range_definition( $range, $basis);
+    return $range unless ref $range;
+    $precision = check_precision_definition( $precision, $basis );
+    return $precision unless ref $precision;
+
+    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
+}
+sub check_range_definition { # check if range def is valid and eval (expand) it
+    my ($range, $basis) = @_;
     my $error_msg = 'Bad value range definition!';
     $range =   1 if not defined $range or $range eq 'normal';
     $range = 100 if                       $range eq 'percent';
@@ -50,38 +58,17 @@ sub new {
             return $error_msg.' Lower bound (first value) is >= than upper bound at axis number '.$axis_index if $axis_range->[0] >= $axis_range->[1];
         } else { return "Range definitin for axis $axis_index was not an two element ARRAY!" }
     }
-
-    # check precision definition
+    return $range;
+}
+sub check_precision_definition { # check if precision def is valid and eval (exapand) it
+    my ($precision, $basis) = @_;
     $precision = -1 unless defined $precision;
     $precision = [($precision) x $basis->axis_count] unless ref $precision;
     return 'need an ARRAY as definition of axis value precision' unless ref $precision eq 'ARRAY';
     return 'definition of axis value precision has to have same lengths as basis' unless @$precision == $basis->axis_count;
-    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
+    return $precision;
 }
 
-sub add_constraint {
-    my ($self, $name, $error_msg, $checker, $remedy) = @_;
-    return unless defined $name and not exists $self->{'constraint'}{$name}
-              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
-              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
-    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
-}
-
-sub check_range_definition { # check if range def is valid and eval (expand) it
-    my ($self, $range_definition) = @_;
-    return $self->{'range'} unless defined $range_definition;
-    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'},  $self->{'type'}, $range_definition);
-    return (ref $shape) ? $shape->{'range'} : undef ;
-}
-
-sub check_precision_definition { # check if precision def is valid and eval (exapand) it
-    my ($self, $external_precision, $external_range) = @_;
-    return $self->{'precision'} unless defined $external_precision;
-    my $range = $self->check_range_definition($external_range);
-    return $range unless ref $range;
-    my $shape = Graphics::Toolkit::Color::Space::Shape->new( $self->{'basis'}, $self->{'type'}, $range, $external_precision);
-    return (ref $shape) ? $shape->{'precision'} : undef;
-}
 #### getter (defaults) #################################################
 sub basis           { $_[0]{'basis'}}
 sub is_axis_numeric {
@@ -99,15 +86,26 @@ sub axis_value_precision { # --> +precision?
     $precision->[$axis_nr];
 }
 
-#### value shape #######################################################
-sub check_range {  # $vals -- $range, $precision --> $@vals | ~!
+#### data checker ######################################################
+sub try_check_range_definition { # check if range def is valid and eval (expand) it
+    my ($self, $range) = @_;
+    return $self->{'range'} unless defined $range;
+    return check_range_definition( $range, $self->{'basis'} );
+}
+sub try_check_precision_definition { # check if range def is valid and eval (expand) it
+    my ($self, $precision) = @_;
+    return $self->{'precision'} unless defined $precision;
+    return check_precision_definition( $precision, $self->{'basis'} );
+}
+
+sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
         unless $self->basis->is_value_tuple( $values );
-    $range = $self->check_range_definition( $range );
-    return "got bad range definition" unless ref $range;
-    $precision = $self->check_precision_definition( $precision );
-    return "bad precision definition, need ARRAY with ints or -1" unless ref $precision;
+    $range = $self->try_check_range_definition( $range );
+    return $range unless ref $range;
+    $precision = $self->try_check_precision_definition( $precision );
+    return $precision unless ref $precision;
     my @names = $self->basis->long_axis_names;
     for my $i ($self->basis->axis_iterator){
         next unless $self->is_axis_numeric($i);
@@ -122,10 +120,19 @@ sub check_range {  # $vals -- $range, $precision --> $@vals | ~!
     return $values;
 }
 
+sub add_constraint {
+    my ($self, $name, $error_msg, $checker, $remedy) = @_;
+    return unless defined $name and not exists $self->{'constraint'}{$name}
+              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
+              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
+    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
+}
+
+#### value shape #######################################################
 sub clamp { # change values if outside of range to nearest boundary, angles get rotated into range
     my ($self, $values, $range) = @_;
-    $range = $self->check_range_definition( $range );
-    return "bad range definition, need upper limit, 2 element ARRAY or ARRAY of 2 element ARRAYs" unless ref $range;
+    $range = $self->try_check_range_definition( $range );
+    return $range unless ref $range;
     $values = [] unless ref $values eq 'ARRAY';
     pop  @$values    while @$values > $self->basis->axis_count;
     for my $axis_nr ($self->basis->axis_iterator){
@@ -156,7 +163,7 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
 sub round {
     my ($self, $values, $precision) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $precision = $self->check_precision_definition( $precision );
+    $precision = $self->try_check_precision_definition( $precision );
     return "round got bad precision definition" unless ref $precision;
     [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
 }
@@ -165,8 +172,8 @@ sub round {
 sub normalize {
     my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $range = $self->check_range_definition( $range );
-    return "bad range definition" unless ref $range;
+    $range = $self->try_check_range_definition( $range );
+    return $range unless ref $range;
     [ map { ($self->is_axis_numeric( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
                                            : $values->[$_]    } $self->basis->axis_iterator ];
 }
@@ -174,9 +181,8 @@ sub normalize {
 sub denormalize {
     my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );
-    $range = $self->check_range_definition( $range );
-    return "bad range definition" unless ref $range;
-
+    $range = $self->try_check_range_definition( $range );
+    return $range unless ref $range;
     return [ map { ($self->is_axis_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
                                                    : $values->[$_]   } $self->basis->axis_iterator ];
 }
@@ -184,8 +190,8 @@ sub denormalize {
 sub denormalize_delta {
     my ($self, $delta_values, $range) = @_;
     return unless $self->basis->is_value_tuple( $delta_values );
-    $range = $self->check_range_definition( $range );
-    return "bad range definition" unless ref $range;
+    $range = $self->try_check_range_definition( $range );
+    return $range unless ref $range;
     [ map { ($self->is_axis_numeric( $_ ))
              ? ($delta_values->[$_] * ($range->[$_][1]-$range->[$_][0]))
              :  $delta_values->[$_]                                       } $self->basis->axis_iterator ];

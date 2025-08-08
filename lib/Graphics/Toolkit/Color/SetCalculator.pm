@@ -10,43 +10,48 @@ my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
 ########################################################################
 sub complement { # :base_color +steps +tilt %target_delta --> @_
-    my ($reference_color, $steps, $tilt, $target_delta) = shift;
-    my $start_values = $reference_color->in_shape( $HSL->name );
+    my ($start_color, $steps, $tilt, $target_delta) = shift;
+    my $start_values = $start_color->in_shape( $HSL->name );
+    my $target_values = [@$start_values];
     my $result_count = int abs $steps;
     my $half_result_count = int (($result_count - 1) / 2);
-    my $exponent = abs($tilt) + 1;
-    my %target_delta = (h => ($target_delta->[0] // 0),
-                        s => ($target_delta->[1] // 0),
-                        l => ($target_delta->[2] // 0) );
-    my $ideal_complement = $reference_color->add( { hue => 180 }, $HSL->name );
-    my $complement = $ideal_complement->add( { %target_delta }, $HSL->name );
+    my $scaling_exponent = abs($tilt) + 1;
+    my $max_of_linear_half_scale = ((($result_count - 1) / 2) ** $scaling_exponent) - 1;
+    for my $axis_index (0 .. 2) {
+        $target_delta->[$axis_index] = 0 unless defined $target_delta->[$axis_index];
+        $target_values->[$axis_index] += $target_delta->[$axis_index];
+    }
+    $target_values = $HSL->clamp( $target_values );  # bring back out of bound linear axis values
+    $target_delta->[1] = $target_values->[1] - $start_values->[1];
+    $target_delta->[2] = $target_values->[2] - $start_values->[2];
     my @result = ();
-    my $hue_range = 180 + $target_delta{'h'};
+    my $hue_range = 180 + $target_delta->[0]; # real value size of half complement circle
     for my $step_nr (1 .. $half_result_count) {
-        my $delta_h = $target_delta{'h'};
-        my $delta_s = $target_delta{'s'};
-        my $delta_l = $target_delta{'l'};
+        my $hue_pos = $step_nr ** $scaling_exponent;
+        $hue_pos = $max_of_linear_half_scale - $hue_pos if $tilt > 0;
+        $hue_pos /= $max_of_linear_half_scale;
         push @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                        [$start_values->[0] + $delta_h,
-                         $start_values->[1] + $delta_s,
-                         $start_values->[2] + $delta_l], $HSL->name);
+                        [$start_values->[0] + ($hue_range         * $hue_pos),
+                         $start_values->[1] + ($target_delta->[1] * $hue_pos),
+                         $start_values->[2] + ($target_delta->[2] * $hue_pos)], $HSL->name);
     }
-    push @result, $complement if $steps % 2;
-    $hue_range = 180 - $target_delta{'h'};
+    # THE complement
+    push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $HSL->name) if $steps % 2;
+    $hue_range = 180 - $target_delta->[0];
     for my $step_nr ($result_count - $half_result_count .. $result_count - 1) {
-        my $delta_h = $target_delta{'h'};
-        my $delta_s = $target_delta{'s'};
-        my $delta_l = $target_delta{'l'};
+        my $hue_pos = $step_nr ** $scaling_exponent;
+        $hue_pos = $max_of_linear_half_scale - $hue_pos if $tilt > 0;
+        $hue_pos /= $max_of_linear_half_scale;
         push @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                        [$start_values->[0] + $delta_h,
-                         $start_values->[1] + $delta_s,
-                         $start_values->[2] + $delta_l], $HSL->name);
+                        [$start_values->[0] + ($hue_range         * $hue_pos),
+                         $start_values->[1] + ($target_delta->[1] * $hue_pos),
+                         $start_values->[2] + ($target_delta->[2] * $hue_pos)], $HSL->name);
     }
-
-    push @result, $reference_color if $result_count > 1;
+    push @result, $start_color if $result_count > 1;
     return @result;
 }
 
+########################################################################
 sub gradient { # @:colors, +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;
     my $scaling_exponent = abs($tilt) + 1; # tilt = exponential scaling
@@ -72,6 +77,7 @@ sub cluster {# :values, +radius @+|+distance, :space --> @:values
     my ($center, $radius, $distance, $color_space) = @_;
     my @result = ();
 
+# check for space borders
     return @result;
 }
 

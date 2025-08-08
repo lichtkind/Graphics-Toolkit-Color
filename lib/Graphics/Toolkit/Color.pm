@@ -311,8 +311,8 @@ sub cluster {
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (  ...
-        radius => [10, 5, 3]           # cuboid shaped cluster or
-        radius => 3                    # ball shaped cluster
+        radius => 3                    # ball shaped cluster with cuboctahedral packing or
+        radius => [10, 5, 3]           # cuboid shaped cluster with cubical packing
         distance => 0.5                # minimal distance between colors in cluster
         in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH

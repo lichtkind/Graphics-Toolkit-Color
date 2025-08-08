@@ -7,7 +7,7 @@ BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::Values';
 use_ok( $module, 'could load the module');
-
+my (@values, $values);
 #### new_from_tuple ####################################################
 is( ref Graphics::Toolkit::Color::Values->new_from_tuple(),  '',  'new need at least one argument');
 my $fuchsia_rgb = Graphics::Toolkit::Color::Values->new_from_tuple([255,0,256], 'RGB');
@@ -20,7 +20,7 @@ is( @{$fuchsia_rgb->{'rgb'}},             3,  'RGB tuple has three values');
 is( $fuchsia_rgb->{'rgb'}[0],             1,  'violet has a maximal red color');
 is( $fuchsia_rgb->{'rgb'}[1],             0,  'violet has a no green color');
 is( $fuchsia_rgb->{'rgb'}[2],             1,  'violet has a maximal blue color, got clamped');
-my $values = $fuchsia_rgb->normalized();
+$values = $fuchsia_rgb->normalized();
 is( ref $values,                 'ARRAY',  'normalized value tuple is an ARRAY');
 is( @$values,                          3,  'and has three values');
 is( $values->[0],                      1,  'red value is as expected');
@@ -178,7 +178,7 @@ is( $values->[1],       0,  'red value is right');
 is( $values->[2],      10,  'magenta value is right');
 is( $values->[3],    '0-',  'yellow value is right');
 is( $values->[4],    '0+',  'key value is right');
-my @values = $fuchsia_rgb->formatted('RGB', 'list');
+@values = $fuchsia_rgb->formatted('RGB', 'list');
 is( @values,            3,  'got RGB tuple in list format');
 is( $values[0],       255,  'red value is right');
 is( $values[1],         0,  'green value is right');

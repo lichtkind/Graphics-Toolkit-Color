@@ -6,35 +6,26 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;
 
-
-sub gradient { # @:colors, +steps, +tilt, :space --> @:values
-    my ($colors, $steps, $tilt, $color_space) = @_;
-    my @result = ($colors->[0]);
-    my $exponent = abs($tilt) + 1;
-    my $scale_max = ($steps ** $exponent) - 1;
-    my $segment_count = @$colors - 1;
-    my $segment_size = $scale_max / $segment_count;
-    for my $step_nr (2 .. $steps - 1){
-        my $linear_pos = ($step_nr ** $exponent) - 1;
-        $linear_pos = $scale_max - $linear_pos if $tilt < 0;
-        my $percent = $linear_pos / $scale_max * 100;
-        my $color_index = int ($percent / $segment_size);
-        $percent = $segment_count * ($percent - ($segment_size * $color_index));
-        push @result, $colors->[$color_index]->mix(
-                          [{color => $colors->[$color_index+1], percent => $percent}], $color_space );
-    }
-    push @result, pop @$colors if $steps > 1;
-    return @result;
-}
-
-########################################################################
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
-sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
-    my ($value_object, $steps, $tilt) = shift;
+########################################################################
+sub complement { # :values +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
+    my ($reference_color, $steps, $tilt, $target) = shift;
+    my $start_values = $reference_color->in_shape( $HSL->name );
+    my $result_count = int abs $steps;
+    my $half_result_count = int (($result_count - 1) / 2);
+    my %delta = (h => ($target->[0] // 0), s => ($target->[1] // 0), l => ($target->[2] // 0));
+    my $ideal_complement = $reference_color->add( { hue => 180 }, $HSL->name );
+    my $complement = $ideal_complement->add( { %delta }, $HSL->name );
     my @result = ();
-    my $start_values = $value_object->in_shape('HSL');
-    # Graphics::Toolkit::Color::Values->new_from_tuple( $values, $HSL->name)
+    for my $step_nr (1 .. $half_result_count) {
+
+    }
+    push @result, $complement if $steps % 2;
+    for my $step_nr ($result_count - $half_result_count .. $result_count - 1) {
+
+    }
+    # Graphics::Toolkit::Color::Values->new_from_tuple( $values, $HSL->name);
     #~ my $saturation_tilt = (exists $arg{'s'}) ? (delete $arg{'s'}) :
                           #~ (exists $arg{'saturation_tilt'}) ? (delete $arg{'saturation_tilt'}) : 0;
     #~ return $help if ref $saturation_tilt and ref $saturation_tilt ne 'HASH';
@@ -75,7 +66,6 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
                                           #~ : (-(($sat_max_hue -      $hsl[0]) / 90 * $saturation_tilt) + $saturation_tilt);
         #~ $hsl[1] += $sat_start_delta;
         #~ $hsl2[1] -= $sat_start_delta;
-    #~ }
     #~ if ($lightness_axis_offset){
         #~ $light_max_hue -= 360 while $light_max_hue > $hsl[0];
         #~ $light_max_hue += 360 while $light_max_hue <= $hsl[0];
@@ -87,12 +77,6 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
                                             #~ : (-(($light_max_hue -      $hsl[0]) / 90 * $lightness_tilt) + $lightness_tilt);
         #~ $hsl[2] += $light_start_delta;
         #~ $hsl2[2] -= $light_start_delta;
-    #~ }
-    #~ my $c1 = _new_from_scalar( [ 'HSL', @hsl ] );
-    #~ $hsl2[0] += 180 + $hue_tilt;
-    #~ my $c2 = _new_from_scalar( [ 'HSL', @hsl2 ] ); # main complementary color
-    #~ return $c2 if $steps < 2;
-    #~ return $c1, $c2 if $steps == 2;
 
     #~ my (@result) = $c1;
     #~ my $hue_avg_step = 360 / $steps;
@@ -123,27 +107,40 @@ sub complement { # +steps +hue_tilt +saturation_tilt +lightness_tilt --> @_
             #~ $hue_current += ($hue_ak_step + $hue_last_step) / 2;
         #~ }
         #~ $hue_last_step = $hue_ak_step;
-
         #~ if ($hue_current_naive >= $sat_turn_point[$si]){
             #~ my $bar_width = ($sat_turn_point[$si] - $hue_current_naive + $hue_avg_step) / $hue_avg_step;
             #~ $saturation_current += $sat_step * ((2 * $bar_width) - 1);
             #~ $sat_step = -$sat_step;
             #~ $si++;
-        #~ } else {
-            #~ $saturation_current += $sat_step;
-        #~ }
-
+        #~ } else { $saturation_current += $sat_step; }
         #~ if ($hue_current_naive >= $light_turn_point[$li]){
             #~ my $bar_width = ($light_turn_point[$li] - $hue_current_naive + $hue_avg_step) / $hue_avg_step;
             #~ $lightness_current += $light_step * ((2 * $bar_width) - 1);
             #~ $light_step = -$light_step;
             #~ $li++;
-        #~ } else {
-            #~ $lightness_current += $light_step;
-        #~ }
+        #~ } else { $lightness_current += $light_step; }
 
-        #~ $result[$i] = _new_from_scalar( [ HSL => $hue_current, $saturation_current, $lightness_current ] );
-    #~ }
+    push @result, $reference_color if $result_count > 1;
+    return @result;
+}
+
+sub gradient { # @:colors, +steps, +tilt, :space --> @:values
+    my ($colors, $steps, $tilt, $color_space) = @_;
+    my @result = ($colors->[0]);
+    my $exponent = abs($tilt) + 1;
+    my $scale_max = ($steps ** $exponent) - 1;
+    my $segment_count = @$colors - 1;
+    my $segment_size = $scale_max / $segment_count;
+    for my $step_nr (2 .. $steps - 1){
+        my $linear_pos = ($step_nr ** $exponent) - 1;
+        $linear_pos = $scale_max - $linear_pos if $tilt < 0;
+        my $percent = $linear_pos / $scale_max * 100;
+        my $color_index = int ($percent / $segment_size);
+        $percent = $segment_count * ($percent - ($segment_size * $color_index));
+        push @result, $colors->[$color_index]->mix(
+                          [{color => $colors->[$color_index+1], percent => $percent}], $color_space );
+    }
+    push @result, pop @$colors if $steps > 1;
     return @result;
 }
 

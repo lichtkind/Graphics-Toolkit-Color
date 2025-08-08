@@ -84,6 +84,7 @@ is( $space->is_name('name'),    1,  'axis initials are space name');
 is( $space->is_name('alias'),   1,  'user set alias is a space name');
 is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
 
+#### value shape #######################################################
 is( ref $space,     $module, 'created color space with axis names and ranges');
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->check_value_shape([10,10,1,10]),                  'ARRAY', 'max values are in range');
@@ -150,7 +151,7 @@ is( $val->[1],                1.1111, 'second value correct');
 is( $val->[2],                    10, 'third value correct');
 is( $val->[3],                0.1111, 'fourth value correct');
 
-
+#### format ############################################################
 is( $space->has_format('bbb'), 0, 'vector name is not a format');
 is( $space->has_format('c'),   0, 'vector sigil is not  a format');
 is( $space->has_format('list'),1, 'list is a format');
@@ -200,6 +201,7 @@ is( $fval->[1],  2, 'second value correctly deformatted');
 is( $fval->[2],  3, 'third value correctly deformatted');
 is( $fval->[3],  4, 'fourth value correctly deformatted');
 
+#### convert ###########################################################
 my @converter = $space->converter_names;
 is( $space->can_convert('RGB'),   0, 'converter not yet inserted');
 is( int @converter,               0, 'no converter names known');

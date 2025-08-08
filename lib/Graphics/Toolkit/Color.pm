@@ -7,6 +7,7 @@ our $VERSION = '1.7_99';
 use v5.12;
 use warnings;
 use Exporter 'import';
+use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 
 our @EXPORT_OK = qw/color/;
@@ -251,6 +252,27 @@ EOH
 }
 
 ## color set creation methods ##########################################
+sub complement {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0, target => {}});
+    my $help = <<EOH;
+    GTC method 'complement' is computed in HSL and has two named, optional arguments:
+    complement ( ...
+        steps => 20                                 # count of produced colors, default is 1
+        tilt => 10                                  # default is 0
+        target => {h => 10, s => 20, l => 3}        # sub-keys are independent, default to 0
+EOH
+    return $arg.$help unless ref $arg;
+    return "Optional argument 'steps' has to be a number !\n".$arg unless is_nr($arg->{'steps'});
+    return "Optional argument 'steps' is zero, no complement colors will be computed !\n".$help unless $arg->{'steps'};
+    return "Optional argument 'tilt' has to be a number !\n".$arg unless is_nr($arg->{'tilt'});
+    return "Optional argument 'target' has to be a HASH ref !\n".$arg if ref $arg->{'target'} ne 'HASH';
+    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
+    return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$arg
+        unless ref $values;
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $values );
+}
+
 sub gradient {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, in => $default_space_name});
@@ -281,53 +303,6 @@ EOH
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
-}
-
-sub complement {
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0});
-    my $help = <<EOH;
-    GTC method 'complement' is computed in HSL and has two named, optional arguments:
-    complement ( ...
-        steps => 20                                     # count of produced colors, default is 1
-        tilt => 10                                         # default is 0
-        tilt => {hue => 10, saturation => 20, lightness => 3} # use these keys independently
-        tilt => {hue => 10, s => {hue => -20, amount => 20 }, l => {hue => -10, amount => 3}}
-EOH
-    return $arg.$help unless ref $arg;
-    return "Argument 'tilt' is malformed !\n".$arg if ref $arg->{'tilt'} and ref $arg->{'tilt'} ne 'HASH';
-    if (ref $arg->{'tilt'} eq 'HASH'){
-        my @keys = sort keys( %{$arg->{'tilt'}} );
-        return "Argument 'tilt' needs hash with three keys: 'h', 's' and 'l' !\n".$help unless @keys == 3;
-        return "Argument 'tilt' got HASH ref which is missing key: 'hue' or 'h' !\n".$help
-            unless lc $keys[0] eq 'h' or lc $keys[0] eq 'hue';
-        return "Argument 'tilt' got HASH ref which is missing key: 'lightness' or 'l' !\n".$help
-            unless lc $keys[0] eq 'l' or lc $keys[0] eq 'lightness';
-        return "Argument 'tilt' got HASH ref which is missing key: 'saturation' or 's' !\n".$help
-            unless lc $keys[0] eq 's' or lc $keys[0] eq 'saturation';
-
-
-        return "Argument 'tilt' got HASH ref with 'hue' value which is not a integer number !\n".$help
-            if ref $arg->{'tilt'}{$keys[0]} or not $arg->{'tilt'}{$keys[0]} =~ /^\d+$/;
-        return "Argument 'tilt' got HASH ref with malformed 'lightness' value !\n".$help
-            if ref $arg->{'tilt'}{$keys[1]} and $arg->{'tilt'}{$keys[1]} ne 'HASH';
-        return "Argument 'tilt' got HASH ref with malformed 'saturation' value !\n".$help
-            if ref $arg->{'tilt'}{$keys[2]} and $arg->{'tilt'}{$keys[2]} ne 'HASH';
-
-        if (ref $arg->{'tilt'}{$keys[1]}){
-            my @keys = sort keys( %{$arg->{'tilt'}{$keys[1]}} );
-            return "Argument 'tilt' key 'lightness' needs values 'hue' and 'amount' !\n".$help
-                if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
-        }
-        if (ref $arg->{'tilt'}{$keys[2]}){
-            my @keys = sort keys( %{$arg->{'tilt'}{$keys[2]}} );
-            return "Argument 'tilt' key 'saturation' needs values 'hue' and 'amount' !\n".$help
-                if @keys != 2 or lc $keys[0] ne 'amount' or (lc $keys[1] ne 'h' and lc $keys[1] ne 'hue');
-        }
-
-    } else {
-    }
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/} );
 }
 
 sub cluster {
@@ -710,11 +685,50 @@ optional, positional argument, a space name.
 
 construct several interrelated color objects at once.
 
+
+=head2 complement
+
+Creates a set of complementary colors (GTC objects), which will be
+computed in I<HSL> color space. The method accepts three optional,
+named arguments: C<steps> and C<tilt> and C<target>. But if none are
+provided, THE (one) complementary color will be produced.
+
+One singular, positional argument defines the number of produced colors,
+same as the named argument C<steps> would have. If you want to get
+'triadic' colors, choose 3 as an argument for C<steps> - 4 would get
+you the 'tetradic' colors, .... and so on. The given color is always
+the last in the row of produced complementary colors.
+
+If you need split-complementary colors, just use the C<tilt> argument,
+which defaults to zero. Without any tilt, complementary colors are equally
+distanced dots on a horizontal circle around the vertical, central column
+in I<HSL> space. In other words: complementary colors have all the same
+'saturation' (distance from the column) and 'lightness' (height).
+They differ only in 'hue' (position on the circle). The given color
+and its (THE) complement sit on opposite sides of the circle.
+The greater the C<tilt> amount, the more these colors (minus the given
+one) will move on the circle toward THE complement and vice versa.
+What is traditionally meant by split-complementary colors you will
+get here with a C<tilt> factor of around 4 and four C<steps>.
+
+To get an even greater variety of complementary colors, you can use
+C<target> argument and move around THE complement and thus shape the
+circle in all three directions. C<hue> (or C<h>) values move it
+circularly C<saturation> (or C<s>) move it away or negative values toward
+the central column and C<lightness> (or C<l>) move it up and down.
+
+    my @colors = $c->complement( 4 );                       # 'tetradic' colors
+    my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
+    my @colors = $c->complement( steps => 3, tilt => { move => 2, target => {l => -10}} );
+    my @colors = $c->complement( steps => 3, tilt => { move => 2,
+                                                     target => { h => 20, s=> -5, l => -10 } });
+
+
 =head2 gradient
 
 Creates a gradient (a list of color objects that build a transition)
 between the current color held by the object and a second color,
-provided by the named argument L</to>, which is a required.
+provided by the named argument L</to>, which is  required.
 Optionally C<to> accepts an ARRAY ref (square braces) with a list of
 colors in order to create the most fancy, custom and nonlinear gradients.
 
@@ -722,63 +736,21 @@ Also required is the named argument C<steps>, which is the gradient length
 or count of colors, which are part of this gradient. Included in there
 are the start color (given by this object) and end color (given with C<to>).
 
-The optional, floating point valued argument C<dynamic> makes the gradient
+The optional, floating point valued argument C<tilt> makes the gradient
 skewed toward one or the other end. Default is zero, which results in
 a linear, uniform transition between start and stop.
 Greater values of the argument let the color change rate start small,
 steadily getting bigger. Negative values work vice versa.
-The bigger the numeric value the bigger the effect.
+The bigger the absolute numeric value the bigger the effect.
 
-Optional is the named argument L</in> (color space - details behind the link).
+Optional is the named argument L</in> (color space - details behind link).
 
     # we turn to grey
     my @colors = $c->gradient( to => $grey, steps => 5);
     # none linear gradient in HSL space :
-    @colors = $c1->gradient( to =>[14,10,222], steps => 10, dynamic => 3, in => 'HSL' );
+    @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 3, in => 'HSL' );
     @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
 
-=head2 complement
-
-Creates a set of complementary colors, which will be computed in I<HSL>
-color space. The method accepts two optional, named arguments.
-Complementary colors normally have a different I<hue> value but same
-I<saturation> and I<lightness>. They form a circle in I<HSL>, which will
-be referenced  often in this paragraph.
-
-If called with no arguments the method returns just THE complementary
-color on the opposite "side" of the circle.
-
-The named argument C<steps> (as in L</gradient>) sets the number of colors
-computed, by dividing the perimeter of the circle in N equal parts
-If you for instance use C<steps => 3> you will get the triadic colors,
-that form a equilateral triangle on top of the circle. If no other named
-arguments are used, you may omit the arguments name and type just C<complement(3)>.
-
-The second argument is C<tilt>, can skew the circle in any direction and
-provides several options to do that. In its simplest form you provide just
-one number to skew the hue values of the complements. Positive values
-move the complementary colors nearest to the given color even nearer -
-negative values do the opposite. The same can be achieved by using the
-form C<tilt => {hue => nnn}>. Into that HASH reference you could insert
-the keys C<saturation> (or C<s>) and C<lightness> (or C<l>) to tilt the
-circle along two more axis. They move the opposite "side" of the cirle
-(THE complement color, lets call it TC) as the method L</add> would do.
-With C<s => -10> you move TC towards the point, which was previously
-the center of the circle, making some resulting colors more saturated
-than others. C<l => 10> would move TC a bit up, making some colors lighter.
-To get even more control you could determine to not move the circle
-at the TC point but also at any hue position. In order to do that,
-you have to provide the C<saturation> and C<lightness> keys with a HASH
-reference that has two keys: C<amount> and C<hue> (or C<h>). C<amount>
-does the same movements as just described. But the C<hue> value lets you
-select the point on the circe you actually want to move. Too large or
-negative C<hue> values will be rotated into the expected range of 0 ..359.
-
-    my @colors = $c->complement( 4 );    # $self + 3 compementary (square) colors
-    my @colors = $c->complement( steps => 3, tilt => {s => 20, l => -10} );
-    my @colors = $c->complement( steps => 3, tilt => { hue => -40,
-                                                         s => {amount => 300, hue => -50},
-                                                         l => {amount => -10, hue => 30} });
 
 =head2 cluster
 
@@ -786,18 +758,19 @@ Computes a set of colors that are all similar but not the same.
 The method accepts three named arguments: C<radius>, C<distance> and L</in>,
 of which the first two are required.
 
-The produced colors form a ball or cuboid around the given color, depending
-on what the argument C<radius> got. If it is a single number, it will be
-a ball with the given radius. If it is an ARRAY of values you get the a
-cuboid with the given dimensions.
+The produced colors form a ball or cuboid in a color space around the given
+color, depending on what the argument C<radius> got. If it is a single
+number, it will be a ball with the given radius. If it is an ARRAY of
+values you get the a cuboid with the given dimensions.
 
-The minimal distance between the colors is set by the argument C<distance>,
-which is computed the same way as the method with that name. In a cuboid
-shaped cluster the colors will be in a cubic grid inside the ball they
-form a cuboctahedral grid, which is packed tighter but still obey the
-demanded minimal distance.
+The minimal distance between any two colors of a cluster is set by the
+C<distance> argument, which is computed the same way as the method
+C</distance>. In a cuboid shaped cluster- the colors will form a cubic
+grid - inside the ball shaped cluster they form a cuboctahedral grid,
+which is packed tighter, but still obeys the minimal distance.
 
-    my @colors = $c->cluster( radius => [2,2,3], distance => 0.4, in => YUV );
+    my @blues = $blue->cluster( radius => 4, distance => 0.3 );
+    my @c = $color->cluster( radius => [2,2,3], distance => 0.4, in => YUV );
 
 
 

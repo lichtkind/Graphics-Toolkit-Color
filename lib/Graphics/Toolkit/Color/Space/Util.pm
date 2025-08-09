@@ -20,13 +20,13 @@ sub round_decimals {
     my ($nr, $precision) = @_;
     return round_int( $nr ) unless defined $precision and $precision;
     $precision = 10 ** $precision;
-    round_int( $nr * $precision ) / $precision;
+    return  round_int( $nr * $precision ) / $precision;
 }
 
 
 sub real_mod { # real value modulo
     return 0 unless defined $_[1] and $_[1];
-    $_[0] - (int($_[0] / $_[1]) * $_[1]);
+    return  $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }
 
 sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
@@ -34,13 +34,13 @@ sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
 sub max {
     my $v = shift;
     for (@_) { next unless defined $_; $v = $_ if $v < $_ }
-    $v;
+    return $v;
 }
 
 sub min {
     my $v = shift;
     for (@_) { next unless defined $_; $v = $_ if $v > $_ }
-    $v;
+    return $v;
 }
 
 # change normalized RGB values to and from standard observer 2°

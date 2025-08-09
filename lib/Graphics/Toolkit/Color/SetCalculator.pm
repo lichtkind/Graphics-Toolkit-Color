@@ -75,8 +75,9 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 ########################################################################
 sub cluster { # :values, +radius @+|+distance, :space --> @:values
     my ($center, $radius, $distance, $color_space) = @_;
+    my $axis_count = $color_space->axis_count;
     my @result = ();
-    if (ref $radius){
+    if (ref $radius) {
     } else {
         # max distance
         # in alle 4 richtungen

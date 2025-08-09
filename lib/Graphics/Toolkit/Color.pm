@@ -2,12 +2,12 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.7_99';
+our $VERSION = '1.8_99';
 
 use v5.12;
 use warnings;
 use Exporter 'import';
-use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
+use Graphics::Toolkit::Color::Space::Util qw/is_nr min/;
 use Graphics::Toolkit::Color::SetCalculator;
 
 our @EXPORT_OK = qw/color/;
@@ -319,8 +319,14 @@ EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
-    return "Argument radius has to be a SCALAR or ARRAY ref\n".$help
+    return "Argument 'radius' has to be a SCALAR or ARRAY ref with numbers for each axis! \n".$help
         if ref $arg->{'radius'} and (ref $arg->{'radius'} ne 'ARRAY' or @{$arg->{'radius'}} != $color_space->axis_count);
+    return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
+        if $color_space->axis_count > 3 and not ref $arg->{'radius'};
+    return "Argument 'distance' has to be a number !\n".$help unless is_nr($arg->{'distance'});
+    my $min_radius = (ref $arg->{'radius'}) ? min(@{$arg->{'radius'}}) :  $arg->{'radius'};
+    return "Radius has to be at least twice the size of minimal distance between colors to get a cluster"
+        if $arg->{'distance'} * 2 > $min_radius;
     map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance in/});
 }
 

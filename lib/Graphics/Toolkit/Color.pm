@@ -339,16 +339,16 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     use Graphics::Toolkit::Color qw/color/;
 
     my $red = Graphics::Toolkit::Color->new('red');  # create color object
-    say $red->add( 'blue' => 255 )->name;            # add blue value: 'fuchsia'
+    say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'fuchsia'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
     $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
 
-=head1 WARNING
+=head1 DEPRECATION WARNING
 
-deprecated methods of the old API ( I<string>, I<rgb>, I<red>,
+Methods of the old API ( I<string>, I<rgb>, I<red>,
 I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
 I<lightness>, I<hsl_hash>, I<blend>, I<blend_with>, I<gradient_to>,
 I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
@@ -394,11 +394,11 @@ is called a B<color definition>.
 
 =head2 new( [$r, $g, $b] )
 
-Triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
+takes a triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
 They can, but don't have to be put into an ARRAY reference (square brackets).
-If you want to define a color by values from another color space, you have
-to insert the name of a supported color space into first position.
-Out of range values will be corrected (clamped) to the closest value in range.
+If you want to define a color by values from another color space,
+you have to prepend the values with the name of a supported color space.
+Out of range values will be corrected (clamped).
 
     my $red = Graphics::Toolkit::Color->new(         255, 0, 0 );
     my $red = Graphics::Toolkit::Color->new(        [255, 0, 0]); # does the same
@@ -423,15 +423,20 @@ are in most cases the first letters of the long name.
 
 =head2 new('rgb($r,$g,$b)')
 
-Variant of string format that is supported by CSS (I<css_string>).
+String format that is supported by CSS (I<css_string> format): it starts
+with the case insensitive color space name (lower case is default),
+followed by the comma separated values in round braces.
+The value suffixes that are defined by the color space (I<'%'> in case
+of I<HSV>) are optional.
 
     my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
-    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100%, 100%)' );
 
 
 =head2 new('rgb: $r, $g, $b')
 
-String format (good for serialisation) that maximizes readability.
+String format I<named_string> (good for serialisation) that maximizes
+readability.
 
     my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
     my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
@@ -440,7 +445,7 @@ String format (good for serialisation) that maximizes readability.
 =head2 new('#rgb')
 
 Color definitions in hexadecimal format as widely used in the web, are
-also acceptable.
+also acceptable (I<RGB> only).
 
     my $color = Graphics::Toolkit::Color->new('#FF0000');
     my $color = Graphics::Toolkit::Color->new('#f00');    # short works too
@@ -479,7 +484,7 @@ If writing
 
     Graphics::Toolkit::Color->new( ...);
 
-is too much typing wrk for you or takes to much space in the code file,
+is too much typing work for you or takes up to much space in the code file,
 import the subroutine C<color>, which accepts all the same arguments as C<new>.
 
     use Graphics::Toolkit::Color qw/color/;
@@ -487,9 +492,11 @@ import the subroutine C<color>, which accepts all the same arguments as C<new>.
     my $darkblue = color([20, 20, 250]);
 
 
+
 =head1 GETTER
 
 giving access to different parts of the objects data.
+
 
 =head2 values
 
@@ -598,7 +605,13 @@ The last argument is named L</range>, which can change the result drasticly.
 
 =head1 SINGLE COLOR
 
-Methods to generate one new color object that is related to the current object.
+These methods generate one new color object that is related to the calling
+object (invocant). You might expect that methods like C<set_value> change
+the values of the invocant, but GTC objects are as mentioned in the
+L</DESCRIPTION> read only. That supports a more functional programming
+style as well as method stacking like:
+
+    $color->add_value( saturation => 5)->invert->mix( to => 'green');
 
 
 =head2 set_value

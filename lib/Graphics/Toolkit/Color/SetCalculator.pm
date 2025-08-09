@@ -10,13 +10,12 @@ my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
 ########################################################################
 sub complement { # :base_color +steps +tilt %target_delta --> @:values
-    my ($start_color, $steps, $tilt, $target_delta) = shift;
+    my ($start_color, $steps, $tilt, $target_delta) = @_;
     my $start_values = $start_color->shaped( $HSL->name );
-    my $target_values = [@$start_values];
     my $result_count = int abs $steps;
-    my $half_result_count = int (($result_count - 1) / 2);
     my $scaling_exponent = abs($tilt) + 1;
-    my $max_of_linear_half_scale = ((($result_count - 1) / 2) ** $scaling_exponent) - 1;
+    my $target_values = [@$start_values];
+    $target_values->[0] += 180;
     for my $axis_index (0 .. 2) {
         $target_delta->[$axis_index] = 0 unless defined $target_delta->[$axis_index];
         $target_values->[$axis_index] += $target_delta->[$axis_index];
@@ -24,29 +23,24 @@ sub complement { # :base_color +steps +tilt %target_delta --> @:values
     $target_values = $HSL->clamp( $target_values );  # bring back out of bound linear axis values
     $target_delta->[1] = $target_values->[1] - $start_values->[1];
     $target_delta->[2] = $target_values->[2] - $start_values->[2];
-    my @result = ();
+    my $max_of_linear_half_scale = ((($result_count - 1) / 2) ** $scaling_exponent) - 1;
+    my @hue_pos = map {
+        my $hue_pos = ($_ ** $scaling_exponent) / $max_of_linear_half_scale;
+        ($tilt > 0) ? (1 - $hue_pos) : $hue_pos;
+    } 1 .. int (($result_count - 1) / 2);
     my $hue_range = 180 + $target_delta->[0]; # real value size of half complement circle
-    for my $step_nr (1 .. $half_result_count) {
-        my $hue_pos = $step_nr ** $scaling_exponent;
-        $hue_pos = $max_of_linear_half_scale - $hue_pos if $tilt > 0;
-        $hue_pos /= $max_of_linear_half_scale;
-        push @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                        [$start_values->[0] + ($hue_range         * $hue_pos),
-                         $start_values->[1] + ($target_delta->[1] * $hue_pos),
-                         $start_values->[2] + ($target_delta->[2] * $hue_pos)], $HSL->name);
-    }
-    # THE complement
+    my @result = ();
+    push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
+                    [ $start_values->[0] + ($hue_range         * $_),
+                      $start_values->[1] + ($target_delta->[1] * $_),
+                      $start_values->[2] + ($target_delta->[2] * $_)], $HSL->name)) for @hue_pos;
     push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $HSL->name) if $steps % 2;
     $hue_range = 180 - $target_delta->[0];
-    for my $step_nr ($result_count - $half_result_count .. $result_count - 1) {
-        my $hue_pos = $step_nr ** $scaling_exponent;
-        $hue_pos = $max_of_linear_half_scale - $hue_pos if $tilt > 0;
-        $hue_pos /= $max_of_linear_half_scale;
-        push @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                        [$start_values->[0] + ($hue_range         * $hue_pos),
-                         $start_values->[1] + ($target_delta->[1] * $hue_pos),
-                         $start_values->[2] + ($target_delta->[2] * $hue_pos)], $HSL->name);
-    }
+    @hue_pos = map {1 - $_} reverse @hue_pos;
+    push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
+                    [ $start_values->[0] + ($hue_range         * $_),
+                      $start_values->[1] + ($target_delta->[1] * $_),
+                      $start_values->[2] + ($target_delta->[2] * $_)], $HSL->name)) for @hue_pos;
     push @result, $start_color if $result_count > 1;
     return @result;
 }
@@ -75,9 +69,10 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 ########################################################################
 sub cluster { # :values, +radius @+|+distance, :space --> @:values
     my ($center, $radius, $distance, $color_space) = @_;
-    my $axis_count = $color_space->axis_count;
     my @result = ();
     if (ref $radius) {
+        my $r = $radius->[0];
+        my $axis_count = $color_space->axis_count;
     } else {
         # max distance
         # in alle 4 richtungen

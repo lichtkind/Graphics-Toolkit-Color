@@ -9,9 +9,9 @@ use Graphics::Toolkit::Color::Values;
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
 ########################################################################
-sub complement { # :base_color +steps +tilt %target_delta --> @_
+sub complement { # :base_color +steps +tilt %target_delta --> @:values
     my ($start_color, $steps, $tilt, $target_delta) = shift;
-    my $start_values = $start_color->in_shape( $HSL->name );
+    my $start_values = $start_color->shaped( $HSL->name );
     my $target_values = [@$start_values];
     my $result_count = int abs $steps;
     my $half_result_count = int (($result_count - 1) / 2);
@@ -73,10 +73,17 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 }
 
 ########################################################################
-sub cluster {# :values, +radius @+|+distance, :space --> @:values
+sub cluster { # :values, +radius @+|+distance, :space --> @:values
     my ($center, $radius, $distance, $color_space) = @_;
     my @result = ();
-
+    if (ref $radius){
+    } else {
+        # max distance
+        # in alle 4 richtungen
+        # finde kontout
+        # spiegle 8 mal
+        # berechne nächste ebene
+    }
 # check for space borders
     return @result;
 }

@@ -124,21 +124,21 @@ is( $values->[1],      1,  'magenta value is right');
 is( $values->[2],      0,  'yellow value is right');
 is( $values->[3],      0,  'key value is right');
 
-#### in_shape ##########################################################
-$values = $fuchsia_rgb->in_shape();
+#### shaped ##########################################################
+$values = $fuchsia_rgb->shaped();
 is( ref $values, 'ARRAY',  'get fuchsia RGB (default) values in ragular range');
 is( @$values,          3,  'all 3 values');
 is( $values->[0],    255,  'red value is right');
 is( $values->[1],      0,  'green value is right');
 is( $values->[2],    255,  'blue value is right');
-$values = $fuchsia_rgb->in_shape('CMYK', [[-10,5],10, [-1,5], 20]);
+$values = $fuchsia_rgb->shaped('CMYK', [[-10,5],10, [-1,5], 20]);
 is( ref $values, 'ARRAY',  'get CMYK values with custom ranges');
 is( @$values,          4,  '4 values');
 is( $values->[0],    -10,  'cyan value is right');
 is( $values->[1],     10,  'magenta value is right');
 is( $values->[2],     -1,  'yellow value is right');
 is( $values->[3],      0,  'key value is right');
-$values = $fuchsia_rgb->in_shape('XYZ', undef, [0, 1,2]);
+$values = $fuchsia_rgb->shaped('XYZ', undef, [0, 1,2]);
 is( ref $values, 'ARRAY',  'get XYZ values with custom precision');
 is( @$values,          3,  '3 values');
 is( $values->[0],     59,  'X value is right');

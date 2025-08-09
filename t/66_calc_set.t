@@ -4,7 +4,6 @@ use v5.12;
 use warnings;
 use Test::More tests => 140;
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color::SetCalculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';

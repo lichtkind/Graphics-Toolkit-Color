@@ -56,7 +56,7 @@ sub normalized { # normalized (0..1) value tuple in any color space
         $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},
     );
 }
-sub in_shape  { # in any color space, range and precision
+sub shaped  { # in any color space, range and precision
     my ($self, $space_name, $range_def, $precision_def) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
@@ -71,7 +71,7 @@ sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~r
     my ($self, $space_name, $format_name, $suffix_def, $range_def, $precision_def) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    my $values = $self->in_shape( $color_space->name, $range_def, $precision_def );
+    my $values = $self->shaped( $color_space->name, $range_def, $precision_def );
     return $values unless ref $values;
     return $color_space->format( $values, $format_name, $suffix_def );
 }
@@ -80,7 +80,7 @@ sub closest_name_and_distance {
     my ($self) = @_;
     return ($self->{'name'}, 0) if $self->{'name'};
     unless ($self->{'closest'}){
-        my $values = $self->in_shape( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
+        my $values = $self->shaped( Graphics::Toolkit::Color::Space::Hub::default_space_name() );
         my ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 5);
         ($names, $distances) = Graphics::Toolkit::Color::Name::names_in_rgb_range( $values, 35)
             unless ref $names eq 'ARRAY' and @$names;
@@ -117,7 +117,7 @@ sub set { # .values, %newval -- ~space_name --> _
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
                                                  : 'any supported color space!';
     }
-    my $values = $self->in_shape( $space_name );
+    my $values = $self->shaped( $space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
@@ -134,7 +134,7 @@ sub add { # .values, %newval -- ~space_name --> _
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
                                                  : 'any supported color space!';
     }
-    my $values = $self->in_shape( $space_name );
+    my $values = $self->shaped( $space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
@@ -160,7 +160,7 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     }
     my $result_values = [(0) x $color_space->axis_count];
     if ($percentage_sum < 100){
-        my $values = $self->in_shape( $color_space->name );
+        my $values = $self->shaped( $color_space->name );
         my $mix_amount = (100 - $percentage_sum) / 100;
         $result_values->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
     } else {
@@ -168,7 +168,7 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
         $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
     }
     for my $ingredient (@$recipe){
-        my $values = $ingredient->{'color'}->in_shape( $color_space->name );
+        my $values = $ingredient->{'color'}->shaped( $color_space->name );
         $result_values->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }
     $self->new_from_tuple( $result_values, $color_space->name );

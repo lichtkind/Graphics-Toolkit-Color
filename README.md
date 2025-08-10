@@ -62,7 +62,7 @@
     required if your color definitions calls for them or you use
     the feature 'closest_name' with an argument.
     (see POD chapter: new( 'scheme:color' ) for details)
-    Get them all by installing [Bundle::Graphics::ColorNames](https://metacpan.org/pod/Bundle::Graphics::ColorNames).
+    Get them all by installing Bundle::Graphics::ColorNames.
 
     during installation Test::More is needed
 

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 140;
+use Test::More tests => 150;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::SetCalculator';
@@ -16,14 +16,88 @@ my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $red  = Graphics::Toolkit::Color::Values->new_from_any_input('red');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
+my $midblue = Graphics::Toolkit::Color::Values->new_from_any_input([43, 52, 242]);
 my (@colors, $values);
 
 #### complement ########################################################
+# :base_color +steps +tilt %target_delta --> @:values
 my $complement = \&Graphics::Toolkit::Color::SetCalculator::complement;
-my @yellow = $complement->($blue, 1, 0, []);
-is( int    @yellow,                     1,   'got only one complement');
-is( ref $yellow[0],            $value_ref,   'but it is a value object');
-is( $yellow[0]->name,            'yellow',   'and has right values');
+@colors = $complement->($blue, 1, 0, []);
+is( int    @colors,                     1,   'got only one complement');
+is( ref $colors[0],            $value_ref,   'but it is a value object');
+is( $colors[0]->name,            'yellow',   'and has right values');
+
+@colors = $complement->($blue, 2, 0, []);
+is( int @colors,                        2,   'got 2 colors, complement and invocant');
+is( ref $colors[0],            $value_ref,   'first is a value object');
+is( ref $colors[1],            $value_ref,   'second is a value object');
+is( $colors[0]->name,            'yellow',   'and has right values');
+is( $colors[1],                     $blue,   'got invocant back as second color');
+
+@colors = $complement->($blue, 3, 0, []);
+is( int @colors,                        3,   'got 3 "triadic "colors');
+is( ref $colors[0],            $value_ref,   'first is a value object');
+is( ref $colors[1],            $value_ref,   'second is a value object');
+is( ref $colors[2],            $value_ref,   'third is a value object');
+is( $colors[0]->name,               'red',   'first color is red');
+is( $colors[1]->name,              'lime',   'second color is green');
+is( $colors[2],                     $blue,   'got invocant back as third color');
+
+@colors = $complement->($blue, 4, 0, []);
+is( int @colors,                        4,   'got 4 "tetradic "colors');
+is( $colors[0]->name,                  '',   'first color has no name');
+is( $colors[1]->name,            'yellow',   'second color is yellow');
+is( $colors[2]->name,                  '',   'third color has no name');
+is( $colors[3],                     $blue,   'got invocant back as last color');
+$values = $colors[0]->shaped('HSL');
+is( ref $values,                   'ARRAY',   'RGB values of color 2');
+is( int @$values,                        3,   'are 3 values');
+is( $values->[0],                      330,   'hue is 90');
+is( $values->[1],                      100,   'saturation is 100');
+is( $values->[2],                       50,   'lightness is half');
+$values = $colors[2]->shaped('HSL');
+is( $values->[0],                      150,   'hue of third color is 150');
+is( $values->[1],                      100,   'saturation is 100');
+is( $values->[2],                       50,   'lightness is half');
+
+@colors = $complement->($midblue, 5, 0, []);
+is( int @colors,                        5,    '4 complements from custom color');
+is( $colors[4],                  $midblue,    'got invocant back as last color');
+$values = $colors[0]->shaped('HSL');
+is( ref $colors[0],            $value_ref,    'first color is a value object');
+is( $values->[0],                      309,   'hue value from first color is 309');
+is( $values->[1],                       88,   'saturation is 88');
+is( $values->[2],                       56,   'lightness is 56 as start');
+$values = $colors[1]->shaped('HSL');
+is( $values->[0],                       21,   'hue value from second color is 21');
+is( $values->[1],                       88,   'saturation is 88');
+$values = $colors[2]->shaped('HSL');
+is( $values->[0],                       93,  'hue value from third color is 93');
+is( $values->[2],                       56,   'lightness is 56');
+
+@colors = $complement->($blue, 3, 2, []);
+is( int @colors,                        3,    '3 complements with tilt');
+$values = $colors[0]->shaped('HSL');
+is( $values->[0],                        7,   'hue is 7 = 240 + ((1-(2/3**3)) * 180)');
+is( $values->[1],                      100,   'full saturation');
+is( $values->[2],                       50,   'half lightness');
+$values = $colors[1]->shaped('HSL');
+is( $values->[0],                      113,   'hue of second color is 113');
+
+@colors = $complement->($blue, 4, 1.5, [10,-20,30]);
+is( int @colors,                        4,    '4 complements with tilt and moved target');
+$values = $colors[0]->shaped('HSL');
+is( $values->[0],                       36,   'hue of first color is 36 = 240 + 0,823*190');
+is( $values->[1],                       84,   'saturation of first color is 84');
+is( $values->[2],                       75,   'lightness of first color is ');
+$values = $colors[1]->shaped('HSL');
+is( $values->[0],                       70,   'hue of target is right');
+is( $values->[1],                       80,   'saturation of target is right');
+is( $values->[2],                       80,   'lightness of target is right');
+$values = $colors[2]->shaped('HSL');
+is( $values->[0],                      100,   'hue of third color is 100');
+is( $values->[1],                       84,   'saturation of third color is 84');
+is( $values->[2],                       75,   'lightness of third color is 75');
 
 #### gradient ##########################################################
 # @:colors, +steps, +tilt, :space --> @:values
@@ -78,13 +152,13 @@ is( $values->[2],                      100,    'full lightness of white in HSL')
 @colors = $gradient->([$red, $white], 3, 1, $HSL);
 $values = $colors[1]->shaped('HSL');
 is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       63,    '5/8 rose saturation in HSL gradient with tilt');
-is( $values->[2],                       69,    '5/8 rose lightness in HSL');
+is( $values->[1],                       75,    'due tilt middle color saturation is 3/4 red');
+is( $values->[2],                       63,    'due tilt middle color lightness is 3/4 red');
 @colors = $gradient->([$red, $white], 3, -1, $HSL);
 $values = $colors[1]->shaped('HSL');
 is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       38,    '3/8 rose saturation in HSL gradient with tilt');
-is( $values->[2],                       81,    '3/8 rose lightness in HSL');
+is( $values->[1],                       25,    'due reverse tilt middle color saturation is 1/4 red');
+is( $values->[2],                       88,    'due reverse tilt middle color lightness is 1/4 red');
 
 @colors = $gradient->([$red, $white, $blue], 9, 0, $RGB);
 is( int @colors,                         9,    'got 9 color gradient in RGB');
@@ -97,7 +171,22 @@ is( $values->[0],                     191,      'red value is right');
 is( $values->[1],                     191,      'green value is right');
 is( $values->[2],                     255,      'blue value is right');
 
+@colors = $gradient->([$red, $white, $blue], 5, 2, $HSL);
+$values = $colors[1]->shaped('HSL');
+is( int @colors,                         5,    'got 5 colors in complex and tiltet gradient in HSL');
+is( $colors[4],                      $blue,    'last color is blue');
+$values = $colors[1]->shaped('HSL');
+is( $values->[0],                        0,    'hue of rose is zero');
+is( $values->[1],                       97,    'saturation is 97 = (1-0.03125)*100');
+is( $values->[2],                       52,    'lightness is 52 = (1-0.03125)*50)+(0.03125*100)');
+$values = $colors[3]->shaped('HSL');
+is( $values->[0],                        0,    'fourth color is still rose due strong tilt');
+is( $values->[1],                       16,    'saturation is 16 = (1 - ((3/4)**3)) * 100');
+is( $values->[2],                       92,    'lightness is 71 = ((1-((3/4)**3)) * 50) + ((3/4)**3 * 100)');
+
+
 #### cluster ###########################################################
+# :values, +radius @+|+distance, :space --> @:values
 my $cluster = \&Graphics::Toolkit::Color::SetCalculator::cluster;
 
 exit 0;

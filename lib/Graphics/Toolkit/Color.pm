@@ -728,7 +728,7 @@ and its (THE) complement sit on opposite sides of the circle.
 The greater the C<tilt> amount, the more these colors (minus the given
 one) will move on the circle toward THE complement and vice versa.
 What is traditionally meant by split-complementary colors you will
-get here with a C<tilt> factor of around 4 and four C<steps>.
+get here with a C<tilt> factor of around 1.66 and four C<steps>.
 
 To get an even greater variety of complementary colors, you can use
 C<target> argument and move around THE complement and thus shape the
@@ -760,14 +760,15 @@ skewed toward one or the other end. Default is zero, which results in
 a linear, uniform transition between start and stop.
 Greater values of the argument let the color change rate start small,
 steadily getting bigger. Negative values work vice versa.
-The bigger the absolute numeric value the bigger the effect.
+The bigger the absolute numeric value the bigger the effect. Please have
+in mind that values over 2 result is a very strong tilt.
 
 Optional is the named argument L</in> (color space - details behind link).
 
     # we turn to grey
     my @colors = $c->gradient( to => $grey, steps => 5);
     # none linear gradient in HSL space :
-    @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 3, in => 'HSL' );
+    @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 1, in => 'HSL' );
     @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
 
 

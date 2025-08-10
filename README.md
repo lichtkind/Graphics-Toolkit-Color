@@ -4,7 +4,7 @@
 
 ### VERSION
 
-    1.8
+    1.9
 
 [on CPAN](https://metacpan.org/pod/Graphics::Toolkit::Color)
 
@@ -37,9 +37,9 @@
 
     dzil build
 
-    Which gives you basically the same tgz file as under the download link
-    from CPAN (as describes under HOME), just with more up to date
-    (and maybe buggy) sources. Don't forget to:
+    Which gives you basically the same .tgz file as under the download
+    link from CPAN (as describes under on CPAN), just with more up to date
+    (and maybe buggy) sources. Don't forget afterward to:
 
     dzil clean
 
@@ -58,12 +58,15 @@
 
 ### PREREQUISITES
 
-    Carp 1.35 or higher
-
     Optionally modules of the Graphics::ColorNames::* namespace are
-    required if your color definitions calls for them.
-    (see POD chapter: new( 'standard:color' ) for details)
-    Get them all by Bundle::Graphics::ColorNames.
+    required if your color definitions calls for them or you use
+    the feature 'closest_name' with an argument.
+    (see POD chapter: new( 'scheme:color' ) for details)
+    Get them all by installing [Bundle::Graphics::ColorNames](https://metacpan.org/pod/Bundle::Graphics::ColorNames).
+
+    during installation Test::More is needed
+
+    up to version 1.71 the module needed Carp
 
 
 
@@ -79,7 +82,7 @@
 
 ### COPYRIGHT
 
-    Copyright(c) 2022-23 by Herbert Breunung
+    Copyright(c) 2022-25 by Herbert Breunung
 
     All rights reserved.  This program is free software; you can
     redistribute it and/or modify it under the same terms as Perl

@@ -4,6 +4,7 @@
 package Graphics::Toolkit::Color::Space::Basis;
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 
 sub new {
     my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name) = @_;
@@ -71,6 +72,12 @@ sub is_partial_hash { # with some axis names as keys
     return 1;
 }
 sub is_value_tuple { (ref $_[1] eq 'ARRAY' and @{$_[1]} == $_[0]->axis_count) ? 1 : 0 }
+sub is_number_tuple {
+    my ($self, $tuple) = @_;
+    return 0 unless $self->is_value_tuple( $tuple );
+    map { return 0 unless is_nr( $tuple->[$_] ) } $self->axis_iterator;
+    return 1;
+}
 
 #### converter #########################################################
 sub short_axis_name_from_long {

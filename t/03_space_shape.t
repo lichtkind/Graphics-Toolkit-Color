@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 155;
+use Test::More tests => 166;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -100,6 +100,28 @@ is( $oshape->axis_value_precision(0), 2, 'first dimension has set precision');
 is( $oshape->axis_value_precision(1), 0, 'second dimension has set precision');
 is( $oshape->axis_value_precision(2), -1,'third dimension has set precision');
 
+#### check value shape #################################################
+is( ref $oshape->check_value_shape(1,2,3),        '',  'need array ref, not list');
+is( ref $oshape->check_value_shape({}),           '',  'need array, not other ref');
+is( ref $oshape->check_value_shape([1,2,3]), 'ARRAY',  'all values in range');
+is( ref $oshape->check_value_shape([1,2]),        '',  "not enough values");
+is( ref $oshape->check_value_shape([1,2,3,4]),    '',  "too many values");
+is( ref $oshape->check_value_shape([1,22,3]),     '',  "too big second value");
+is( ref $oshape->check_value_shape([1,22,-1]),    '',  "too small third value");
+is( ref $oshape->check_value_shape([0,1.111,3.111]),'',"too many decimals in second value");
+
+#### is_in_linear_bounds ###############################################
+is( $oshape->is_in_linear_bounds({}),           0, "bad format");
+is( $oshape->is_in_linear_bounds([1,2]),        0, "not enough values");
+is( $oshape->is_in_linear_bounds([1,2,3,4]),    0, "too many values");
+is( $oshape->is_in_linear_bounds([0,10,3.111]), 1, "normal in range values");
+is( $oshape->is_in_linear_bounds([-0.1,0,10]),  0, "first value too small");
+is( $oshape->is_in_linear_bounds([0,10.1,10]),  0, "second value too large");
+is( $oshape->is_in_linear_bounds([10,0,-100]),  0, "third value way too large");
+is( $bshape->is_in_linear_bounds([-6,6,1]),     1, "angular dimension can be out out bounds");
+is(  $shape->is_in_linear_bounds([2,1,2]),      1, "only linear dimension is in bound");
+is(  $shape->is_in_linear_bounds([2,2,2]),      0, "now linear dimension is out of bound");
+
 #### is_equal ##########################################################
 is( $shape->is_equal(),                                         0, 'is_equal needs arguments');
 is( $shape->is_equal(               3,     [1,2,3]           ), 0, 'first tuple has wrong ref');
@@ -186,15 +208,6 @@ is( int @$tr,    3, 'clamp kept right amount of values');
 is( $tr->[0],  0.9, 'rotated value to int');
 is( $tr->[1],  1.123, 'left second value untouched');
 is( $tr->[2], 2.54, 'in range value is kept');
-
-#### check value shape #################################################
-is( ref $shape->check_value_shape(1,2,3),        '',  'need array ref, not list');
-is( ref $shape->check_value_shape({}),           '',  'need array, not other ref');
-is( ref $shape->check_value_shape([1,2,3]), 'ARRAY',  'all values in range');
-is( ref $shape->check_value_shape([1,2]),        '',  "not enough values");
-is( ref $shape->check_value_shape([1,2,3,4]),    '',  "too many values");
-is( ref $shape->check_value_shape([1,22,3]),     '',  "too big second value");
-is( ref $shape->check_value_shape([0,1,3.111]),  '',  "too many decimals in third value");
 
 #### normalize #########################################################
 my $norm = $shape->normalize([-5, 0, 5]);

@@ -2,18 +2,15 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 153;
+use Test::More tests => 157;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
-
 use_ok( $module, 'could load the module');
 
-my $obj = Graphics::Toolkit::Color::Space::Basis->new();
-like( $obj,   qr/first argument/, 'constructor needs arguments');
-
-$obj = Graphics::Toolkit::Color::Space::Basis->new([1]);
-is( ref $obj, $module,  'one constructor argument is enough');
+#### basic construction ################################################
+is( ref Graphics::Toolkit::Color::Space::Basis->new(),         '', 'constructor needs arguments');
+is( ref Graphics::Toolkit::Color::Space::Basis->new([1]), $module, 'one constructor argument is enough');
 
 my $bad = Graphics::Toolkit::Color::Space::Basis->new(qw/Aleph beth gimel daleth he/);
 my $odd = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n p q/]);
@@ -25,71 +22,77 @@ like( $odd,  qr/shortcut names/,   'need same amount axis names and shortcuts');
 is( ref $s3d,  $module,   'created 3d space');
 is( ref $s5d,  $module,   'created 5d space');
 
-is( $s3d->axis_count,                   3,     'did count three args');
-is( $s5d->axis_count,                   5,     'did count five args');
-is( ($s3d->axis_iterator)[ 0],          0,     'correct first value of 0..2 iterator');
-is( ($s3d->axis_iterator)[-1],          2,     'correct last value of 0..2 iterator');
-is( ($s5d->axis_iterator)[ 0],          0,     'correct first value of 0..4 iterator');
-is( ($s5d->axis_iterator)[-1],          4,     'correct last value of 0..4 iterator');
-is( int($s3d->long_axis_names)  == $s3d->axis_count,     1,     'right amount of long names in 3d color space');
-is( int($s3d->short_axis_names) == $s3d->axis_count,     1,     'right amount of short names in 3d color space');
-is( int($s5d->long_axis_names)  == $s5d->axis_count,     1,     'right amount of long names for 5d');
-is( int($s5d->short_axis_names) == $s5d->axis_count,     1,     'right amount of short names for 5d');
-is( ($s3d->long_axis_names)[0],     'alpha',     'repeat first 3d key back');
-is( ($s3d->long_axis_names)[-1],    'gamma',     'repeat last 5d key back');
-is( ($s5d->long_axis_names)[0],     'aleph',     'repeat first 3d key back');
-is( ($s5d->long_axis_names)[-1],       'he',     'repeat last 5d key shortcut back');
-is( ($s3d->short_axis_names)[0],        'a',     'repeat first 3d key shortcut back');
-is( ($s3d->short_axis_names)[-1],       'g',     'repeat last 5d key shortcut back');
-is( ($s5d->short_axis_names)[0],        'm',     'repeat first 3d key shortcut back');
-is( ($s5d->short_axis_names)[-1],       'q',     'repeat last 5d key shortcut back');
-is( $s3d->space_name,                 'ABG',     'correct name from 3 initials');
-is( $s3d->alias_name,                    '',     'ABG space has no alias, because its not auto generated');
-is( $s5d->space_name,               'MNOPQ',     'correct name from 5 initials');
+#### getter ############################################################
+is( $s3d->axis_count,                          3,     'did count three args');
+is( $s5d->axis_count,                          5,     'did count five args');
+is( ($s3d->axis_iterator)[ 0],                 0,     'correct first value of 0..2 iterator');
+is( ($s3d->axis_iterator)[-1],                 2,     'correct last value of 0..2 iterator');
+is( ($s5d->axis_iterator)[ 0],                 0,     'correct first value of 0..4 iterator');
+is( ($s5d->axis_iterator)[-1],                 4,     'correct last value of 0..4 iterator');
+is( int($s3d->long_axis_names)  == $s3d->axis_count, 1, 'right amount of long names in 3d color space');
+is( int($s3d->short_axis_names) == $s3d->axis_count, 1, 'right amount of short names in 3d color space');
+is( int($s5d->long_axis_names)  == $s5d->axis_count, 1, 'right amount of long names for 5d');
+is( int($s5d->short_axis_names) == $s5d->axis_count, 1, 'right amount of short names for 5d');
+is( ($s3d->long_axis_names)[0],          'alpha',     'repeat first 3d key back');
+is( ($s3d->long_axis_names)[-1],         'gamma',     'repeat last 5d key back');
+is( ($s5d->long_axis_names)[0],          'aleph',     'repeat first 3d key back');
+is( ($s5d->long_axis_names)[-1],            'he',     'repeat last 5d key shortcut back');
+is( ($s3d->short_axis_names)[0],             'a',     'repeat first 3d key shortcut back');
+is( ($s3d->short_axis_names)[-1],            'g',     'repeat last 5d key shortcut back');
+is( ($s5d->short_axis_names)[0],             'm',     'repeat first 3d key shortcut back');
+is( ($s5d->short_axis_names)[-1],            'q',     'repeat last 5d key shortcut back');
+is( $s3d->space_name,                      'ABG',     'correct name from 3 initials');
+is( $s3d->alias_name,                         '',     'ABG space has no alias, because its not auto generated');
+is( $s5d->space_name,                    'MNOPQ',     'correct name from 5 initials');
 
-is( $s3d->is_long_axis_name('Alpha'),     1,     'found key alpha');
-is( $s3d->is_long_axis_name('zeta'),      0,     'not found made up key zeta');
-is( $s5d->is_long_axis_name('gimel'),     1,     'found key gimel');
-is( $s5d->is_long_axis_name('lamed'),     0,     'not found made up key lamed');
+is( $s3d->is_long_axis_name('Alpha'),         1,     'found key alpha');
+is( $s3d->is_long_axis_name('zeta'),          0,     'not found made up key zeta');
+is( $s5d->is_long_axis_name('gimel'),         1,     'found key gimel');
+is( $s5d->is_long_axis_name('lamed'),         0,     'not found made up key lamed');
 
-is( $s3d->is_short_axis_name('G'),    1,     'found key shortcut g');
-is( $s3d->is_short_axis_name('e'),    0,     'not found made up key shortcut e');
-is( $s5d->is_short_axis_name('P'),    1,     'found key shortcut H');
-is( $s5d->is_short_axis_name('l'),    0,     'not found made up key shortcut l');
+is( $s3d->is_short_axis_name('G'),            1,     'found key shortcut g');
+is( $s3d->is_short_axis_name('e'),            0,     'not found made up key shortcut e');
+is( $s5d->is_short_axis_name('P'),            1,     'found key shortcut H');
+is( $s5d->is_short_axis_name('l'),            0,     'not found made up key shortcut l');
 
-is( $s3d->is_axis_name('Alpha'),  1, 'alpha is a key');
-is( $s3d->is_axis_name('A'),      1, 'a is a shortcut');
-is( $s3d->is_axis_name('Cen'),    0, 'Cen is not a key');
-is( $s3d->is_axis_name('C'),      0, 'c is not a shortcut');
+is( $s3d->is_axis_name('Alpha'),              1,        'alpha is a key');
+is( $s3d->is_axis_name('A'),                  1,        'a is a shortcut');
+is( $s3d->is_axis_name('Cen'),                0,        'Cen is not a key');
+is( $s3d->is_axis_name('C'),                  0,        'c is not a shortcut');
 
-is( $s3d->is_value_tuple({}),                 0, 'HASH is not an ARRAY');
-is( $s3d->is_value_tuple([]),                 0, 'empty ARRAY has not enogh content');
-is( $s3d->is_value_tuple([2,2]),              0, 'too small ARRAY');
-is( $s3d->is_value_tuple([1,2,3,4]),          0, 'too large ARRAY');
-is( $s3d->is_value_tuple([1,2,3]),            1, 'correctly sized value ARRAY');
+is( $s3d->is_value_tuple({}),                 0,        'HASH is not an ARRAY');
+is( $s3d->is_value_tuple([]),                 0,        'empty ARRAY has not enogh content');
+is( $s3d->is_value_tuple([2,2]),              0,        'too small ARRAY');
+is( $s3d->is_value_tuple([1,2,3,4]),          0,        'too large ARRAY');
+is( $s3d->is_value_tuple([1,2,3]),            1,        'correctly sized value ARRAY');
 
-is( $s3d->pos_from_long_axis_name('alpha'),  0,         'alpha name of first axis');
-is( $s3d->pos_from_long_axis_name('beta'),   1,         'beta is name of second axis');
-is( $s3d->pos_from_long_axis_name('emma'),   undef,     'emma is not an axis name');
-is( $s5d->pos_from_long_axis_name('aleph'),  0,         'aleph is the first name');
-is( $s5d->pos_from_long_axis_name('he'),     4,         'he is the fourth name');
-is( $s5d->pos_from_long_axis_name('emma'),   undef,     'emma is not an axis name');
+is( $s3d->is_number_tuple([1,2,3]),           1,        'correct tuple of numbers only');
+is( $s3d->is_number_tuple(['a',2,3]),         0,        'cought not a number on first position');
+is( $s3d->is_number_tuple([1,'-',3]),         0,        'cought not a number on second position');
+is( $s3d->is_number_tuple([1,2,'A']),         0,        'cought not a number on third position');
 
-is( $s3d->pos_from_short_axis_name('a'),  0,            'a is shortcut name of first axis');
-is( $s3d->pos_from_short_axis_name('b'),  1,            'b is shortcut name of second axis');
-is( $s3d->pos_from_short_axis_name('e'),  undef,        'e is not an axis shortcut name');
-is( $s5d->pos_from_short_axis_name('m'),  0,            'a is the first specially set shortcut name of 5d space');
-is( $s5d->pos_from_short_axis_name('q'),  4,            'q is the fourth specially set shortcut name of 5d space');
-is( $s5d->pos_from_short_axis_name('g'),  undef,        'g is not an axis shortcut name of 5d space');
+is( $s3d->pos_from_long_axis_name('alpha'),   0,        'alpha name of first axis');
+is( $s3d->pos_from_long_axis_name('beta'),    1,        'beta is name of second axis');
+is( $s3d->pos_from_long_axis_name('emma'),    undef,    'emma is not an axis name');
+is( $s5d->pos_from_long_axis_name('aleph'),   0,        'aleph is the first name');
+is( $s5d->pos_from_long_axis_name('he'),      4,        'he is the fourth name');
+is( $s5d->pos_from_long_axis_name('emma'),    undef,    'emma is not an axis name');
 
-is( $s3d->short_axis_name_from_long('alpha'),  'a',    'a is short for alpha');
-is( $s3d->short_axis_name_from_long('BETA'),   'b',    'upper case axis name recognized');
-is( $s3d->short_axis_name_from_long('emma'),  undef,   'emma is not a an axis name and there fore has no shortcut');
-is( $s5d->short_axis_name_from_long('He'),     'q',    'custom shortcut provided');
-is( $s3d->long_axis_name_from_short('a'),  'alpha',    'alpha is long axis name for shortcut a');
-is( $s3d->long_axis_name_from_short('B'),   'beta',    'upper case shortcut recognized');
-is( $s3d->long_axis_name_from_short('e'),    undef,    'e is not a a shortcut axis name: there is no full name');
-is( $s5d->long_axis_name_from_short('q'),     'he',    'long axis name from custom shortcut');
+is( $s3d->pos_from_short_axis_name('a'),      0,        'a is shortcut name of first axis');
+is( $s3d->pos_from_short_axis_name('b'),      1,        'b is shortcut name of second axis');
+is( $s3d->pos_from_short_axis_name('e'),      undef,    'e is not an axis shortcut name');
+is( $s5d->pos_from_short_axis_name('m'),      0,        'a is the first specially set shortcut name of 5d space');
+is( $s5d->pos_from_short_axis_name('q'),      4,        'q is the fourth specially set shortcut name of 5d space');
+is( $s5d->pos_from_short_axis_name('g'),      undef,    'g is not an axis shortcut name of 5d space');
+
+is( $s3d->short_axis_name_from_long('alpha'),  'a',     'a is short for alpha');
+is( $s3d->short_axis_name_from_long('BETA'),   'b',     'upper case axis name recognized');
+is( $s3d->short_axis_name_from_long('emma'),  undef,    'emma is not a an axis name and there fore has no shortcut');
+is( $s5d->short_axis_name_from_long('He'),     'q',     'custom shortcut provided');
+is( $s3d->long_axis_name_from_short('a'),  'alpha',     'alpha is long axis name for shortcut a');
+is( $s3d->long_axis_name_from_short('B'),   'beta',     'upper case shortcut recognized');
+is( $s3d->long_axis_name_from_short('e'),    undef,     'e is not a a shortcut axis name: there is no full name');
+is( $s5d->long_axis_name_from_short('q'),     'he',     'long axis name from custom shortcut');
 
 is( $s3d->is_hash([]),                  0, 'array is not a hash');
 is( $s3d->is_hash({alpha => 1, beta => 20, gamma => 3}), 1, 'valid hash with right keys');
@@ -109,7 +112,7 @@ is( $s5d->is_partial_hash({aleph => 1, beth => 2,  gimel => 3, daleth => 4, he =
 is( $s5d->is_partial_hash({aleph => 1, beth => 20, gimel => 3, daleth => 4, he => 5, o => 6}), 0, 'partial hash can not have more keys than full hash definition');
 is( $s5d->is_partial_hash({aleph => 1 }),              1, 'valid partial hash to have only one korrect key');
 is( $s5d->is_partial_hash({ALEPH => 1 }),              1, 'ignore casing');
-is( $s5d->is_partial_hash({aleph => 1, bet => 2, }),  0, 'one bad key makes partial invalid');
+is( $s5d->is_partial_hash({aleph => 1, bet => 2, }),   0, 'one bad key makes partial invalid');
 
 is( ref $s3d->short_name_hash_from_tuple([1,2,3]),   'HASH',    'HASH with given values and shortcut keys created');
 is( ref $s3d->short_name_hash_from_tuple([1,2,3,4]),     '',    'HASH not created because too many arguments');

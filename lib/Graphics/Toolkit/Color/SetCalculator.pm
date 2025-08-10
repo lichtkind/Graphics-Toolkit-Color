@@ -52,11 +52,11 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
     my $segment_count = @$colors - 1;
     my @result = ($colors->[0]);
     for my $step_nr (2 .. $steps - 1){
-        my $percent_of_gradient = (($step_nr-1) / ($steps-1)) ** $scaling_exponent;
-        $percent_of_gradient = 1 - $percent_of_gradient if $tilt < 0;
-        my $current_segment_nr = int ($percent_of_gradient * $segment_count);
-        my $percent_in_segment = 100 * $segment_count * ($percent_of_gradient - ($current_segment_nr / $segment_count));
-        push @result, $colors->[$current_segment_nr]->mix(
+        my $percent_in_gradient = (($step_nr-1) / ($steps-1)) ** $scaling_exponent;
+        $percent_in_gradient = 1 - $percent_in_gradient if $tilt < 0;
+        my $current_segment_nr = int ($percent_in_gradient * $segment_count);
+        my $percent_in_segment = 100 * $segment_count * ($percent_in_gradient - ($current_segment_nr / $segment_count));
+        push @result, $colors->[$current_segment_nr]->mix (
                           [{color => $colors->[$current_segment_nr+1], percent => $percent_in_segment}], $color_space );
     }
     push @result, pop @$colors if $steps > 1;
@@ -76,8 +76,10 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
         my $corner_value = $center_values->[0] - ($colors_in_direction * $min_distance);
         @result_values = map {[$corner_value + ($_ * $min_distance)]} 0 .. 2 * $colors_in_direction;
         for my $axis_index (1 .. $color_space->axis_count - 1){
+#say "$axis_index   @$_" for  @result_values;
             my $colors_in_direction = int $radius->[$axis_index] / $min_distance;
             my $corner_value = $center_values->[$axis_index] - ($colors_in_direction * $min_distance);
+# say "axis $axis_index has l $colors_in_direction :: $corner_value";
             @result_values = map {
                 my @good_values = @$_[0 .. $axis_index-1];
                 map {[@good_values, ($corner_value + ($_ * $min_distance))]} 0 .. 2 * $colors_in_direction;
@@ -101,10 +103,10 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
         # an achsen spiegeln
         # berechne nächste ebene / wechsel
     }
-    my @result = map { # check for space borders and constraints
-        my $color = Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space_name);
-        ($color_space->is_equal( $_, $color->shaped( $color_space_name ), 5)) ? $color : undef;
-    } @result_values;
+#say "   @$_" for  @result_values;
+    # check for space borders and constraints
+    my @result = map { Graphics::Toolkit::Color::Values->new_from_tuple(
+                $_, $color_space_name ) if $color_space->is_in_linear_bounds($_) } @result_values;
     return grep {ref} @result;
 }
 

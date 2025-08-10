@@ -7,7 +7,7 @@ our $VERSION = '1.8_99';
 use v5.12;
 use warnings;
 use Exporter 'import';
-use Graphics::Toolkit::Color::Space::Util qw/is_nr min/;
+use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 
 our @EXPORT_OK = qw/color/;
@@ -270,7 +270,8 @@ EOH
     my ($target_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
     return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$arg
         unless ref $target_values;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $target_values );
+    map {_new_from_value_obj( $_ )}
+        Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $target_values );
 }
 
 sub gradient {
@@ -302,7 +303,8 @@ EOH
     $arg->{'tilt'} += 0; # numify argument
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
+    map {_new_from_value_obj( $_ )}
+        Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
 }
 
 sub cluster {
@@ -319,15 +321,14 @@ EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return $color_space unless ref $color_space;
-    return "Argument 'radius' has to be a SCALAR or ARRAY ref with numbers for each axis! \n".$help
-        if ref $arg->{'radius'} and (ref $arg->{'radius'} ne 'ARRAY' or @{$arg->{'radius'}} != $color_space->axis_count);
+    return "Argument 'radius' has to be a number or an ARRAY of numbers"
+        unless is_nr($arg->{'radius'}) or $color_space->is_number_tuple( $arg->{'radius'} );
+    return "Argument 'distance' has to be a number greater zero !\n".$help
+        unless is_nr($arg->{'distance'}) and $arg->{'distance'} > 0;
     return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};
-    return "Argument 'distance' has to be a number greater zero !\n".$help unless is_nr($arg->{'distance'}) and $arg->{'distance'} > 0;
-    my $min_radius = (ref $arg->{'radius'}) ? min(@{$arg->{'radius'}}) :  $arg->{'radius'};
-    return "Radius has to be at least twice the size of minimal distance between colors to get a cluster"
-        if $arg->{'distance'} * 2 > $min_radius;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance/}, $color_space);
+    map {_new_from_value_obj( $_ )}
+        Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance/}, $color_space);
 }
 
 1;

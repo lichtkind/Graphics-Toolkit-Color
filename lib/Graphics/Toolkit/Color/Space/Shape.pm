@@ -116,17 +116,34 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     $precision = $self->try_check_precision_definition( $precision );
     return $precision unless ref $precision;
     my @names = $self->basis->long_axis_names;
-    for my $i ($self->basis->axis_iterator){
-        next unless $self->is_axis_numeric($i);
-        return $names[$i]." value is below minimum of ".$range->[$i][0] if $values->[$i] < $range->[$i][0];
-        return $names[$i]." value is above maximum of ".$range->[$i][1] if $values->[$i] > $range->[$i][1];
-        return $names[$i]." value is not properly rounded " if $precision->[$i] >= 0
-                                                           and round_decimals($values->[$i], $precision->[$i]) != $values->[$i];
+    for my $axis_index ($self->basis->axis_iterator){
+        next unless $self->is_axis_numeric( $axis_index );
+        return $names[$axis_index]." value is below minimum of ".$range->[$axis_index][0]
+            if $values->[$axis_index] < $range->[$axis_index][0];
+        return $names[$axis_index]." value is above maximum of ".$range->[$axis_index][1]
+            if $values->[$axis_index] > $range->[$axis_index][1];
+        return $names[$axis_index]." value is not properly rounded "
+            if $precision->[$axis_index] >= 0
+           and round_decimals($values->[$axis_index], $precision->[$axis_index]) != $values->[$axis_index];
     }
     for my $constraint (values %{$self->{'constraint'}}){
         return $constraint->{'error'} unless $constraint->{'checker'}->( $values );
     }
     return $values;
+}
+
+sub is_in_linear_bounds {  # :values --> ?
+    my ($self, $values) = @_;
+    return 0 unless $self->basis->is_number_tuple( $values );
+    for my $axis_nr ($self->basis->axis_iterator) {
+        return 0 if $self->{'type'}[$axis_nr] == 1
+                and ( $values->[$axis_nr] < $self->{'range'}[$axis_nr][0]
+                   or $values->[$axis_nr] > $self->{'range'}[$axis_nr][1] );
+    }
+    for my $constraint (values %{$self->{'constraint'}}){
+        return 0 unless $constraint->{'checker'}->( $values );
+    }
+    return 1;
 }
 
 sub is_equal {

@@ -189,7 +189,47 @@ is( $values->[2],                       92,    'lightness is 71 = ((1-((3/4)**3)
 # :values, +radius @+|+distance, :space --> @:values
 my $cluster = \&Graphics::Toolkit::Color::SetCalculator::cluster;
 
+@colors = $cluster->($midblue, [0,0,0], 1, $RGB);
+is( int @colors,                        1,    'computed minimal cuboid cluster with 1 color');
+$values = $colors[0]->shaped('RGB');
+is( ref $values,                  'ARRAY',    'got the mid blue values');
+is( $values->[0],                      43,    'red value is right');
+is( $values->[1],                      52,    'green value is right');
+is( $values->[2],                     242,    'blue value is right');
+
+@colors = $cluster->($midblue, [0,1,0], 1, $RGB);
+is( int @colors,                        3,    'computed tiny line shaped cluster with 3 colors');
+$values = $colors[0]->shaped('RGB');
+is( $values->[0],                      43,    'red value of first color is right');
+is( $values->[1],                      51,    'green value of first color is right');
+$values = $colors[1]->shaped('RGB');
+is( $values->[1],                      52,    'green value of second color is right');
+is( $values->[2],                     242,    'blue value of second color is right');
+is( $colors[2]->shaped('RGB')->[1],    53,    'green value of third color is right');
+
+
+@colors = $cluster->($midblue, [1,1,1], 1, $RGB);
+is( int @colors,                       27,    'computed tiny cuboid cluster with 27 colors');
+$values = $colors[0]->shaped('RGB');
+is( ref $values,                  'ARRAY',    'got first color in min corner');
+is( $values->[0],                      42,    'red value is right');
+is( $values->[1],                      51,    'green value is right');
+is( $values->[2],                     241,    'blue value is right');
+$values = $colors[26]->shaped('RGB');
+is( ref $values,                  'ARRAY',    'got last color in max corner');
+is( $values->[0],                      44,    'red value is right');
+is( $values->[1],                      53,    'green value is right');
+is( $values->[2],                     243,    'blue value is right');
+
 @colors = $cluster->($midblue, [1,2,3], 1, $RGB);
-is( int @colors,                      105,    'computer cluster with 105 colors');
+is( int @colors,                      105,    'computed cluster with 105 colors');
+$values = $colors[0]->shaped('RGB');
+is( ref $values,                  'ARRAY',    'got first color in min corner');
+is( $values->[0],                      42,    'red value is right');
+is( $values->[1],                      50,    'green value is right');
+is( $values->[2],                     239,    'blue value is right');
+
+@colors = $cluster->($white, [1,1,1], 1, $HSL);
+is( int @colors,                     12,    'computed cluster below roof of HSL space');
 
 exit 0;

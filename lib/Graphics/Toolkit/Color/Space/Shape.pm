@@ -70,6 +70,13 @@ sub check_precision_definition { # check if precision def is valid and eval (exa
     return 'definition of axis value precision has to have same lengths as basis' unless @$precision == $basis->axis_count;
     return $precision;
 }
+sub add_constraint {
+    my ($self, $name, $error_msg, $checker, $remedy) = @_;
+    return unless defined $name and not exists $self->{'constraint'}{$name}
+              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
+              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
+    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
+}
 
 #### getter (defaults) #################################################
 sub basis           { $_[0]{'basis'}}
@@ -122,12 +129,15 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     return $values;
 }
 
-sub add_constraint {
-    my ($self, $name, $error_msg, $checker, $remedy) = @_;
-    return unless defined $name and not exists $self->{'constraint'}{$name}
-              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
-              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
-    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
+sub is_equal {
+    my ($self, $values_a, $values_b, $precision) = @_;
+    return 0 unless $self->basis->is_value_tuple( $values_a ) and $self->basis->is_value_tuple( $values_b );
+    $precision = $self->try_check_precision_definition( $precision );
+    for my $axis_nr ($self->basis->axis_iterator) {
+        return 0 if round_decimals($values_a->[$axis_nr], $precision->[$axis_nr])
+                 != round_decimals($values_b->[$axis_nr], $precision->[$axis_nr]);
+    }
+    return 1;
 }
 
 #### value shape #######################################################

@@ -14,8 +14,6 @@ sub complement { # :base_color +steps +tilt %target_delta --> @:values
     my $start_values = $start_color->shaped( $HSL->name );
     my $target_values = [@$start_values];
     $target_values->[0] += 180;
-    my $result_count = int abs $steps;
-    my $scaling_exponent = abs($tilt) + 1;
     for my $axis_index (0 .. 2) {
         $target_delta->[$axis_index] = 0 unless defined $target_delta->[$axis_index];
         $target_values->[$axis_index] += $target_delta->[$axis_index];
@@ -23,6 +21,8 @@ sub complement { # :base_color +steps +tilt %target_delta --> @:values
     $target_values = $HSL->clamp( $target_values );  # bring back out of bound linear axis values
     $target_delta->[1] = $target_values->[1] - $start_values->[1];
     $target_delta->[2] = $target_values->[2] - $start_values->[2];
+    my $result_count = int abs $steps;
+    my $scaling_exponent = abs($tilt) + 1;
     my @hue_percent = map {
         my $hue_percent = ($_ * 2 / $result_count) ** $scaling_exponent;
         ($tilt > 0) ? (1 - $hue_percent) : $hue_percent;
@@ -65,8 +65,10 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 
 ########################################################################
 sub cluster { # :values, +radius @+|+distance, :space --> @:values
-    my ($center, $radius, $distance, $color_space) = @_;
-    my @result = ();
+    my ($center_color, $radius, $distance, $color_space) = @_;
+    my $color_space_name = $color_space->name;
+    my $center_values = $center_color->shaped( $color_space_name );
+    my @result_values;
     if (ref $radius) {
         my $r = $radius->[0];
         my $axis_count = $color_space->axis_count;
@@ -77,8 +79,11 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
         # spiegle 8 mal
         # berechne nächste ebene
     }
-# check for space borders
-    return @result;
+    my @result = map { # check for space borders and constraints
+        my $color = Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space_name);
+        ($color_space->is_equal( $_, $color->shaped( $color_space_name ), 5)) ? $color : undef;
+    } @result_values;
+    return grep {ref} @result;
 }
 
 

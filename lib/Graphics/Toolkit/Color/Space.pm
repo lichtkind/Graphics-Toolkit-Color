@@ -40,13 +40,14 @@ sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_na
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
-sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+values -- @+range, @+precision   --> @+values|!~   # errmsg
-sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range, @+precision   --> @+rvals       # result values
 sub round              { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
+sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range                --> @+rvals       # result values
+sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+values -- @+range, @+precision   --> @+values|!~   # errmsg
 sub normalize          { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
-sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+range, @+precision   --> @+rvals|!~
+sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+range                --> @+rvals|!~
 sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
-sub delta              { shift->shape->delta( @_ ) }          # @+values1, @+values2               --> @+rvals|      # on normalized values
+sub delta              { shift->shape->delta( @_ ) }          # @+val_a, @+val_b                   --> @+rvals|      # on normalized values
+sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
 
 ########################################################################
 sub form               { $_[0]{'format'} }

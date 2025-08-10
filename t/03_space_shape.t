@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 147;
+use Test::More tests => 155;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -47,7 +47,7 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [1,2,
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
 
 
-#### arg eval ##########################################################
+#### arg eval + getter #################################################
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no']);
 is( ref $shape,  $module, 'created shape with all axis types');
 is( $shape->is_axis_numeric(0), 1, 'first dimension is numeric');
@@ -99,6 +99,16 @@ is( ref $oshape,  $module, 'space shape with 0..10 axis and hand set precision')
 is( $oshape->axis_value_precision(0), 2, 'first dimension has set precision');
 is( $oshape->axis_value_precision(1), 0, 'second dimension has set precision');
 is( $oshape->axis_value_precision(2), -1,'third dimension has set precision');
+
+#### is_equal ##########################################################
+is( $shape->is_equal(),                                         0, 'is_equal needs arguments');
+is( $shape->is_equal(               3,     [1,2,3]           ), 0, 'first tuple has wrong ref');
+is( $shape->is_equal(       [1,2,3,4],     [1,2,3]           ), 0, 'first tuple is out of shape');
+is( $shape->is_equal(         [1,2,3],          {}           ), 0, 'second tuple has the wrong ref');
+is( $shape->is_equal(         [1,2,3],       [1,2]           ), 0, 'second tuple is out of shape');
+is( $shape->is_equal(         [1,2,3],     [1,2,3]           ), 1, 'values are equal');
+is( $shape->is_equal( [1.111,2,2.999], [1.112,2,3],         2), 1, 'precision definition is held up');
+is( $shape->is_equal([1.111,2.13,2.9], [1.112,2.14,3],[2,1,0]), 1, 'complex precision definition is held up');
 
 #### delta #############################################################
 my $d = $bshape->delta(1, [1,5,4,5] );

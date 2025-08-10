@@ -267,10 +267,10 @@ EOH
     return "Optional argument 'steps' is zero, no complement colors will be computed !\n".$help unless $arg->{'steps'};
     return "Optional argument 'tilt' has to be a number !\n".$arg unless is_nr($arg->{'tilt'});
     return "Optional argument 'target' has to be a HASH ref !\n".$arg if ref $arg->{'target'} ne 'HASH';
-    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
+    my ($target_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
     return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$arg
-        unless ref $values;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $values );
+        unless ref $target_values;
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $target_values );
 }
 
 sub gradient {
@@ -327,7 +327,7 @@ EOH
     my $min_radius = (ref $arg->{'radius'}) ? min(@{$arg->{'radius'}}) :  $arg->{'radius'};
     return "Radius has to be at least twice the size of minimal distance between colors to get a cluster"
         if $arg->{'distance'} * 2 > $min_radius;
-    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance in/});
+    map {_new_from_value_obj( $_ )} Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance/}, $color_space);
 }
 
 1;

@@ -323,7 +323,7 @@ EOH
         if ref $arg->{'radius'} and (ref $arg->{'radius'} ne 'ARRAY' or @{$arg->{'radius'}} != $color_space->axis_count);
     return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};
-    return "Argument 'distance' has to be a number !\n".$help unless is_nr($arg->{'distance'});
+    return "Argument 'distance' has to be a number greater zero !\n".$help unless is_nr($arg->{'distance'}) and $arg->{'distance'} > 0;
     my $min_radius = (ref $arg->{'radius'}) ? min(@{$arg->{'radius'}}) :  $arg->{'radius'};
     return "Radius has to be at least twice the size of minimal distance between colors to get a cluster"
         if $arg->{'distance'} * 2 > $min_radius;

@@ -6,7 +6,6 @@ use Test::More tests => 20;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Values;
 
-
 ########################################################################
 my $darkblue = Graphics::Toolkit::Color::Values->new_from_any_input(['HSL', 240, 50, 25]);
 my $red = Graphics::Toolkit::Color::Values->new_from_any_input(     ['HSL',   0, 50, 25]);

@@ -189,4 +189,7 @@ is( $values->[2],                       92,    'lightness is 71 = ((1-((3/4)**3)
 # :values, +radius @+|+distance, :space --> @:values
 my $cluster = \&Graphics::Toolkit::Color::SetCalculator::cluster;
 
+@colors = $cluster->($midblue, [1,2,3], 1, $RGB);
+is( int @colors,                      105,    'computer cluster with 105 colors');
+
 exit 0;

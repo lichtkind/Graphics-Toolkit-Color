@@ -34,12 +34,7 @@ sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 #### getter ############################################################
 sub space_name       {   $_[0]{'space_name'}  }      # color space name
 sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
-sub is_name          {
-    return 0 if not defined $_[1];
-    return 1 if uc $_[1] eq $_[0]{'space_name'};
-    return 1 if $_[0]{'alias_name'} and uc $_[1] eq $_[0]{'alias_name'};
-    return 0;
-}
+
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
 sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1
@@ -49,6 +44,12 @@ sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $
 sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef } # ~short_name --> +pos
 
 #### predicates ########################################################
+sub is_name          {
+    return 0 if not defined $_[1];
+    return 1 if uc $_[1] eq $_[0]{'space_name'};
+    return 1 if $_[0]{'alias_name'} and uc $_[1] eq $_[0]{'alias_name'};
+    return 0;
+}
 sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
 sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
 sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }       # ~name       --> ?
@@ -124,7 +125,6 @@ sub tuple_from_partial_hash {
     }
     return $values;
 }
-
 sub select_tuple_value_from_axis_name {
     my ($self, $name, $values) = @_;
     $name = lc $name;

@@ -37,7 +37,6 @@ sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values   --> ?
 sub is_number_tuple    { shift->basis->is_number_tuple(@_) }  # @+values   --> ?
 sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values   --> ?
 sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) }  # %+values --> ?
-sub is_in_linear_bounds     { shift->basis->is_in_linear_bounds(@_) }      # @+values --> ?
 sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_name(@_) }  # ~axis_name. %+values --> +
 
 ########################################################################
@@ -50,6 +49,7 @@ sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+ra
 sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
 sub delta              { shift->shape->delta( @_ ) }          # @+val_a, @+val_b                   --> @+rvals|      # on normalized values
 sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
+sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values                           --> ?
 
 ########################################################################
 sub form               { $_[0]{'format'} }

@@ -76,35 +76,38 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
         my $corner_value = $center_values->[0] - ($colors_in_direction * $min_distance);
         @result_values = map {[$corner_value + ($_ * $min_distance)]} 0 .. 2 * $colors_in_direction;
         for my $axis_index (1 .. $color_space->axis_count - 1){
-#say "$axis_index   @$_" for  @result_values;
             my $colors_in_direction = int $radius->[$axis_index] / $min_distance;
             my $corner_value = $center_values->[$axis_index] - ($colors_in_direction * $min_distance);
-# say "axis $axis_index has l $colors_in_direction :: $corner_value";
             @result_values = map {
                 my @good_values = @$_[0 .. $axis_index-1];
                 map {[@good_values, ($corner_value + ($_ * $min_distance))]} 0 .. 2 * $colors_in_direction;
             } @result_values;
         }
     } else {
-        my $half_sqr_diag = sqrt( 2 * $min_distance * $min_distance ) / 2;
-        my $r_in_colors = $radius / $min_distance;
-        my $colors_in_direction = int $r_in_colors;
-        # my $etagen_cid = sqrt(1- (($hi / $colors_in_direction) ** 2));
-        my @odd_grid = ($colors_in_direction);
-        $odd_grid[$colors_in_direction] = 0;
-        my $contour_cursor = $colors_in_direction;
-        for my $axis1_index (1 .. int($colors_in_direction * $adj_len_at_45_deg)){
-            $contour_cursor-- if sqrt(($contour_cursor**2) + ($axis1_index**2)) > $r_in_colors;
-            $odd_grid[$axis1_index] = $colors_in_direction;
-            $odd_grid[$colors_in_direction] = $axis1_index;
+        my $half_sqr_d_diag = sqrt( 2 * $min_distance * $min_distance ) / 2;
+        for my $layer_nr (0 .. $radius / $half_sqr_d_diag){
+            my $layer_r = sqrt( ($radius**2) - (($layer_nr * $half_sqr_d_diag)**2) );
+            if ($layer_nr % 2){
+                my @odd_grid;
+            } else {
+                my $r_in_colors = $layer_r / $min_distance;
+                my $colors_in_direction = int $r_in_colors;
+                my @even_grid = ($colors_in_direction);
+                $even_grid[$colors_in_direction] = 0;
+                my $contour_cursor = $colors_in_direction;
+                for my $axis1_index (1 .. int($colors_in_direction * $adj_len_at_45_deg)){
+                    $contour_cursor-- if sqrt(($contour_cursor**2) + ($axis1_index**2)) > $r_in_colors;
+                    $even_grid[$axis1_index] = $colors_in_direction;
+                    $even_grid[$colors_in_direction] = $axis1_index;
+                }
+                # if ($layer_nr > 0){}
+            }
         }
-        my @even_grid;
         # fülle punkte in kreis / 8
         # an achsen spiegeln
         # berechne nächste ebene / wechsel
     }
-#say "   @$_" for  @result_values;
-    # check for space borders and constraints
+    # check for linear space borders and constraints
     my @result = map { Graphics::Toolkit::Color::Values->new_from_tuple(
                 $_, $color_space_name ) if $color_space->is_in_linear_bounds($_) } @result_values;
     return grep {ref} @result;

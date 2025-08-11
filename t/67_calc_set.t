@@ -230,6 +230,6 @@ is( $values->[1],                      50,    'green value is right');
 is( $values->[2],                     239,    'blue value is right');
 
 @colors = $cluster->($white, [1,1,1], 1, $HSL);
-is( int @colors,                     12,    'computed cluster below roof of HSL space');
+is( int @colors,                       12,    'computed cluster edging roof of HSL space');
 
 exit 0;

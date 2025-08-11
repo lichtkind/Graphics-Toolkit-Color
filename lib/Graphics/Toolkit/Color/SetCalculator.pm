@@ -67,51 +67,94 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 my $adj_len_at_45_deg = sqrt(2) / 2;
 
 sub cluster { # :values, +radius @+|+distance, :space --> @:values
-    my ($center_color, $radius, $min_distance, $color_space) = @_;
+    my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
     my $color_space_name = $color_space->name;
     my $center_values = $center_color->shaped( $color_space_name );
+    my $center_x = $center_values->[0];
+    my $center_y = $center_values->[1];
+    my $center_z = $center_values->[2];
     my @result_values;
-    if (ref $radius) {
-        my $colors_in_direction = int $radius->[0] / $min_distance;
-        my $corner_value = $center_values->[0] - ($colors_in_direction * $min_distance);
-        @result_values = map {[$corner_value + ($_ * $min_distance)]} 0 .. 2 * $colors_in_direction;
+    if (ref $cluster_radius) { # cuboid shaped cluster
+        my $colors_in_direction = int $cluster_radius->[0] / $color_distance;
+        my $corner_value = $center_values->[0] - ($colors_in_direction * $color_distance);
+        @result_values = map {[$corner_value + ($_ * $color_distance)]} 0 .. 2 * $colors_in_direction;
         for my $axis_index (1 .. $color_space->axis_count - 1){
-            my $colors_in_direction = int $radius->[$axis_index] / $min_distance;
-            my $corner_value = $center_values->[$axis_index] - ($colors_in_direction * $min_distance);
+            my $colors_in_direction = int $cluster_radius->[$axis_index] / $color_distance;
+            my $corner_value = $center_values->[$axis_index] - ($colors_in_direction * $color_distance);
             @result_values = map {
                 my @good_values = @$_[0 .. $axis_index-1];
-                map {[@good_values, ($corner_value + ($_ * $min_distance))]} 0 .. 2 * $colors_in_direction;
+                map {[@good_values, ($corner_value + ($_ * $color_distance))]} 0 .. 2 * $colors_in_direction;
             } @result_values;
         }
-    } else {
-        my $half_sqr_d_diag = sqrt( 2 * $min_distance * $min_distance ) / 2;
-        for my $layer_nr (0 .. $radius / $half_sqr_d_diag){
-            my $layer_r = sqrt( ($radius**2) - (($layer_nr * $half_sqr_d_diag)**2) );
-            if ($layer_nr % 2){
-                my @odd_grid;
-            } else {
-                my $r_in_colors = $layer_r / $min_distance;
-                my $colors_in_direction = int $r_in_colors;
-                my @even_grid = ($colors_in_direction);
-                $even_grid[$colors_in_direction] = 0;
-                my $contour_cursor = $colors_in_direction;
-                for my $axis1_index (1 .. int($colors_in_direction * $adj_len_at_45_deg)){
-                    $contour_cursor-- if sqrt(($contour_cursor**2) + ($axis1_index**2)) > $r_in_colors;
-                    $even_grid[$axis1_index] = $colors_in_direction;
-                    $even_grid[$colors_in_direction] = $axis1_index;
+    } else {                   # ball shaped cluster (FCC)
+        my $layer_distance = sqrt( 2 * $color_distance * $color_distance ) / 2;
+        for my $layer_nr (0 .. $cluster_radius / $layer_distance){
+#~ say "== grid layer $layer_nr";
+            my $layer_height = $layer_nr * $layer_distance;
+            my $layer_z_up   = $center_z + $layer_height;
+            my $layer_z_dn   = $center_z - $layer_height;
+            my $layer_radius = sqrt( ($cluster_radius**2) - ($layer_height**2) );
+            my $radius_in_colors = $layer_radius / $color_distance;
+            if ($layer_nr % 2){ # odd layer of cuboctahedral packing
+                my $contour_cursor = int ($radius_in_colors - 0.5);
+                my $grid_row_count = ($radius_in_colors * $adj_len_at_45_deg) - .5;
+                next if $grid_row_count < 0;
+                my @grid = ();
+                for my $x_index (0 .. $grid_row_count){
+                    $contour_cursor-- if sqrt( (($contour_cursor+.5)**2) + (($x_index+.5)**2) ) > $radius_in_colors;
+                    $grid[$x_index] = $contour_cursor;
+                    $grid[$contour_cursor] = $x_index;
                 }
-                # if ($layer_nr > 0){}
+                for my $x_index (0 .. $#grid){
+                    my $delta_x = (0.5 + $x_index) * $color_distance;
+                    my ($x1, $x2) = ($center_x + $delta_x, $center_x - $delta_x);
+#~ say " - in row $x_index : ", $grid[$x_index];
+                    for my $y_index (0 .. $grid[$x_index]){
+                        my $delta_y = (0.5 + $y_index) * $color_distance;
+                        my ($y1, $y2) = ($center_y + $delta_y, $center_y - $delta_y);
+                        push @result_values,
+                            [$x1, $y1, $layer_z_up], [$x2, $y1, $layer_z_up],
+                            [$x1, $y2, $layer_z_up], [$x2, $y2, $layer_z_up],
+                            [$x1, $y1, $layer_z_dn], [$x2, $y1, $layer_z_dn],
+                            [$x1, $y2, $layer_z_dn], [$x2, $y2, $layer_z_dn];
+                    }
+                }
+            } else { # even layer of cuboctahedral packing
+                my $grid_row_count = int $radius_in_colors;
+                my @grid = ($grid_row_count);
+                $grid[$grid_row_count] = 0;
+                my $contour_cursor = $grid_row_count;
+                for my $x_index (1 .. $layer_radius * $adj_len_at_45_deg / $color_distance){
+                    $contour_cursor-- if sqrt(($contour_cursor**2) + ($x_index**2)) > $radius_in_colors;
+                    $grid[$x_index] = $contour_cursor;
+                    $grid[$contour_cursor] = $x_index;
+                }
+                my @layer_values = map {[$center_x + ($_ * $color_distance), $center_y, $layer_z_up]}
+                        -$grid_row_count .. $grid_row_count;
+#~ say " - in first column in one dir $grid_row_count, total: ", int @layer_values;
+                for my $y_index (1 .. $grid_row_count){
+                    my $delta_y = $y_index * $color_distance;
+                    my ($y1, $y2) = ($center_y + $delta_y, $center_y - $delta_y);
+#~ say " - in row $y_index ", $grid[$y_index];
+                    for my $x_index (-$grid[$y_index] .. $grid[$y_index]){
+                        my $x = $center_x + ($x_index * $color_distance);
+                        push @layer_values, [$x, $y1, $layer_z_up], [$x, $y2, $layer_z_up];
+                    }
+                }
+                if ($layer_nr > 0){
+                    push @result_values, [$_->[0], $_->[1], $layer_z_dn] for @layer_values;
+                }
+                push @result_values, @layer_values;
             }
+#~ say ":: result count  $layer_nr: ", int @result_values;
         }
-        # fülle punkte in kreis / 8
-        # an achsen spiegeln
-        # berechne nächste ebene / wechsel
     }
+#~ $" = ',';
+#~ say "@$_" for @result_values;
+#~ say "endcount : ", int @result_values;
     # check for linear space borders and constraints
-    my @result = map { Graphics::Toolkit::Color::Values->new_from_tuple(
-                $_, $color_space_name ) if $color_space->is_in_linear_bounds($_) } @result_values;
-    return grep {ref} @result;
+    return map { Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space_name )}
+           grep { $color_space->is_in_linear_bounds($_) } @result_values;
 }
-
 
 1;

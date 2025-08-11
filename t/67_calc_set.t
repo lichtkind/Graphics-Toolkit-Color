@@ -230,6 +230,33 @@ is( $values->[1],                      50,    'green value is right');
 is( $values->[2],                     239,    'blue value is right');
 
 @colors = $cluster->($white, [1,1,1], 1, $HSL);
-is( int @colors,                       12,    'computed cluster edging roof of HSL space');
+is( int @colors,                       12,    'cluster edging on roof of HSL space');
+
+@colors = $cluster->($midblue, 0, 1, $HSL);
+is( int @colors,                        1,    'computed minmal ball shaped cluster with one color');
+@colors = $cluster->($midblue, 2, 2, $RGB);
+is( int @colors,                       13,    'computed smallest ball shaped cluster in RGB');
+$values = $colors[1]->shaped('RGB');
+is( ref $values,                  'ARRAY',    'center color is on pos one');
+is( $values->[0],                      43,    'red value is right');
+is( $values->[1],                      52,    'green value is right');
+is( $values->[2],                     242,    'blue value is right');
+$values = $colors[0]->shaped('RGB');
+is( $values->[0],                      41,    'first color has less red');
+is( $values->[2],                     242,    'blue is same as center');
+$values = $colors[2]->shaped('RGB');
+is( $values->[0],                      45,    'third color has more red');
+$values = $colors[12]->shaped('RGB');
+is( $values->[0],                      42,    'red value is right (was rounded up to same)');
+is( $values->[1],                      51,    'green value is right');
+is( $values->[2],                     241,    'blue value is right (1.4 less but rounded up)');
+@colors = $cluster->($midblue, 2, 2, $HSL);
+is( int @colors,                       13,    'same cuboctahedral packing in HSL');
+
+@colors = $cluster->($midblue, 2, 1, $RGB);
+is( int @colors,                       47,    'computed smallest ball shaped cluster in RGB');
+
+@colors = $cluster->($white, 1, 1, $RGB);
+is( int @colors,                        4,    'cluster edging on corner of RGB space');
 
 exit 0;

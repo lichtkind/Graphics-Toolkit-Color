@@ -313,7 +313,7 @@ and I<blackness> can never be greater than 100.
 Is a more human readable variant of the L<HWB> space with an altered
 B<hue> values, that consists of a letter and two digits.
 The letter demarks one of the six areas around the rainbow. B<R> is I<Red>,
-B<Y> (I<Yellow>), B<G> (I<Green), B<C> (I<Cyan>), B<B> (I<Blue>),
+B<Y> (I<Yellow>), B<G> (I<Green>), B<C> (I<Cyan>), B<B> (I<Blue>),
 B<M> (I<Magenta). The two digits after this letter are an angular value,
 measuring the distance between the pure color (as stated by the letter)
 and the described color (toward the next color on the rainbow).

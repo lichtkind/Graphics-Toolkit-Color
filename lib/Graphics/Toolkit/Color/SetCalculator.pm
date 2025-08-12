@@ -48,10 +48,11 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;
     my $scaling_exponent = abs($tilt) + 1; # tilt = exponential scaling
     my $segment_count = @$colors - 1;
+    my @percent_in_gradient = map {(($_-1) / ($steps-1)) ** $scaling_exponent} 2 .. $steps - 1;
+    @percent_in_gradient = map {1 - $_} reverse @percent_in_gradient if $tilt < 0;
     my @result = ($colors->[0]);
     for my $step_nr (2 .. $steps - 1){
-        my $percent_in_gradient = (($step_nr-1) / ($steps-1)) ** $scaling_exponent;
-        $percent_in_gradient = 1 - $percent_in_gradient if $tilt < 0;
+        my $percent_in_gradient = $percent_in_gradient[$step_nr-2];
         my $current_segment_nr = int ($percent_in_gradient * $segment_count);
         my $percent_in_segment = 100 * $segment_count * ($percent_in_gradient - ($current_segment_nr / $segment_count));
         push @result, $colors->[$current_segment_nr]->mix (
@@ -87,7 +88,6 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
     } else {                   # ball shaped cluster (FCC)
         my $layer_distance = sqrt( 2 * $color_distance * $color_distance ) / 2;
         for my $layer_nr (0 .. $cluster_radius / $layer_distance){
-#~ say "== grid layer $layer_nr";
             my $layer_height = $layer_nr * $layer_distance;
             my $layer_z_up   = $center_z + $layer_height;
             my $layer_z_dn   = $center_z - $layer_height;
@@ -106,7 +106,6 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
                 for my $x_index (0 .. $#grid){
                     my $delta_x = (0.5 + $x_index) * $color_distance;
                     my ($x1, $x2) = ($center_x + $delta_x, $center_x - $delta_x);
-#~ say " - in row $x_index : ", $grid[$x_index];
                     for my $y_index (0 .. $grid[$x_index]){
                         my $delta_y = (0.5 + $y_index) * $color_distance;
                         my ($y1, $y2) = ($center_y + $delta_y, $center_y - $delta_y);
@@ -129,11 +128,9 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
                 }
                 my @layer_values = map {[$center_x + ($_ * $color_distance), $center_y, $layer_z_up]}
                         -$grid_row_count .. $grid_row_count;
-#~ say " - in first column in one dir $grid_row_count, total: ", int @layer_values;
                 for my $y_index (1 .. $grid_row_count){
                     my $delta_y = $y_index * $color_distance;
                     my ($y1, $y2) = ($center_y + $delta_y, $center_y - $delta_y);
-#~ say " - in row $y_index ", $grid[$y_index];
                     for my $x_index (-$grid[$y_index] .. $grid[$y_index]){
                         my $x = $center_x + ($x_index * $color_distance);
                         push @layer_values, [$x, $y1, $layer_z_up], [$x, $y2, $layer_z_up];
@@ -144,12 +141,8 @@ sub cluster { # :values, +radius @+|+distance, :space --> @:values
                 }
                 push @result_values, @layer_values;
             }
-#~ say ":: result count  $layer_nr: ", int @result_values;
         }
     }
-#~ $" = ',';
-#~ say "@$_" for @result_values;
-#~ say "endcount : ", int @result_values;
     # check for linear space borders and constraints
     return map { Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space_name )}
            grep { $color_space->is_in_linear_bounds($_) } @result_values;

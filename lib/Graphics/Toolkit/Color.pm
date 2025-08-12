@@ -338,14 +338,6 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
 
-=head1 DEPRECATION WARNING
-
-Methods of the old API ( I<string>, I<rgb>, I<red>,
-I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
-I<lightness>, I<hsl_hash>, I<blend>, I<blend_with>, I<gradient_to>,
-I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
-will be removed with release of version 2.0.
-
 =head1 DESCRIPTION
 
 Graphics::Toolkit::Color, for short B<GTC>, is the top level API of this

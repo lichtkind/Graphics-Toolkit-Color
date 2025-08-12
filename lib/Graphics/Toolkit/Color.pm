@@ -884,16 +884,16 @@ L<Color::Similarity>
 
 =back
 
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2022-2025 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.
-
-=head1 AUTHOR
-
-Herbert Breunung, <lichtkind@cpan.org>
 
 =cut
 

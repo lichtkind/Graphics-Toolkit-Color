@@ -163,6 +163,7 @@ sub deformat_partial_hash { # convert partial hash into
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -317,7 +318,7 @@ B<M> (I<Magenta). The two digits after this letter are an angular value,
 measuring the distance between the pure color (as stated by the letter)
 and the described color (toward the next color on the rainbow).
 The B<whiteness> and B<blackness> axis have integer values with the
-suffix I<%>, since they are percentual values as well.
+suffix I<'%'>, since they are percentual values as well.
 
 =head2 YIQ
 

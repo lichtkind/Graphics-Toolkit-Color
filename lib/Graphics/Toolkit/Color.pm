@@ -2,7 +2,7 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.8_999';
+our $VERSION = '1.9';
 
 use v5.12;
 use warnings;
@@ -543,13 +543,13 @@ C<precision> is more exotic but sometimes you need to escape the numeric
 precision, set by a color spaces definition.
 For instance C<LAB> values will have maximally three decimals, no matter
 how precise the input was. In case you prefer 4 decimals, just use
-C<precision =&gt; 4>. A zero means no decimals and -1 stands for maximal
+C<precision =E<gt> 4>. A zero means no decimals and -1 stands for maximal
 precision -  which can spit out more decimals than you prefer.
 Different precisions per axis ([1,2,3]) are possible.
 
 In same way you can atach a little string per value by ussing the C<suffix>
 aregument. Normally these are percentage signs but in some spaces, where
-they appear by default you can surpress them by adding C<suffix =&gt; ''>
+they appear by default you can surpress them by adding C<suffix =E<gt> ''>
 
     $blue->values();                                    # 0, 0, 255
     $blue->values( in => 'RGB', as => 'list');          # 0, 0, 255 # explicit arguments
@@ -601,7 +601,7 @@ by the argument L</in>.
 The third argument is named C<select>. It's useful if you want to regard
 only certain dimensions (axis). For instance if you want to know only
 the difference in brightness between two colors, you type
-C<select =&gt; 'lightness'> or C<select =&gt; 'l'>. This works of course only
+C<select =E<gt> 'lightness'> or C<select =E<gt> 'l'>. This works of course only
 if you choose I<HSL> or something similar like I<LAB> as color space.
 Long or short axis names are accepted, but they all have to come from one
 color space. You also can mention one axis several times for heightened

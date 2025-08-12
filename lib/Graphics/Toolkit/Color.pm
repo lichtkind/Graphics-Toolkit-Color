@@ -46,27 +46,6 @@ sub _new_from_value_obj {
     return bless {values => $value_obj};
 }
 
-## deprecated methods - deleted with 2.0
-    sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
-    sub rgb         { $_[0]->values( ) }
-    sub red         {($_[0]->values( ))[0] }
-    sub green       {($_[0]->values( ))[1] }
-    sub blue        {($_[0]->values( ))[2] }
-    sub rgb_hex     { $_[0]->values( as => 'hex') }
-    sub rgb_hash    { $_[0]->values( as => 'hash') }
-    sub hsl         { $_[0]->values( in => 'hsl') }
-    sub hue         {($_[0]->values( in => 'hsl'))[0] }
-    sub saturation  {($_[0]->values( in => 'hsl'))[1] }
-    sub lightness   {($_[0]->values( in => 'hsl'))[2] }
-    sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
-    sub distance_to { distance(@_) }
-    sub blend       { mix( @_ ) }
-    sub blend_with  { $_[0]->mix( with => $_[1], amount => $_[2], in => 'HSL') }
-    sub gradient_to     { hsl_gradient_to( @_ ) }
-    sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
-    sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
-    sub complementary { complement(@_) }
-
 sub _split_named_args {
     my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
     @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH' and not

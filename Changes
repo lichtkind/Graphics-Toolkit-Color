@@ -1,7 +1,9 @@
 
-1.8     2025-08-14    lichtkind
+1.9     2025-08-12    lichtkind
 -------
     * = major feature release
+    * * added cluster and invert calculation method
+    * * added closest_name method
     * * added support of 5 color spaces: NCol YUV CIELUV CIELCHab CIELCHuv,
                                  rewrote CIEXYZ CIELAB
     * + extended range definitions with explicit type names
@@ -12,6 +14,7 @@
     * & moved code into Space::Format space attribute object class
     * & removed Carp and Test::Warn as dependencies
     * & moved color and color set calculators into own packages
+    * ~ reworked all calculator methods
     * ~ renamed single color calculator method "blend" method to "mix"
     * ~ renamed method "mix" argument "with" to "to"
     * ~ renamed method "gradient" argument "dynamic" to "tilt"

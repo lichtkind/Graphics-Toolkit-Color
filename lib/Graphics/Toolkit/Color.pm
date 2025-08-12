@@ -2,7 +2,7 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.8_99';
+our $VERSION = '1.8_999';
 
 use v5.12;
 use warnings;
@@ -396,11 +396,12 @@ should enable you to get the color palette you desire quickly.
 
 =head1 CONSTRUCTOR
 
-There are many options to create a color object. In short you can
-either use the name of a constant or provide values, which are coordinates
-in one of several L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
-The latter can also be formatted in many ways as described
-L<here|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+There are many options to create a color object. In short you can either
+use the name of a constant (see L</name>) or provide values, which are
+coordinates in one of several
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The latter are also understood in many
+L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
 From now on any input that the constructor method C<new> accepts,
 is called a B<color definition>.
 

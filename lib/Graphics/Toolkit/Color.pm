@@ -898,7 +898,7 @@ Copyright 2022-2025 Herbert Breunung.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it
-under same terms as Perl itself.
+under the same terms as Perl itself.
 
 =cut
 

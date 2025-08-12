@@ -4,7 +4,7 @@
     * = minor bug fix release
     * ~ added aliases for renamed methods "add_value" and "set_value"
     * ? POD syntax fixes
-
+    * ? rewrote parts of ::Color::Space POD
 
 1.9     2025-08-12    lichtkind
 -------

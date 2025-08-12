@@ -50,6 +50,7 @@ sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+ra
 sub delta              { shift->shape->delta( @_ ) }          # @+val_a, @+val_b                   --> @+rvals|      # on normalized values
 sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
 sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values                           --> ?
+sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &checker, &remedy   --> %constraint
 
 ########################################################################
 sub form               { $_[0]{'format'} }
@@ -116,27 +117,29 @@ Graphics::Toolkit::Color::Space - base class of all color spaces
 
 =head1 SYNOPSIS
 
-Color spaces are objects that hold all detail information of a color space.
-Among these are its name, alias, count, length and type of axis.
-The conversion and formatting algorithms are also located here,
-but provided by the instances.
+This class is the low level API of this distribution. Every instance
+represent one color space, containing all specific informations about
+the names, shapes and sizes of the axis and all specific algorithms,
+such as converter and (de-) formatter. Because these are all instances
+of the same class, they can be treated the same from the outside.
 
     use Graphics::Toolkit::Color::Space;
 
     my $def = Graphics::Toolkit::Color::Space->new (
-                        name => 'demo',
-                       alias => 'alias',
-                        axis => [qw/one two three/],
-                       short => [qw/1 2 3/],
-                        type => [qw/linear circular angular/]
-                       range => [1, [-2, 2], [-3, 3]],
-                   precision => [-1, 0, 1],
-                      suffix => ['', '', '%'],
+                        name => 'demo',              # space name, defaults to axis initials
+                       alias => 'alias',             # second space name
+                        axis => [qw/one two three/], # long axis names
+                       short => [qw/1 2 3/],         # short names, defaults to first char of long
+                        type => [qw/linear circular angular/], # axis type
+                       range => [1, [-2, 2], [-3, 3]],         # axis value range
+                   precision => [-1, 0, 1],                    # precision of value output
+                      suffix => ['', '', '%'],                 # suffix of value in output
     );
 
     $def->add_converter(    'RGB',   \&to_rgb, \&from_rgb );
     $def->add_formatter(   'name',   sub {...} );
     $def->add_deformatter( 'name',   sub {...} );
+    $def->add_constraint(  'name', 'error', sub {...}, sub {} );
 
 
 =head1 DESCRIPTION
@@ -152,28 +155,29 @@ your space into the list of automatically loaded spaces.
 
 =head2 new
 
-The constructor takes eight named arguments, of which only I<axis> is required.
+The constructor takes eight named arguments, of which only C<axis> is required.
 The values of these arguments have to be in most cases an ARRAY references,
-which have one element for each axis of this space. Sometimes are also strings
-acceptable, either because the target value of tha argument is an scalar
-(I<name> and I<prefix>) or bcause a scalar is interpreted as the value to be set
-for all axis (dimensions).
+which have one element for each axis of this space. Sometimes are also
+strings acceptable, either because its about the name of the space or its
+a property that is the same for all axis (dimensions).
 
-The argument B<axis> defines the full names of all axis, which will set also the
-numbers of dimensions of this space. Each axis will have also a shortcut name,
-which is per default the first letter of the full name. If you prefer other
-shortcuts, define them via the B<short> argument.
+The argument B<axis> defines the long names of all axis, which will set
+also the numbers of dimensions of this space. Each axis will have also
+a shortcut name, which is per default the first letter of the full name.
+If you prefer other shortcuts, define them via the B<short> argument.
 
-The upper-cased concatination of all shortcut names (in the order as presented
-by the I<axis> argument) is the default name if this color space.
-That can be changed via the B<name> argument or extended (prepended) via B<prefix>.
-Both I<name> and I<prefix> expext an string input.
+The concatenation of the upper-cased long name initials (in the order
+given with the C<axis> argument) is the default name of this space.
+More simply: red, green blue becomes RGB. But you can override that by
+using the B<name> argument or even use B<alias> if there is a secong longer
+name, under which the space is known.
 
-If no argument under the name B<type> is provided, then all dimensions will be
-I<linear> (Euclidean). But you might want to change that for some axis to be
-I<circular> or it's alias I<angular>. This will influenc how the methods I<clamp>
-ans I<delta> work. A third option for the I<type> argument is I<no>, which
-indicates that you can not treat the values of this dimension as numbers.
+If no argument under the name B<type> is provided, then all dimensions
+will be I<linear> (Euclidean). But you might want to change that for some
+axis to be I<circular> or it's alias I<angular>. This will influenc how
+the methods I<clamp> ans I<delta> work. A third option for the I<type>
+argument is I<no>, which indicates that you can not treat the values of
+this dimension as numbers and they will be ignored for the most part.
 
 Under the argument B<range> you can set the numeric limits of each dimension.
 If none are provided, normal ranges (0 .. 1) are assumed. One number
@@ -181,7 +185,8 @@ is understood as the upper limit of all dimensions and the lower bound
 being zero. An ARRAY ref with two number set the lower and upper bound of
 each dimension, but you can also provide an ARRAY ref filled with numbers
 or ARRAY ref defining the bounds for each dimension. You can also use
-the string I<'normal'> to indicate normal ranges (0 .. 1).
+the string I<'normal'> to indicate normal ranges (0 .. 1) and the word
+I<'percent'> to indicate integer valued ranges of 0 .. 100.
 
 The argument B<precision> defines how many decimals a value of that dimension
 has to have. Zero makes the values practically an integer and negative values
@@ -192,6 +197,7 @@ precision is again -1.
 
 The argument B<suffix> is only interesting if color values has to have a suffix
 like I<'%'> in '63%'. Its defaults to the empty string.
+
 
 =head2 add_converter
 
@@ -216,13 +222,21 @@ to provide, which then the GTC method I<values> can provide.
 Same as I<add_formatter> but the CODE does here the opposite transformation,
 providing a format reading ability for the GTC constructor.
 
+=head2 add_constraint
+
+This method enables you cut off corners from you color space. It has to
+get four arguments. 1 a constraint name. 2. an error message, that gets
+shown if a color has one of these illegal values that are inside the
+normal ranges but outside of this constraint. 3. a CODE ref of a routine
+that gets a tuple and gives a perly true if the constraint was violated.
+4. another routine that can remedy violating values.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2023-24 Herbert Breunung.
+Copyright 2023-25 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
-under same terms as Perl itself.
+under the same terms as Perl itself.
 
 =head1 AUTHOR
 

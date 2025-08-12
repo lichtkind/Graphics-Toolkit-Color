@@ -808,7 +808,7 @@ to 255 (0..255). In order to change that, many methods accept the named
 argument C<range>. When only one interger value provided, it changes the
 upper bound on all three axis and as lower bound is assumed zero.
 Let's say you need I<RGB16> values with a range of 0 .. 65536,
-then you type C<range =&gt; 65536> or C<range =&gt; 2**16>.
+then you type C<range =<gt> 65536> or C<range =<gt> 2**16>.
 
 If you provide an ARRAY ref you can change the upper bounds of all axis
 individually and in order to change even the lower boundaries, use ARRAY

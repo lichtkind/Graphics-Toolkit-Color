@@ -10,8 +10,8 @@ use Exporter 'import';
 use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 
-our @EXPORT_OK = qw/color/;
 my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
+our @EXPORT_OK = qw/color/;
 
 ## constructor #########################################################
 
@@ -35,7 +35,7 @@ EOH
     my $self = _new_from_scalar_def( $args[0] );
     return (ref $self) ? $self : $help;
 }
-sub _new_from_scalar_def { # color defs for method args
+sub _new_from_scalar_def { # color defs of method arguments
     my ($color_def) = shift;
     return $color_def if ref $color_def eq __PACKAGE__;
     return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def ) );
@@ -105,8 +105,8 @@ sub _split_named_args {
 sub values       {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'in', [],
-                     {in => $default_space_name, as => 'list',
-                      precision => undef, range => undef, suffix => undef });
+                               { in => $default_space_name, as => 'list',
+                                 precision => undef, range => undef, suffix => undef } );
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
     values ( ...
@@ -145,7 +145,7 @@ EOH
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
     return "target color definition: $arg->{to} is ill formed" unless ref $target_color;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     if (defined $arg->{'select'}){
         if (not ref $arg->{'select'}){
             return $arg->{'select'}." is not an axis name in color space: ".$color_space->name
@@ -167,34 +167,36 @@ EOH
 sub set_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
-    return <<EOH if @args % 2 or not @args or @args > 10;
+    my $help = <<EOH;
     GTC method 'set_value' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
     you might add the "in" argument:
         set_value( green => 20 ) or set( g => 20 ) or
         set_value( hue => 240, in => 'HWB' )
 EOH
+    return $help if @args % 2 or not @args or @args > 10;
     my $partial_color = { @args };
     my $space_name = delete $partial_color->{'in'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( $self->{'values'}->set( $partial_color, $space_name ) );
 }
 
 sub add_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
-    return <<EOH if @args % 2 or not @args or @args > 10;
+    my $help = <<EOH;
     GTC method 'add_value' needs a value HASH (not a ref) whose keys are axis names or
     short names from one color space. If the chosen axis name(s) is/are ambiguous,
     you might add the "in" argument:
         add_value( blue => -10 ) or set( b => -10 )
         add_value( hue => 100 , in => 'HWB' )
 EOH
+    return $help if @args % 2 or not @args or @args > 10;
     my $partial_color = { @args };
     my $space_name = delete $partial_color->{'in'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( $self->{'values'}->add( $partial_color, $space_name ) );
 }
 
@@ -233,7 +235,7 @@ EOH
         }
     }
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( $self->{'values'}->mix( $recipe, $color_space ) );
 }
 
@@ -247,7 +249,7 @@ sub invert {
 EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( $self->{'values'}->invert( $color_space ) );
 }
 
@@ -263,15 +265,18 @@ sub complement {
         target => {h => 10, s => 20, l => 3}        # sub-keys are independent, default to 0
 EOH
     return $arg.$help unless ref $arg;
-    return "Optional argument 'steps' has to be a number !\n".$arg unless is_nr($arg->{'steps'});
+    return "Optional argument 'steps' has to be a number !\n".$help unless is_nr($arg->{'steps'});
     return "Optional argument 'steps' is zero, no complement colors will be computed !\n".$help unless $arg->{'steps'};
-    return "Optional argument 'tilt' has to be a number !\n".$arg unless is_nr($arg->{'tilt'});
-    return "Optional argument 'target' has to be a HASH ref !\n".$arg if ref $arg->{'target'} ne 'HASH';
-    my ($target_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
-    return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$arg
-        unless ref $target_values;
+    return "Optional argument 'tilt' has to be a number !\n".$help unless is_nr($arg->{'tilt'});
+    return "Optional argument 'target' has to be a HASH ref !\n".$help if ref $arg->{'target'} ne 'HASH';
+    my ($target_values, $space_name);
+    if (keys %{$arg->{'target'}}){
+        ($target_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
+        return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$help
+            unless ref $target_values;
+    } else { $target_values = [] }
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::complement( @$arg{qw/steps tilt/}, $target_values );
+        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, @$arg{qw/steps tilt/}, $target_values );
 }
 
 sub gradient {
@@ -288,21 +293,22 @@ EOH
     return $arg.$help unless ref $arg;
     my @colors = ($self->{'values'});
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
-    if (ref $target_color) { push @colors, $target_color }
+    if (ref $target_color) {
+        push @colors, $target_color->{'values'} }
     else {
         return "Argument 'to' contains malformed color definition!\n".$help if ref $arg->{'to'} ne 'ARRAY' or not @{$arg->{'to'}};
         for my $color_def (@{$arg->{'to'}}){
             my $target_color = _new_from_scalar_def( $color_def );
             return "Argument 'to' contains malformed color definition: $color_def !\n".$help unless ref $target_color;
-            push @colors, $target_color;
+            push @colors, $target_color->{'values'};
         }
     }
-    return "Value of argument 'steps' has to be at least one or greater !\n".$help if ref $arg->{'steps'} or $arg->{'steps'} < 1;
+    return "Argument 'steps' has to be a number greater zero !\n".$help
+        unless is_nr($arg->{'steps'}) and $arg->{'steps'} > 0;
     $arg->{'steps'} = int $arg->{'steps'};
-    $arg->{'tilt'} = 0 unless exists $arg->{'tilt'};
-    $arg->{'tilt'} += 0; # numify argument
+    return "Argument 'tilt' has to be a number !\n".$help unless is_nr($arg->{'tilt'});
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
-    return $color_space unless ref $color_space;
+    return "$color_space\n".$help unless ref $color_space;
     map {_new_from_value_obj( $_ )}
         Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
 }
@@ -320,15 +326,15 @@ sub cluster {
 EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
-    return $color_space unless ref $color_space;
-    return "Argument 'radius' has to be a number or an ARRAY of numbers"
+    return "$color_space\n".$help unless ref $color_space;
+    return "Argument 'radius' has to be a number or an ARRAY of numbers".$help
         unless is_nr($arg->{'radius'}) or $color_space->is_number_tuple( $arg->{'radius'} );
     return "Argument 'distance' has to be a number greater zero !\n".$help
         unless is_nr($arg->{'distance'}) and $arg->{'distance'} > 0;
     return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::cluster( @$arg{qw/radius distance/}, $color_space);
+        Graphics::Toolkit::Color::SetCalculator::cluster( $self->{'values'}, @$arg{qw/radius distance/}, $color_space);
 }
 
 1;
@@ -729,7 +735,9 @@ and its (THE) complement sit on opposite sides of the circle.
 The greater the C<tilt> amount, the more these colors (minus the given
 one) will move on the circle toward THE complement and vice versa.
 What is traditionally meant by split-complementary colors you will
-get here with a C<tilt> factor of around 1.66 and four C<steps>.
+get here with a C<tilt> factor of around 3.42 and three C<steps> or
+a C<tilt> of 1.585 and four C<steps> (depending on if you need
+THE complement also in your set).
 
 To get an even greater variety of complementary colors, you can use
 C<target> argument and move around THE complement and thus shape the

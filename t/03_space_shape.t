@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 166;
+use Test::More tests => 178;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -57,6 +57,19 @@ is( $shape->is_axis_numeric(3), 0, 'there is no fourth dimension ');
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[0,1],[-1,1],[1,10]]);
 is( ref $shape,  $module, 'created shape with most complex range definition');
+is( $shape->is_axis_numeric(0), 1, 'default to numeric axis on first dimension');
+is( $shape->is_axis_numeric(1), 1, 'default to numeric axis on second dimension');
+is( $shape->is_axis_numeric(2), 1, 'default to numeric axis on third dimension');
+is( $shape->is_axis_numeric(3), 0, 'there is no fourth dimension');
+is( $shape->axis_value_max(0),  1, 'max value of first dimension');
+is( $shape->axis_value_max(1),  1, 'max value of second dimension');
+is( $shape->axis_value_max(2), 10, 'max value of third dimension');
+is( $shape->axis_value_max(3), undef, 'get undef when asking for max of none existing dimension');
+is( $shape->axis_value_min(0),  0, 'min value of first dimension');
+is( $shape->axis_value_min(1), -1, 'min value of second dimension');
+is( $shape->axis_value_min(2),  1, 'min value of third dimension');
+is( $shape->axis_value_min(3), undef, 'get undef when asking for min of none existing dimension');
+
 $values = $shape->clamp([0, 1, 10, 1] );
 is( ref $values, 'ARRAY', 'clamped in bound values after complex range def');
 is( int @$values,      3, 'clamp down to correct tuple length = 3');

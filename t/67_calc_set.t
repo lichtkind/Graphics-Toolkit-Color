@@ -40,7 +40,7 @@ is( ref $colors[0],            $value_ref,   'first is a value object');
 is( ref $colors[1],            $value_ref,   'second is a value object');
 is( ref $colors[2],            $value_ref,   'third is a value object');
 is( $colors[0]->name,               'red',   'first color is red');
-is( $colors[1]->name,              'lime',   'second color is green');
+is( $colors[1]->name,              'lime',   'second color is full green (lime)');
 is( $colors[2],                     $blue,   'got invocant back as third color');
 
 @colors = $complement->($blue, 4, 0, []);
@@ -55,10 +55,12 @@ is( int @$values,                        3,   'are 3 values');
 is( $values->[0],                      330,   'hue is 90');
 is( $values->[1],                      100,   'saturation is 100');
 is( $values->[2],                       50,   'lightness is half');
+$values = $colors[1]->shaped('HSL');
+is( $values->[0],                       60,   'hue of second color is 60');
 $values = $colors[2]->shaped('HSL');
 is( $values->[0],                      150,   'hue of third color is 150');
-is( $values->[1],                      100,   'saturation is 100');
-is( $values->[2],                       50,   'lightness is half');
+$values = $colors[3]->shaped('HSL');
+is( $values->[0],                      240,   'hue of fourth color is 240');
 
 @colors = $complement->($midblue, 5, 0, []);
 is( int @colors,                        5,    '4 complements from custom color');

@@ -86,6 +86,20 @@ sub is_axis_numeric {
     $self->{'type'}[$axis_nr] == 2 ? 0 : 1;
 
 }
+sub axis_value_max { # --> +value
+    my ($self, $axis_nr, $range) = @_;
+    $range = $self->try_check_range_definition( $range );
+    return undef unless ref $range;
+    return undef unless $self->is_axis_numeric($axis_nr);
+    return $range->[$axis_nr][1];
+}
+sub axis_value_min { # --> +value
+    my ($self, $axis_nr, $range) = @_;
+    $range = $self->try_check_range_definition( $range );
+    return undef unless ref $range;
+    return undef unless $self->is_axis_numeric($axis_nr);
+    return $range->[$axis_nr][0];
+}
 sub axis_value_precision { # --> +precision?
     my ($self, $axis_nr, $precision) = @_;
     return undef if not defined $axis_nr or not exists $self->{'type'}[$axis_nr];

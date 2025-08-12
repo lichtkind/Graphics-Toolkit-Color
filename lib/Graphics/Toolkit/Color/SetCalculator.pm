@@ -7,13 +7,13 @@ use warnings;
 use Graphics::Toolkit::Color::Values;
 
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
-
+my $half_hue_max = $HSL->shape->axis_value_max(0) / 2;
 ########################################################################
 sub complement { # :base_color +steps +tilt %target_delta --> @:values
     my ($start_color, $steps, $tilt, $target_delta) = @_;
     my $start_values = $start_color->shaped( $HSL->name );
     my $target_values = [@$start_values];
-    $target_values->[0] += 180;
+    $target_values->[0] += $half_hue_max;
     for my $axis_index (0 .. 2) {
         $target_delta->[$axis_index] = 0 unless defined $target_delta->[$axis_index];
         $target_values->[$axis_index] += $target_delta->[$axis_index];
@@ -23,22 +23,20 @@ sub complement { # :base_color +steps +tilt %target_delta --> @:values
     $target_delta->[2] = $target_values->[2] - $start_values->[2];
     my $result_count = int abs $steps;
     my $scaling_exponent = abs($tilt) + 1;
-    my @hue_percent = map {
-        my $hue_percent = ($_ * 2 / $result_count) ** $scaling_exponent;
-        ($tilt > 0) ? (1 - $hue_percent) : $hue_percent;
-    } 1 .. int (($result_count - 1) / 2);
-    my $hue_range = 180 + $target_delta->[0]; # real value size of half complement circle
+    my @hue_percent = map {($_ * 2 / $result_count) ** $scaling_exponent} 1 .. ($result_count - 1) / 2;
+    @hue_percent = map {1 - $_} reverse @hue_percent if $tilt > 0;
+    my $hue_delta = $half_hue_max + $target_delta->[0]; # real value size of half complement circle
     my @result = ();
     push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$start_values->[0] + ($hue_range         * $_),
+                    [$start_values->[0] + ($hue_delta         * $_),
                      $start_values->[1] + ($target_delta->[1] * $_),
                      $start_values->[2] + ($target_delta->[2] * $_)], $HSL->name)) for @hue_percent;
     push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $HSL->name)
         if $result_count == 1 or not $result_count % 2;
-    $hue_range = 180 - $target_delta->[0];
+    $hue_delta = $half_hue_max - $target_delta->[0];
     @hue_percent = map {1 - $_} reverse @hue_percent;
     push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$target_values->[0] + ($hue_range         * $_),
+                    [$target_values->[0] + ($hue_delta         * $_),
                      $target_values->[1] - ($target_delta->[1] * $_),
                      $target_values->[2] - ($target_delta->[2] * $_)], $HSL->name)) for @hue_percent;
     push @result, $start_color if $result_count > 1;

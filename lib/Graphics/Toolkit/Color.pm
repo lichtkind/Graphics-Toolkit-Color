@@ -542,13 +542,13 @@ C<precision> is more exotic but sometimes you need to escape the numeric
 precision, set by a color spaces definition.
 For instance C<LAB> values will have maximally three decimals, no matter
 how precise the input was. In case you prefer 4 decimals, just use
-C<precision => 4>. A zero means no decimals and -1 stands for maximal
+C<precision =&gt; 4>. A zero means no decimals and -1 stands for maximal
 precision -  which can spit out more decimals than you prefer.
 Different precisions per axis ([1,2,3]) are possible.
 
 In same way you can atach a little string per value by ussing the C<suffix>
 aregument. Normally these are percentage signs but in some spaces, where
-they appear by default you can surpress them by adding C<suffix => ''>
+they appear by default you can surpress them by adding C<suffix =&gt; ''>
 
     $blue->values();                                    # 0, 0, 255
     $blue->values( in => 'RGB', as => 'list');          # 0, 0, 255 # explicit arguments
@@ -600,7 +600,7 @@ by the argument L</in>.
 The third argument is named C<select>. It's useful if you want to regard
 only certain dimensions (axis). For instance if you want to know only
 the difference in brightness between two colors, you type
-C<select => 'lightness'> or C<select => 'l'>. This works of course only
+C<select =&gt; 'lightness'> or C<select =&gt; 'l'>. This works of course only
 if you choose I<HSL> or something similar like I<LAB> as color space.
 Long or short axis names are accepted, but they all have to come from one
 color space. You also can mention one axis several times for heightened
@@ -794,7 +794,7 @@ values you get the a cuboid with the given dimensions.
 
 The minimal distance between any two colors of a cluster is set by the
 C<distance> argument, which is computed the same way as the method
-C</distance>. In a cuboid shaped cluster- the colors will form a cubic
+L</distance>. In a cuboid shaped cluster- the colors will form a cubic
 grid - inside the ball shaped cluster they form a cuboctahedral grid,
 which is packed tighter, but still obeys the minimal distance.
 
@@ -828,14 +828,14 @@ to 255 (0..255). In order to change that, many methods accept the named
 argument C<range>. When only one interger value provided, it changes the
 upper bound on all three axis and as lower bound is assumed zero.
 Let's say you need I<RGB16> values with a range of 0 .. 65536,
-then you type C<range => 65536> or C<range => 2**16>.
+then you type C<range =&gt; 65536> or C<range =&gt; 2**16>.
 
 If you provide an ARRAY ref you can change the upper bounds of all axis
 individually and in order to change even the lower boundaries, use ARRAY
 refs even inside that. For instance in C<HSL> the C<hue> is normally
 0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
 to -100 .. 100 but keep the other two untouched you would have to insert:
-C<range => [[-100,100],100,100]>.
+C<range =&gt; [[-100,100],100,100]>.
 
 
 =head2 to

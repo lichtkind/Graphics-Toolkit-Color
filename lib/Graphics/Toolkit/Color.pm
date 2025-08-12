@@ -2,7 +2,7 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.0';
+our $VERSION = '1.91';
 
 use v5.12;
 use warnings;
@@ -45,6 +45,30 @@ sub _new_from_value_obj {
     return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
     return bless {values => $value_obj};
 }
+
+
+## deprecated methods - deleted with 2.0
+    sub string      { $_[0]{'name'} || $_[0]->{'values'}->string }
+    sub rgb         { $_[0]->values( ) }
+    sub red         {($_[0]->values( ))[0] }
+    sub green       {($_[0]->values( ))[1] }
+    sub blue        {($_[0]->values( ))[2] }
+    sub rgb_hex     { $_[0]->values( as => 'hex') }
+    sub rgb_hash    { $_[0]->values( as => 'hash') }
+    sub hsl         { $_[0]->values( in => 'hsl') }
+    sub hue         {($_[0]->values( in => 'hsl'))[0] }
+    sub set         { shift->set_value( @_ ) }
+    sub add         { shift->add_value( @_ ) }
+    sub saturation  {($_[0]->values( in => 'hsl'))[1] }
+    sub lightness   {($_[0]->values( in => 'hsl'))[2] }
+    sub hsl_hash    { $_[0]->values( in => 'hsl', as => 'hash') }
+    sub distance_to { distance(@_) }
+    sub blend       { mix( @_ ) }
+    sub blend_with  { $_[0]->mix( with => $_[1], amount => $_[2], in => 'HSL') }
+    sub gradient_to     { hsl_gradient_to( @_ ) }
+    sub rgb_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'RGB' ) }
+    sub hsl_gradient_to { $_[0]->gradient( to => $_[1], steps => $_[2], dynamic => $_[3], in => 'HSL' ) }
+    sub complementary { complement(@_) }
 
 sub _split_named_args {
     my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
@@ -337,6 +361,14 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triple = $red->complement( 3 );         # get fitting red green and blue
 
+
+=head1 DEPRECATION WARNING
+
+Methods of the old API ( I<string>, I<rgb>, I<red>,
+I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
+I<lightness>, I<hsl_hash>, I<blend>, I<blend_with>, I<gradient_to>,
+I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
+will be removed with release of version 2.0.
 
 =head1 DESCRIPTION
 
@@ -859,9 +891,11 @@ L<Color::Similarity>
 
 Herbert Breunung, <lichtkind@cpan.org>
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT
 
 Copyright 2022-2025 Herbert Breunung.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

@@ -1,7 +1,9 @@
 
-2.0     2025-08-12    lichtkind
+1.91    2025-08-12    lichtkind
 -------
-    * = minor feature release
+    * = minor bug fix release
+    * ~ added aliases for renamed methods "add_value" and "set_value"
+    * ? POD syntax fixes
 
 
 1.9     2025-08-12    lichtkind
@@ -21,6 +23,7 @@
     * & moved color and color set calculators into own packages
     * ~ reworked all calculator methods
     * ~ renamed single color calculator method "blend" method to "mix"
+    * ~ renamed method "add" and "set" to "add_value" and "set_value"
     * ~ renamed method "mix" argument "with" to "to"
     * ~ renamed method "gradient" argument "dynamic" to "tilt"
     * ~ default space of methods 'distance', 'mix' and 'gradient'

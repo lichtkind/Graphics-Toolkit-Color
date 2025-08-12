@@ -2,7 +2,7 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.9';
+our $VERSION = '2.0';
 
 use v5.12;
 use warnings;

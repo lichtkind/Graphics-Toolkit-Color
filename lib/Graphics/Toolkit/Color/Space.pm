@@ -140,6 +140,7 @@ of the same class, they can be treated the same from the outside.
     $def->add_formatter(   'name',   sub {...} );
     $def->add_deformatter( 'name',   sub {...} );
     $def->add_constraint(  'name', 'error', sub {...}, sub {} );
+    $def->set_value_formatter( sub {...}, sub {...}, )
 
 
 =head1 DESCRIPTION
@@ -231,15 +232,25 @@ normal ranges but outside of this constraint. 3. a CODE ref of a routine
 that gets a tuple and gives a perly true if the constraint was violated.
 4. another routine that can remedy violating values.
 
+=head2 set_value_formatter
+
+This method was introduced for the I<NCol> space, where one value is
+partially represented by letters. When reading a I<NCol> color definition
+from an input, this value has to be translated into a number, so it
+can be then processed as other numerical values. That will be done by
+the first routine, given by this method. The second routine does just
+the translation back, when the values has to become an output.
+
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2023-25 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
-
-=head1 AUTHOR
-
-Herbert Breunung, <lichtkind@cpan.org>
 
 =cut

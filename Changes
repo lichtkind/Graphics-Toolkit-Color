@@ -1,4 +1,12 @@
 
+1.92    2025-08-22    lichtkind
+-------
+    * = minor feature release
+    * + added "oklab" color space
+    * + methods "name" and "closest_name" now work on any scheme from Graphics::ColorNames
+    * ? POD syntax fixes
+
+
 1.91    2025-08-12    lichtkind
 -------
     * = minor bug fix release
@@ -9,8 +17,8 @@
 1.9     2025-08-12    lichtkind
 -------
     * = major feature release
-    * * added cluster and invert calculation method
-    * * added closest_name method
+    * * added "cluster" and "invert" calculation method
+    * * added "closest_name" method
     * * added support of 5 color spaces: NCol YUV CIELUV CIELCHab CIELCHuv,
                                  rewrote CIEXYZ CIELAB
     * + extended range definitions with explicit type names

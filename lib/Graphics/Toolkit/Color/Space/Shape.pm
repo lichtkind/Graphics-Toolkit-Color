@@ -78,7 +78,7 @@ sub add_constraint {
     $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
 }
 
-#### getter (defaults) #################################################
+#### getter ############################################################
 sub basis           { $_[0]{'basis'}}
 sub is_axis_numeric {
     my ($self, $axis_nr) = @_;

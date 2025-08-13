@@ -2,7 +2,7 @@
 # public user level API: computing color (sets), measure, IO for many formats and spaces
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.91';
+our $VERSION = '1.92';
 
 use v5.12;
 use warnings;
@@ -366,8 +366,8 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
 
 Methods of the old API ( I<string>, I<rgb>, I<red>,
 I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
-I<lightness>, I<hsl_hash>, I<blend>, I<blend_with>, I<gradient_to>,
-I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
+I<lightness>, I<hsl_hash>, I<add>, I<set>, I<blend>, I<blend_with>,
+I<gradient_to>, I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
 will be removed with release of version 2.0.
 
 =head1 DESCRIPTION

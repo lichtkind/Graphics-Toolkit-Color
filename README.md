@@ -4,7 +4,7 @@
 
 ### VERSION
 
-    1.9
+    1.92
 
 [on CPAN](https://metacpan.org/pod/Graphics::Toolkit::Color)
 

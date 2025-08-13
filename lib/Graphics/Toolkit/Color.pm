@@ -378,19 +378,20 @@ Its main purpose is the creation of related colors or sets of them,
 such as gradients, complements and others. But you can use it also to
 convert and/or reformat color definitions.
 
-GTC are read only, color holding objects with no additional dependencies.
-Create them in many different ways (see section L</CONSTRUCTOR>).
+GTC are read only, one color representing objects with no additional
+dependencies. Create them in many different ways (see L</CONSTRUCTOR>).
 Access its values via methods from section L</GETTER>.
 Measure differences with the L</distance> method. L</SINGLE-COLOR>
 methods create one new object that is related to the current one and
 L</COLOR-SETS> methods will create a group of colors, that are not
 only related to the current color but also have relations between each other.
-Error messages will appear as return values.
+Error messages will appear as return values instead of the expected result.
 
-While this module can understand and output color values in many spaces,
-such as I<LAB>, I<NCol>, I<YIQ> and many more, I<RGB> is the (internal),
-primal one, because GTC is about colors that can be shown on the screen,
-and these are usually encoded in I<RGB>.
+While this module can understand and output color values to many
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>,
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/RGB>
+is the (internal) primal one, because GTC is about colors that can be
+shown on the screen, and these are usually encoded in I<RGB>.
 Humans access colors on hardware level (eye) in I<RGB>, on cognition level
 in I<HSL> (brain) and on cultural level (language) with names.
 Having easy access to all of those plus some color math and many formats

@@ -51,16 +51,6 @@ sub create_suffix_list {
     return $suffix;
 }
 
-sub get_suffix {
-    my ($self, $suffix) = @_;
-    return $self->{'suffix'} unless defined $suffix;
-    create_suffix_list( $self->{'basis'}, $suffix );
-}
-
-#### public API: formatting value tuples ###############################
-sub basis           { $_[0]{'basis'}}
-sub has_format      { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
-sub has_deformat    { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
 sub add_formatter   {
     my ($self, $format, $code) = @_;
     return if not defined $format or ref $format or ref $code ne 'CODE';
@@ -77,6 +67,16 @@ sub set_value_formatter {
     return 0 if ref $pre_code ne 'CODE' or ref $post_code ne 'CODE';
     $self->{'pre'} = $pre_code;
     $self->{'post'} = $post_code;
+}
+
+#### public API: formatting value tuples ###############################
+sub basis           { $_[0]{'basis'}}
+sub has_format      { (defined $_[1] and exists $_[0]{'format'}{ lc $_[1] }) ? 1 : 0 }
+sub has_deformat    { (defined $_[1] and exists $_[0]{'deformat'}{ lc $_[1] }) ? 1 : 0 }
+sub get_suffix {
+    my ($self, $suffix) = @_;
+    return $self->{'suffix'} unless defined $suffix;
+    create_suffix_list( $self->{'basis'}, $suffix );
 }
 
 sub deformat {

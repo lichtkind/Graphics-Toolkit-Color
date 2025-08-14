@@ -2,10 +2,9 @@
 1.92    2025-08-22    lichtkind
 -------
     * = minor feature release
-    * + added "oklab" color space
+    * + added "oklab" and "oklch" color space
     * + methods "name" and "closest_name" now work on any scheme from Graphics::ColorNames
     * ? POD syntax fixes
-
 
 1.91    2025-08-12    lichtkind
 -------

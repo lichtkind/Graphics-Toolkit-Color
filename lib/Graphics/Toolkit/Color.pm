@@ -834,14 +834,14 @@ to 255 (0..255). In order to change that, many methods accept the named
 argument C<range>. When only one interger value provided, it changes the
 upper bound on all three axis and as lower bound is assumed zero.
 Let's say you need I<RGB16> values with a range of 0 .. 65536,
-then you type C<<range => 65536>> or C<<range => 2**16>>.
+then you type C<< range => 65536 >> or C<< range => 2**16 >>.
 
 If you provide an ARRAY ref you can change the upper bounds of all axis
 individually and in order to change even the lower boundaries, use ARRAY
 refs even inside that. For instance in C<HSL> the C<hue> is normally
 0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
 to -100 .. 100 but keep the other two untouched you would have to insert:
-C<<range => [[-100,100],100,100]>>.
+C<< range => [[-100,100],100,100] >>.
 
 
 =head2 to

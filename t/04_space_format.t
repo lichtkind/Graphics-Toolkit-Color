@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 127;
+use Test::More tests => 131;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
@@ -54,24 +54,23 @@ is( $vals->[1],             2, 'second value');
 is( $vals->[2],             3, 'third value');
 is( $name,     'named_string', 'found right format name');
 
-($vals, $name) = $pobj->deformat(' abg: 1 %, 2 % , 3% ');
+($vals, $name) = $pobj->deformat(' abg: 1%, 2% , 3%  ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string');
 is( $name,     'named_string', 'recognized named string format');
 ($vals, $name) = $vobj->deformat(' abg: 1 %, 2 % , 3% ');
 is( ref $vals,        '', 'values need to have two digits with custom value format');
 ($vals, $name) = $vobj->deformat(' abg: 11 %, 22 % , 33% ');
-is( ref $vals,        'ARRAY', 'ignored inserted spaces in named string with custom value format');
-is( $name,     'named_string', 'recognized named string format with custom value format');
-($vals, $name) = $cobj->deformat(' abg: 1 %, 2 % , 3% ');
-is( ref $vals,        '', 'values custom format is not met');
-($vals, $name) = $cobj->deformat(' abg: 1 $, 22 @ , 333% ');
+is( ref $vals,         '', 'can not have spaces before suffix');
+($vals, $name) = $cobj->deformat(' abg: 1%, 2% , 3% ');
+is( ref $vals,        '', 'ignored custom suffixed, brought wrong ones');
+($vals, $name) = $cobj->deformat(' abg: 1$, 22@ , 333% ');
 is( ref $vals,        'ARRAY', 'recognized custom format');
 is( $name,     'named_string', 'found named string as custom format');
 
-($vals, $name) = $pobj->deformat(' abg( 1 %, 2 % , 3% ) ');
+($vals, $name) = $pobj->deformat(' abg( 1%, 2% ,3%  ) ');
 is( ref $vals,        'ARRAY', 'ignored inserted spaces in css string');
 is( $name,       'css_string', 'recognized CSS string format');
-($vals, $name) = $pobj->deformat(' alias( 1 %, 2 % , 3% ) ');
+($vals, $name) = $pobj->deformat(' alias( 1%, 2% , 3% ) ');
 is( ref $vals,        'ARRAY', 'deformatted css string with space name alias');
 is( $name,       'css_string', 'recognized CSS string format');
 ($vals, $name) = $pobj->deformat(' abg( 1 , 2  , 3 ) ');
@@ -79,6 +78,11 @@ is( ref $vals,        'ARRAY', 'ignored missing suffixes');
 is( $name,       'css_string', 'recognized CSS string format');
 is( $vals->[0],             1, 'first value');
 is( $vals->[1],             2, 'second value');
+is( $vals->[2],             3, 'third value');
+($vals, $name) = $pobj->deformat(' abg( .1 1.2  3 ) ');
+is( ref $vals,        'ARRAY', 'commas in CSS string format are optional');
+is( $vals->[0],            .1, 'first value');
+is( $vals->[1],           1.2, 'second value');
 is( $vals->[2],             3, 'third value');
 
 
@@ -120,8 +124,8 @@ is( $vals->[0],              1, 'first value');
 is( $vals->[1],              2, 'second value');
 is( $vals->[2],              3, 'third value');
 
-($vals, $name) = $pobj->deformat( ['abg',' 1%',' 2 %','3% '] );
-is( $name,       'named_array', 'recognized named array with suffix missing');
+($vals, $name) = $pobj->deformat( ['abg',' 1%',' 2%','3% '] );
+is( $name,       'named_array', 'recognized named array with suffixes');
 is( ref $vals,         'ARRAY', 'could deformat values');
 is( @$vals,                  3, 'right amount of values');
 is( $vals->[0],              1, 'first value');
@@ -140,11 +144,13 @@ is( $vals->[2],              3, 'third value');
 is( $name,            'hash', 'recognized hash format with full names');
 ($vals, $name) = $pobj->deformat( {ALPHA =>1, BETA =>2, GAMMA=>3} );
 is( $name,            'hash', 'recognized hash even when left suffixes');
-($vals, $name) = $pobj->deformat( {ALPHA =>'1 %', BETA =>'2% ', GAMMA=>' 3%'} );
+($vals, $name) = $pobj->deformat( {ALPHA =>'1%', BETA =>'2% ', GAMMA=>' 3%'} );
 is( $name,            'hash', 'recognized hash with suffixes');
-($vals, $name) = $vobj->deformat( {ALPHA =>'1 %', BETA =>'2% ', GAMMA=>' 3%'} );
+($vals, $name) = $vobj->deformat( {ALPHA =>'1%', BETA =>'2% ', GAMMA=>' 3%'} );
 is( $name,             undef, 'values needed 2 digits in custom value format');
 ($vals, $name) = $vobj->deformat( {ALPHA =>'21 %', BETA =>'92% ', GAMMA=>' 13%'} );
+is( $name,             undef, 'can not tolerate space before suffix');
+($vals, $name) = $vobj->deformat( {ALPHA =>'21%', BETA =>'92% ', GAMMA=>' 13%'} );
 is( $name,            'hash', 'recognized hash with suffixes and custom value format');
 
 my (@list) = $obj->format( [0,2.2,-3], 'list');

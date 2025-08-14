@@ -132,7 +132,8 @@ sub add_suffix {
         return unless $self->basis->is_value_tuple( $values );
     }
     [ map { ($suffix->[$_] and substr( $values->[$_], - length $suffix->[$_]) ne $suffix->[$_])
-                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              } $self->basis->axis_iterator ];
+                  ? $values->[$_] . $suffix->[$_] : $values->[$_]                              }
+          $self->basis->axis_iterator ];
 }
 
 sub check_number_values {
@@ -149,8 +150,8 @@ sub check_number_values {
 sub _value_regex {
     my ($self, $match) = @_;
     (defined $match and $match)
-        ? (map {'\s*('.$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->axis_iterator)
-        : (map {'\s*' .$self->{'value_form'}[$_].'\s*(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->axis_iterator);
+        ? (map {'\s*('.$self->{'value_form'}[$_].'(?:'.quotemeta($self->{'suffix'}[$_]).')?)\s*' } $self->basis->axis_iterator)
+        : (map {'\s*' .$self->{'value_form'}[$_].'(?:'.quotemeta($self->{'suffix'}[$_]).')?\s*' } $self->basis->axis_iterator);
 }
 
 #### converter: format --> values ######################################
@@ -173,16 +174,22 @@ sub tuple_from_css_string {
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
     my $name = $self->basis->space_name;
-    $string =~ /^\s*$name\s*\(\s*([^)]+)\s*\)\s*$/i;
+    $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
     my $match = $1;
     unless ($match){
         my $name = $self->basis->alias_name;
         return 0 unless $name;
-        $string =~ /^\s*$name\s*\(\s*([^)]+)\s*\)\s*$/i;
+        $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
         $match = $1;
     }
     return 0 unless $match;
-    return [split(',', $match)];
+say "match |$match|";
+    local $/ = ' ';
+    chomp $match;
+say "match |$match|";
+say for split(/\s*,?\s+/, $match);
+    return [split(/\s*,\s*/, $match)] if index($match, ',') > -1;
+    return [split(/\s+/,     $match)];
 }
 sub tuple_from_named_array {
     my ($self, $array) = @_;

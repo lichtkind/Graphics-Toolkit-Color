@@ -5,73 +5,90 @@ Hierarchy
 
 
     = G::T::Color    (public API)
-      - new          (GTC::Values::new)
-      ------
+      - new          (GTC::Values::new_from_any_input)
+      -----
       - values       (GTC::Values::formatted)
       - name         (GTC::Values::get_name)
-      - closest_name (GTC::Values::get_closest_name)
+      - closest_name (GTC::Values::closest_name_and_distance)
       - distance     (GTC::Values::distance)
-      ------
+      -----
       - set          (GTC::Values::set)
       - add          (GTC::Values::add)
       - mix          (GTC::Values::mix)
-      ------
-      - gradient     (GTC::Operation::Set::gradient)
-      - complement   (GTC::Operation::Set::complement)
-      - cluster      (GTC::Operation::Set::cluster)
+      - invert       (GTC::Values::invert)
+      -----
+      - gradient     (GTC::SetCalculator::gradient)
+      - complement   (GTC::SetCalculator::complement)
+      - cluster      (GTC::SetCalculator::cluster)
       ======
-      = ::Operation::Set
+        = ::SetCalculator
           - gradient    (Values::mix)
           - complement  (Values::add)
           - cluster     (Values::add)
-      = ::Values
-          - new         (GTC::Space::Name::rgb_from_name | GTC::Space::Hub::deformat, convert_to_default_form)
-          - name        (GTC::Space::Name::name_from_rgb)
-          - normal_tuple(GTC::Space::Hub::convert)
-          - formatted   (GTC::Space::Hub::format)
+        ======
+        = ::Values
+          - new_from_any_input         (GTC::Name::values | GTC::Space::Hub::deformat, + ->)
+          - new_from_tuple             (GTC::Space::Hub::deconvert)
+          -----
+          - normalized  (+ GTC::Space::Hub::convert)
+          - shaped      (+ Space->denormalize, clamp, round)
+          - formatted   (+ Space->format)
+          - name        ( )
+          - closest_name_and_distance (GTC::Name::closest)
+          - distance    (GTC::Space::Hub::distance)
           ----
-          - set       (GTC::Space::Hub::partial_hash_deformat)
-          - add       (GTC::Space::Hub::partial_hash_deformat)
-          - mix       (tuple, GTC::Space::clamp)
-          - distance  (GTC::Space::Hub::distance)
-      = ::Space::Name
-          - all
-          - is_taken
-          - rgb_from_name
-          - hsl_from_name
-          - name_from_rgb
-          - name_from_hsl
-          - names_in_hsl_range (GTC::Space::Hub::distance)
-          - add_rgb
-          - add_hsl
-        = ::Space::Name::Scheme
-        = ::Space::Name::Constant
-      ====
-      = ::Space::Hub
-          - is_space_name
-          - all_space_names
-          - default_space
-          - try_get_space
-          - add_space
-          - remove_space
-          ----
-          - convert
-          - deconvert
-          - deformat
-          - deformat_partial_hash
-          - distance
-      = ::Space::Instance::(*)
-      = ::Space
-          - format
-          - deformat
-          - clamp
-          - round
-          - normalize
-          - denormalize
-          - denormalize_delta
-          - delta
-          = ::Space::Basis
-          = ::Space::Shape
-          = ::Space::Format
-          = ::Space::Util
+          - set         (GTC::Space::Hub::partial_hash_deformat)
+          - add         (GTC::Space::Hub::partial_hash_deformat)
+          - mix         ()
+          ======
+          = ::Space::Name
+            - get_values
+            - from_values
+            - closest
+            ======
+            = ::Space::Name::Scheme
+              - is_taken
+              - rgb_from_name
+              - hsl_from_name
+              - name_from_rgb
+              - name_from_hsl
+              - names_in_hsl_range (GTC::Space::Hub::distance)
+              - add_rgb
+              - add_hsl
+            ======
+            = ::Space::Name::Constant
+            ======
+            = ::Space::Hub
+              - is_space_name
+              - all_space_names
+              - default_space
+              - try_get_space
+              - add_space
+              - remove_space
+              ----
+              - convert
+              - deconvert
+              - deformat
+              - deformat_partial_hash
+              - distance
+            ======
+              = ::Space::Instance::(*)
+              ======
+                = ::Space
+                  - format
+                  - deformat
+                  - clamp
+                  - round
+                  - normalize
+                  - denormalize
+                  - denormalize_delta
+                  - delta
+                  ======
+                  = ::Space::Basis
+                  ======
+                  = ::Space::Shape
+                  ======
+                  = ::Space::Format
+                  ======
+                  = ::Space::Util
 

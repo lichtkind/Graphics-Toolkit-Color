@@ -47,14 +47,14 @@ Hierarchy
             - closest
             ======
             = ::Space::Name::Scheme
-              - is_taken
-              - rgb_from_name
-              - hsl_from_name
-              - name_from_rgb
-              - name_from_hsl
-              - names_in_hsl_range (GTC::Space::Hub::distance)
-              - add_rgb
-              - add_hsl
+              - add_color
+              - all_names
+              - is_name_taken
+              -----
+              - values_from_name
+              - name_from_values
+              - closest_name
+              - names_in_range (GTC::Space::Hub::distance)
             ======
             = ::Space::Name::Constant
             ======

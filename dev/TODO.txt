@@ -10,9 +10,10 @@ TODO:
    - NCS
    - Yxy
 
- + implement space constaints HWB
- + implement normalisation shortcuts
+ + space constraints for HWB and  HSV
+ + normalisation shortcuts
  + proper Error handling
  + strict mode for out of range tuple values
  + value prefixes in formats
  + constructor with name space arguments (XYZ with illuminant D50)
+ + add gama correction ?

@@ -602,6 +602,7 @@ as a second return value.
     my $name = $red_like->closest_name;              # 'red'
     ($red_name, $distance) = $red_like->closest_name;
 
+
 =head2 distance
 
 Is a floating point number that measures the Euclidean distance between

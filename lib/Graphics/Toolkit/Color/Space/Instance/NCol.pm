@@ -14,24 +14,26 @@ my $hsl_def = Graphics::Toolkit::Color::Space->new( name => 'NCol',
                                                   suffix => ['', '%', '%'],
                                                   );
 
-   $hsl_def->set_value_formatter( \&pre_value, \&post_value );
+   $hsl_def->set_value_numifier( \&read_values, \&write_values );
    $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
+
 
 my @color_char = qw/R Y G C B M/;
 my %char_value = (map { $color_char[$_] => $_ } 0 .. $#color_char);
 
-sub pre_value {
+sub read_values {
     my $val = shift;
     my $hue = $char_value{ uc substr($val->[0], 0, 1) } * 100 + substr($val->[0], 1);
     return [$hue, $val->[1], $val->[2]];
 }
-sub post_value {
+sub write_values {
     my $val = shift;
     my $hue = ($val->[0] < 600) ? $val->[0] : 0;
     my $digit = int($hue / 100);
     my $hue_str = $color_char[ $digit ] . sprintf( "%u", ($hue - ($digit * 100)));
     return [$hue_str, $val->[1], $val->[2]];
 }
+
 
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};
@@ -49,8 +51,6 @@ sub from_rgb {
                           : (($r - $g) / $d + 4);
     return ($h/6, $white, $black);
 }
-
-
 sub to_rgb {
     my ($h, $w, $b) = @{$_[0]};
     return (0, 0, 0) if $b == 1;

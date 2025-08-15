@@ -416,34 +416,38 @@ as definition of every dimension.
 
 =head1 FORMATS
 
-These formats are available in all color spaces.
+Unless stated otherwise, these formats are available in all color spaces.
 
 =head2 list
 
-Is the default format and the only one not containing the name of the
-color space. This is why it can only work for the default space (RGB).
+A list of values, the first being the name of the color space. The name
+can be omitted, if it is the default color space (L</RGB>).
+Default format of the output method "values".
 
     (10, 20, 30)
     ('XYZ', 15, 3.53, 37.1)
 
 =head2 named_array
 
-Basically the same with squared brackets around.
+The same with squared brackets around.
 
     [RGB => 10, 20, 30]
 
 
 =head2 named_string
 
-Same inside a string.
+Same inside a quotes.
 
     'RGB: 10, 20, 30'
 
 =head2 css_string
 
-Strings for usage in CSS, SVG files and alike.
+Strings for usage in CSS, SVG files and alike. Here are commas optional.
+There are to spots where space is not allowed: 1. Between the the space
+name and opening bracket and between axis value and value suffix (here '%').
 
     'rgb(10, 20, 30)'
+    'hsl(10  20%  30%)'
 
 =head2 hex_string
 

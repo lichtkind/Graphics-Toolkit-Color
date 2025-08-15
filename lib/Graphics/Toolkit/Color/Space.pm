@@ -41,6 +41,9 @@ sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_na
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
+sub is_linear          { shift->shape->is_linear() }          #                                    --> ?
+sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values                           --> ?
+sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
 sub round              { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
 sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range                --> @+rvals       # result values
 sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+values -- @+range, @+precision   --> @+values|!~   # errmsg
@@ -48,19 +51,15 @@ sub normalize          { shift->shape->normalize(@_)}         # @+values -- @+ra
 sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+range                --> @+rvals|!~
 sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
 sub delta              { shift->shape->delta( @_ ) }          # @+val_a, @+val_b                   --> @+rvals|      # on normalized values
-sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
-sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values                           --> ?
 sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &checker, &remedy   --> %constraint
 
 ########################################################################
 sub form               { $_[0]{'format'} }
 sub format             { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
 sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
-sub has_format         { shift->form->has_format(@_) }        # ~format_name                       --> ?
-sub has_deformat       { shift->form->has_deformat(@_) }      # ~format_name                       --> ?
 sub add_formatter      { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
 sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
-sub set_value_formatter{ shift->form->set_value_formatter(@_)}# &pre_formatter, &post_formatter    --> &?
+sub set_value_numifier { shift->form->set_value_numifier(@_)} # &reader, &writer                   --> &?
 
 #### conversion ########################################################
 sub converter_names      { keys %{  $_[0]{'convert'} } }

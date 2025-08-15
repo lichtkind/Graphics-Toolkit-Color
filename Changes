@@ -2,7 +2,10 @@
 1.92    2025-08-22    lichtkind
 -------
     * = minor feature release
-    * + methods "name" and "closest_name" now work on any scheme from Graphics::ColorNames
+    * + methods "name" work on any scheme from Graphics::ColorNames
+    * ~ extended "CSS_string" format, commas are now optional
+    * ~ no space between axis value and suffix allowed
+    * ~ color space "CIELCHuv" got alias name "LCHuv"
     * ? POD syntax fixes
 
 1.91    2025-08-12    lichtkind

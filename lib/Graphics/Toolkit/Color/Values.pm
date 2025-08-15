@@ -142,12 +142,6 @@ sub add { # .values, %newval -- ~space_name --> _
     $self->new_from_tuple( $values, $color_space->name );
 }
 
-sub invert {
-    my ($self, $color_space ) = @_;
-    my $values = $self->normalized( $color_space->name );
-    $self->new_from_tuple( [ map {1 - $_} @$values ], $color_space->name, 'normal' );
-}
-
 sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     my ($self, $recipe, $color_space ) = @_;
     return if ref $recipe ne 'ARRAY';
@@ -174,5 +168,10 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     $self->new_from_tuple( $result_values, $color_space->name );
 }
 
+sub invert {
+    my ($self, $color_space ) = @_;
+    my $values = $self->normalized( $color_space->name );
+    $self->new_from_tuple( [ map {1 - $_} @$values ], $color_space->name, 'normal' );
+}
 
 1;

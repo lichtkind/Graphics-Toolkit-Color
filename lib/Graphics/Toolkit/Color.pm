@@ -410,6 +410,20 @@ From now on any input that the constructor method C<new> accepts,
 is called a B<color definition>.
 
 
+=head2 new({ r => $r, g => $g, b => $b })
+
+Most clear, flexible and longest input format: a hash with long or short
+axis names as keys with fitting values. This can be C<red>, C<green> and
+C<blue> or C<r>, C<g> and C<b> or names from any other color space.
+Upper or lower case doesnt matter.
+
+    my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
+    my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
+                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
+              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
+                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
+
+
 =head2 new( [$r, $g, $b] )
 
 takes a triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
@@ -423,20 +437,6 @@ Out of range values will be corrected (clamped).
     my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named ARRAY syntax
     my $red = Graphics::Toolkit::Color->new(  RGB => 255, 0, 0 ); # with fat comma
     my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # and brackets
-
-
-=head2 new({ r => $r, g => $g, b => $b })
-
-Hash with the keys C<red>, C<green> and Cblue> does the same as shown in
-previous paragraph, only more declarative. Casing of the key strings will
-be normalised and all axis names can be substituted with short ones, which
-are in most cases the first letters of the long name.
-
-    my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
-    my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
-                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
-              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
-                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
 
 
 =head2 new('rgb($r,$g,$b)')

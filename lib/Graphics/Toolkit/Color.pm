@@ -471,10 +471,10 @@ also acceptable (I<RGB> only).
 
 =head2 new('name')
 
-Get a color by providing a name from the X11, HTML (CSS) or SVG standard
-or a Pantone report. UPPER or CamelCase will be normalized to lower case
-and inserted underscore letters ('_') will be ignored as perl does in
-numbers (1_000 == 1000). All available names are listed
+Get a color object by providing a name from the X11, HTML (CSS) or SVG
+scheme or a Pantone report. UPPER or CamelCase will be normalized to
+lower case and inserted underscore letters ('_') will be ignored as perl
+does in numbers (1_000 == 1000). All available names are listed
 L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
     my $color = Graphics::Toolkit::Color->new('Emerald');
@@ -485,7 +485,7 @@ L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
 Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
-separately. * is a placeholder for the pallet name, which might be:
+separately. * is a placeholder for the scheme name, which might be:
 Crayola, CSS, EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone,
 PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In latter case
 I<Graphics::ColorNames::X> has to be installed. You can get them all at
@@ -574,13 +574,22 @@ they appear by default you can surpress them by adding C<suffix =E<gt> ''>
 
 =head2 name
 
-Returns the normalized name (lower case, without I<'_'>) of the color,
+Returns the normalized name (lower case, without I<'_'>) of the color
 held by the object - even when the object was created with numerical values.
 It returns an empty string when no color constant with the exact same values
-was found in the I<X11> or I<HTML> (I<SVG>) standard or the I<Pantone report>.
+was found in the I<X11> or I<HTML> (I<SVG>) scheme or the I<Pantone report>.
 If several constants have matching values, the shortest name will be returned.
 All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
-(See also: L</new('name')>)
+(See also: L</new('name')>).
+
+Alternatively you may provide the name of a color scheme as the only,
+positional, optional argument. Then only that color scheme (as used in
+L</new('scheme:color')>) will be searched. If there is a color with the
+exact same values, its name will be the returned, otherwise you get an
+empty string. If the match doesnt have to be exact, try the next method.
+
+    $blue->name();                                   # 'blue'
+    $blue->name('SVG');                              # 'blue'
 
 
 =head2 closest_name
@@ -590,6 +599,8 @@ L</distance> in RGB to the current color.
 In list context, you get additionally the just mentioned distance
 as a second return value.
 
+    my $name = $red_like->closest_name;              # 'red'
+    ($red_name, $distance) = $red_like->closest_name;
 
 =head2 distance
 

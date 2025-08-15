@@ -7,6 +7,7 @@ use warnings;
 use Graphics::Toolkit::Color::Space qw/round_decimals/;
 
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv',
+                                                    alias => 'LCHuv',
                                                      axis => [qw/luminance chroma hue/],
                                                     range => [100, 261, 360],
                                                 precision => 3 );

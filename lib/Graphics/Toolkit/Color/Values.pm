@@ -89,24 +89,6 @@ sub closest_name_and_distance {
     return @{$self->{'closest'}}{'name', 'distance'};
 }
 
-#### measure ###########################################################
-sub distance { # _c1 _c2 -- ~space ~select @range --> +
-    my ($self, $second_color, $color_space, $select_axis, $range) = @_;
-    my $values_a = $self->normalized( $color_space->name );
-    my $values_b = $second_color->normalized( $color_space->name );
-    my $delta = $color_space->delta( $values_a, $values_b );
-    $delta = $color_space->denormalize_delta( $delta, $range );
-    if (defined $select_axis){
-        $select_axis = [$select_axis] unless ref $select_axis;
-        my @selected_values = grep {defined $_}
-                              map {$color_space->select_tuple_value_from_name($_, $delta) } @$select_axis;
-        $delta = \@selected_values;
-    }
-    my $d = 0;
-    map { $d += $_ * $_ } @$delta;
-    return sqrt $d;
-}
-
 #### single color calculator ###########################################
 sub set { # .values, %newval -- ~space_name --> _
     my ($self, $partial_hash, $preselected_space_name) = @_;

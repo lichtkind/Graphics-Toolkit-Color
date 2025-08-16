@@ -1,5 +1,5 @@
 
-# public user level API: computing color (sets), measure, IO for many formats and spaces
+# public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
 our $VERSION = '1.92';
@@ -163,7 +163,8 @@ EOH
     }
     my $range_def = $color_space->shape->try_check_range_definition( $arg->{'range'} );
     return $range_def unless ref $range_def;
-    $self->{'values'}->distance( $target_color->{'values'}, $color_space, $arg->{'select'}, $range_def);
+    Graphics::Toolkit::Color::Space::Hub::distance(
+        $self->{'values'}->normalized, $target_color->{'values'}->normalized, $color_space->name, $range_def );
 }
 
 ## single color creation methods #######################################

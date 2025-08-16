@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 140;
+use Test::More tests => 142;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 #### basic object construction #########################################
@@ -183,8 +183,8 @@ is( $fval,  undef, 'char hash with bad key got ignored');
 my @converter = $space->converter_names;
 is( $space->can_convert('RGB'),   0, 'converter not yet inserted');
 is( int @converter,               0, 'no converter names known');
-my $h = $space->add_converter('RGB', sub { $_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1},
-                                     sub { $_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1} );
+my $h = $space->add_converter('RGB', sub { [$_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1 ]},
+                                     sub { [$_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1 ]} );
 is( ref $h, 'HASH', 'converter code accepted');
 is( $space->can_convert('RGB'),   1, 'converter inserted');
 @converter = $space->converter_names;
@@ -192,13 +192,15 @@ is( int @converter,               1, 'one converter name is known');
 is( $converter[0],            'RGB', 'correct converter name is known');
 
 $val = $space->convert_to( 'RGB', [0,0.1,0.2,0.3]);
-is( int @$val,      4, 'could convert to RGB');
+is( ref $val, 'ARRAY', 'could convert to RGB');
+is( int @$val,      4, 'right number of values');
 is( $val->[0],    0.1, 'first value correctly converted');
 is( $val->[1],      0, 'second value correctly converted');
 is( $val->[2],    0.3, 'third value correctly converted');
 is( $val->[3],    0.2, 'fourth value correctly converted');
 $val = $space->convert_from('rgb', [0.1, 0, 0.3, .2]);
-is( int @$val,    4, 'could deconvert from RGB, even if space spelled in lower case');
+is( ref $val, 'ARRAY', 'could deconvert to RGB, even if space spelled in lower case');
+is( int @$val,      4, 'right number of values');
 is( $val->[0],    0, 'first value correctly deconverted');
 is( $val->[1],  0.1, 'second value correctly deconverted');
 is( $val->[2],  0.2, 'third value correctly deconverted');

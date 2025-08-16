@@ -162,8 +162,10 @@ sub deformat_partial_hash { # convert partial hash into
 
 sub distance { # _c1 _c2 -- ~space ~select @range --> +
     my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
-    my $values_a = $self->normalized( $color_space->name );
-    my $values_b = $second_color->normalized( $color_space->name );
+    my $color_space = try_get_space( $space_name );
+    return $color_space unless ref $color_space;
+    $values_a = convert( $values_a, $space_name, 'normal' );
+    $values_b = convert( $values_b, $space_name, 'normal' );
     my $delta = $color_space->delta( $values_a, $values_b );
     $delta = $color_space->denormalize_delta( $delta, $range );
     if (defined $select_axis){
@@ -173,7 +175,7 @@ sub distance { # _c1 _c2 -- ~space ~select @range --> +
         $delta = \@selected_values;
     }
     my $d = 0;
-    map { $d += $_ * $_ } @$delta;
+    $d += $_ * $_ for @$delta;
     return sqrt $d;
 }
 

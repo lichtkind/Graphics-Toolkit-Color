@@ -9,6 +9,40 @@ use Graphics::Toolkit::Color::Name::Scheme;
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
+my %scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
+my $default_names = require Graphics::Toolkit::Color::Name::Constant;
+$scheme->{'default'}->add_color( $_, [ @{$default_names->{$_}}[0,1,2] ] ) for keys %$default_names;
+
+########################################################################
+sub get_values {
+    my $color_name = shift;
+    my $scheme_name = shift // 'default';
+    return unless exists $scheme{ $scheme_name };
+    $scheme{ $scheme_name }->values_from_name
+}
+
+sub from_values {
+
+}
+
+sub closest{
+}
+
+########################################################################
+sub rgb_from_name { #
+    my ( $scheme_name, $color_name ) = @_;
+    return "need scheme name and color name as arguments" unless defined $scheme_name and defined $color_name;
+    my $module_base = 'Graphics::ColorNames';
+    eval "use $module_base";
+    return "$module_base is not installed, but it's needed to load external colors" if $@;
+    my $module = $module_base.'::'.$scheme_name;
+    eval "use $module";
+    return "$module is not installed, but needed to load color '$scheme_name:$color_name'" if $@;
+    my $scheme = Graphics::ColorNames->new( $scheme_name );
+    my @rgb = $scheme->rgb( $color_name );
+    return "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
+    return \@rgb;
+}
 ########################################################################
 sub values {
     my $name = shift;
@@ -310,18 +344,3 @@ under same terms as Perl itself.
 =head1 AUTHOR
 
 Herbert Breunung, <lichtkind@cpan.org>
-
-sub rgb_from_name { #
-    my ( $scheme_name, $color_name ) = @_;
-    return "need scheme name and color name as arguments" unless defined $scheme_name and defined $color_name;
-    my $module_base = 'Graphics::ColorNames';
-    eval "use $module_base";
-    return "$module_base is not installed, but it's needed to load external colors" if $@;
-    my $module = $module_base.'::'.$scheme_name;
-    eval "use $module";
-    return "$module is not installed, but needed to load color '$scheme_name:$color_name'" if $@;
-    my $scheme = Graphics::ColorNames->new( $scheme_name );
-    my @rgb = $scheme->rgb( $color_name );
-    return "color '$color_name' was not found, propably not part of $module" unless @rgb == 3;
-    return \@rgb;
-}

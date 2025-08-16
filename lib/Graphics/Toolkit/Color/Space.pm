@@ -88,12 +88,12 @@ sub add_converter {
 sub convert_to { # convert value tuple from this space into another
     my ($self, $space_name, $values) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
-    return [$self->{'convert'}{ uc $space_name }{'to'}->( $values )];
+    return $self->{'convert'}{ uc $space_name }{'to'}->( $values );
 }
 sub convert_from { # convert value tuple from another space into this
     my ($self, $space_name, $values) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return [ $self->{'convert'}{ uc $space_name }{'from'}->( $values ) ];
+    return $self->{'convert'}{ uc $space_name }{'from'}->( $values );
 }
 
 sub converter_normal_states {

@@ -25,7 +25,7 @@ sub from_luv {
     my $c = sqrt( ($u**2) + ($v**2));
     my $h = atan2($v, $u);
     $h += $TAU if $h < 0;
-    return ($luv->[0], $c / 261, $h / $TAU);
+    return ([$luv->[0], $c / 261, $h / $TAU ]);
 }
 
 
@@ -33,7 +33,7 @@ sub to_luv {
     my ($lch) = shift;
     my $u = $lch->[1] * cos($lch->[2] * $TAU) * 261;
     my $v = $lch->[1] * sin($lch->[2] * $TAU) * 261;
-    return ($lch->[0], ($u+134) / 354, ($v+140) / 262 );
+    return ([$lch->[0], ($u+134) / 354, ($v+140) / 262 ]);
 }
 
 $hcl_def;

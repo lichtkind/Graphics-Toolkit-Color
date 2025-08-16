@@ -1,19 +1,21 @@
 TODO:
 ------
 
+ + space constraints for HWB and  HSV  (2.0)
+ + palette method                      (2.2)
+
+ + constructor with name space arguments (XYZ with illuminant D50)
+ + add gama correction ?
+
+ + proper Error handling
+ + strict mode for out of range tuple values
+ + value prefixes in formats
+
  + Color spaces :
-   - OKLAB
-   - HunterLAB
+   - OKLAB      (1.93)
+   - HunterLAB  (1.94?)
    - RYB
    - Cubehelix
    - HSI
    - NCS
    - Yxy
-
- + space constraints for HWB and  HSV
- + normalisation shortcuts
- + proper Error handling
- + strict mode for out of range tuple values
- + value prefixes in formats
- + constructor with name space arguments (XYZ with illuminant D50)
- + add gama correction ?

@@ -27,13 +27,13 @@ Hierarchy
           - cluster     (Values::add)
         ======
         = ::Values
-          - new_from_any_input         (GTC::Name::values | GTC::Space::Hub::deformat, + ->)
+          - new_from_any_input         (GTC::Space::Hub::deformat |GTC::Name::values, -> ..)
           - new_from_tuple             (GTC::Space::Hub::deconvert)
           -----
-          - normalized  (+ GTC::Space::Hub::convert)
-          - shaped      (+ Space->denormalize, clamp, round)
-          - formatted   (+ Space->format)
-          - name        ( )
+          - normalized  (  GTC::Space::Hub::convert)
+          - shaped      (.. Space->denormalize, clamp, round)
+          - formatted   (.. Space->format)
+          - name        (:_)
           - closest_name_and_distance (GTC::Name::closest)
           - distance    (GTC::Space::Hub::distance)
           ----
@@ -48,13 +48,14 @@ Hierarchy
             ======
             = ::Space::Name::Scheme
               - add_color
+              -----
               - all_names
               - is_name_taken
-              -----
               - values_from_name
               - name_from_values
+              -----
               - closest_name
-              - names_in_range (GTC::Space::Hub::distance)
+              - names_in_range
             ======
             = ::Space::Name::Constant
             ======

@@ -1,6 +1,6 @@
 ### NAME
 
-    Graphics-Color-Toolkit - color palette creation tool
+    Graphics-Color-Toolkit - computing color (sets), measure, IO many formats and spaces
 
 ### VERSION
 

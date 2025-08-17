@@ -8,8 +8,12 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color::Name';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
-
 use_ok( $module, 'could load the module');
+
+
+1;
+__END__
+
 my @names = Graphics::Toolkit::Color::Name::all();
 
 my $is_taken           = \&Graphics::Toolkit::Color::Name::is_taken;

@@ -88,7 +88,7 @@ sub deformat {
     return undef unless defined $color;
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
-    for my $format_name (keys %{$self->{'deformatter'}}){
+    for my $format_name (sort keys %{$self->{'deformatter'}}){
         my $deformatter = $self->{'deformatter'}{$format_name};
         my $values = $deformatter->( $self, $color );
         next unless ref $values;

@@ -70,7 +70,9 @@
 
 
 
-[CHANGES](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/Changes) (with roadmap)
+[CHANGES](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/Changes)
+
+[TODO](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/dev/TODO.txt)
 
 [CONTRIBUTING](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/CONTRIBUTING)
 

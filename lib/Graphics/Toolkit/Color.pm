@@ -598,9 +598,11 @@ empty string. If the match doesnt have to be exact, try the next method.
 Returns in scalar context a color L</name>, which has the shortest
 L</distance> in RGB to the current color.
 In list context, you get additionally the just mentioned distance
-as a second return value.
+as a second return value. As the previous method, one positional, optional
+argument is the color schme.
 
     my $name = $red_like->closest_name;              # 'red'
+    my $name = $red_like->closest_name('HTML');      # 'red'
     ($red_name, $distance) = $red_like->closest_name;
 
 

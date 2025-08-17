@@ -1,5 +1,5 @@
 
-# read only store of values for a single color in RGB, original space and name
+# read only store a single color: name + values in default and original space
 
 package Graphics::Toolkit::Color::Values;
 use v5.12;

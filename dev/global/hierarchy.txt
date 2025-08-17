@@ -52,9 +52,9 @@ Hierarchy
               - all_names
               - is_name_taken
               - values_from_name
-              - name_from_values
+              - names_from_values
               -----
-              - closest_name
+              - closest_names
               - names_in_range
             ======
             = ::Space::Name::Constant

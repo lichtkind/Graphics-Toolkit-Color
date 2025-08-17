@@ -6,8 +6,6 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Name::Scheme;
 
-my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
-my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 
 my %scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
 my $default_names = require Graphics::Toolkit::Color::Name::Constant;
@@ -17,15 +15,28 @@ $scheme->{'default'}->add_color( $_, [ @{$default_names->{$_}}[0,1,2] ] ) for ke
 sub get_values {
     my $color_name = shift;
     my $scheme_name = shift // 'default';
-    return unless exists $scheme{ $scheme_name };
-    $scheme{ $scheme_name }->values_from_name
+    return "Color name scheme $scheme_name is not known !" unless exists $scheme{ $scheme_name };
+    $scheme{ $scheme_name }->values_from_name( $color_name );
 }
 
 sub from_values {
-
+    my $values = shift;
+    my $scheme_name = shift // 'default';
+    my $get_all = shift // 0;
+    return '' unless exists $scheme{ $scheme_name };
+    my $names = $scheme{ $scheme_name }->names_from_values( $values );
+    return '' unless ref $names;
+    ($get_all) ? @$names : $names->[0];
 }
 
-sub closest{
+sub closest {
+    my $values = shift;
+    my $scheme_name = shift // 'default';
+    my $get_all = shift // 0;
+    return '' unless exists $scheme{ $scheme_name };
+    my $names = $scheme{ $scheme_name }->closest_names( $values );
+    return '' unless ref $names;
+    ($get_all) ? @$names : $names->[0];
 }
 
 ########################################################################

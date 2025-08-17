@@ -14,9 +14,9 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
     my ($pkg, $color_def) = @_;
     return "Can not create color value object without color definition!" unless defined $color_def;
     if (not ref $color_def) { # try to resolve color name
-        my $rgb = Graphics::Toolkit::Color::Name::values( $color_def );
+        my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
         if (ref $rgb){
-            $rgb = $RGB->clamp( $RGB->normalize($rgb), 'normal' );
+            $rgb = $RGB->clamp( $RGB->normalize( $rgb ), 'normal' );
             return bless { name => $color_def, rgb => $rgb, source_values => '', source_space_name => ''};
         }
     }
@@ -45,8 +45,8 @@ sub _new_from_normal_tuple { #
         $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $color_space->name, $values, 'normal' );
     }
     $values = $RGB->clamp( $values, 'normal' );
-    my $name = Graphics::Toolkit::Color::Name::name_from_rgb( $RGB->round( $RGB->denormalize( $values ) ) );
-    bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, name => $name, closest => '', };
+    my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $values ) ) );
+    bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, name => $name };
 }
 
 #### getter ############################################################

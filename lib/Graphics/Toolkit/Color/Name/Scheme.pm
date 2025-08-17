@@ -16,13 +16,14 @@ sub new {
 }
 sub add_color {
     my ($self, $name, $values) = @_;
-    return if not defined $name or not defined $values or $self->is_name_taken($name);
+    return 0 if not defined $name or not defined $values or $self->is_name_taken($name);
     $name = _clean_name($name);
     $self->{'shaped'}{'values'}{$name} = $values;
     $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]] =
         (exists $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]])
        ? [@{$self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]]}, $name]
        : [$name];
+    1;
 }
 
 #### exact getter ######################################################
@@ -33,6 +34,7 @@ sub is_name_taken {
 }
 sub values_from_name {
     my ($self, $name) = @_;
+    return unless defined $name;
     $name = _clean_name($name);
     return $self->{'shaped'}{'values'}{$name} if exists $self->{'shaped'}{'values'}{$name};
 }
@@ -46,12 +48,13 @@ sub names_from_values {
 }
 
 #### nearness methods ##################################################
-sub closest_names {
+sub closest_names_from_values {
     my ($self, $values, $space_name) = @_;
     return '' unless ref $values eq 'ARRAY' and @$values == 3;
     my $names = names_from_values( $values );
-    return ($names, 0) if ref $name;
-    my $sqr_min  = 10_000;
+    return ($names, 0) if ref $names;
+    $names = [];
+    my $sqr_min  = 1 + 255**3;
     my $all_values = $self->{'shaped'}{'values'};
     for my $index_name (keys %$all_values){
         my $index_values = $all_values->{ $index_name };
@@ -61,11 +64,14 @@ sub closest_names {
         next if $temp_sqr_sum > $sqr_min;
         $temp_sqr_sum += ($index_values->[2] - $values->[2]) ** 2;
         next if $temp_sqr_sum > $sqr_min;
+        $names = ($sqr_min == $temp_sqr_sum) ? [@$names, $index_name] : [$index_name];
         $sqr_min = $temp_sqr_sum;
-        $name = $index_name
     }
-    $names = names_from_values( values_from_name( $name ) );
-    return ($names, sqrt($sqr_min));
+    return '' unless @$names;
+    my %uniq_names = map {int $_ => $_}
+                     map { $self->names_from_values( $self->values_from_name($_)) } @$names;
+    my @names = map { @$_ } values %uniq_names;
+    return (\@names, sqrt($sqr_min));
 }
 
 sub names_in_range {

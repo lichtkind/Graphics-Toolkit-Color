@@ -68,7 +68,10 @@ sub all {
 # create default on RUNTIME
 my %color_scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
 my $default_names = require Graphics::Toolkit::Color::Name::Constant;
-$color_scheme{'default'}->add_color( $_, [ @{$default_names->{$_}}[0,1,2] ] ) for keys %$default_names;
+for my $color_block (@$default_names){
+    $color_scheme{'default'}->add_color( $_, [ @{$color_block->{$_}}[0,1,2] ] )
+        for keys %$color_block;
+}
 my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 sub try_get_scheme { # auto loader

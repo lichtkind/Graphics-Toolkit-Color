@@ -43,7 +43,11 @@ sub min {
     return $v;
 }
 
-sub uniq { my %seen = ();  grep {not $seen{$_}++} @_; }
+sub uniq {
+    return undef unless @_;
+    my %seen = ();
+    grep {not $seen{$_}++} @_;
+}
 
 # change normalized RGB values to and from standard observer 2°
 sub apply_d65  { $_[0] > 0.04045  ? ((($_[0] + 0.055) / 1.055 ) ** 2.4) : ($_[0] / 12.92) }

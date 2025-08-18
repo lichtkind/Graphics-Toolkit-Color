@@ -10,6 +10,7 @@ my $module = 'Graphics::Toolkit::Color::Name';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
 use_ok( $module, 'could load the module');
 
+say for Graphics::Toolkit::Color::Name::filter_uniq("aa", 'a', 'aa');
 
 1;
 __END__

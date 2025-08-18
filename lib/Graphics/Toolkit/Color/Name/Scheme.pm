@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Name::Scheme;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space::Hub;
-use Graphics::Toolkit::Color::Space::Util qw/round_int/;
+use Graphics::Toolkit::Color::Space::Util qw/round_int uniq/;
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space_name();
 
@@ -49,11 +49,11 @@ sub names_from_values {
 
 #### nearness methods ##################################################
 sub closest_names_from_values {
-    my ($self, $values, $space_name) = @_;
+    my ($self, $values) = @_;
     return '' unless ref $values eq 'ARRAY' and @$values == 3;
     my $names = names_from_values( $values );
     return ($names, 0) if ref $names;
-    $names = [];
+    my @names;
     my $sqr_min  = 1 + 255**3;
     my $all_values = $self->{'shaped'}{'values'};
     for my $index_name (keys %$all_values){
@@ -64,13 +64,13 @@ sub closest_names_from_values {
         next if $temp_sqr_sum > $sqr_min;
         $temp_sqr_sum += ($index_values->[2] - $values->[2]) ** 2;
         next if $temp_sqr_sum > $sqr_min;
-        $names = ($sqr_min == $temp_sqr_sum) ? [@$names, $index_name] : [$index_name];
+        @names = ($sqr_min == $temp_sqr_sum) ? (@names, $index_name) : $index_name;
         $sqr_min = $temp_sqr_sum;
     }
-    return '' unless @$names;
-    my %uniq_names = map {int $_ => $_}
-                     map { $self->names_from_values( $self->values_from_name($_)) } @$names;
-    my @names = map { @$_ } values %uniq_names;
+    return '' unless @names;
+    # restore as much order as possible
+    @names = map { @{$self->names_from_values( $self->values_from_name($_))} } @names;
+    @names = uniq( @names );
     return (\@names, sqrt($sqr_min));
 }
 
@@ -86,6 +86,7 @@ sub _clean_name {
 }
 
 1;
+#    my $names = $scheme->names_in_range( $values, $distance ); #       -> ARRAY of names
 __END__
 
 =pod
@@ -97,21 +98,19 @@ Graphics::Toolkit::Color::Name::Scheme - a name space for color names
 =head1 SYNOPSIS
 
     use Graphics::Toolkit::Color::Name::Scheme;
-    my $scheme = Graphics::Toolkit::Color::Name::Scheme_>new();
-    $scheme->add_color( $_->{name}, $_->{rgb_values} ) for @colors;
+    my $scheme = Graphics::Toolkit::Color::Name::Scheme->new();
+    $scheme->add_color( $_->{'name'}, $_->{'rgb_values'} ) for @colors;
     say for $scheme->all_names();
     my $values = $scheme->values_from_name( 'blue' );          # tuple = 3 element ARRAY
     my $names = $scheme->names_from_values( $values );         # tuple -> ARRAY of names
     my ($names, $distance) = $scheme->closest_name( $values ); # tuple -> \@names, $distance
-    my $names = $scheme->names_in_range( $values, $distance ); #       -> ARRAY of names
 
 
 =head1 DESCRIPTION
 
 This module is mainly for internal usage to model name spaces for HTML,
-SVG, Pantone ... colors. Use it to create your own set color names or
-to give names slightly different values.
-
+SVG, Pantone ... colors. You may Use it to create your own set color names
+or to give color name constante slightly different values.
 
 
 =head1 ROUTINES

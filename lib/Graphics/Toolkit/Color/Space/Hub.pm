@@ -22,6 +22,7 @@ sub get_space          { (defined $_[0] and exists $space_obj{ uc $_[0] }) ? $sp
 sub try_get_space {
     my $name = shift || $default_space_name;
     my $space = get_space( $name );
+    return $name if ref $name eq 'Graphics::Toolkit::Color::Space' and is_space_name( $name->name );
     return (ref $space) ? $space
                         : "$name is an unknown color space, try one of: ".(join ', ', all_space_names());
 }
@@ -159,7 +160,7 @@ sub deformat_partial_hash { # convert partial hash into
     return undef;
 }
 
-sub distance { # _c1 _c2 -- ~space ~select @range --> +
+sub distance { # @c1 @c2 -- ~space ~select @range --> +
     my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
     my $color_space = try_get_space( $space_name );
     return $color_space unless ref $color_space;

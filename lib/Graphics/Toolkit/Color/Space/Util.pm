@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals real_mod min max apply_d65 remove_d65 mult_matrix3 is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals real_mod min max uniq apply_d65 remove_d65 mult_matrix3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 my $half      = 0.50000000000008;
@@ -42,6 +42,8 @@ sub min {
     for (@_) { next unless defined $_; $v = $_ if $v > $_ }
     return $v;
 }
+
+sub uniq { my %seen = ();  grep {not $seen{$_}++} @_; }
 
 # change normalized RGB values to and from standard observer 2°
 sub apply_d65  { $_[0] > 0.04045  ? ((($_[0] + 0.055) / 1.055 ) ** 2.4) : ($_[0] / 12.92) }

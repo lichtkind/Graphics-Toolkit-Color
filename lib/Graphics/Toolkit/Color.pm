@@ -579,15 +579,17 @@ Returns the normalized name (lower case, without I<'_'>) of the color
 held by the object - even when the object was created with numerical values.
 It returns an empty string when no color constant with the exact same values
 was found in the I<X11> or I<HTML> (I<SVG>) scheme or the I<Pantone report>.
-If several constants have matching values, the shortest name will be returned.
-All names are listed: L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
-(See also: L</new('name')>).
+If several constants have matching values, the most well known name, which
+is in most cases also the shortest will be returned.
+All names from the internal , default color scheme are listed
+L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
+These are the same who can be used with L</new('name')>.
 
 Alternatively you may provide the name of a color scheme as the only,
 positional, optional argument. Then only that color scheme (as used in
-L</new('scheme:color')>) will be searched. If there is a color with the
-exact same values, its name will be the returned, otherwise you get an
-empty string. If the match doesnt have to be exact, try the next method.
+L</new('scheme:color')>) will be searched, if there is a color with the
+exact same values. That name will be the returned, otherwise you get an
+empty string. If the values doesnt have to match exactly, try the next method.
 
     $blue->name();                                   # 'blue'
     $blue->name('SVG');                              # 'blue'
@@ -598,11 +600,12 @@ empty string. If the match doesnt have to be exact, try the next method.
 Returns in scalar context a color L</name>, which has the shortest
 L</distance> in RGB to the current color.
 In list context, you get additionally the just mentioned distance
-as a second return value. As the previous method, one positional, optional
-argument is the color schme.
+as a second return value.
 
-    my $name = $red_like->closest_name;              # 'red'
-    my $name = $red_like->closest_name('HTML');      # 'red'
+As with the previous method, one positional, optional argument is the color schme.
+
+    my $name = $red_like->closest_name;              # closest name in default scheme
+    my $name = $red_like->closest_name('HTML');      # closest HTML constant
     ($red_name, $distance) = $red_like->closest_name;
 
 

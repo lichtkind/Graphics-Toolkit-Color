@@ -5,14 +5,9 @@ package Graphics::Toolkit::Color::Name;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Name::Scheme;
+use Graphics::Toolkit::Color::Space::Util qw/uniq/;
 
-
-my %color_scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
-my $default_names = require Graphics::Toolkit::Color::Name::Constant;
-$color_scheme{'default'}->add_color( $_, [ @{$default_names->{$_}}[0,1,2] ] ) for keys %$default_names;
-my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
-
-########################################################################
+#### public API ########################################################
 sub get_values {
     my ($color_name, $scheme_name) = @_;
     my $scheme = try_get_scheme( $scheme_name );
@@ -22,31 +17,61 @@ sub get_values {
 
 sub from_values {
     my ($values, $scheme_name, $get_all) = @_;
-    my $scheme = try_get_scheme( $scheme_name );
-    return '' unless ref $scheme;
-    my $names = $scheme->names_from_values( $values );
-    return '' unless ref $names;
-    return (defined $get_all and $get_all) ? @$names : $names->[0];
+    my @names = ();
+    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
+                     : (defined $scheme_name)        ? $scheme_name : 'default';
+    for my $scheme_name (@scheme_names) {
+        my $scheme = try_get_scheme( $scheme_name );
+        next unless ref $scheme;
+        my $names = $scheme->names_from_values( $values );
+        next unless ref $names;
+        push @names, @$names;
+    }
+    push @names, '' unless @names;
+    @names = uniq( @names );
+    return (defined $get_all and $get_all) ? @names : $names[0];
 }
 
-sub closest {
+sub closest_from_values {
     my ($values, $scheme_name, $get_all) = @_;
-    my $scheme = try_get_scheme( $scheme_name );
-    return '' unless ref $scheme;
-    my $names = $scheme->closest_names_from_values( $values );
-    return '' unless ref $names;
-    return (defined $get_all and $get_all) ? @$names : $names->[0];
+    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
+                     : (defined $scheme_name)        ? $scheme_name : 'default';
+    my @names = ();
+    my $distance = 'Inf';
+    for my $scheme_name (@scheme_names) {
+        my $scheme = try_get_scheme( $scheme_name );
+        next unless ref $scheme;
+        my ($names, $d) = $scheme->closest_names_from_values( $values );
+        next unless ref $names;
+        next unless $d > $distance;
+        $distance = $d;
+        @names = ($distance == $d) ? (@names, @$names) : (@$names);
+    }
+    @names = uniq( @names );
+    my $name = (defined $get_all and $get_all) ? \@names : $names[0];
+    return ($name, $distance);
 }
 
 sub all {
-    my ($scheme_name) = @_;
-    my $scheme = try_get_scheme( $scheme_name );
-    return '' unless ref $scheme;
-    return $scheme->all_names;
+    my (@scheme_names) = @_;
+    push @scheme_names, 'default' unless @scheme_names;
+    my @names = ();
+    for my $scheme_name (@scheme_names) {
+        my $scheme = try_get_scheme( $scheme_name );
+        next unless ref $scheme;
+        push @names, $scheme->all_names;
+    }
+    return uniq( @names );
 }
 
-########################################################################
-sub try_get_scheme {
+#### color scheme handling #############################################
+# create default on RUNTIME
+my %color_scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
+my $default_names = require Graphics::Toolkit::Color::Name::Constant;
+$color_scheme{'default'}->add_color( $_, [ @{$default_names->{$_}}[0,1,2] ] ) for keys %$default_names;
+my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
+
+sub try_get_scheme { # auto loader
     my $scheme_name = shift // 'default';
     unless (exists $color_scheme{ $scheme_name }){
         my $module_base = 'Graphics::ColorNames';
@@ -63,7 +88,14 @@ sub try_get_scheme {
     }
     return $color_scheme{ $scheme_name };
 }
-########################################################################
+
+sub add_scheme {
+    my ($scheme, $scheme_name) = @_;
+    return if ref $scheme ne 'Graphics::Toolkit::Color::Name::Scheme'
+        or not defined $scheme_name or exists $color_scheme{ $scheme_name };
+    $color_scheme{ $scheme_name } = $scheme;
+}
+
 
 1;
 
@@ -73,125 +105,75 @@ __END__
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Name - access values of color constants
+Graphics::Toolkit::Color::Name - translate color names to values and vice versa
 
 =head1 SYNOPSIS
 
-    use Graphics::Toolkit::Color::Name qw/:all/;
-    my @names = Graphics::Toolkit::Color::Name::all();
-    my @rgb  = rgb_from_name('darkblue');
-    my @hsl  = hsl_from_name('darkblue');
+    use Graphics::Toolkit::Color::Name;
+    my @names = Graphics::Toolkit::Color::Name::all('HTML', 'default');
+    my $values = Graphics::Toolkit::Color::Name::get_values('green');
+    my $values = Graphics::Toolkit::Color::Name::get_values('green', [qw/SVG X/]);
+    my $name = Graphics::Toolkit::Color::Name::from_values([0, 128, 0]);
+    my $name = Graphics::Toolkit::Color::Name::from_values([0, 128, 0], 'HTML');
+    my ($name, $distance) = Graphics::Toolkit::Color::Name::closest_from_values(
+                                [0, 128, 0], [qw/CSS Pantone/], 'all');
 
-    Graphics::Toolkit::Color::Value::add_rgb('lucky', [0, 100, 50]);
+    Graphics::Toolkit::Color::Name::add_scheme( $scheme, 'custom' );
 
 =head1 DESCRIPTION
 
-RGB and HSL values of named colors from the X11, HTML(CSS), SVG standard
-and Pantone report. Allows also nearby search, reverse search and storage
-(not permanent) of additional names. One color may have multiple names.
-Own colors can be (none permanently) stored for later reference by name.
-For this a name has to be chosen, that is not already taken. The
-corresponding color may be defined by an RGB or HSL triplet.
-
-No symbol is imported by default. The sub symbols: C<rgb_from_name>,
-C<hsl_from_name>, C<name_from_rgb>, C<name_from_hsl> may be imported
-individually or by:
-
-    use Graphics::Toolkit::Color::Name qw/:all/;
+This modules stores a set of
+L<color schemes|Graphics::Toolkit::Color::Name::Scheme>, where named
+color constants are stored. There is a
+L<default scheme|Graphics::Toolkit::Color::Name::Constant> and additional
+ones, fed by L<Bundle::Graphics::ColorNames> modules, which have to be
+installed separately. Wherever a method accepts a color scheme name,
+you may also pass an ARRAY with several scheme names.
 
 
 =head1 ROUTINES
 
-=head2 rgb_from_name
 
-Red, Green and Blue value of the named color.
-These values are integer in 0 .. 255.
+=head2 get_values
 
-    my @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('darkblue');
-    @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('dark_blue'); # same result
-    @rgb = Graphics::Toolkit::Color::Name::rgb_from_name('DarkBlue');  # still same
+.. accepts two arguments. The first one is required and is a color name.
+The result will be the RGB value tuple (ARRAY) of this color.
 
-=head2 hsl_from_name
+Optionally you may provide a second argument, which is a color scheme
+name - if none is provided, the default scheme is used.
 
-Hue, saturation and lightness of the named color.
-These are integer between 0 .. 359 (hue) or 100 (sat. & light.).
-A hue of 360 and 0 (degree in a cylindrical coordinate system) is
-considered to be the same, this modul deals only with the ladder.
 
-    my @hsl = Graphics::Toolkit::Color::Name::hsl_from_name('darkblue');
+=head2 from_values
 
-=head2 name_from_rgb
+This method works the other way around as the previous one. It takes am
+RGB value tuple and returns a color name if possible. If no stored color
+has the exact same values, an empty string is the result.
 
-Returns name of color with given rgb value triplet.
-Returns empty string if color is not stored. When several names define
-given color, the shortest name will be selected in scalar context.
-In array context all names are given.
+The search is limited to the default color scheme, unless a name of another
+scheme or several of them in an ARRAY are provided as second argument.
 
-    say Graphics::Toolkit::Color::Name::name_from_rgb( 15, 10, 121 );  # 'darkblue'
-    say Graphics::Toolkit::Color::Name::name_from_rgb([15, 10, 121]);  # works too
+If the provided values belong to several color names only the first one
+is returned, which is in many cases the most popular. If you provide
+the third positional argument with a positive  pseudo boolean, you will
+get all found color names.
 
-=head2 name_from_hsl
 
-Returns name of color with given hsl value triplet.
-Returns empty string if color is not stored. When several names define
-given color, the shortest name will be selected in scalar context.
-In array context all names are given.
+=head2 closest_from_values
 
-    say scalar Graphics::Toolkit::Color::Name::name_from_hsl( 0, 100, 50 );  # 'red'
-    scalar Graphics::Toolkit::Color::Name::name_from_hsl([0, 100, 50]);  # works too
-    say for Graphics::Toolkit::Color::Name::name_from_hsl( 0, 100, 50 ); # 'red', 'red1'
-
-=head2  names_in_hsl_range
-
-Color names in selected neighbourhood of hsl color space, that look similar.
-It requires two arguments. The first one is an array containing three
-values (hue, saturation and lightness), that define the center of the
-neighbourhood (searched area).
-
-The second argument can either be a number or again an array with
-three values (h,s and l). If its just a number, it will be the radius r
-of a ball, that defines the neighbourhood. From all colors inside that
-ball, that are equal distanced or nearer to the center than r, one
-name will returned.
-
-If the second argument is an array, it has to contain the tolerance
-(allowed distance) in h, s and l direction. Please note the h dimension
-is circular: the distance from 355 to 0 is 5. The s and l dimensions are
-linear, so that a center value of 90 and a tolerance of 15 will result
-in a search of in the range 75 .. 100.
-
-The results contains only one name per color (the shortest).
-
-    # all bright red'ish clors
-    my @names = Graphics::Toolkit::Color::Name::names_in_hsl_range([0, 90, 50], 5);
-    # approximates to :
-    my @names = Graphics::Toolkit::Color::Name::names_in_hsl_range([0, 90, 50],[ 3, 3, 3]);
+this method gets the same parameter and works almost the same way,
+as the previous method. The big difference: the search is not for an
+exact match but the closest one (Euclidean distance). This way you are
+guaranteed to get one or several names in return. These names have
+to be delivered inside a ARRAY ref, because there is a second return value,
+the distance between the provided values and the found color
 
 
 =head2 all
 
-A sorted list of all stored color names.
+Returns a list of color names constants of the default schema.
+All arguments are interpreted as scheme names. If provided, the method
+hows only the names from these schemes.
 
-=head2 is_taken
-
-Predicate method that return true if the color name (first and only,
-required argument) is already in use.
-
-=head2 add_rgb
-
-Adding a color to the store under an not taken (not already used) name.
-Arguments are name, red, green and blue value (integer < 256, see rgb).
-
-    Graphics::Toolkit::Color::Name::add_rgb('nightblue',  15, 10, 121 );
-    Graphics::Toolkit::Color::Name::add_rgb('nightblue', [15, 10, 121]);
-
-=head2 add_hsl
-
-Adding a color to the store under an not taken (not already used) name.
-Arguments are name, hue, saturation and lightness value (see hsl).
-
-    Graphics::Toolkit::Color::Name::add_rgb('lucky',  0, 100, 50 );
-    Graphics::Toolkit::Color::Name::add_rgb('lucky', [0, 100, 50]);
 
 =head1 SEE ALSO
 
@@ -201,7 +183,7 @@ L<Graphics::ColorNamesLite::All>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2022-23 Herbert Breunung.
+Copyright 2025 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
 under same terms as Perl itself.

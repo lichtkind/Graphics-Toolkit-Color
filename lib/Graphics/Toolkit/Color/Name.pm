@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Name;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Name::Scheme;
-use Graphics::Toolkit::Color::Space::Util qw/uniq/;
+use Graphics::Toolkit::Color::Space::Util qw/uniq round_decimals/;
 
 #### public API ########################################################
 sub all {
@@ -41,7 +41,6 @@ sub from_values {
         push @names, @$names;
     }
     push @names, '' unless @names;
-# say "@names",(defined $all_names and $all_names);
     @names = uniq( @names );
     return (defined $all_names and $all_names) ? @names : $names[0];
 }
@@ -61,10 +60,9 @@ sub closest_from_values {
         my $scheme = try_get_scheme( $scheme_name );
         next unless ref $scheme;
         my ($names, $d) = $scheme->closest_names_from_values( $values );
+        $d = round_decimals($d, 5);
         next unless ref $names;
-say "-- $scheme_name : $names, $d";
-        next unless $d < $distance;
-say "-- $scheme_name : $names, $d";
+        next unless $d <= $distance;
         $distance = $d;
         @names = ($distance == $d) ? (@names, @$names) : (@$names);
     }

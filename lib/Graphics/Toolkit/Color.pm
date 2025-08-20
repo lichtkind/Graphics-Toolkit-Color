@@ -164,7 +164,7 @@ EOH
     my $range_def = $color_space->shape->try_check_range_definition( $arg->{'range'} );
     return $range_def unless ref $range_def;
     Graphics::Toolkit::Color::Space::Hub::distance(
-        $self->{'values'}->normalized, $target_color->{'values'}->normalized, $color_space->name, $range_def );
+        $self->{'values'}->normalized, $target_color->{'values'}->normalized, $color_space->name ,$arg->{'select'}, $range_def );
 }
 
 ## single color creation methods #######################################

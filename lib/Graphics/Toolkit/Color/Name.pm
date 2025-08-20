@@ -8,50 +8,6 @@ use Graphics::Toolkit::Color::Name::Scheme;
 use Graphics::Toolkit::Color::Space::Util qw/uniq/;
 
 #### public API ########################################################
-sub get_values {
-    my ($color_name, $scheme_name) = @_;
-    my $scheme = try_get_scheme( $scheme_name );
-    return $scheme unless ref $scheme;
-    return $scheme->values_from_name( $color_name );
-}
-
-sub from_values {
-    my ($values, $scheme_name, $get_all) = @_;
-    my @names = ();
-    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
-                     : (defined $scheme_name)        ? $scheme_name : 'default';
-    for my $scheme_name (@scheme_names) {
-        my $scheme = try_get_scheme( $scheme_name );
-        next unless ref $scheme;
-        my $names = $scheme->names_from_values( $values );
-        next unless ref $names;
-        push @names, @$names;
-    }
-    push @names, '' unless @names;
-    @names = uniq( @names );
-    return (defined $get_all and $get_all) ? @names : $names[0];
-}
-
-sub closest_from_values {
-    my ($values, $scheme_name, $get_all) = @_;
-    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
-                     : (defined $scheme_name)        ? $scheme_name : 'default';
-    my @names = ();
-    my $distance = 'Inf';
-    for my $scheme_name (@scheme_names) {
-        my $scheme = try_get_scheme( $scheme_name );
-        next unless ref $scheme;
-        my ($names, $d) = $scheme->closest_names_from_values( $values );
-        next unless ref $names;
-        next unless $d > $distance;
-        $distance = $d;
-        @names = ($distance == $d) ? (@names, @$names) : (@$names);
-    }
-    @names = uniq( @names );
-    my $name = (defined $get_all and $get_all) ? \@names : $names[0];
-    return ($name, $distance);
-}
-
 sub all {
     my (@scheme_names) = @_;
     push @scheme_names, 'default' unless @scheme_names;
@@ -64,39 +20,95 @@ sub all {
     return uniq( @names );
 }
 
-#### color scheme handling #############################################
-# create default on RUNTIME
+sub get_values {
+    my ($color_name, $scheme_name) = @_;
+    ($scheme_name, $color_name) = split(':', $color_name, 2) if index($color_name, ':') > -1;
+    my $scheme = try_get_scheme( $scheme_name );
+    return $scheme unless ref $scheme;
+    return $scheme->values_from_name( $color_name );
+}
+
+sub from_values {
+    my ($values, $scheme_name, $all_names, $full_name) = @_;
+    my @names = ();
+    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
+                     : (defined $scheme_name)        ? $scheme_name : 'default';
+    for my $scheme_name (@scheme_names) {
+        my $scheme = try_get_scheme( $scheme_name );
+        next unless ref $scheme;
+        my $names = $scheme->names_from_values( $values );
+        next unless ref $names;
+        push @names, @$names;
+    }
+    push @names, '' unless @names;
+# say "@names",(defined $all_names and $all_names);
+    @names = uniq( @names );
+    return (defined $all_names and $all_names) ? @names : $names[0];
+}
+
+sub closest_from_values {
+    my ($values, $scheme_name, $all_names, $full_name) = @_;
+    # exact search first
+    my @names = from_values( $values, $scheme_name, $all_names, $full_name );
+    return ((@names == 1) ? $names[0] : \@names, 0)
+        unless @names == 1 and $names[0] eq '';
+
+    my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
+                     : (defined $scheme_name)        ? $scheme_name : 'default';
+    @names = ();
+    my $distance = 'Inf';
+    for my $scheme_name (@scheme_names) {
+        my $scheme = try_get_scheme( $scheme_name );
+        next unless ref $scheme;
+        my ($names, $d) = $scheme->closest_names_from_values( $values );
+        next unless ref $names;
+say "-- $scheme_name : $names, $d";
+        next unless $d < $distance;
+say "-- $scheme_name : $names, $d";
+        $distance = $d;
+        @names = ($distance == $d) ? (@names, @$names) : (@$names);
+    }
+    @names = uniq( @names );
+    my $name = (defined $all_names and $all_names) ? \@names : $names[0];
+    return ($name, $distance);
+}
+
+#### color scheme API ##################################################
+# load default scheme on RUNTIME
 my %color_scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
 my $default_names = require Graphics::Toolkit::Color::Name::Constant;
 for my $color_block (@$default_names){
-    $color_scheme{'default'}->add_color( $_, [ @{$color_block->{$_}}[0,1,2] ] )
-        for keys %$color_block;
+    $color_scheme{'default'}->add_color( $_, [ @{$color_block->{$_}}[0,1,2] ] ) for keys %$color_block;
 }
-my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 sub try_get_scheme { # auto loader
     my $scheme_name = shift // 'default';
     unless (exists $color_scheme{ $scheme_name }){
         my $module_base = 'Graphics::ColorNames';
-        eval "use $module_base";
-        return "$module_base is not installed, but it's needed to load external color schemes!" if $@;
+        # eval "use $module_base";
+        # return "$module_base is not installed, but it's needed to load external color schemes!" if $@;
         my $module = $module_base.'::'.$scheme_name;
         eval "use $module";
         return "Perl module $module is not installed, but needed to load color scheme '$scheme_name'" if $@;
-        my $palette = eval "$module::NamesRgbTable();";
-        return "Could not use Perl module $module , it seems to be damaged!" if $@;
-
-        my $scheme = $color_scheme{ $scheme_name } = Graphics::Toolkit::Color::Name::Scheme->new();
-        $scheme->add_color( $_, $RGB->deformat( $palette->{$_} ) ) for keys %$palette;
+        my $palette = eval $module.'::NamesRgbTable();';
+        return "Could not use Perl module $module , it seems to be damaged!" if $@ or ref $palette ne 'HASH';
+        my $scheme = Graphics::Toolkit::Color::Name::Scheme->new();
+        $scheme->add_color( $_, from_hex_to_rgb_tuple( $palette->{$_} ) ) for keys %$palette;
+        add_scheme( $scheme, $scheme_name );
     }
     return $color_scheme{ $scheme_name };
 }
-
 sub add_scheme {
     my ($scheme, $scheme_name) = @_;
     return if ref $scheme ne 'Graphics::Toolkit::Color::Name::Scheme'
         or not defined $scheme_name or exists $color_scheme{ $scheme_name };
     $color_scheme{ $scheme_name } = $scheme;
+}
+my $rgb_max = 256;
+sub from_hex_to_rgb_tuple {
+    my $hex = shift;
+    my $rg = int $hex / $rgb_max;
+    return [ int $rg / $rgb_max, $rg % $rgb_max, $hex % $rgb_max];
 }
 
 
@@ -137,13 +149,20 @@ you may also pass an ARRAY with several scheme names.
 =head1 ROUTINES
 
 
+=head2 all
+
+Returns a list of color names constants of the default schema.
+All arguments are interpreted as scheme names. If provided, the method
+hows only the names from these schemes.
+
 =head2 get_values
 
 .. accepts two arguments. The first one is required and is a color name.
 The result will be the RGB value tuple (ARRAY) of this color.
 
 Optionally you may provide a second argument, which is a color scheme
-name - if none is provided, the default scheme is used.
+name - if none is provided, the default scheme is used. Please note this
+is the only routine in this lib where you can provide only one scheme.
 
 
 =head2 from_values
@@ -169,13 +188,6 @@ exact match but the closest one (Euclidean distance). This way you are
 guaranteed to get one or several names in return. These names have
 to be delivered inside a ARRAY ref, because there is a second return value,
 the distance between the provided values and the found color
-
-
-=head2 all
-
-Returns a list of color names constants of the default schema.
-All arguments are interpreted as scheme names. If provided, the method
-hows only the names from these schemes.
 
 
 =head1 SEE ALSO

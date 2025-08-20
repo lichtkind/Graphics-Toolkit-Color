@@ -96,11 +96,11 @@ is( $black->name,                   'black',  'created black from CSS string in 
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input(['hsv', 0, 0, 100 ]);
 is( $white->name,                   'white',  'created white from named ARRAY in HSV');
 
-my ($hname, $hd) = $blue_hwb->closest_name_and_distance(2);
+my ($hname, $hd) = $blue_hwb->closest_name_and_distance();
 is( $hname,                 'blue',  'closest name to "blue" is the same as name');
 is( $hd,                         0,  'no distance to closest name');
-my ($cname, $cd) = $fuchsia_cmy->closest_name_and_distance(2);
-is( $cname,                 'fuchsia',  'closest name to "fuchsia" is same as name');
+my ($cname, $cd) = $fuchsia_cmy->closest_name_and_distance();
+is( $cname,                 'magenta',  'closest name to "magenta" is same as name');
 is( $cd,                            0,  'no distance to closest name');
 
 exit 0;

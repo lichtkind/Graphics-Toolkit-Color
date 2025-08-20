@@ -16,8 +16,8 @@ sub new {
 }
 sub add_color {
     my ($self, $name, $values) = @_;
-    return 0 if not defined $name or not defined $values or $self->is_name_taken($name);
-    $name = _clean_name($name);
+    return 0 if not defined $name or ref $values ne 'ARRAY' or @$values != 3  or $self->is_name_taken($name);
+    $name = _clean_name( $name );
     $self->{'shaped'}{'values'}{$name} = $values;
     $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]] =
         (exists $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]])

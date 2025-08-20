@@ -2,40 +2,71 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 59;
+use Test::More tests => 70;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color::Name';
-my $space_ref = 'Graphics::Toolkit::Color::Space';
 use_ok( $module, 'could load the module');
+
+my $get_values          = \&Graphics::Toolkit::Color::Name::get_values;
+my $from_values         = \&Graphics::Toolkit::Color::Name::from_values;
+my $closest_from_values = \&Graphics::Toolkit::Color::Name::closest_from_values;
+my $all                 = \&Graphics::Toolkit::Color::Name::all;
+my $try_get_scheme      = \&Graphics::Toolkit::Color::Name::try_get_scheme;
+my $add_scheme          = \&Graphics::Toolkit::Color::Name::add_scheme;
+my $scheme_ref          = 'Graphics::Toolkit::Color::Name::Scheme';
+my $default_scheme      = $try_get_scheme->('default');
+my (@names, $names, $scheme, $values);
+
+is( ref $try_get_scheme->(),          $scheme_ref, 'get default scheme when leaving out argument');
+is( ref $default_scheme,              $scheme_ref, 'get default scheme when requesting it');
+is( $default_scheme,          $try_get_scheme->(), 'both are the same');
+is( $default_scheme->is_name_taken('red'),      1, '"red" is a known constant' );
+is( $default_scheme->is_name_taken('RED'),      1, 'color constants are case insensitive' );
+is( $default_scheme->is_name_taken("r_e'd"),    1, 'some special characters are also ignored' );
+is( $default_scheme->is_name_taken('blue'),     1, '"blue" is a known constant' );
+is( $default_scheme->is_name_taken('coconut'),  0, '"coconut" is not a known constant' );
+
+@names = Graphics::Toolkit::Color::Name::all();
+is( int @names,               716,       'all default consants are there' );
+#$values = Graphics::Toolkit::Color::Name::get_values('SVG:red');
+$values = Graphics::Toolkit::Color::Name::get_values('red');
+is( ref $values,         'ARRAY',       'got value tuple of color red' );
+is( int @$values,              3,       'it has three values' );
+is( $values->[0],            255,       'red value is correct' );
+is( $values->[1],              0,       'green value is correct' );
+is( $values->[2],              0,       'blue value is correct' );
+
+@names = Graphics::Toolkit::Color::Name::from_values([255,0,0]);
+is( int @names,                1,       'no second arg, get only one name "from_values"');
+is( $names[0],             'red',       'and its name is "red"');
+@names = Graphics::Toolkit::Color::Name::from_values([255,0,0], undef, 'all');
+is( int @names,                2,       'all names were requested "from_values"' );
+is( $names[0],             'red',       'it is also "red" on first position' );
+is( $names[1],            'red1',       'it is "red1" on second position' );
+@names = Graphics::Toolkit::Color::Name::closest_from_values([255,0,0] );
+is( int @names,                2,       'got names and distance from "closest_from_values"');
+is( $names[0],             'red',       'and its name is "red"' );
+is( $names[1],                 0,       'has no distance' );
+@names = Graphics::Toolkit::Color::Name::closest_from_values([255,0,0], undef, 'all' );
+is( int @names,                2,       'got all names and distance from "closest_from_values"');
+is( ref $names[0],       'ARRAY',       'names ARRAY on first position');
+is( @{$names[0]},              2,       'it two names');
+is( $names[0][0],          'red',       'first is "red"');
+is( $names[0][1],         'red1',       'second is is "red1"');
+is( $names[1],                 0,       'has no distance');
+@names = Graphics::Toolkit::Color::Name::closest_from_values([255,1,0] );
+is( int @names,                2,       'this time there is a distance to red');
+is( $names[0],             'red',       'and its name is "red"' );
+is( $names[1],                 1,       'has distance of one' );
 
 
 1;
 __END__
 
-my @names = Graphics::Toolkit::Color::Name::all();
-
-my $is_taken           = \&Graphics::Toolkit::Color::Name::is_taken;
-my $name_from_rgb      = \&Graphics::Toolkit::Color::Name::name_from_rgb;
-my $name_from_hsl      = \&Graphics::Toolkit::Color::Name::name_from_hsl;
-my $add_rgb            = \&Graphics::Toolkit::Color::Name::add_rgb;
-my $add_hsl            = \&Graphics::Toolkit::Color::Name::add_hsl;
-my $names_in_hsl_range = \&Graphics::Toolkit::Color::Name::names_in_hsl_range;
-
-is( int @names,               716,       'all consants are there' );
-is( $is_taken->('red'),         1,       '"red" is a known constant' );
-is( $is_taken->('RED'),         1,       'color constants are case insensitive' );
-is( $is_taken->("r_e'd"),       1,       'some special characters are also ignored' );
-is( $is_taken->('blue'),        1,       '"blue" is a known constant' );
-is( $is_taken->('coconut'),     0,       '"coconut" is not a known constant' );
-
 my $values = Graphics::Toolkit::Color::Name::rgb_from_name('red');
 is( ref $values,      'ARRAY',       'got tuple with RGB values of "red"' );
-is( int @$values,           3,       'tuple contains three values' );
-is( $values->[0],         255,       'red value is correct' );
-is( $values->[1],           0,       'green value is correct' );
-is( $values->[2],           0,       'blue value is correct' );
 $values = Graphics::Toolkit::Color::Name::rgb_from_name('coconut');
 is( ref $values,           '',       'got no tuple for unknown color constant' );
 

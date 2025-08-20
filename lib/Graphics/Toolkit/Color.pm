@@ -593,6 +593,7 @@ empty string. If the values doesnt have to match exactly, try the next method.
 
     $blue->name();                                   # 'blue'
     $blue->name('SVG');                              # 'blue'
+    $blue->name([qw/CSS X/]);                        # 'blue'
 
 
 =head2 closest_name

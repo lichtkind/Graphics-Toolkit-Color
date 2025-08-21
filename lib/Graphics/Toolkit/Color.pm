@@ -356,11 +356,12 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     use Graphics::Toolkit::Color qw/color/;
 
     my $red = Graphics::Toolkit::Color->new('red');  # create color object
-    say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'fuchsia'
+    say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'magenta'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
     $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
-    my @base_triple = $red->complement( 3 );         # get fitting red green and blue
+    my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
+    my @reds = $red->cluster( radius => 4, distance => 1 );
 
 
 =head1 DEPRECATION WARNING

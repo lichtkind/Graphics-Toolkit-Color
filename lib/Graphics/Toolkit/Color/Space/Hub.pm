@@ -9,7 +9,7 @@ use warnings;
 our $default_space_name = 'RGB';
 my @search_order = ($default_space_name,
                    qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
-                   qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/);
+                   qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB OKLCH HunterLAB/);
 my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 
@@ -267,7 +267,7 @@ and a pure red (fully saturated color) is (255, 0, 0).
 
 =head2 CMY
 
-is the opposite of L<RGB> since it follows the logic of subtractive
+is the opposite of L</RGB> since it follows the logic of subtractive
 color mixing as used in printing. Think of it as the amount of colored
 ink on white paper, so that white is (0,0,0) and black (1,1,1).
 It uses normalized real value ranges: 0 .. 1.
@@ -279,7 +279,7 @@ B<yellow> (short B<y>) is inverse of I<blue>.
 
 =head2 CMYK
 
-is an extension of L<CMY> with a fourth value named B<key> (short B<k>),
+is an extension of L</CMY> with a fourth value named B<key> (short B<k>),
 which is the amount of black ink mixed into the CMY color.
 It also has an normalized range of 0 .. 1. This should not bother you
 since you are free to change the range at you preference.
@@ -313,11 +313,11 @@ color has its unique coordinates.
 
 =head2 HSB
 
-Is an alias to L<HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
+Is an alias to L</HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
 
 =head2 HWB
 
-An inverted L<HSV>, where the saturated, pure colors are on the center
+An inverted L</HSV>, where the saturated, pure colors are on the center
 column of the cylinder. It still has the same circular B<hue> dimension
 with  an integer range of 0 .. 360. The other two, linear dimensions
 (also 0 .. 100 inter range with optional suffix '%') are B<whiteness>
@@ -329,7 +329,7 @@ and I<blackness> can never be greater than 100.
 
 =head2 NCol
 
-Is a more human readable variant of the L<HWB> space with an altered
+Is a more human readable variant of the L</HWB> space with an altered
 B<hue> values, that consists of a letter and two digits.
 The letter demarks one of the six areas around the rainbow. B<R> is I<Red>,
 B<Y> (I<Yellow>), B<G> (I<Green>), B<C> (I<Cyan>), B<B> (I<Blue>),
@@ -360,7 +360,7 @@ this module computes with real (analogue)  value to enable any precision
 the user might prefer. To make this clear, this space holds the name B<YPbPr>.
 It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
 range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. C<Pr>
-(short I<v>, -0.5 .. 0.5). (see also L<CIELUV>)
+(short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
 
 =head2 CIEXYZ
 
@@ -377,7 +377,7 @@ holds true for all CIE spaces in GTC.
 
 =head2 CIELAB
 
-Is a derivate of L<CIEXYZ> that reorderes the colors along axis that
+Is a derivate of L</CIEXYZ> that reorderes the colors along axis that
 reflect how the brain processes them. It uses three information channels.
 One named B<L> (lightness) with a real value range of (0 .. 100).
 Second is channel (B<a>, that reaches from red to green (-500 .. 500) and
@@ -388,19 +388,19 @@ opponent color theory and the short alias name of this space is B<LAB>.
 
 =head2 CIELUV
 
-Is a more perceptually uniform  version of L<CIELAB> and the axis I<a>
-and I<b> got renamed to I<u> and I<v> (see L<YUV>) but did not change
-their meaning. It has also three Cartesian dimension named L*, u* and v*,
-(short names have only the first letter of these names). Their have
-real valued ranges, which are 0 .. 100, -134 .. 220 and -140 .. 122.
-The short alias name of this space is B<LUV>.
+(alias B<LUV>) is a more perceptually uniform version of L</CIELAB> and
+the axis I<a> and I<b> got renamed to I<u> and I<v> (see L</YUV>) but
+did not change their meaning. It has also three Cartesian dimension named
+B<L*>, B<u*> and B<v*>, (short names have only the first letter of these names).
+Their have real valued ranges, which are 0 .. 100, -134 .. 220 and
+-140 .. 122.
 
 =head2 CIELCHab
 
-.. is the cylindrical version of the L<CIELAB> with the dimensions
-B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
+(alias B<LCHab>)  is the cylindrical version of the L</CIELAB> with the
+dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
 The real valued ranges are from zero to 100, 539 and 360 respectively.
-Like with the L<HSL> and L<HSV>, hue is the circular dimensions and its
+Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
 values are meant as degrees in a circle. For gray colors in the middle
 column the value I<chroma> has no importance and will be in this
 implementation implementation alsway be zero.
@@ -408,7 +408,7 @@ The short alias name of this space is B<LCH>.
 
 =head2 CIELCHuv
 
-.. is the cylindrical version of the L<CIELUV> and works similar to
+(alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works similar to
 L<CIELCHab> except the real valued range of B<chroma> is (0 .. 261) and
 the space has no alias name.
 

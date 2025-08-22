@@ -1,6 +1,11 @@
 
-1.93    2025-08-20    lichtkind
+1.93    2025-08-30    lichtkind
 -------
+    * = minor feature release
+    * * added support of 3 color spaces: OKLAB, OKLCH, HunterLAB
+    * + methods "name" and "closest_name" can now return multiple names
+    * ? POD example code fixes
+    * ? fix links in GTC::Space::Hub lib
 
 
 1.92    2025-08-20    lichtkind

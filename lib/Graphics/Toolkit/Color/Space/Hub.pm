@@ -377,14 +377,14 @@ holds true for all CIE spaces in GTC.
 
 =head2 CIELAB
 
-Is a derivate of L</CIEXYZ> that reorderes the colors along axis that
-reflect how the brain processes them. It uses three information channels.
-One named B<L> (lightness) with a real value range of (0 .. 100).
+(alias B<LAB>) is a derivate of L</CIEXYZ> that reorderes the colors along
+axis that reflect how the brain processes them. It uses three information
+channels. One named B<L> (lightness) with a real value range of (0 .. 100).
 Second is channel (B<a>, that reaches from red to green (-500 .. 500) and
 thirdly B<b> from yellow to blue (-200 .. 200). Values will be displayed
 with three decimals. The long names of the axis names contain a '*'
 and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect the
-opponent color theory and the short alias name of this space is B<LAB>.
+opponent color theory.
 
 =head2 CIELUV
 
@@ -397,14 +397,13 @@ Their have real valued ranges, which are 0 .. 100, -134 .. 220 and
 
 =head2 CIELCHab
 
-(alias B<LCHab>)  is the cylindrical version of the L</CIELAB> with the
+(alias B<LCH>) is the cylindrical version of the L</CIELAB> with the
 dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
 The real valued ranges are from zero to 100, 539 and 360 respectively.
 Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
 values are meant as degrees in a circle. For gray colors in the middle
 column the value I<chroma> has no importance and will be in this
 implementation implementation alsway be zero.
-The short alias name of this space is B<LCH>.
 
 =head2 CIELCHuv
 
@@ -412,6 +411,17 @@ The short alias name of this space is B<LCH>.
 L<CIELCHab> except the real valued range of B<chroma> is (0 .. 261) and
 the space has no alias name.
 
+=head2 OKLAB
+
+is a derivate of L</CIELAB> with no alias name and for nicer color transitions.
+The axis have same short and long names: B<L> with values (0 .. 1),
+B<a> and B<b> with both (-0.5 .. 0.5). If you wandt to use it like in CSS,
+just add C<< range => [100, [-120,120], [-120,120]], suffix => '%' >>.
+
+=head2 OKLCH
+
+is the cylindrical variant of L</OKLAB> just parallels L</CIELCHab>.
+Value ranges are as in C<OKLAB>. The axis
 
 
 =head1 RANGES

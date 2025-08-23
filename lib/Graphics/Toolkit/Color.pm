@@ -391,7 +391,7 @@ Error messages will appear as return values instead of the expected result.
 
 While this module can understand and output color values to many
 L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>,
-L<color spaces|Graphics::Toolkit::Color::Space::Hub/RGB>
+L<RGB|Graphics::Toolkit::Color::Space::Hub/RGB>
 is the (internal) primal one, because GTC is about colors that can be
 shown on the screen, and these are usually encoded in I<RGB>.
 Humans access colors on hardware level (eye) in I<RGB>, on cognition level
@@ -578,12 +578,13 @@ they appear by default you can surpress them by adding C<suffix =E<gt> ''>
 
 Returns the normalized name (lower case, without I<'_'>) of the color
 held by the object - even when the object was created with numerical values.
-It returns an empty string when no color constant with the exact same values
-was found in the I<X11> or I<HTML> (I<SVG>) scheme or the I<Pantone report>.
-If several constants have matching values, the most well known name, which
-is in most cases also the shortest will be returned.
-All names from the internal , default color scheme are listed
-L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
+If the color object was created with a name, exactly this will be returned.
+The result is an empty string when no color constant with the exact same
+values was found the default color name space, which is basically
+I<X11> + I<HTML> (I<SVG>) + I<Pantone report>. If several constants
+have matching values, the most well known name, which is in most cases
+also the shortest will be returned. All names from the internal,
+default color scheme are listed L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
 These are the same who can be used with L</new('name')>.
 
 Alternatively you may provide the name of a color scheme as the only,
@@ -706,12 +707,12 @@ employ the C<amount> argument, which is the weight the mixed in color(s)
 get, counted in percentages. The remaining percentage to 100 is the weight
 of the color, held by the caller object. This would be naturally nothing,
 if the C<amount> is greater than hundret, which is especially something
-to consider, if mixing more than two colors. Then you provide the argument
-C<to> and C<amount> with an array of colors and respectively their amounts.
+to consider, if mixing more than two colors. Then both C<to> and C<amount>
+have to get an array of colors and respectively their amounts (same order).
 Obviously both arrays MUST have the same length. If the sum of amounts is
 greater than 100 the original color is ignored but the weight ratios will
 be kept. You may actually give C<amount> a scalar value while mixing a list
-of colors. Then the amount is applied to every color mentioned unter the
+of colors. Then the amount is applied to every color mentioned under the
 C<to> argument. In this case you go over the sum of 100% very quickly.
 
     $blue->mix( 'silver');                                         # 50% silver, 50% blue
@@ -799,6 +800,7 @@ The bigger the absolute numeric value the bigger the effect. Please have
 in mind that values over 2 result is a very strong tilt.
 
 Optional is the named argument L</in> (color space - details behind link).
+Tip: use C<oklab> and C<cieluv> spaces for visually smooth gradients.
 
     # we turn to grey
     my @colors = $c->gradient( to => $grey, steps => 5);

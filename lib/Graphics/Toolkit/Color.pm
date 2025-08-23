@@ -576,26 +576,38 @@ they appear by default you can surpress them by adding C<suffix =E<gt> ''>
 
 =head2 name
 
-Returns the normalized name (lower case, without I<'_'>) of the color
-held by the object - even when the object was created with numerical values.
-If the color object was created with a name, exactly this will be returned.
-The result is an empty string when no color constant with the exact same
-values was found the default color name space, which is basically
-I<X11> + I<HTML> (I<SVG>) + I<Pantone report>. If several constants
-have matching values, the most well known name, which is in most cases
-also the shortest will be returned. All names from the internal,
-default color scheme are listed L<here|Graphics::Toolkit::Color::Name::Constant/NAMES>.
+Returns the normalized name string (lower case, without I<'_'>) that
+represents the I<RGB> values of this color in the default color scheme,
+which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
+(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
 These are the same who can be used with L</new('name')>.
 
-Alternatively you may provide the name of a color scheme as the only,
-positional, optional argument. Then only that color scheme (as used in
-L</new('scheme:color')>) will be searched, if there is a color with the
-exact same values. That name will be the returned, otherwise you get an
-empty string. If the values doesnt have to match exactly, try the next method.
+Alternatively you may provide named arguments or one positional argument,
+which requires the same input as the named argument C<from>. It names one
+or a list of color schemes, from which the name will be selected then.
+Your otions are C<CSS>, C<Crayola>, C<EmergyC>, C<GrayScale>, C<HTML>,
+C<IE>, C<Mozilla>, C<Netscape>, C<Pantone>, C<PantoneReport>, C<SVG>,
+C<VACCC>, C<Werner>, C<Windows>, C<WWW> and C<X> plus self created naming
+schemes (see L<Graphics::Toolkit::Color::Name::Scheme>). Please note
+that all listed schemes are parts of modules that have to be installed
+separately. For your convenience I created the module
+L<Bundle::Graphics::ColorNames> to install them all at once. If you
+try to use a scheme from a not installed module your will get an error
+message instead of a color name.
+
+The second named argument is C<all>, which needs to be a perly boolean.
+It defaults to false. But when set to 1 you will get a list of all names
+that are associated with the current values. There will be no duplicates,
+when several schemes are searched.
+
+A third named argument is C<full>, also needing a perly boolean, that
+defaults to false. When set C<true> (1), the schema is part of the returned
+color name. These full names are also accepted by the constructor.
 
     $blue->name();                                   # 'blue'
     $blue->name('SVG');                              # 'blue'
-    $blue->name([qw/CSS X/]);                        # 'blue'
+    $blue->name( from => [qw/CSS X/], all => 1);     # 'blue', 'blue1'
+    $blue->name( from => 'CSS', full => 1);          # 'CSS:blue'
 
 
 =head2 closest_name

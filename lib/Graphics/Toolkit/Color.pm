@@ -612,12 +612,15 @@ color name. These full names are also accepted by the constructor.
 
 =head2 closest_name
 
-Returns in scalar context a color L</name>, which has the shortest
-L</distance> in RGB to the current color.
-In list context, you get additionally the just mentioned distance
-as a second return value.
+Works almost identical as method L</name>, but guarantees a none empty
+result, unless invoking a weird empty color scheme - the method returns
+scalar context a color name, which has the shortest L</distance> in I<RGB>
+to the current color. In list context, you get additionally the just
+mentioned distance as a second return value.
 
-As with the previous method, one positional, optional argument is the color schme.
+All arguments work as mentioned above. The only difference (due to the
+second return value), multiple names (when requested) have to come in the
+form of an ARRAY (as the first return value).
 
     my $name = $red_like->closest_name;              # closest name in default scheme
     my $name = $red_like->closest_name('HTML');      # closest HTML constant

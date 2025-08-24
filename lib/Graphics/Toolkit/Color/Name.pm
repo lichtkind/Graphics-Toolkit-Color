@@ -32,7 +32,7 @@ sub from_values {
     my ($values, $scheme_name, $all_names, $full_name) = @_;
     my @return_names = ();
     my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
-                     : (defined $scheme_name)        ? $scheme_name : 'default';
+                     : (defined $scheme_name)        ? $scheme_name : 'DEFAULT';
     for my $scheme_name (@scheme_names) {
         my $scheme = try_get_scheme( $scheme_name );
         next unless ref $scheme;
@@ -54,7 +54,7 @@ sub closest_from_values {
         unless @return_names == 1 and $return_names[0] eq '';
 
     my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
-                     : (defined $scheme_name)        ? $scheme_name : 'default';
+                     : (defined $scheme_name)        ? $scheme_name : 'DEFAULT';
     @return_names = ();
     my $distance = 'Inf';
     for my $scheme_name (@scheme_names) {
@@ -75,14 +75,15 @@ sub closest_from_values {
 
 #### color scheme API ##################################################
 # load default scheme on RUNTIME
-my %color_scheme = (default => Graphics::Toolkit::Color::Name::Scheme->new());
+my %color_scheme = (DEFAULT => Graphics::Toolkit::Color::Name::Scheme->new());
 my $default_names = require Graphics::Toolkit::Color::Name::Constant;
 for my $color_block (@$default_names){
-    $color_scheme{'default'}->add_color( $_, [ @{$color_block->{$_}}[0,1,2] ] ) for keys %$color_block;
+    $color_scheme{'DEFAULT'}->add_color( $_, [ @{$color_block->{$_}}[0,1,2] ] ) for keys %$color_block;
 }
 
 sub try_get_scheme { # auto loader
-    my $scheme_name = shift // 'default';
+    my $scheme_name = shift // 'DEFAULT';
+    $scheme_name = uc $scheme_name;
     unless (exists $color_scheme{ $scheme_name }){
         my $module_base = 'Graphics::ColorNames';
         # eval "use $module_base";
@@ -96,13 +97,13 @@ sub try_get_scheme { # auto loader
         $scheme->add_color( $_, from_hex_to_rgb_tuple( $palette->{$_} ) ) for keys %$palette;
         add_scheme( $scheme, $scheme_name );
     }
-    return $color_scheme{ uc $scheme_name };
+    return $color_scheme{ $scheme_name };
 }
 sub add_scheme {
     my ($scheme, $scheme_name) = @_;
     return if ref $scheme ne 'Graphics::Toolkit::Color::Name::Scheme'
         or not defined $scheme_name or exists $color_scheme{ $scheme_name };
-    $color_scheme{ $scheme_name } = $scheme;
+    $color_scheme{ uc $scheme_name } = $scheme;
 }
 my $rgb_max = 256;
 sub from_hex_to_rgb_tuple {

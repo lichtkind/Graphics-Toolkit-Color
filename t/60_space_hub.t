@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 57;
+use Test::More tests => 60;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
@@ -12,7 +12,7 @@ use_ok( $module, 'could load the module');
 
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space")
-    for qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv/;
+    for qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB OKLCH HunterLAB/;
 my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  24, 'intalled 21 space names');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),      1, "$_ is a space name") for @names;

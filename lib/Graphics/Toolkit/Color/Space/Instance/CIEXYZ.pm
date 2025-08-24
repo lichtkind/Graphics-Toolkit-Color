@@ -23,7 +23,6 @@ sub from_rgb {
 
 
 }
-
 sub to_rgb {
     my ($xyz) = shift;
     my @rgb = mult_matrix3([[  3.07996,   -1.53714 , -0.542816 ],

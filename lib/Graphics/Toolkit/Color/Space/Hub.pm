@@ -415,7 +415,7 @@ the space has no alias name.
 
 is a derivate of L</CIELAB> with no alias name and for nicer color transitions.
 The axis have same short and long names: B<L> with values (0 .. 1),
-B<a> and B<b> with both (-0.5 .. 0.5). If you wandt to use it like in CSS,
+B<a> and B<b> with both (-0.5 .. 0.5). If you want to use it like in CSS,
 just add C<< range => [100, [-120,120], [-120,120]], suffix => '%' >>.
 
 =head2 OKLCH

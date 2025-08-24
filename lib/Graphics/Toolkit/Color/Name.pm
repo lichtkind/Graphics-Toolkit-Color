@@ -38,7 +38,7 @@ sub from_values {
         next unless ref $scheme;
         my $names = $scheme->names_from_values( $values );
         next unless ref $names;
-        $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name;
+        $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name and uc($scheme_name) ne 'DEFAULT';
         push @return_names, @$names;
     }
     push @return_names, '' unless @return_names;
@@ -65,7 +65,7 @@ sub closest_from_values {
         next unless ref $names;
         next unless $d <= $distance;
         $distance = $d;
-        $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name;
+        $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name and uc($scheme_name) ne 'DEFAULT';
         @return_names = ($distance == $d) ? (@return_names, @$names) : (@$names);
     }
     @return_names = uniq( @return_names );

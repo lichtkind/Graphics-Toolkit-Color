@@ -126,6 +126,7 @@ EOH
 
 sub name         {
     my ($self, @args) = @_;
+    return $self->{'values'}->name unless @args;
     my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
     my $help = <<EOH;
     GTC method 'name' accepts three optional, named arguments:
@@ -136,7 +137,6 @@ sub name         {
         all => 1              # returns list of all names associated with the object's values
         full => 1             # adds color scheme name to the color name. 'SVG:red'
 EOH
-    return $self->{'values'}->name if $arg->{'from'} eq 'default' and not $arg->{'all'} and not $arg->{'full'};
     return Graphics::Toolkit::Color::Name::from_values( $self->{'values'}->shaped, @$arg{qw/from all full/});
 }
 
@@ -156,7 +156,6 @@ EOH
                                 $self->{'values'}->shaped, @$arg{qw/from all full/});
     return wantarray ? ($name, $distance) : $name;
 }
-
 
 sub distance {
     my ($self, @args) = @_;

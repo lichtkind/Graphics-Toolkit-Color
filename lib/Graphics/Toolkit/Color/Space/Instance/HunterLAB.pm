@@ -1,12 +1,12 @@
 
 # OK lab color space  for Illuminant D65 and Observer 2 degree
 
-package Graphics::Toolkit::Color::Space::Instance::OKLAB;
+package Graphics::Toolkit::Color::Space::Instance::HunterLAB;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( alias => 'CIELAB',        # space name LAB
+my  $lab_def = Graphics::Toolkit::Color::Space->new( name  => 'HunterLAB',     #
                                                       axis => [qw/L* a* b*/],  # short l a b
                                                      range => [100, [-500, 500], [-200, 200]],
                                                  precision => 3 );             # lightness, cyan-orange balance, magenta-green balance

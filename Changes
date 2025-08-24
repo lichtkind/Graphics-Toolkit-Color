@@ -3,7 +3,7 @@
 -------
     * = minor feature release
     * * added support of 3 color spaces: OKLAB, OKLCH, HunterLAB
-    * + methods "name" and "closest_name" can now return multiple names
+    * + methods "name" and "closest_name" can now return multiple names and full names
     * ? POD example code fixes
     * ? fix links in GTC::Space::Hub lib
 

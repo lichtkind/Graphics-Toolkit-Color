@@ -41,8 +41,8 @@ sub from_values {
         $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name;
         push @return_names, @$names;
     }
-    push return_names, '' unless return_names;
-    return_names = uniq( return_names );
+    push @return_names, '' unless @return_names;
+    @return_names = uniq( @return_names );
     return (defined $all_names and $all_names) ? @return_names : $return_names[0];
 }
 

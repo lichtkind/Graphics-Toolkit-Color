@@ -124,16 +124,42 @@ EOH
     $self->{'values'}->formatted( @$arg{qw/in as suffix range precision/} );
 }
 
-sub name         { $_[0]{'values'}->name }
+sub name         {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
+    my $help = <<EOH;
+    GTC method 'name' accepts three optional, named arguments:
+    name ( ...
+        'CSS'                 # color naming scheme works as only positional argument
+        from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
+        from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
+        all => 1              # returns list of all names associated with the object's values
+        full => 1             # adds color scheme name to the color name. 'SVG:red'
+EOH
+    return $self->{'values'}->name if $arg->{'from'} eq 'default' and not $arg->{'all'} and not $arg->{'full'};
+    return Graphics::Toolkit::Color::Name::from_values( $self->{'values'}->shaped, @$arg{qw/from all full/});
+}
+
 sub closest_name {
-    my ($self) = shift;
-    my ($name, $distance) = $self->{'values'}->closest_name_and_distance;
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
+    my $help = <<EOH;
+    GTC method 'name' accepts three optional, named arguments:
+    closest_name ( ...
+        'CSS'                 # color naming scheme works as only positional argument
+        from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
+        from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
+        all => 1              # returns list of all names associated with the object's values
+        full => 1             # adds color scheme name to the color name. 'SVG:red'
+EOH
+    my ($name, $distance) = Graphics::Toolkit::Color::Name::closest_from_values(
+                                $self->{'values'}->shaped, @$arg{qw/from all full/});
     return wantarray ? ($name, $distance) : $name;
 }
 
+
 sub distance {
     my ($self, @args) = @_;
-    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, select => undef, range => undef});
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or

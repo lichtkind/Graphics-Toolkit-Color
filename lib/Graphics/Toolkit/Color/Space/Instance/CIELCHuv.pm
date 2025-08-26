@@ -10,7 +10,9 @@ my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'CIELCHuv',
                                                     alias => 'LCHuv',
                                                      axis => [qw/luminance chroma hue/],
                                                     range => [100, 261, 360],
-                                                precision => 3 );
+                                                precision => 3,
+                                                     type => [qw/linear linear angular/],
+);
 
     $hcl_def->add_converter('LUV', \&to_luv, \&from_luv );
 

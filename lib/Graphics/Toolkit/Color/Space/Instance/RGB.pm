@@ -18,10 +18,10 @@ sub rgb_from_hex {                                          # translate #000000 
                         : (map { hex($_   ) } unpack( "a2 a2 a2", $hex))];
 }
 
-my $rgb_def = Graphics::Toolkit::Color::Space->new( axis => [qw/red green blue/], range => 255, precision => 0 );
-   $rgb_def->add_formatter(   'hex_string', \&hex_from_rgb );
-   $rgb_def->add_deformatter( 'hex_string', \&rgb_from_hex );
-   $rgb_def->add_formatter(        'array', sub { $_[1] } );
-   $rgb_def->add_deformatter(      'array', sub { $_[1] } );
-
-$rgb_def;
+Graphics::Toolkit::Color::Space->new (
+         axis => [qw/red green blue/],
+        range => 255,
+    precision => 0,
+       format => { 'hex_string' => [\&hex_from_rgb, \&rgb_from_hex],
+                        'array' => [ sub { $_[1] }, sub { $_[1] } ] },
+);

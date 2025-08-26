@@ -9,7 +9,9 @@ use Graphics::Toolkit::Color::Space qw/round_decimals/;
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'OKLCH',
                                                      axis => [qw/luminance chroma hue/],
                                                     range => [1, 539, 360],
-                                                precision => 3 );
+                                                precision => 3,
+                                                     type => [qw/linear linear angular/],
+);
 
     $hcl_def->add_converter('OKLAB', \&to_lab, \&from_lab );
 

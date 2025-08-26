@@ -24,7 +24,6 @@ sub from_xyz {
     $lab[2] += .5;
     return \@lab;
 }
-
 sub to_xyz {
     my ($lab) = shift;
     $lab->[1] -= .5;
@@ -41,11 +40,10 @@ sub to_xyz {
     return [map {$xyz[$_] / $D65[$_]} 0 .. 2];
 }
 
-
-my  $lab_def = Graphics::Toolkit::Color::Space->new( name => 'OKLAB',       # no alias, short axis name eq long
-                                                      axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
-                                                     range => [1, [-.5, .5], [-.5, .5]],
-                                                 precision => 3 );
-
-$lab_def->add_converter('XYZ', \&to_xyz, \&from_xyz );
-$lab_def;
+Graphics::Toolkit::Color::Space->new(
+         name => 'OKLAB',       # no alias, short axis name eq long
+         axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
+        range => [1, [-.5, .5], [-.5, .5]],
+    precision => 3,
+      convert => {XYZ => [\&to_xyz, \&from_xyz]},
+);

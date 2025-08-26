@@ -9,7 +9,9 @@ use Graphics::Toolkit::Color::Space qw/round_decimals/;
 my  $hcl_def = Graphics::Toolkit::Color::Space->new( name => 'LCH', alias => 'CIELCHab',
                                                      axis => [qw/luminance chroma hue/],
                                                     range => [100, 539, 360],
-                                                precision => 3 );
+                                                precision => 3,
+                                                     type => [qw/linear linear angular/],
+);
 
     $hcl_def->add_converter('LAB', \&to_lab, \&from_lab );
 

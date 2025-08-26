@@ -16,6 +16,7 @@ our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 ########################################################################
 sub new {
     my $pkg = shift;
+    return if @_ % 2;
     my %args = @_;
     my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'alias'});
     return $basis unless ref $basis;
@@ -23,8 +24,26 @@ sub new {
     return $shape unless ref $shape;
     my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'value_form'}, $args{'prefix'}, $args{'suffix'} );
     return $format unless ref $format;
-    # formatter converter
-    bless { basis => $basis, shape => $shape, format => $format, convert => {} };
+    my $self = bless { basis => $basis, shape => $shape, format => $format, convert => {} };
+    if (ref $args{'format'} eq 'HASH'){
+        for my $format_name (keys %{$args{'format'}}){
+            my $formatter = $args{'format'}{$format_name};
+            next unless ref $formatter eq 'ARRAY' and  @$formatter > 0;
+            $format->add_formatter($format_name, $formatter->[0])
+                if exists $formatter->[0] and ref $formatter->[0] eq 'CODE';
+            $format->add_deformatter($format_name, $formatter->[1])
+                if exists $formatter->[1] and ref $formatter->[1] eq 'CODE';
+        }
+    }
+    if (ref $args{'convert'} eq 'HASH'){
+        for my $converter_target (keys %{$args{'convert'}}){
+            my $converter = $args{'convert'}{ $converter_target };
+            next unless ref $converter eq 'ARRAY' and @$converter > 1
+                    and ref $converter->[0] eq 'CODE' and ref $converter->[1] eq 'CODE';
+            $self->add_converter( $converter_target, @$converter );
+        }
+    }
+    return $self;
 }
 
 ########################################################################

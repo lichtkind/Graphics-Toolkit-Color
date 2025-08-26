@@ -6,15 +6,6 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/min max mod_real/;
 
-my $hsl_def = Graphics::Toolkit::Color::Space->new( axis => [qw/hue saturation lightness/],
-                                                   range => [ 360, 100, 100 ],  precision => 0,
-                                                    type => [qw/angular linear linear/],
-                                                 # suffix => ['', '%', '%'],
-                                                  );
-
-   $hsl_def->add_converter('RGB', \&to_rgb, \&from_rgb );
-
-
 sub from_rgb {
     my ($r, $g, $b) = @{$_[0]};
     my $vmax = max($r, $g, $b),
@@ -28,7 +19,6 @@ sub from_rgb {
                           : (($r - $g) / $d + 4);
     return ([$h/6, $s, $l]);
 }
-
 sub to_rgb {
     my ($h, $s, $l) = @{$_[0]};
     $h *= 6;
@@ -44,4 +34,11 @@ sub to_rgb {
     return \@rgb;
 }
 
-$hsl_def;
+Graphics::Toolkit::Color::Space->new(
+             axis => [qw/hue saturation lightness/],
+            range => [ 360, 100, 100 ],
+        precision => 0,
+             type => [qw/angular linear linear/],
+         # suffix => ['', '%', '%'],
+          convert => {RGB => [\&to_rgb, \&from_rgb]},
+);

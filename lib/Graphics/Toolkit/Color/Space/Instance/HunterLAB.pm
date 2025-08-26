@@ -29,10 +29,10 @@ sub to_xyz {
     return ([$x, $y, $z]);
 }
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( name  => 'HunterLAB',  #
-                                                      axis => [qw/L a b/],  # same as short
-                                                     range => [100, [-$K{'a'}, $K{'a'}], [-$K{'b'}, $K{'b'}]], # cyan-orange, magenta-green
-                                                 precision => 3 );
-
-$lab_def->add_converter('CIEXYZ', \&to_xyz, \&from_xyz );
-$lab_def;
+Graphics::Toolkit::Color::Space->new(
+         name => 'HunterLAB',
+         axis => [qw/L a b/],  # same as short
+        range => [100, [-$K{'a'}, $K{'a'}], [-$K{'b'}, $K{'b'}]], # cyan-orange, magenta-green
+    precision => 3,
+      convert => {XYZ => [\&to_xyz, \&from_xyz]},
+);

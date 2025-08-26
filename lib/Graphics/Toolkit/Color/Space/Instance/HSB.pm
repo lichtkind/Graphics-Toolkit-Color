@@ -38,7 +38,8 @@ sub to_rgb {
 
 Graphics::Toolkit::Color::Space->new (
             axis => [qw/hue saturation brightness/],
-           range => [360, 100, 100],  precision => 0,
+           range => [360, 100, 100],
+       precision => 0,
             type => [qw/angular linear linear/],
           suffix => ['', '%', '%'],
          convert => {RGB => [\&to_rgb, \&from_rgb]},

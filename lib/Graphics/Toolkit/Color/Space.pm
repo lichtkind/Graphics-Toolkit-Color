@@ -43,6 +43,12 @@ sub new {
             $self->add_converter( $converter_target, @$converter );
         }
     }
+    if (ref $args{'values'} eq 'HASH') {
+        my $numifier = $args{'values'};
+        $format->set_value_numifier( $numifier->{'read'}, $numifier->{'write'} )
+            if ref $numifier->{'read'} eq 'CODE' and ref $numifier->{'write'} eq 'CODE';
+    }
+
     return $self;
 }
 
@@ -79,7 +85,6 @@ sub format             { shift->form->format(@_) }            # @+values, ~forma
 sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
 sub add_formatter      { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
 sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
-sub set_value_numifier { shift->form->set_value_numifier(@_)} # &reader, &writer                   --> &?
 
 #### conversion ########################################################
 sub converter_names      { keys %{  $_[0]{'convert'} } }

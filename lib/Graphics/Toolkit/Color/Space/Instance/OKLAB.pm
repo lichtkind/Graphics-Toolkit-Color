@@ -6,13 +6,6 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix3/;
 
-my  $lab_def = Graphics::Toolkit::Color::Space->new( name => 'OKLAB',       # no alias, short axis name eq long
-                                                      axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
-                                                     range => [1, [-.5, .5], [-.5, .5]],
-                                                 precision => 3 );
-
-$lab_def->add_converter('XYZ', \&to_xyz, \&from_xyz );
-
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 
 sub from_xyz {
@@ -31,6 +24,7 @@ sub from_xyz {
     $lab[2] += .5;
     return \@lab;
 }
+
 sub to_xyz {
     my ($lab) = shift;
     $lab->[1] -= .5;
@@ -47,7 +41,11 @@ sub to_xyz {
     return [map {$xyz[$_] / $D65[$_]} 0 .. 2];
 }
 
+
+my  $lab_def = Graphics::Toolkit::Color::Space->new( name => 'OKLAB',       # no alias, short axis name eq long
+                                                      axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
+                                                     range => [1, [-.5, .5], [-.5, .5]],
+                                                 precision => 3 );
+
+$lab_def->add_converter('XYZ', \&to_xyz, \&from_xyz );
 $lab_def;
-
-
-# {{1., 0.396338, 0.215804}, {1., -0.105561, -0.0638542}, {1., -0.0894842, -1.29149}}

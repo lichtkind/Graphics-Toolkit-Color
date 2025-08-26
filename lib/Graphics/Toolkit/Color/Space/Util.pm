@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals real_mod min max uniq apply_d65 remove_d65 mult_matrix3 is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq apply_d65 remove_d65 mult_matrix3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 #### lists #############################################################
@@ -43,7 +43,7 @@ sub round_decimals {
 }
 
 
-sub real_mod { # real value modulo
+sub mod_real { # real value modulo
     return 0 unless defined $_[1] and $_[1];
     return  $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }

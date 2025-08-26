@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Shape;
 use Graphics::Toolkit::Color::Space::Format;
 use Graphics::Toolkit::Color::Space::Util qw/:all/;
-our @EXPORT_OK = qw/round_int round_decimals real_mod min max apply_d65 remove_d65 mult_matrix3 close_enough is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq apply_d65 remove_d65 mult_matrix3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 ########################################################################
@@ -23,6 +23,7 @@ sub new {
     return $shape unless ref $shape;
     my $format = Graphics::Toolkit::Color::Space::Format->new( $basis, $args{'value_form'}, $args{'prefix'}, $args{'suffix'} );
     return $format unless ref $format;
+    # formatter converter
     bless { basis => $basis, shape => $shape, format => $format, convert => {} };
 }
 

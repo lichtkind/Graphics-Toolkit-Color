@@ -5,7 +5,7 @@
     * * added support of 3 color spaces: OKLAB, OKLCH, HunterLAB
     * + methods "name" and "closest_name" can now return multiple names and full names
     * ? POD example code fixes
-    * ? fix links in GTC::Space::Hub lib
+    * ? fix POD links in GTC::Space::Hub lib
     * ! fixed too tight set calc tests: Issue Pause:169094 found by SlavenRezic++
     * ! remove unused "use Benchmark;" fixed by ppisar++
 

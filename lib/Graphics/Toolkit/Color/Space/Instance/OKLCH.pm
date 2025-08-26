@@ -17,8 +17,8 @@ my $TAU = 6.283185307;
 
 sub from_lab {
     my ($lab) = shift;
-    my $a = $lab->[1] * 1000 - 500;
-    my $b = $lab->[2] *  400 - 200;
+    my $a = $lab->[1] - .5;
+    my $b = $lab->[2] - .5;
 
     $a = 0 if round_decimals($a, 5) == 0;
     $b = 0 if round_decimals($b, 5) == 0;

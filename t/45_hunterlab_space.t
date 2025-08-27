@@ -7,45 +7,47 @@ BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 
-my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::HunterLAB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,                           'LAB', 'color space name is LAB');
-is( $space->alias,                       'CIELAB', 'color space alias name is CIELAB');
-is( $space->is_name('lab'),                     1, 'color space name NCol is correct');
-is( $space->is_name('CIElab'),                  1, 'axis initials do not equal space name this time');
-is( $space->is_name('xyz'),                     0, 'axis initials do not equal space name this time');
-is( $space->axis_count,        3,                  'color space has 3 axis');
+is( $space->name,                     'HUNTERLAB', 'color space official name is "HUNTERLAB"');
+is( $space->alias,                             '', 'no color space alias name');
+is( $space->is_name('HunterLAB'),               1, 'color space name HunterLAB is correct');
+is( $space->is_name('CIElab'),                  0, 'not to be confused with "CIELAB"');
+is( $space->is_name('lab'),                     0, 'axis initials do not equal space name this time');
+is( $space->axis_count,                         3, 'color space has 3 axis');
 
-is( ref $space->check_value_shape([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');
-is( ref $space->check_value_shape([0.950, 1, 1.088]),  'ARRAY',   'check maximal CIELAB values');
-is( ref $space->check_value_shape([0,0]),              '',   "CIELAB got too few values");
-is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "CIELAB got too many values");
+is( ref $space->check_value_shape([0, -172.30, -67.20]),'ARRAY',  'check minimal HunterLAB values are in bounds');
+is( ref $space->check_value_shape([100, 172.30, 67.20]),'ARRAY',  'check maximal HunterLAB values');
+is( ref $space->check_value_shape([0,0]),              '',   "HunterLAB got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "HunterLAB got too many values");
 is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "L value is too small");
 is( ref $space->check_value_shape([101, 0, 0]),        '',   "L value is too big");
-is( ref $space->check_value_shape([0, -500.1, 0]),     '',   "a value is too small");
-is( ref $space->check_value_shape([0, 500.1, 0]),      '',   "a value is too big");
-is( ref $space->check_value_shape([0, 0, -200.1 ] ),   '',   "b value is too small");
-is( ref $space->check_value_shape([0, 0, 200.2] ),     '',   "b value is too big");
+is( ref $space->check_value_shape([1, -172.4, 0]),     '',   "a value is too small");
+is( ref $space->check_value_shape([1, 172.4, 0]),      '',   "a value is too big");
+is( ref $space->check_value_shape([0, 0, -67.21 ] ),   '',   "b value is too small");
+is( ref $space->check_value_shape([0, 0, 67.21] ),     '',   "b value is too big");
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
-is( $space->is_partial_hash({'L*' => 1, 'a*' => 0, 'b*' => 0}), 1,  'found hash with some keys');
+is( $space->is_partial_hash({'L' => 1, 'a' => 0, 'b' => 0}), 1,  'found hash with some keys');
+is( $space->is_partial_hash({'L' => 1, 'a' => 0, 'b*' => 0}), 0, 'not confused with lab');
 is( $space->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $space->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
 is( $space->can_convert('XYZ'),    1,              'do convert from and to xyz');
 is( $space->can_convert('xyz'),    1,              'namespace can be written lower case');
-is( $space->can_convert('CIELAB'), 0,              'can not convert to itself');
-is( $space->format([0,0,0], 'css_string'), 'lab(0, 0, 0)', 'can format css string');
+is( $space->can_convert('HunterLAB'), 0,           'can not convert to itself');
+is( $space->format([0,0,0], 'css_string'), 'hunterlab(0, 0, 0)', 'can format css string');
 
-my $val = $space->deformat(['CIELAB', 0, -1, -0.1]);
+my $val = $space->deformat(['HunterLAB', 100, 0, -67.1]);
 is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
-is( int @$val,   3,     'right amount of values');
-is( $val->[0],   0,     'first value good');
-is( $val->[1],  -1,     'second value good');
-is( $val->[2], -0.1,    'third value good');
-is( $space->format([0,1,0], 'css_string'), 'lab(0, 1, 0)', 'can format css string');
+is( int @$val,    3,    'right amount of values');
+is( $val->[0],  100,    'first value good');
+is( $val->[1],   0,     'second value good, zeros no issue');
+is( $val->[2], -67.1,   'third value good');
+is( $space->format([11.1, 5, 0], 'named_string'), 'hunterlab: 11.1, 5, 0', 'can format named string');
+exit 1;
 
 # black
 my $lab = $space->convert_from( 'XYZ', [ 0, 0, 0]);

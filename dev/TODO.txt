@@ -1,18 +1,18 @@
 TODO:
 ------
 
- # Likely:
+ # Likely:                                      planned version
 
-   + ramp up precision by using converter flags
-   + space constraints for HWB and  HSV  (2.0)
-   + palette method                      (2.2)
+   + ramp up precision by using converter flags (2.0)
+   + space constraints for HWB and  HSV         (2.0)
+   + easier CSS format for oklab                (2.1)
+   + palette method                             (2.2)
    + Color spaces :
-     - RYB
-     - Cubehelix
+     - Yxy                                      (2.3)
+     - Cubehelix                                (2.4)
      - HSI
-     - NCS ?
-     - Yxy
-   + easier CSS format for oklab
+     - RYB
+     - NCS ? different than Ncol?
 
 
  # Maybe:

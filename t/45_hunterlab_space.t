@@ -31,7 +31,7 @@ is( ref $space->check_value_shape([0, 0, 67.21] ),     '',   "b value is too big
 
 is( $space->is_value_tuple([0,0,0]), 1,            'tuple has 3 elements');
 is( $space->is_partial_hash({'L' => 1, 'a' => 0, 'b' => 0}), 1,  'found hash with some keys');
-is( $space->is_partial_hash({'L' => 1, 'a' => 0, 'b*' => 0}), 0, 'not confused with lab');
+is( $space->is_partial_hash({'L' => 1, 'a' => 0, 'b*' => 0}), 0, 'not confused with lab Hash');
 is( $space->is_partial_hash({l => 1, a => 0}), 1,  'found hash with some keys');
 is( $space->is_partial_hash({a => 1, b => 0}), 1,  'found hash with some other keys');
 is( $space->is_partial_hash({a => 1, x => 0}), 0,  'partial hash with bad keys');
@@ -41,69 +41,69 @@ is( $space->can_convert('HunterLAB'), 0,           'can not convert to itself');
 is( $space->format([0,0,0], 'css_string'), 'hunterlab(0, 0, 0)', 'can format css string');
 
 my $val = $space->deformat(['HunterLAB', 100, 0, -67.1]);
-is( ref $val,  'ARRAY', 'deformated named ARRAY into tuple');
-is( int @$val,    3,    'right amount of values');
-is( $val->[0],  100,    'first value good');
-is( $val->[1],   0,     'second value good, zeros no issue');
-is( $val->[2], -67.1,   'third value good');
+is( ref $val,           'ARRAY', 'deformated named ARRAY into tuple');
+is( int @$val,                3, 'right amount of values');
+is( $val->[0],              100, 'first value good');
+is( $val->[1],                0, 'second value good, zeros no issue');
+is( $val->[2],            -67.1, 'third value good');
 is( $space->format([11.1, 5, 0], 'named_string'), 'hunterlab: 11.1, 5, 0', 'can format named string');
-exit 1;
 
 # black
 my $lab = $space->convert_from( 'XYZ', [ 0, 0, 0]);
-is( ref $lab,                    'ARRAY',  'convert black from CIEXYZ to CIELAB');
-is( int @$lab,                         3,  'right amount of values');
-is( round_decimals( $lab->[0], 5), 0  ,    'L* value good');
-is( round_decimals( $lab->[1], 5), 0.5,    'a* value good');
-is( round_decimals( $lab->[2], 5), 0.5,    'b* value good');
+is( ref $lab,                     'ARRAY',  'convert black from CIEXYZ to HunterLAB');
+is( int @$lab,                          3,  'right amount of values');
+is( round_decimals( $lab->[0], 5),      0,  'L value good');
+is( round_decimals( $lab->[1], 5),    0.5,  'a value good');
+is( round_decimals( $lab->[2], 5),    0.5,  'b value good');
 
 my $xyz = $space->convert_to( 'XYZ', [ 0, 0.5, 0.5]);
-is( ref $xyz,                    'ARRAY',  'converted black to from LAB to XYZ');
-is( int @$xyz,                         3,  'got 3 values');
-is( round_decimals( $xyz->[0] , 5),    0,  'X value good');
-is( round_decimals( $xyz->[1] , 5),    0,  'Y value good');
-is( round_decimals( $xyz->[2] , 5),    0,  'Z value good');
+is( ref $xyz,                     'ARRAY',  'converted black to from HunterLAB to XYZ');
+is( int @$xyz,                          3,  'got 3 values');
+is( round_decimals( $xyz->[0] , 5),     0,  'X value good');
+is( round_decimals( $xyz->[1] , 5),     0,  'Y value good');
+is( round_decimals( $xyz->[2] , 5),     0,  'Z value good');
 
 $val = $space->denormalize( [0, .5, .5] );
-is( ref $val,                    'ARRAY',  'denormalized deconverted tuple of zeros (black)');
-is( int @$val,                         3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),    0,  'L* value of black good');
-is( round_decimals( $val->[1] , 5),    0,  'a* value of black good');
-is( round_decimals( $val->[2] , 5),    0,  'b* value of black good');
+is( ref $val,                     'ARRAY',  'denormalized deconverted tuple of zeros (black)');
+is( int @$val,                          3,  'right amount of values');
+is( round_decimals( $val->[0] , 5),     0,  'L value of black good');
+is( round_decimals( $val->[1] , 5),     0,  'a value of black good');
+is( round_decimals( $val->[2] , 5),     0,  'b value of black good');
 
 $val = $space->normalize( [0, 0, 0] );
-is( ref $val,                    'ARRAY',  'normalized tuple of zeros (black)');
-is( int @$val,                         3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),    0,  'L value good');
-is( round_decimals( $val->[1] , 5),   .5,  'a* value good');
-is( round_decimals( $val->[2] , 5),   .5,  'b* value good');
+is( ref $val,                     'ARRAY',  'normalized tuple of zeros (black)');
+is( int @$val,                          3,  'right amount of values');
+is( round_decimals( $val->[0] , 5),     0,  'L value good');
+is( round_decimals( $val->[1] , 5),    .5,  'a value good');
+is( round_decimals( $val->[2] , 5),    .5,  'b value good');
 
 # white
 $lab = $space->convert_from( 'XYZ', [ 1, 1, 1,]);
 is( int @$lab,                          3,  'deconverted white from CIEXYZ');
-is( round_decimals( $lab->[0],   5),    1,  'L* value of white good');
-is( round_decimals( $lab->[1],   5),    .5,  'a* value of white good');
-is( round_decimals( $lab->[2],   5),    .5,  'b* value of white good');
+is( round_decimals( $lab->[0],   5),    1,  'L value of white good');
+is( round_decimals( $lab->[1],   5),   .5,  'a value of white good');
+is( round_decimals( $lab->[2],   5),   .5,  'b value of white good');
 
 $xyz = $space->convert_to( 'XYZ', [ 1, 0.5, 0.5]);
-is( int @$xyz,                         3,  'converted white to CIEXYZ');
-is( round_decimals( $xyz->[0] , 1),      1,  'X value of white good');
-is( round_decimals( $xyz->[1] , 1),      1,  'Y value of white good');
-is( round_decimals( $xyz->[2] , 1),      1,  'Z value of white good');
+is( int @$xyz,                          3,  'converted white to CIEXYZ');
+is( round_decimals( $xyz->[0] , 1),     1,  'X value of white good');
+is( round_decimals( $xyz->[1] , 1),     1,  'Y value of white good');
+is( round_decimals( $xyz->[2] , 1),     1,  'Z value of white good');
 
 $val = $space->denormalize( [1, .5, .5] );
-is( ref $val,                    'ARRAY',  'denormalized white');
-is( int @$val,                         3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),  100,  'L* value of black good');
-is( round_decimals( $val->[1] , 5),    0,  'a* value of black good');
-is( round_decimals( $val->[2] , 5),    0,  'b* value of black good');
+is( ref $val,                     'ARRAY',  'denormalized white');
+is( int @$val,                          3,  'right amount of values');
+is( round_decimals( $val->[0] , 5),   100,  'L value of black good');
+is( round_decimals( $val->[1] , 5),     0,  'a value of black good');
+is( round_decimals( $val->[2] , 5),     0,  'b value of black good');
 
 $val = $space->normalize( [100, 0, 0] );
-is( ref $val,                      'ARRAY',  'normalized white');
-is( int @$val,                           3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),      1,  'L value good');
-is( round_decimals( $val->[1] , 5),     .5,  'a* value good');
-is( round_decimals( $val->[2] , 5),     .5,  'b* value good');
+is( ref $val,                     'ARRAY',  'normalized white');
+is( int @$val,                          3,  'right amount of values');
+is( round_decimals( $val->[0] , 5),     1,  'L value good');
+is( round_decimals( $val->[1] , 5),    .5,  'a value good');
+is( round_decimals( $val->[2] , 5),    .5,  'b value good');
+exit 0;
 
 # nice blue
 $lab = $space->convert_from( 'XYZ', [ 0.0872931606914908, 0.0537065470652866, 0.282231548430505]);

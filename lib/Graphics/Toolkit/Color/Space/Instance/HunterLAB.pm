@@ -12,8 +12,8 @@ my %K   = (a => 172.30, b => 67.20);
 sub from_xyz {
     my ($xyz) = shift;
     my $l = sqrt $xyz->[1];
-    my $a = ($xyz->[0] - $xyz->[1])/$l;
-    my $b = ($xyz->[1] - $xyz->[2])/$l;
+    my $a = $l ? (($xyz->[0] - $xyz->[1])/$l) : 0;
+    my $b = $l ? (($xyz->[1] - $xyz->[2])/$l) : 0;
     $a = ($a / 2) + .5;
     $b = ($b / 2) + .5;
     return ([$l, $a, $b]);

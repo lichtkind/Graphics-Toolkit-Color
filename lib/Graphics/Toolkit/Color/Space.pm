@@ -83,8 +83,6 @@ sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &
 sub form               { $_[0]{'format'} }
 sub format             { shift->form->format(@_) }            # @+values, ~format_name -- @~suffix --> $*color
 sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
-sub add_formatter      { shift->form->add_formatter(@_) }     # ~format_name, &formatter           --> &?
-sub add_deformatter    { shift->form->add_deformatter(@_) }   # ~format_name, &deformatter         --> &?
 
 #### conversion ########################################################
 sub converter_names      { keys %{  $_[0]{'convert'} } }

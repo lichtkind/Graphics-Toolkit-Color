@@ -413,15 +413,26 @@ the space has no alias name.
 
 =head2 OKLAB
 
-is a derivate of L</CIELAB> with no alias name and for nicer color transitions.
-The axis have same short and long names: B<L> with values (0 .. 1),
-B<a> and B<b> with both (-0.5 .. 0.5). If you want to use it like in CSS,
+is a modern improvement of L</CIELAB> by Björn Ottosson with no alias name
+and for nicer color transitions and better numeric behaviour.
+The axis long names are same as the same ones: B<L> with values (0 .. 1),
+B<a> and B<b> with both (-0.5 .. 0.5). If you want to use it like in B<CSS>,
 just add C<< range => [100, [-120,120], [-120,120]], suffix => '%' >>.
 
 =head2 OKLCH
 
 is the cylindrical variant of L</OKLAB> just parallels L</CIELCHab>.
-Value ranges are as in C<OKLAB>. The axis
+The axis names are again: B<luminance>, B<chroma> and B<hue> - in short:
+B<l>,  B<c> and B<h>. Value ranges are similar as in C<OKLAB>:
+I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 I and <hue> are angles
+of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
+use C<< range => [100, 120, 360] >> and a preferred suffix.
+
+=head2 HunterLAB
+
+predecessor of L</CIELAB> by Richard S. Hunter with no alias name slightly
+different color transitions. The axis have same short and long names:
+B<L> with normal values (0 .. 1), B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
 
 
 =head1 RANGES

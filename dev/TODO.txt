@@ -1,22 +1,29 @@
 TODO:
 ------
 
- + space constraints for HWB and  HSV  (2.0)
- + palette method                      (2.2)
+ # Likely:
 
- + constructor with name space arguments (XYZ with illuminant D50)
- + add gama correction ?
+   + ramp up precision by using converter flags
+   + space constraints for HWB and  HSV  (2.0)
+   + palette method                      (2.2)
+   + Color spaces :
+     - RYB
+     - Cubehelix
+     - HSI
+     - NCS ?
+     - Yxy
+   + easier CSS format for oklab
 
- + proper Error handling
- + strict mode for out of range tuple values
- + value prefixes in formats
 
- + CSS format for oklab
- + color space def have only one constructor, no methods
+ # Maybe:
 
- + Color spaces :
-   - RYB
-   - Cubehelix
-   - HSI
-   - NCS
-   - Yxy
+   + equal method
+   + cmp method
+   + constructor with name space arguments (XYZ with illuminant D50)
+   + proper Error handling
+   + strict mode for out of range tuple values
+   + value prefixes in formats
+
+ # Unlikely:
+
+    + method for gamma correction

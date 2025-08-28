@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 103;
+use Test::More tests => 104;
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
@@ -18,8 +18,9 @@ is( $space->is_name('CIElab'),                  0, 'not to be confused with "CIE
 is( $space->is_name('lab'),                     0, 'axis initials do not equal space name this time');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 
-is( ref $space->check_value_shape([0, -172.30, -67.20]),'ARRAY',  'check minimal HunterLAB values are in bounds');
-is( ref $space->check_value_shape([100, 172.30, 67.20]),'ARRAY',  'check maximal HunterLAB values');
+# K: 172,355206019 67,038696071
+is( ref $space->check_value_shape([0, -172.30, -67.03]),'ARRAY',  'check minimal HunterLAB values are in bounds');
+is( ref $space->check_value_shape([100, 172.30, 67.03]),'ARRAY',  'check maximal HunterLAB values');
 is( ref $space->check_value_shape([0,0]),              '',   "HunterLAB got too few values");
 is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "HunterLAB got too many values");
 is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "L value is too small");
@@ -103,56 +104,55 @@ is( int @$val,                          3,  'right amount of values');
 is( round_decimals( $val->[0] , 5),     1,  'L value good');
 is( round_decimals( $val->[1] , 5),    .5,  'a value good');
 is( round_decimals( $val->[2] , 5),    .5,  'b value good');
-exit 0;
 
 # nice blue
-$lab = $space->convert_from( 'XYZ', [ 0.0872931606914908, 0.0537065470652866, 0.282231548430505]);
-is( int @$lab,                            3,  'deconverted nice blue from CIEXYZ');
-is(  round_decimals($lab->[0], 5),  0.27766,  'L* value of nice blue good');
-is(  round_decimals($lab->[1], 5),  0.53316,  'a* value of nice blue good');
-is(  round_decimals($lab->[2], 5),  0.36067,  'b* value of nice blue good');
+$lab = $space->convert_from( 'XYZ', [ 0.08729316023, 0.053706547, 0.28223099106]);
+is( int @$lab,                           3,  'deconverted nice blue from CIEXYZ');
+is(  round_decimals($lab->[0], 5),  .23175,  'L value of nice blue good');
+is(  round_decimals($lab->[1], 5),  .57246,  'a value of nice blue good');
+is(  round_decimals($lab->[2], 5),  .00695  ,  'b value of nice blue good');
 
-$xyz = $space->convert_to( 'XYZ', [ .277656852, 0.5331557592, 0.3606718]);
+$xyz = $space->convert_to( 'XYZ', [ 0.231746730289771, 0.57246405, 0.006952172]);
 is( int @$xyz,                           3, 'converted nice blue to CIEXYZ');
 is( round_decimals( $xyz->[0], 5), 0.08729, 'X value of nice blue good');
 is( round_decimals( $xyz->[1], 5), 0.05371, 'Y value of nice blue good');
 is( round_decimals( $xyz->[2], 5), 0.28223, 'Z value of nice blue good');
 
-$val = $space->denormalize( [0.277656852, 0.5331557592, 0.3606718] );
-is( int @$val,                            3, 'denormalized nice blue');
-is( round_decimals( $val->[0], 5), 27.76569, 'L* value of nice blue good');
-is( round_decimals( $val->[1], 5), 33.15576, 'a* value of nice blue good');
-is( round_decimals( $val->[2], 5),-55.73128, 'b* value of nice blue good');
+$val = $space->denormalize( [0.231746730289771, 0.57246405, 0.006952172] );
+is( int @$val,                               3, 'denormalized nice blue');
+is( round_decimals( $val->[0], 5),    23.17467, 'L value of nice blue good');
+is( round_decimals( $val->[1], 3),    24.979  , 'a value of nice blue good');
+is( round_decimals( $val->[2], 3),   -66.107  , 'b value of nice blue good');
 
-$val = $space->normalize( [27.7656852, 33.156, -55.731] );
-is( int @$val,                         3,  'normalized nice blue');
-is( round_decimals( $val->[0], 5), 0.27766,     'L value good');
-is( round_decimals( $val->[1], 5), 0.53316,     'a* value good');
-is( round_decimals( $val->[2], 5), 0.36067,     'b* value good');
+$val = $space->normalize( [23.17467, 24.979, -66.107] );
+is( int @$val,                               3, 'normalized nice blue');
+is( round_decimals( $val->[0], 5),     0.23175, 'L value good');
+is( round_decimals( $val->[1], 5),     0.57246, 'a value good');
+is( round_decimals( $val->[2], 5),     0.00695, 'b value good');
 
 # pink
 $lab = $space->convert_from( 'XYZ', [0.487032731, 0.25180, 0.208186769 ]);
-is( int @$lab,                            3,  'deconverted pink from CIEXYZ');
-is(  round_decimals($lab->[0], 5),  0.57250,  'L* value of pink good');
-is(  round_decimals($lab->[1], 5),  0.57766,  'a* value of pink good');
-is(  round_decimals($lab->[2], 5),  0.5194,   'b* value of pink good');
+is( int @$lab,                           3,  'deconverted pink from CIEXYZ');
+is(  round_decimals($lab->[0], 5),  .50180,  'L value of pink good');
+is(  round_decimals($lab->[1], 5),  .73439,  'a value of pink good');
+is(  round_decimals($lab->[2], 5),  .54346,  'b value of pink good');
 
-$xyz = $space->convert_to( 'XYZ', [ 0.572503826652422, 0.57765505274346, 0.519396157464772]);
+$xyz = $space->convert_to( 'XYZ', [ 0.501796772, 0.734390439, 0.543457066]);
 is( int @$xyz,                           3,  'converted nice blue to CIEXYZ');
 is( round_decimals( $xyz->[0], 5), 0.48703,  'X value of pink good');
 is( round_decimals( $xyz->[1], 5), 0.25180,  'Y value of pink good');
 is( round_decimals( $xyz->[2], 5), 0.20819,  'Z value of pink good');
 
-$val = $space->denormalize( [0.57250, 0.577658, 0.5193925] );
+$val = $space->denormalize( [0.501796772, 0.734390439, 0.543457066] );
 is( int @$val,                          3,  'denormalized pink');
-is( round_decimals( $val->[0], 5), 57.250,  'L* value of pink good');
-is( round_decimals( $val->[1], 5), 77.658,  'a* value of pink good');
-is( round_decimals( $val->[2], 5),  7.757,  'b* value of pink good');
+is( round_decimals( $val->[0], 3), 50.180,  'L value of pink good');
+is( round_decimals( $val->[1], 3), 80.797,  'a value of pink good');
+is( round_decimals( $val->[2], 3),  5.827,  'b value of pink good');
 
-$val = $space->normalize( [57.25, 77.658, 7.757] );
+$val = $space->normalize( [50.180, 80.797, 5.827] );
 is( int @$val,                         3,  'normalized pink');
-is( round_decimals( $val->[0], 5), 0.57250,  'L value of pink good');
-is( round_decimals( $val->[1], 5), 0.57766,  'a* value of pink good');
-is( round_decimals( $val->[2], 5), 0.51939,  'b* value of pink good');
+is( round_decimals( $val->[0], 5), 0.50180,  'L value of pink good');
+is( round_decimals( $val->[1], 5), 0.73439,  'a value of pink good');
+is( round_decimals( $val->[2], 5), 0.54346,  'b value of pink good');
 
 exit 0;

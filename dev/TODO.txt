@@ -6,13 +6,14 @@ TODO:
    + ramp up precision by using converter flags (2.0)
    + space constraints for HWB and  HSV         (2.0)
    + easier CSS format for oklab                (2.1)
-   + palette method                             (2.2)
+   + method for gamma correction                (2.2)
    + Color spaces :
      - Yxy                                      (2.3)
      - Cubehelix                                (2.4)
      - HSI
      - RYB
      - NCS ? different than Ncol?
+   + palette method                             (2.5)
 
 
  # Maybe:
@@ -26,4 +27,3 @@ TODO:
 
  # Unlikely:
 
-    + method for gamma correction

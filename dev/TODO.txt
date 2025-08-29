@@ -8,10 +8,13 @@ TODO:
    + easier CSS format for oklab                (2.1)
    + method for gamma correction                (2.2)
    + Color spaces :
-     - Yxy                                      (2.3)
+     - OKHSL                                    (2.1)
+     - OKHSV                                    (2.1)
      - Cubehelix                                (2.4)
      - HSI
+     - Yxy                                      (2.3)
      - RYB
+     - CIERGB
      - NCS ? different than Ncol?
    + palette method                             (2.5)
 

@@ -8,7 +8,6 @@
 
 [on CPAN](https://metacpan.org/pod/Graphics::Toolkit::Color)
 
-
     This is the landing page for the user documentation.
     There is also a download link on the left side under "Tools".
 
@@ -67,7 +66,6 @@
     during installation Test::More is needed
 
     up to version 1.71 the module needed Carp
-
 
 
 [CHANGES](https://github.com/lichtkind/Graphics-Color-Toolkit/blob/main/Changes)

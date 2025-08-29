@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.951';
+our $VERSION = '1.961';
 
 use v5.12;
 use warnings;
@@ -968,7 +968,7 @@ Slaven Rezic (srezic)
 
 =item *
 
-Gábor Szabo (szabgab)
+Gabor Szabo (szabgab)
 
 =item *
 

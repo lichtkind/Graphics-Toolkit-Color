@@ -1,9 +1,13 @@
 
+1.961    2025-08-29    lichtkind
+-------
+    * = fix stupidity release
+    * ? removed bad chars from POD
+
 1.951    2025-08-29    lichtkind
 -------
     * = tiny POD fix release
     * ? removed bad chars from POD
-
 
 1.95    2025-08-29    lichtkind
 -------

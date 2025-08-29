@@ -144,7 +144,6 @@ sub deformat { # formatted color def --> normalized values
     return 'could not deformat color definition: "$color_def"' unless ref $original_space;
     return $values, $original_space->name, $format_name;
 }
-
 sub deformat_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
     return unless ref $value_hash eq 'HASH';
@@ -430,9 +429,10 @@ use C<< range => [100, 120, 360] >> and a preferred suffix.
 
 =head2 HunterLAB
 
-predecessor of L</CIELAB> by Richard S. Hunter with no alias name slightly
-different color transitions. The axis have same short and long names:
-B<L> with normal values (0 .. 1), B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
+predecessor of L</CIELAB> by Richard S. Hunter with no alias name and
+slightly different color transitions on yellow-blue-direction.
+The axis have same long and short names: B<L> with normal values (0 .. 1),
+B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
 
 
 =head1 RANGES

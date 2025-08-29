@@ -34,5 +34,5 @@ Graphics::Toolkit::Color::Space->new(
          type => [qw/linear linear angular/],
         range => [100, 539, 360],
     precision => 3,
-      convert => {LAB => [\&to_lab, \&from_lab]},
+      convert => { LAB => [\&to_lab, \&from_lab] },
 );

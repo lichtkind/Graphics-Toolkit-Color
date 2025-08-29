@@ -2,11 +2,11 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 79;
+use Test::More tests => 95;
 BEGIN { unshift @INC, 'lib', '../lib', 't/lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-
+# conversion precision could be better
 my $module = 'Graphics::Toolkit::Color::Space::Instance::OKLAB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
@@ -115,5 +115,32 @@ is( int @$xyz,                         3,  'converted white to CIEXYZ');
 is( round_decimals( $xyz->[0] , 3),    0.154,  'X value of nice blue good');
 is( round_decimals( $xyz->[1] , 3),    0.062,  'Y value of nice blue good');
 is( round_decimals( $xyz->[2] , 3),    0.692,  'Z value of nice blue good');
+
+
+# light blue
+$lab = $space->convert_from( 'XYZ', [ 0.589912305, 0.6370801241100728, 0.773381978]);
+is( int @$lab,                            3,  'deconverted a light blue CIEXYZ');
+is( round_decimals( $lab->[0],   5),   .85623,  'L value of light blue good');
+is( round_decimals( $lab->[1],   4),   .4623,  'a value of light blue good');
+is( round_decimals( $lab->[2],   4),   .4687,  'b value of light blue good');
+
+$xyz = $space->convert_to( 'XYZ', [ 0.856232267, 0.462306544, 0.468657634]);
+is( int @$xyz,                         3,  'converted light blue to CIEXYZ');
+is( round_decimals( $xyz->[0] , 5),    0.58991,  'X value of light blue good');
+is( round_decimals( $xyz->[1] , 5),    0.637080,  'Y value of light blue good');
+is( round_decimals( $xyz->[2] , 5),    0.77338,  'Z value of light blue good');
+
+# pink
+$lab = $space->convert_from( 'XYZ', [ 0.74559151, 0.6327286137205872, 0.596805462 ]);
+is( int @$lab,                           3,  'deconverted pink from CIEXYZ');
+is(  round_decimals($lab->[0], 5),  .86774,  'L value of pink good');
+is(  round_decimals($lab->[1], 3),  .573  ,  'a value of pink good');
+is(  round_decimals($lab->[2], 3),  .509  ,  'b value of pink good');
+
+$xyz = $space->convert_to( 'XYZ', [ 0.867737127, 0.572958135, 0.508966821]);
+is( int @$xyz,                           3,  'converted nice blue to CIEXYZ');
+is( round_decimals( $xyz->[0], 5), 0.74559,  'X value of pink good');
+is( round_decimals( $xyz->[1], 5), 0.63273,  'Y value of pink good');
+is( round_decimals( $xyz->[2], 5), 0.59680,  'Z value of pink good');
 
 exit 0;

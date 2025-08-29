@@ -75,9 +75,9 @@ is( round_decimals( $lch->[2], 5),    0,  'H value is good');
 my $lab = $space->convert_to( 'LAB',  [ 0, 0, 0 ]);
 is( ref $lab,                    'ARRAY',  'converted black to LAB');
 is( int @$lab,                         3,  'right amount of values');
-is( round_decimals( $lab->[0], 5),    0,  'L* value is good');
-is( round_decimals( $lab->[1], 5),   .5,  'a* value is good');
-is( round_decimals( $lab->[2], 5),   .5,  'b* value is good');
+is( round_decimals( $lab->[0], 5),     0,  'L* value is good');
+is( round_decimals( $lab->[1], 5),    .5,  'a* value is good');
+is( round_decimals( $lab->[2], 5),    .5,  'b* value is good');
 
 # white
 $val = $space->denormalize( [1, 0, 0] );

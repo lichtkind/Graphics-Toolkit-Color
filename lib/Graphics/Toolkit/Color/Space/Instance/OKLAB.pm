@@ -1,5 +1,5 @@
 
-# OK lab color space for Illuminant D65 and Observer 2 degree by Björn Ottosson
+# OK lab color space for Illuminant D65 and Observer 2 degree by Björn Ottosson 2020
 
 package Graphics::Toolkit::Color::Space::Instance::OKLAB;
 use v5.12;

@@ -6,8 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/round_decimals/;
 
-my $TAU     = 6.283185307;
-my $sqrt2_2 = sqrt(2) / 2;
+my $TAU = 6.283185307;
 
 sub from_lab {
     my ($lab) = shift;
@@ -19,12 +18,13 @@ sub from_lab {
     my $c = sqrt( ($a**2) + ($b**2));
     my $h = atan2($b, $a);
     $h += $TAU if $h < 0;
-    return ([$lab->[0], $c / $sqrt2_2, $h / $TAU]);
+    return ([$lab->[0], $c * 2, $h / $TAU]);
 }
 sub to_lab {
     my ($lch) = shift;
-    my $a = $lch->[1] * cos($lch->[2] * $TAU) * $sqrt2_2;
-    my $b = $lch->[1] * sin($lch->[2] * $TAU) * $sqrt2_2;
+    my $c = $lch->[1] / 2;
+    my $a = $c * cos($lch->[2] * $TAU);
+    my $b = $c * sin($lch->[2] * $TAU);
     return ([$lch->[0], $a + .5, $b + .5 ]);
 }
 
@@ -32,7 +32,7 @@ Graphics::Toolkit::Color::Space->new(
         name => 'OKLCH',
         axis => [qw/luminance chroma hue/],
         type => [qw/linear linear angular/],
-       range => [[-.5, .5], [-.5, .5], 360],
+       range => [1, .5, 360],
    precision => [5,5,2],
-    convert => {OKLAB => [\&to_lab, \&from_lab]},
+     convert => { OKLAB => [\&to_lab, \&from_lab] },
 );

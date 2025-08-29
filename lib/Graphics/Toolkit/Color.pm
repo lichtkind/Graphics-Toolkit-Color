@@ -964,11 +964,11 @@ Petr Pisar  (ppisar)
 
 =item *
 
-Slaven Rezić (srezic)
+Slaven Rezic (srezic)
 
 =item *
 
-Gábor Szabó (szabgab)
+Gábor Szabo (szabgab)
 
 =item *
 

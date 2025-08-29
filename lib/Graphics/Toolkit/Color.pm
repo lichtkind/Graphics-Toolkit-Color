@@ -951,6 +951,36 @@ L<Color::Similarity>
 
 =back
 
+=head1 ACKNOWLEDGEMENT
+
+These people contributed by providing patches, bug reports and useful
+comments:
+
+=over 4
+
+=item *
+
+Petr Pisar  (ppisar)
+
+=item *
+
+Slaven Rezić (srezic)
+
+=item *
+
+Gábor Szabó (szabgab)
+
+=item *
+
+Gene Boggs (GENE)
+
+=item *
+
+Stefan Reddig (sreagle)
+
+=back
+
+
 =head1 AUTHOR
 
 Herbert Breunung, <lichtkind@cpan.org>

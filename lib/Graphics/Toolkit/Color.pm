@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.97';
+our $VERSION = '1.971';
 
 use v5.12;
 use warnings;
@@ -455,7 +455,7 @@ is called a B<color definition>.
 Most clear, flexible and longest input format: a hash with long or short
 axis names as keys with fitting values. This can be C<red>, C<green> and
 C<blue> or C<r>, C<g> and C<b> or names from any other color space.
-Upper or lower case doesnt matter.
+Upper or lower case doesn't matter.
 
     my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
     my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
@@ -485,11 +485,11 @@ Out of range values will be corrected (clamped).
 
 String format that is supported by CSS (I<css_string> format): it starts
 with the case insensitive color space name (lower case is default),
-followed by the comma separated values in round braces.
+followed by the (optionally with) comma separated values in round braces.
 The value suffixes that are defined by the color space (I<'%'> in case
 of I<HSV>) are optional.
 
-    my $red = Graphics::Toolkit::Color->new( 'rgb(255, 0, 0)' );
+    my $red = Graphics::Toolkit::Color->new( 'rgb(255 0 0)' );
     my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100%, 100%)' );
 
 

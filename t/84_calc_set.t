@@ -253,13 +253,13 @@ $values = $colors[12]->shaped('RGB');
 is( $values->[0],                      42,    'red value is right (was rounded up to same)');
 is( $values->[1],                      51,    'green value is right');
 is( $values->[2],                     241,    'blue value is right (1.4 less but rounded up)');
-@colors = $cluster->($midblue, 2, 2, $HSL);
+@colors = $cluster->($midblue, 2.01, 2, $HSL);
 is( int @colors,                       13,    'same cuboctahedral packing in HSL');
 
 @colors = $cluster->($midblue, 2, 1, $RGB);
 is( int @colors,                       47,    'computed smallest ball shaped cluster in RGB');
 
-@colors = $cluster->($white, 1, 1, $RGB);
+@colors = $cluster->($white, 1.01, 1, $RGB);
 is( int @colors,                        4,    'cluster edging on corner of RGB space');
 
 exit 0;

@@ -661,7 +661,7 @@ either the only argument or the named argument L</to>, which is the only
 required one.
 
 The C<distance> is measured in I<RGB> color space unless told otherwise
-by the argument L</in>. Please use the I<CIELAB> or I<CIELUV> space, if
+by the argument L</in>. Please use the I<OKLAB> or I<CIELUV> space, if
 you are interested in getting a result that matches the human perception.
 
 The third argument is named C<select>. It's useful if you want to regard

@@ -512,11 +512,8 @@ L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 
 Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
-separately. * is a placeholder for the scheme name, which might be:
-Crayola, CSS, EmergyC, GrayScale, HTML, IE, Mozilla, Netscape, Pantone,
-PantoneReport, SVG, VACCC, Werner, Windows, WWW or X. In latter case
-I<Graphics::ColorNames::X> has to be installed. You can get them all at
-once via L<Bundle::Graphics::ColorNames>.
+separately or with L<Bundle::Graphics::ColorNames>.
+See all scheme names L<here | Graphics::Toolkit::Color::Name/SCHEMES>.
 The color name will be  normalized as above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
@@ -609,14 +606,9 @@ These are the same who can be used with L</new('name')>.
 
 Alternatively you may provide named arguments or one positional argument,
 which requires the same input as the named argument C<from>. It names one
-or a list of color schemes, from which the name will be selected then.
-Your otions are C<CSS>, C<Crayola>, C<EmergyC>, C<GrayScale>, C<HTML>,
-C<IE>, C<Mozilla>, C<Netscape>, C<Pantone>, C<PantoneReport>, C<SVG>,
-C<VACCC>, C<Werner>, C<Windows>, C<WWW> and C<X> plus self created naming
-schemes (see L<Graphics::Toolkit::Color::Name::Scheme>). Please note
-that all listed schemes are parts of modules that have to be installed
-separately. For your convenience I created the module
-L<Bundle::Graphics::ColorNames> to install them all at once. If you
+or a list of color schemes, as listed L<here | Graphics::Toolkit::Color::Name/SCHEMES>.
+Please note that these depend on external modules, which has to be
+installed separately or via L<Bundle::Graphics::ColorNames>. If you
 try to use a scheme from a not installed module your will get an error
 message instead of a color name.
 

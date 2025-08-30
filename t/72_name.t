@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 66;
+use Test::More tests => 69;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -112,5 +112,11 @@ is( @{$names[0]},              2,       'it has three names');
 is( $names[0][0],        'steel',       '"steel" is first due scheme "new" was named first');
 is( $names[0][1],        'white',       'second is "white"');
 is( $names[1],  round_decimals(sqrt 3, 5),       'distance is sqrt 3' );
+
+@names = Graphics::Toolkit::Color::Name::from_values([254, 254, 254], ['new','default'], 'all', 'full', 1.75 );
+is( int @names,                2,       'get multi scheme findings with required distance');
+is( $names[0],       'NEW:steel',       '"steel" is first due scheme "new" was named first');
+is( $names[1],           'white',       'default name space name does not get added to color name');
+
 
 1;

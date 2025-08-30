@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '1.961';
+our $VERSION = '1.97';
 
 use v5.12;
 use warnings;
@@ -29,8 +29,10 @@ sub new {
     7. HASH or HASH ref with values from RGB or any other space:
        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
 EOH
-    @args = ([ @args ]) if @args == 3 or Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0]);
-    @args = ({ @args }) if @args == 6 or @args == 8;
+    my $first_arg_is_color_space = Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0] );
+    @args = ([ $args[0], @{$args[1]} ]) if @args == 2 and $first_arg_is_color_space and ref $args[1] eq 'ARRAY';
+    @args = ([ @args ])                 if @args == 3 or (@args > 3 and $first_arg_is_color_space);
+    @args = ({ @args })                 if @args == 6 or @args == 8;
     return $help unless @args == 1;
     my $self = _new_from_scalar_def( $args[0] );
     return (ref $self) ? $self : $help;
@@ -71,7 +73,7 @@ sub _new_from_value_obj {
     sub complementary { complement(@_) }
 
 sub _split_named_args {
-    my ($raw_args, $only_parameter, $required_parameter, $optional_parameter) = @_;
+    my ($raw_args, $only_parameter, $required_parameter, $optional_parameter, $parameter_alias) = @_;
     @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH' and not
                   (defined $only_parameter and $only_parameter eq 'to' and ref _new_from_scalar_def( $raw_args ) );
 
@@ -92,10 +94,18 @@ sub _split_named_args {
     }
     my %arg_hash = @$raw_args;
     for my $parameter_name (@$required_parameter){
+        if (ref $parameter_alias eq 'HASH' and exists $parameter_alias->{ $parameter_name }
+            and exists $arg_hash{ $parameter_alias->{$parameter_name} }){
+            $arg_hash{ $parameter_name } = delete $arg_hash{ $parameter_alias->{$parameter_name} };
+        }
         return "Argument '$parameter_name' is missing\n" unless exists $arg_hash{$parameter_name};
         $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name };
     }
     for my $parameter_name (keys %$optional_parameter){
+        if (ref $parameter_alias eq 'HASH' and exists $parameter_alias->{ $parameter_name }
+            and exists $arg_hash{ $parameter_alias->{$parameter_name} }){
+            $arg_hash{ $parameter_name } = delete $arg_hash{ $parameter_alias->{$parameter_name} };
+        }
         $clean_arg{ $parameter_name } = exists $arg_hash{$parameter_name}
                                       ? delete $arg_hash{ $parameter_name }
                                       : $optional_parameter->{ $parameter_name };
@@ -127,17 +137,18 @@ EOH
 sub name         {
     my ($self, @args) = @_;
     return $self->{'values'}->name unless @args;
-    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
-    my $help = <<EOH;
+    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0, distance => 0});
+     my $help = <<EOH;
     GTC method 'name' accepts three optional, named arguments:
     name ( ...
         'CSS'                 # color naming scheme works as only positional argument
         from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
         from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
-        all => 1              # returns list of all names associated with the object's values
-        full => 1             # adds color scheme name to the color name. 'SVG:red'
+        all => 1              # returns list of all names with the object's RGB values (defaults 0)
+        full => 1             # adds color scheme name to the color name. 'SVG:red' (defaults 0)
+        distance => 3         # color names from within distance of 3 (defaults 0)
 EOH
-    return Graphics::Toolkit::Color::Name::from_values( $self->{'values'}->shaped, @$arg{qw/from all full/});
+    return Graphics::Toolkit::Color::Name::from_values( $self->{'values'}->shaped, @$arg{qw/from all full distance/});
 }
 
 sub closest_name {
@@ -149,8 +160,8 @@ sub closest_name {
         'CSS'                 # color naming scheme works as only positional argument
         from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
         from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
-        all => 1              # returns list of all names associated with the object's values
-        full => 1             # adds color scheme name to the color name. 'SVG:red'
+        all => 1              # returns list of all names with the object's RGB values (defaults 0)
+        full => 1             # adds color scheme name to the color name. 'SVG:red' (defaults 0)
 EOH
     my ($name, $distance) = Graphics::Toolkit::Color::Name::closest_from_values(
                                 $self->{'values'}->shaped, @$arg{qw/from all full/});
@@ -344,13 +355,15 @@ EOH
 
 sub cluster {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, ['radius', 'distance'], {in => $default_space_name});
+    my $arg = _split_named_args( \@args, undef, ['radius', 'minimal_distance'], {in => $default_space_name},
+                                 {radius => 'r', minimal_distance => 'min_d'}                              );
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
     cluster (  ...
         radius => 3                    # ball shaped cluster with cuboctahedral packing or
-        radius => [10, 5, 3]           # cuboid shaped cluster with cubical packing
-        distance => 0.5                # minimal distance between colors in cluster
+        r => [10, 5, 3]                # cuboid shaped cluster with cubical packing
+        minimal_distance => 0.5        # minimal distance between colors in cluster
+        min_d => 0.5                   # short alias for minimal distance
         in => 'HSL'                    # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
@@ -359,11 +372,11 @@ EOH
     return "Argument 'radius' has to be a number or an ARRAY of numbers".$help
         unless is_nr($arg->{'radius'}) or $color_space->is_number_tuple( $arg->{'radius'} );
     return "Argument 'distance' has to be a number greater zero !\n".$help
-        unless is_nr($arg->{'distance'}) and $arg->{'distance'} > 0;
+        unless is_nr($arg->{'minimal_distance'}) and $arg->{'minimal_distance'} > 0;
     return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::cluster( $self->{'values'}, @$arg{qw/radius distance/}, $color_space);
+        Graphics::Toolkit::Color::SetCalculator::cluster( $self->{'values'}, @$arg{qw/radius minimal_distance/}, $color_space);
 }
 
 1;
@@ -621,16 +634,21 @@ A third named argument is C<full>, also needing a perly boolean, that
 defaults to false. When set C<true> (1), the schema is part of the returned
 color name. These full names are also accepted by the constructor.
 
+The fourth named argument is C<distance>, which means the same thing as
+in L</distance> and it defaults to zero. It is most usful in combinataion
+with C<all> to get all names of color that are within a certain distance.
+
     $blue->name();                                   # 'blue'
     $blue->name('SVG');                              # 'blue'
     $blue->name( from => [qw/CSS X/], all => 1);     # 'blue', 'blue1'
     $blue->name( from => 'CSS', full => 1);          # 'CSS:blue'
+    $blue->name( distance => 3, all => 1) ;          # all names within the distance
 
 
 =head2 closest_name
 
 Works almost identical as method L</name>, but guarantees a none empty
-result, unless invoking a weird empty color scheme - the method returns
+result, unless invoking a unusually empty color scheme - the method returns
 scalar context a color name, which has the shortest L</distance> in I<RGB>
 to the current color. In list context, you get additionally the just
 mentioned distance as a second return value.
@@ -853,13 +871,14 @@ number, it will be a ball with the given radius. If it is an ARRAY of
 values you get the a cuboid with the given dimensions.
 
 The minimal distance between any two colors of a cluster is set by the
-C<distance> argument, which is computed the same way as the method
-L</distance>. In a cuboid shaped cluster- the colors will form a cubic
-grid - inside the ball shaped cluster they form a cuboctahedral grid,
-which is packed tighter, but still obeys the minimal distance.
+C<minimal_distance> argument, which is computed the same way as the method
+L</distance>, in has a short alias C<min_d>. In a cuboid shaped cluster-
+the colors will form a cubic grid - inside the ball shaped cluster they
+form a cuboctahedral grid, which is packed tighter, but still obeys the
+minimal distance.
 
-    my @blues = $blue->cluster( radius => 4, distance => 0.3 );
-    my @c = $color->cluster( radius => [2,2,3], distance => 0.4, in => YUV );
+    my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
+    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
 
 
 

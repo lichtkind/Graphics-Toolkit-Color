@@ -29,14 +29,15 @@ sub get_values {
 }
 
 sub from_values {
-    my ($values, $scheme_name, $all_names, $full_name) = @_;
+    my ($values, $scheme_name, $all_names, $full_name, $distance) = @_;
     my @return_names = ();
     my @scheme_names = (ref $scheme_name eq 'ARRAY') ? (@$scheme_name)
                      : (defined $scheme_name)        ? $scheme_name : 'DEFAULT';
     for my $scheme_name (@scheme_names) {
         my $scheme = try_get_scheme( $scheme_name );
         next unless ref $scheme;
-        my $names = $scheme->names_from_values( $values );
+        my $names = $distance ? $scheme->names_in_range( $values, $distance )
+                              : $scheme->names_from_values( $values );
         next unless ref $names;
         $names = [ map { uc($scheme_name).':'.$_} @$names] if $full_name and uc($scheme_name) ne 'DEFAULT';
         push @return_names, @$names;

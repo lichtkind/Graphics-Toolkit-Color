@@ -7,7 +7,8 @@ BEGIN { unshift @INC, 'lib', '../lib'}
 
 my $module = 'Graphics::Toolkit::Color::SetCalculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
-use_ok( $module, 'could load the module');
+eval "use $module";
+is( not($@), 1, 'could load the module');
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');

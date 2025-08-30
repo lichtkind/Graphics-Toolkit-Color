@@ -45,5 +45,5 @@ Graphics::Toolkit::Color::Space->new(
          axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
         range => [1, [-.5, .5], [-.5, .5]],
     precision => 3,
-      convert => {XYZ => [\&to_xyz, \&from_xyz]},
+      convert => {XYZ => [\&to_xyz, \&from_xyz]}, #, {to => {in => 1, out => 1}, from => {in => 1, out => 1} }
 );

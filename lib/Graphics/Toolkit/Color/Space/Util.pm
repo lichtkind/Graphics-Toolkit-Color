@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq apply_d65 remove_d65 mult_matrix3 is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq mult_matrix3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 #### lists #############################################################
@@ -51,10 +51,6 @@ sub mod_real { # real value modulo
 sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
 
 #### color computation #################################################
-# change normalized RGB values to and from standard observer 2°
-sub apply_d65  { $_[0] > 0.04045  ? ((($_[0] + 0.055) / 1.055 ) ** 2.4) : ($_[0] / 12.92) }
-sub remove_d65 { $_[0] > 0.003131 ? ((($_[0]**(1/2.4)) * 1.055) - 0.055) : ($_[0] * 12.92) }
-
 sub mult_matrix3 {
     my ($mat, $v1, $v2, $v3) = @_;
     return unless ref $mat eq 'ARRAY' and defined $v3;

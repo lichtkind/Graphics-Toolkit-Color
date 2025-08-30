@@ -1,9 +1,11 @@
 
-1.971    2025-08-30    lichtkind
+1.98    2025-08-31    lichtkind
 -------
-    * = tiny fix release + 1 fix
+    * = small fix release = 3 fixes
+    * + ramp up precision by using converter flags
     * ? documented latest input format
-
+    * ? typos in POD
+    * ! more cluster method test fixes
 
 1.97    2025-08-30    lichtkind
 -------

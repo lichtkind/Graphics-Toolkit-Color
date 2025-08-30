@@ -3,9 +3,8 @@ TODO:
 
  # Likely:                                      planned version
 
-   + ramp up precision by using converter flags (2.0)
    + space constraints for HWB and  HSV         (2.0)
-   + easier CSS format for oklab                (2.1)
+   + easier API for CSS format for oklab        (2.1)
    + method for gamma correction                (2.2)
    + Color spaces :
      - OKHSL                                    (2.1)

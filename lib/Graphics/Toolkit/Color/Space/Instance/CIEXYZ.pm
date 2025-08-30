@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::CIEXYZ;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/mult_matrix3/;
+use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
 
 my @D65 = (0.95047, 1, 1.088830);
 
@@ -15,15 +15,15 @@ sub remove_observer { $_[0] > 0.003131 ? ((($_[0]**(1/2.4)) * 1.055) - 0.055) : 
 sub from_rgb {
     my ($rgb) = shift;
     my @rgb = map {apply_observer( $_ )} @$rgb;
-    return [ mult_matrix3([[0.433949941, 0.37620977,  0.18984029], # conversion + normalisation
-                           [0.2126729,   0.7151522,   0.0721750],
-                           [0.017756583, 0.109467961, 0.872775456]], @rgb) ];
+    return [ mult_matrix_vector_3([[0.433949941, 0.37620977,  0.18984029], # conversion + normalisation
+                                   [0.2126729,   0.7151522,   0.0721750],
+                                   [0.017756583, 0.109467961, 0.872775456]], @rgb) ];
 }
 sub to_rgb {
     my ($xyz) = shift;
-    my @rgb = mult_matrix3([[  3.07996,   -1.53714 , -0.542816 ],
-                            [ -0.921259 ,  1.87601 ,  0.0452475],
-                            [  0.0528874, -0.204026,  1.15114  ]], @$xyz);
+    my @rgb = mult_matrix_vector_3([[  3.07996,   -1.53714 , -0.542816 ],
+                                    [ -0.921259 ,  1.87601 ,  0.0452475],
+                                    [  0.0528874, -0.204026,  1.15114  ]], @$xyz);
     return [ map { remove_observer($_) } @rgb ];
 }
 

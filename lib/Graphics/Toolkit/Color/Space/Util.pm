@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq mult_matrix3 is_nr/;
+our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq mult_matrix_vector_3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 #### lists #############################################################
@@ -51,7 +51,7 @@ sub mod_real { # real value modulo
 sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }
 
 #### color computation #################################################
-sub mult_matrix3 {
+sub mult_matrix_vector_3 {
     my ($mat, $v1, $v2, $v3) = @_;
     return unless ref $mat eq 'ARRAY' and defined $v3;
     return ($v1 * $mat->[0][0] + $v2 * $mat->[0][1] + $v3 * $mat->[0][2]) ,

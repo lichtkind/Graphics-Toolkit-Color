@@ -477,6 +477,8 @@ Out of range values will be corrected (clamped).
     my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named ARRAY syntax
     my $red = Graphics::Toolkit::Color->new(  RGB => 255, 0, 0 ); # with fat comma
     my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # and brackets
+    my $red = Graphics::Toolkit::Color->new(  RGB =>[255, 0, 0]); # separate name and values
+    my $red = Graphics::Toolkit::Color->new(  YUV =>.299,-0.168736, .5); # same color in YUV
 
 
 =head2 new('rgb($r,$g,$b)')
@@ -619,7 +621,7 @@ These are the same who can be used with L</new('name')>.
 
 Alternatively you may provide named arguments or one positional argument,
 which requires the same input as the named argument C<from>. It names one
-or a list of color schemes, as listed L<here | Graphics::Toolkit::Color::Name/SCHEMES>.
+or a list of color schemes, as listed L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
 Please note that these depend on external modules, which has to be
 installed separately or via L<Bundle::Graphics::ColorNames>. If you
 try to use a scheme from a not installed module your will get an error

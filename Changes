@@ -3,7 +3,7 @@
 -------
     * = small feature release + 0 fixes
     * ? POD fixed for methods "values", "name", "closest_name", "distance"
-
+    * ! public API cluster method test fix
 
 1.971    2025-08-31    lichtkind
 -------

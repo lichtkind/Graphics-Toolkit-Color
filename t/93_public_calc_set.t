@@ -114,7 +114,7 @@ like( $white->cluster(radius => 0, minimal_distance => 0),          qr/GTC metho
 like( $white->cluster(radius => 1, minimal_distance => 1, ar => 2), qr/GTC method/, "reject invented arguments");
 like( $white->cluster(radius => 1, minimal_distance => 1, 'ar'),    qr/GTC method/, "odd number of arguments");
 
-@colors = $midblue->cluster( radius => 2, minimal_distance => 2 );
+@colors = $midblue->cluster( radius => 2.01, minimal_distance => 2 );
 is( int @colors,                       13,    'computed smallest ball shaped cluster in RGB');
 @values = $colors[1]->values();
 is( @values,                            3,    'center color is on pos one');
@@ -131,7 +131,7 @@ is( $values[0],                        42,    'red value is right (was rounded u
 is( $values[1],                        51,    'green value is right');
 is( $values[2],                       241,    'blue value is right (1.4 less but rounded up)');
 
-@colors = $midblue->cluster( r => [1,1,1], minimal_distance => 1, in => 'RGB');
+@colors = $midblue->cluster( r => [1.01,1.01,1.01], minimal_distance => 1, in => 'RGB');
 is( int @colors,                       27,    'computed tiny cuboid cluster with 27 colors');
 @values = $colors[0]->values();
 is( int @values,                        3,    'got first color in min corner');
@@ -144,7 +144,7 @@ is( $values[0],                        44,    'red value is right');
 is( $values[1],                        53,    'green value is right');
 is( $values[2],                       243,    'blue value is right');
 
-@colors = $white->cluster( r => [1,1,1], min_d => 1, in => 'HSL' );
+@colors = $white->cluster( r => [1.01,1.01,1.01], min_d => 1, in => 'HSL' );
 is( int @colors,                       12,    'cluster edging on roof of HSL space');
 
 exit 0;

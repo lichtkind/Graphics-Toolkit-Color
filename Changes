@@ -1,4 +1,9 @@
 
+1.98     2025-08-31    lichtkind
+-------
+    * = small fix release = 3 fixes
+    * ? POD fixed for methods "values", "name", "closest_name", "distance"
+
 1.971    2025-08-31    lichtkind
 -------
     * = small fix release = 3 fixes

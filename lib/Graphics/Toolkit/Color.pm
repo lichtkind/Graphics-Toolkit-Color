@@ -758,32 +758,35 @@ colors by using it like:
 
 =head2 mix
 
-Create a new GTC object, that has the average values
-between the calling object and another color (or several colors).
-It accepts three named arguments: L</to>, C<amount> and L</in>, but only
-the first one is required.
+Create a new GTC object, that has the average values between the calling
+object and another color (or several colors). It accepts three named
+arguments: L</to>, C<amount> and L</in>, but only the first one is
+required and can be also provided as the only positional argument.
 
-L</to> works like in other methods, with the exception that it also
-accepts an ARRAY ref (square brackets) with several color definitions.
+The L</to> argument works like in other methods, with the exception that
+it also accepts an ARRAY ref (square brackets) with several
+color definitions or GTC color objects.
 
-Per default I<mix> computes a 50-50 (1:1) mix. In order to change that,
-employ the C<amount> argument, which is the weight the mixed in color(s)
-get, counted in percentages. The remaining percentage to 100 is the weight
-of the color, held by the caller object. This would be naturally nothing,
-if the C<amount> is greater than hundret, which is especially something
-to consider, if mixing more than two colors. Then both C<to> and C<amount>
-have to get an array of colors and respectively their amounts (same order).
-Obviously both arrays MUST have the same length. If the sum of amounts is
-greater than 100 the original color is ignored but the weight ratios will
-be kept. You may actually give C<amount> a scalar value while mixing a list
-of colors. Then the amount is applied to every color mentioned under the
-C<to> argument. In this case you go over the sum of 100% very quickly.
+Per default I<mix> computes a 50-50 (1:1) mix between all involved colors.
+In order to change that, employ the C<amount> argument, which is the share
+the mixed in color(s) get, counted in percentage. The remaining percentage
+to 100 is the share of the color, held by the caller object. This would
+be naturally nothing, if the C<amount> is greater than hundret. When mixing
+more than two colors at once, C<amount> accpets also an ARRAY of share values
+that will applied in the same order as the colors of the C<to> argument.
+Their sum can reach easily values greater than 100. In that case again
+the calling object gets no share. If the amount-sum is greater than 100,
+than the amounts will be recalculated, keeping the ratios but leaving
+out the calling color. If you mix mor than two colors, but provide only
+one scalar amout value, then will be applied to all mixed in colors.
 
-    $blue->mix( 'silver');                                         # 50% silver, 50% blue
+    $blue->mix( $silver );                                         # 50% silver, 50% blue
     $blue->mix( to => 'silver', amount => 60 );                    # 60% silver, 40% blue
     $blue->mix( to => [qw/silver green/], amount => [10, 20]);     # 10% silver, 20% green, 70% blue
-    $blue->mix( to => [qw/silver green/] );                        # 50% silver, 50% green
-    $blue->mix( to => {H => 240, S =>100, L => 50}, in => 'RGB' ); # teal
+    $blue->mix( to => [qw/silver green/], amount => [30, 90]);     # 25% silver, 75% green,  0% blue
+    $blue->mix( to => [qw/silver green/], amount =>  30);          # 30% silver, 30% green, 40% blue
+    $blue->mix( to => [qw/silver green/] );                        # 33% silver, 33% green, 33% blue
+    $blue->mix( to => {H => 120, S =>100, L => 50}, in => 'HSV' ); # teal =      50% green, 50% blue
 
 
 =head2 invert

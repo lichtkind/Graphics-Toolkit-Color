@@ -115,23 +115,10 @@ sub add { # .values, %newval -- ~space_name --> _
 sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     my ($self, $recipe, $color_space ) = @_;
     return if ref $recipe ne 'ARRAY';
-    my $percentage_sum = 0;
-    for my $ingredient (@{$recipe}){
-        return if ref $ingredient ne 'HASH' or not exists $ingredient->{'percent'};
+    my $result_values = [(0) x $color_space->axis_count];
+    for my $ingredient (@$recipe){
         return if ref $ingredient ne 'HASH' or not exists $ingredient->{'percent'}
                or not exists $ingredient->{'color'} or ref $ingredient->{'color'} ne __PACKAGE__;
-        $percentage_sum += $ingredient->{'percent'};
-    }
-    my $result_values = [(0) x $color_space->axis_count];
-    if ($percentage_sum < 100){
-        my $values = $self->shaped( $color_space->name );
-        my $mix_amount = (100 - $percentage_sum) / 100;
-        $result_values->[$_] +=  $values->[$_] * $mix_amount for 0 .. $#$values;
-    } else {
-        $percentage_sum /= 100;
-        $_->{'percent'} /= $percentage_sum for @{$recipe}; # sum of percentages has to be 100
-    }
-    for my $ingredient (@$recipe){
         my $values = $ingredient->{'color'}->shaped( $color_space->name );
         $result_values->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }

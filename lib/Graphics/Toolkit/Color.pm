@@ -242,7 +242,7 @@ EOH
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => 50});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => -1});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
@@ -253,29 +253,41 @@ sub mix {
     Both ARRAY have to have the same length. 'amount' refers to the color(s) picked with 'to'.
 EOH
     return $arg.$help unless ref $arg;
-    my $recipe = _new_from_scalar_def( $arg->{'to'} );
-    if (ref $recipe){
-        $recipe = [{color => $recipe->{'values'}, percent => 50}];
-        return "Amount argument has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
-        $recipe->[0]{'percent'} = $arg->{'amount'} if defined $arg->{'amount'};
-    } else {
-        if (ref $arg->{'to'} ne 'ARRAY'){
-            return "target color definition (argument 'to'): $arg->{to} is ill formed, has to be one color definition or an ARRAY of";
-        } else {
-            $recipe = [];
-            for my $color_def (@{$arg->{'to'}}){
-                my $color = _new_from_scalar_def( $color_def );
-                return "target color definition: '$color_def' is ill formed" unless ref $color;
-                push @$recipe, { color => $color->{'values'}, percent => 50};
-            }
-            return "Amount argument has to be an ARRAY of same length as argument 'to' (color definitions)!\n".$help
-                if ref $arg->{'to'} eq 'ARRAY' and ref $arg->{'amount'} eq 'ARRAY' and @{$arg->{'amount'}} != @{$arg->{'to'}};
-            $arg->{'amount'} = [($arg->{'amount'}) x @{$arg->{'to'}}] if ref $arg->{'to'} and not ref $arg->{'amount'};
-            $recipe->[$_]{'percent'} = $arg->{'amount'}[$_] for 0 .. $#{$arg->{'amount'}};
-        }
-    }
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
+    my $recipe = _new_from_scalar_def( $arg->{'to'} );
+    if (ref $recipe){
+        return "argument 'amount' has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
+        $arg->{'amount'} = 50 if $arg->{'amount'} < 0;
+        $recipe = [{color => $recipe->{'values'}, percent => $arg->{'amount'}},
+                   {color => $self->{'values'}, percent => 100 - $arg->{'amount'}} ];
+    } else {
+        if (ref $arg->{'to'} ne 'ARRAY'){
+            return "target color definition (argument 'to'): '$arg->{to}' is ill formed. It has to be one color definition or an ARRAY of the.";
+        } else {
+            return "Argument 'amount' has to be an ARRAY of same length as argument 'to' (color definitions)!\n".$help
+                if ref $arg->{'to'} eq 'ARRAY' and ref $arg->{'amount'} eq 'ARRAY' and @{$arg->{'amount'}} != @{$arg->{'to'}};
+            my $color_count = 1 + @{$arg->{'to'}};
+            unless (ref $arg->{'amount'}){
+                $arg->{'amount'} = ($arg->{'amount'} < 0)
+                                 ? [(100/$color_count) x $color_count]
+                                 : [($arg->{'amount'}) x $color_count];
+            }
+            $recipe = [];
+            my $amount_sum = 0;
+            for my $color_nr (0 .. $#{$arg->{'to'}}){
+                my $color_def = $arg->{'to'}[$color_nr];
+                my $color = _new_from_scalar_def( $color_def );
+                return "target color nr. $color_nr definition: '$color_def' is ill formed" unless ref $color;
+                push @$recipe, { color => $color->{'values'}, percent => $arg->{'amount'}[$color_nr] };
+                $amount_sum += $arg->{'amount'}[$color_nr];
+            }
+            push @$recipe, {color => $self->{'values'}, percent => 100 - $amount_sum } if $amount_sum < 100;
+            if ($amount_sum > 100){
+                $_->{'amount'} = $_->{'amount'} / $amount_sum * 100 for @$recipe;
+            }
+        }
+    }
     _new_from_value_obj( $self->{'values'}->mix( $recipe, $color_space ) );
 }
 

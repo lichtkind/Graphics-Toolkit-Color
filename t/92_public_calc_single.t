@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 93;
+use Test::More tests => 96;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color qw/color/;
 
@@ -115,10 +115,10 @@ is( $values[0],                                         240, 'blue hue');
 is( $values[1],                                         100, 'full saturation');
 is( $values[2],                                          50, 'half lightness, like all fully saturated colors');
 @values = $white->mix( to => [$blue, $black] )->values('RGB');
-is( int @values,                                          3, 'mixing three colors, but actually only 2');
-is( $values[0],                                           0, 'red is zero');
-is( $values[1],                                           0, 'no green saturation');
-is( $values[2],                                         128, 'half blue value');
+is( int @values,                                          3, 'mixing three colors equally');
+is( $values[0],                                          85, 'red is one third full value');
+is( $values[1],                                          85, 'green is same');
+is( $values[2],                                         170, 'two thirds blue value');
 @values = $white->mix( to => [$blue, $black], amount => [20, 10] )->values('RGB');
 is( $values[0],                                         179, 'red value = 70% white');
 is( $values[1],                                         179, 'green is same');
@@ -127,5 +127,9 @@ is( $values[2],                                         230, 'blue = 70% white +
 is( $values[0],                                           0, 'red value is zero = 80% blue + 20% black = 0 + 0');
 is( $values[1],                                           0, 'green is same');
 is( $values[2],                                         204, 'blue value is 80% blue + nothing from black');
+@values = $white->mix( to => [$blue, $black], amount => [90, 30] )->values('RGB');
+is( $values[0],                                           0, 'red value is zero = 75% blue + 25% black = 0 + 0');
+is( $values[1],                                           0, 'green is same');
+is( $values[2],                                         191, 'blue value is 80% blue + nothing from black');
 
 exit 0;

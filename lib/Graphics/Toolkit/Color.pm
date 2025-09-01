@@ -259,8 +259,10 @@ EOH
     if (ref $recipe){
         return "argument 'amount' has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
         $arg->{'amount'} = 50 if $arg->{'amount'} < 0;
-        $recipe = [{color => $recipe->{'values'}, percent => $arg->{'amount'}},
-                   {color => $self->{'values'}, percent => 100 - $arg->{'amount'}} ];
+        $arg->{'amount'} = 100 if $arg->{'amount'} > 100;
+        $recipe = [{color => $recipe->{'values'}, percent => $arg->{'amount'}}];
+        push @$recipe, {color => $self->{'values'}, percent => 100 - $arg->{'amount'} } if $arg->{'amount'} < 100;
+
     } else {
         if (ref $arg->{'to'} ne 'ARRAY'){
             return "target color definition (argument 'to'): '$arg->{to}' is ill formed. It has to be one color definition or an ARRAY of the.";
@@ -284,7 +286,7 @@ EOH
             }
             push @$recipe, {color => $self->{'values'}, percent => 100 - $amount_sum } if $amount_sum < 100;
             if ($amount_sum > 100){
-                $_->{'amount'} = $_->{'amount'} / $amount_sum * 100 for @$recipe;
+                $_->{'percent'} = ($_->{'percent'} / $amount_sum * 100) for @$recipe;
             }
         }
     }

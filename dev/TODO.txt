@@ -1,29 +1,39 @@
 TODO:
 ------
 
+ = 2.0 features:
+   + ramp up precision by using converter flags
+   + space constraints for HWB and HSV
+   + complement in okLCH, cieLCHuv
+
+ = 2.5 features
+   + new color spaces
+     - OKHSL
+     - OKHSV
+     - CIERGB
+   + cmp method
+
+
+ = 3.0 features
+   + color space parameter, gamma, illuminant, cubehelix
+      - gamma correction
+      - linear RGB
+      - Cubehelix color space
+   + palette method
+
+
  # Likely:                                      planned version
 
-   * + ramp up precision by using converter flags
-   + space constraints for HWB and  HSV         (2.0)
    + easier API for CSS format for oklab        (2.1)
-   + method for gamma correction                (2.2)
    + Color spaces :
-     - OKHSL                                    (2.1)
-     - OKHSV                                    (2.1)
-     - Cubehelix                                (2.4)
      - HSI
      - Yxy                                      (2.3)
      - RYB
-     - CIERGB
      - NCS ? different than Ncol?
-   + palette method                             (2.5)
-
 
  # Maybe:
 
    + equal method
-   + cmp method
-   + constructor with name space arguments (XYZ with illuminant D50)
    + proper Error handling
    + strict mode for out of range tuple values
    + value prefixes in formats

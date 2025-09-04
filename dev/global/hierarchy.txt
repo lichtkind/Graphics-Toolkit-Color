@@ -12,13 +12,13 @@ Hierarchy
       - closest_name (GTC::Values::closest_name_and_distance)
       - distance     (GTC::Values::distance)
       -----
-      - set          (GTC::Values::set)
-      - add          (GTC::Values::add)
+      - set_value    (GTC::Values::set)
+      - add_value    (GTC::Values::add)
       - mix          (GTC::Values::mix)
       - invert       (GTC::Values::invert)
       -----
-      - gradient     (GTC::SetCalculator::gradient)
       - complement   (GTC::SetCalculator::complement)
+      - gradient     (GTC::SetCalculator::gradient)
       - cluster      (GTC::SetCalculator::cluster)
       ======
         = ::SetCalculator
@@ -34,27 +34,27 @@ Hierarchy
           - shaped      (.. Space->denormalize, clamp, round)
           - formatted   (.. Space->format)
           - name        (:_)
-          - closest_name_and_distance (GTC::Name::closest)
-          - distance    (GTC::Space::Hub::distance)
           ----
           - set         (GTC::Space::Hub::partial_hash_deformat)
           - add         (GTC::Space::Hub::partial_hash_deformat)
           - mix         ()
+          - invert      ()
           ======
           = ::Space::Name
+            - all
             - get_values
             - from_values
-            - closest
+            - closest_from_values
             ======
             = ::Space::Name::Scheme
+              - new
               - add_color
               -----
               - all_names
               - is_name_taken
               - values_from_name
               - names_from_values
-              -----
-              - closest_names
+              - closest_names_from_values
               - names_in_range
             ======
             = ::Space::Name::Constant

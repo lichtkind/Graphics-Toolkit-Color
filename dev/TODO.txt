@@ -12,14 +12,14 @@ TODO:
      - OKHSV
      - CIERGB
    + cmp method
+   + gamma correction
+   + palette method
 
 
  = 3.0 features
-   + color space parameter, gamma, illuminant, cubehelix
-      - gamma correction
-      - linear RGB
-      - Cubehelix color space
-   + palette method
+   + color space parameter: gamma, illuminant, cubehelix
+   + linear RGB
+   + cubehelix color space
 
 
  # Likely:                                      planned version

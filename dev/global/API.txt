@@ -3,58 +3,77 @@ ATTR
  ~name
  ~space
  @values
- @rgb
+
+  new: ~name
+       ~standard:name
+       @RGB
+       [ @RGB ]
+       'SPACE' => 1,2,3,4
+       ['SPACE' => 1,2,3,4]
+       k => v, ..
+       {k => v, ..}
+
+-- getter --------------------------------------------------------------
+
+  values: --> () | % | #hex
+     --
+     in: ~space
+     as: ~format
+
+  name: -- ~standard --> ~name
+     ---
+
+  closest_name: -- ~standard --> ~name
+     ---
+
+  distance:
+     ---
 
 
-new: ~name
-     ~standard:name
-     @RGB
-     [ @RGB ]
-     'SPACE' => 1,2,3,4
-     ['SPACE' => 1,2,3,4]
-     k => v, ..
-     {k => v, ..}
+-- single calc ---------------------------------------------------------
 
-name: -- ~standard --> ~name
+  set_value
+     ---
+     partial hash def
 
+  add_value
+     ---
+     partial hash def
 
-values: --> () | % | #hex
-   --
-   ~space
-   ~format :|
-
+  mix
+     ---
+     with => full def
+     factor => [0..1]
+     space => name|rgb
 
 
-set
-   partial hash def
+  invert:
+     ---
+     ---
+  ~space_name
 
-add
-   partial hash def
+-- set calc ------------------------------------------------------------
 
+  complement
+     ---
+     ---
+     +steps
+     +tilt
+     %|+target
+     in: ~space_name # cylindrical only
 
-blend
-   with => full def
-   factor => [0..1]
-   space => name|rgb
+  gradient
+     ---
+     to: $color_def
+     ---
+     +steps:
+     +tilt:
+     in: ~space_name
 
+  cluster
+     ---
+     +min_disctance
+     +radius => *
+     ---
+     in: ~space_name
 
-
-
-complementary
-   ---
-   nr => +
-   space => name|rgb
-   { S => *, L => *}
-
-gradient
-   to => color_def
-   ---
-   nr => +
-   dynamics => *
-
-cloud
-   ---
-   space => name|rgb
-   disctance => *
-   radius => *
-   nr => +

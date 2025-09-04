@@ -17,7 +17,7 @@ is( $space->is_name('lab'),                     1, 'color space name "lab" is co
 is( $space->is_name('CIElab'),                  1, 'axis initials do not equal space name this time');
 is( $space->is_name('xyz'),                     0, 'axis initials do not equal space name this time');
 is( $space->axis_count,                         3, 'CIELAB has 3 axis');
-is( $space->is_linear,                          1, 'CIELAB is linear');
+is( $space->is_euclidean,                       1, 'CIELAB is euclidean');
 is( $space->is_cylindrical,                     0, 'CIELAB is not cylindrical');
 
 is( ref $space->check_value_shape([0, 0, 0]),          'ARRAY',   'check minimal CIELAB values are in bounds');

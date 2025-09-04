@@ -67,7 +67,7 @@ sub select_tuple_value_from_name { shift->basis->select_tuple_value_from_axis_na
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
-sub is_linear          { shift->shape->is_linear() }          #                                    --> ?
+sub is_euclidean       { shift->shape->is_euclidean() }          #                                    --> ?
 sub is_cylindrical     { shift->shape->is_cylindrical }       #                                    --> ?
 sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values                           --> ?
 sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?

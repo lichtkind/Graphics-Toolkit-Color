@@ -17,7 +17,7 @@ is( $space->is_name('HunterLAB'),               1, 'color space name HunterLAB i
 is( $space->is_name('CIElab'),                  0, 'not to be confused with "CIELAB"');
 is( $space->is_name('lab'),                     0, 'axis initials do not equal space name this time');
 is( $space->axis_count,                         3, 'HunterLAB has 3 axis');
-is( $space->is_linear,                          1, 'HunterLAB is linear');
+is( $space->is_euclidean,                       1, 'HunterLAB is euclidean');
 is( $space->is_cylindrical,                     0, 'HunterLAB is not cylindrical');
 
 # K: 172,355206019 67,038696071

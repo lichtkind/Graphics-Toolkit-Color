@@ -80,25 +80,7 @@ sub add_constraint {
 
 #### getter ############################################################
 sub basis           { $_[0]{'basis'}}
-sub is_linear {     # overall linear space ?
-    my ($self) = @_;
-    map { return 0 if $self->{'type'}[$_] != 1 } $self->basis->axis_iterator;
-    return 1;
-}
-sub is_cylindrical {     # overall linear space ?
-    my ($self) = @_;
-    my $angular_axis = 0;
-    map { $angular_axis++ if $self->{'type'}[$_] == 0;
-          return 0 if $self->{'type'}[$_] > 1;        } $self->basis->axis_iterator;
-    return ($angular_axis == 1) ? 1 : 0;
-}
-
-sub is_int_valued { # all ranges int valued ?
-    my ($self) = @_;
-    map { return 0 if $self->{'precision'}[$_] != 0 } $self->basis->axis_iterator;
-    return 1;
-}
-
+# per axis
 sub is_axis_numeric {
     my ($self, $axis_nr) = @_;
     return 0 if not defined $axis_nr or not exists $self->{'type'}[$axis_nr];
@@ -126,6 +108,28 @@ sub axis_value_precision { # --> +precision?
     $precision //= $self->{'precision'};
     return undef unless ref $precision eq 'ARRAY' and exists $precision->[$axis_nr];
     $precision->[$axis_nr];
+}
+
+# all axis
+
+sub is_euclidean {     # all axis linear ?
+    my ($self) = @_;
+    map { return 0 if $self->{'type'}[$_] != 1 } $self->basis->axis_iterator;
+    return 1;
+}
+
+sub is_cylindrical {# obe axis angular ?
+    my ($self) = @_;
+    my $angular_axis = 0;
+    map { $angular_axis++ if $self->{'type'}[$_] == 0;
+          return 0 if $self->{'type'}[$_] > 1;        } $self->basis->axis_iterator;
+    return ($angular_axis == 1) ? 1 : 0;
+}
+
+sub is_int_valued { # all ranges int valued ?
+    my ($self) = @_;
+    map { return 0 if $self->{'precision'}[$_] != 0 } $self->basis->axis_iterator;
+    return 1;
 }
 
 #### data checker ######################################################
@@ -190,7 +194,7 @@ sub is_equal {
     return 1;
 }
 
-#### value shape #######################################################
+#### change value shape ################################################
 sub clamp { # change values if outside of range to nearest boundary, angles get rotated into range
     my ($self, $values, $range) = @_;
     $range = $self->try_check_range_definition( $range );
@@ -230,7 +234,7 @@ sub round {
     [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
 }
 
-#### normalisation #####################################################
+# normalisation
 sub normalize {
     my ($self, $values, $range) = @_;
     return unless $self->basis->is_value_tuple( $values );

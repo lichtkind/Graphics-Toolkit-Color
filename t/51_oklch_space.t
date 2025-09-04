@@ -16,7 +16,7 @@ is( $space->alias,                             '', 'color space has no alias nam
 is( $space->is_name('OKlch'),                   1, 'color space name OKlch is correct, lc chars at will!');
 is( $space->is_name('LCH'),                     0, 'color space name LCH is given to CIELCHab');
 is( $space->axis_count,                         3, 'OKLCH has 3 dimensions');
-is( $space->is_linear,                          0, 'OKLCH is not linear');
+is( $space->is_euclidean,                       0, 'OKLCH is not euclidean');
 is( $space->is_cylindrical,                     1, 'OKLCH is cylindrical');
 
 is( ref $space->check_value_shape([0,0]),              '',   "OKLCH got too few values");

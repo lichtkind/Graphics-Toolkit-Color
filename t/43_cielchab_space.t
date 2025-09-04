@@ -17,7 +17,7 @@ is( $space->is_name('CIELCHab'),                1, 'color space name CIELCHab is
 is( $space->is_name('LCH'),                     1, 'color space name LCH is correct');
 is( $space->is_name('hab'),                     0, 'color space name LCH is correct');
 is( $space->axis_count,                         3, 'LCH has 3 dimensions');
-is( $space->is_linear,                          0, 'LCH is not linear');
+is( $space->is_euclidean,                       0, 'LCH is not euclidean');
 is( $space->is_cylindrical,                     1, 'LCH is cylindrical');
 
 is( ref $space->check_value_shape([0,0]),             '',   "CIELCHab got too few values");

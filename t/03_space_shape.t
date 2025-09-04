@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 183;
+use Test::More tests => 186;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -51,16 +51,20 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef
 #### arg eval + getter #################################################
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no']);
 is( ref $shape,  $module, 'created shape with all axis types');
-is( $shape->is_linear,          0, 'space has none linear axis');
+is( $shape->is_euclidean,       0, 'space is not euclidean');
+is( $shape->is_cylindrical,     0, 'space is not cylindrical');
 is( $shape->is_int_valued,      0, 'per default space have full precision');
 is( $shape->is_axis_numeric(0), 1, 'first dimension is numeric');
 is( $shape->is_axis_numeric(1), 1, 'second dimension is numeric');
 is( $shape->is_axis_numeric(2), 0, 'third dimension is not numeric');
 is( $shape->is_axis_numeric(3), 0, 'there is no fourth dimension ');
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['linear','angular','linear']);
+is( $shape->is_cylindrical,     1, 'thi space is cylindrical');
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[0,1],[-1,1],[1,10]]);
 is( ref $shape,  $module, 'created shape with most complex range definition');
-is( $shape->is_linear,          1, 'per default spaces are linear');
+is( $shape->is_euclidean,       1, 'per default spaces are euclidean');
+is( $shape->is_cylindrical,       0, 'per default spaces are not cylindrical');
 is( $shape->is_int_valued,      0, 'per default space have full precision');
 is( $shape->is_axis_numeric(0), 1, 'default to numeric axis on first dimension');
 is( $shape->is_axis_numeric(1), 1, 'default to numeric axis on second dimension');

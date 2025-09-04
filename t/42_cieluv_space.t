@@ -17,7 +17,7 @@ is( $space->is_name('cieLUV'),                  1, 'full space  name recognized'
 is( $space->is_name('Luv'),                     1, 'axis initials do qual space name');
 is( $space->is_name('Lab'),                     0, 'axis initials do not equal space name this time');
 is( $space->axis_count,                         3, 'CIELUV has 3 dimensions');
-is( $space->is_linear,                          1, 'CIELUV is linear');
+is( $space->is_euclidean,                       1, 'CIELUV is euclidean');
 is( $space->is_cylindrical,                     0, 'CIELUV is not cylindrical');
 
 is( ref $space->check_value_shape([0, 0, 0]),          'ARRAY', 'check minimal CIELUV values are in bounds');

@@ -16,7 +16,7 @@ is( $space->alias,                               '', 'color space has no alias n
 is( $space->is_name('Hsv'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');
 is( $space->axis_count,                           3, 'color space has 3 axis');
-is( $space->is_linear,                            0, 'HSV is not linear');
+is( $space->is_euclidean,                         0, 'HSV is not euclidean');
 is( $space->is_cylindrical,                       1, 'HSV is cylindrical');
 
 is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');

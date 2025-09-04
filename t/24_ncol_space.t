@@ -16,7 +16,7 @@ is( $space->alias,                             '', 'color space has no alias nam
 is( $space->is_name('NCol'),                    1, 'color space name NCol is correct');
 is( $space->is_name('hwb'),                     0, 'axis initials do not equal space name this time');
 is( $space->axis_count,                         3, 'color space has 3 axis');
-is( $space->is_linear,                          0, 'NCol is not linear');
+is( $space->is_euclidean,                       0, 'NCol is not euclidean');
 is( $space->is_cylindrical,                     1, 'NCol is cylindrical');
 is( $space->is_value_tuple([0,0,0]),            1, 'value tuple has 3 elements');
 is( $space->is_partial_hash({whiteness => 1, blackness => 0}), 1, 'found hash with some axis name');

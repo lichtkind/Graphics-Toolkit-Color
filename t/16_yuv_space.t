@@ -12,13 +12,13 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
-is( $space->name,      'YUV',                       'color space has initials as name');
-is( $space->alias,   'YPBPR',                       'color space has alias name YCbCr');
-is( $space->is_name('YPbPr'),    1,                 'color space name YCbCr is correct');
-is( $space->is_name('YUV'),      1,                 'color space name YUV is correct');
-is( $space->axis_count,          3,                 'color space has 3 axis');
-is( $space->is_linear,           1,                 'YUV is linear');
-is( $space->is_cylindrical,      0,                 'YUV is not cylindrical');
+is( $space->name,                           'YUV',  'color space has initials as name');
+is( $space->alias,                        'YPBPR',  'color space has alias name YCbCr');
+is( $space->is_name('YPbPr'),                   1,  'color space name YCbCr is correct');
+is( $space->is_name('YUV'),                     1,  'color space name YUV is correct');
+is( $space->axis_count,                         3,  'color space has 3 axis');
+is( $space->is_euclidean,                       1,  'YUV is euclidean');
+is( $space->is_cylindrical,                     0,  'YUV is not cylindrical');
 
 is( ref $space->check_value_shape([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
 is( ref $space->check_value_shape([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');

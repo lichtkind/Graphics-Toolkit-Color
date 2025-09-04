@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 56;
+use Test::More tests => 58;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSV';
@@ -16,6 +16,9 @@ is( $space->alias,                               '', 'color space has no alias n
 is( $space->is_name('Hsv'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');
 is( $space->axis_count,                           3, 'color space has 3 axis');
+is( $space->is_linear,                            0, 'HSV is not linear');
+is( $space->is_cylindrical,                       1, 'HSV is cylindrical');
+
 is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY',   'check HSV values works on lower bound values');
 is( ref $space->check_value_shape([360,100,100]), 'ARRAY',   'check HSV values works on upper bound values');
 is( ref $space->check_value_shape([0,0]),              '',   "HSV got too few values");

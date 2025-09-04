@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 62;
+use Test::More tests => 64;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
@@ -15,6 +15,9 @@ is( $space->alias,                               '', 'color space has no alias n
 is( $space->is_name('HwB'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');
 is( $space->axis_count,                           3, 'color space has 3 axis');
+is( $space->is_linear,                            0, 'HWB is not linear');
+is( $space->is_cylindrical,                       1, 'HWB is cylindrical');
+
 is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY', 'check HWB values works on lower bound values');
 is( ref $space->check_value_shape([360,100,100]), 'ARRAY', 'check HWB values works on upper bound values');
 is( ref $space->check_value_shape([0,0]),              '', "HWB got too few values");

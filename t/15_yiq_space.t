@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 88;
+use Test::More tests => 90;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YIQ';
@@ -15,6 +15,10 @@ is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by lo
 is( $space->name,       'YIQ',                     'color space has axis initials as name');
 is( $space->alias,         '',                     'color space has no alias name');
 is( $space->axis_count,     3,                     'color space has 3 axis');
+is( $space->is_linear,          1,                 'YIQ is linear');
+is( $space->is_cylindrical,     0,                 'YIQ is not cylindrical');
+
+
 is( ref $space->check_value_shape([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
 is( ref $space->check_value_shape([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
 is( ref $space->check_value_shape([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');

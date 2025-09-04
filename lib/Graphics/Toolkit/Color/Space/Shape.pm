@@ -87,10 +87,10 @@ sub is_linear {     # overall linear space ?
 }
 sub is_cylindrical {     # overall linear space ?
     my ($self) = @_;
-    my $too_many_angular_axis = 0;
-    map { return 0 if $self->{'type'}[$_] > 1 or $too_many_angular_axis;
-          $too_many_angular_axis++ if $self->{'type'}[$_] == 0;        } $self->basis->axis_iterator;
-    return 1;
+    my $angular_axis = 0;
+    map { $angular_axis++ if $self->{'type'}[$_] == 0;
+          return 0 if $self->{'type'}[$_] > 1;        } $self->basis->axis_iterator;
+    return ($angular_axis == 1) ? 1 : 0;
 }
 
 sub is_int_valued { # all ranges int valued ?

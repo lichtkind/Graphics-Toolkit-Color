@@ -1,79 +1,98 @@
 ATTR
 
- ~name
- ~space
- @values
+ in:    ~space_name // 'RGB'
+ from:  ~|@~scheme // 'default'
+ tilt:  + // 0
+ range: +|@+|@@+range // :space_def
 
-  new: ~name
-       ~standard:name
-       @RGB
-       [ @RGB ]
-       'SPACE' => 1,2,3,4
+
+  new: 'color' (name)           # from GTC::Space::Name::Constant
+       'scheme:name'            # from GTC::Space::Name::Scheme
+       '#RRGGBB' | '#RGB'       (hex_string)
+       'space: value, ..'       (named_string)
+       'space( value,? .. )'    (css_string)
+       @RGB                     (list)
+       [ @RGB ]                 (array)
+       'SPACE' => 1,2,3,4       (named_array)
        ['SPACE' => 1,2,3,4]
+       'SPACE' => [1,2,3,4]
+       {k => v, ..}             (hash) | (char_hash)
        k => v, ..
-       {k => v, ..}
 
 -- getter --------------------------------------------------------------
 
   values: --> () | % | #hex
      --
-     in: ~space
-     as: ~format
+     in:        ~space_name // 'RGB'
+     as:        ~format
+     range:     +|@+|@@+range // :space_def
+     precision: +|@+
+     suffix:    ~|@~
 
-  name: -- ~standard --> ~name
+  name: -- ~standard --> @name
      ---
+     from:      ~|@~scheme
+     all:       ? // 0
+     full:      ? // 0
+     distance:  + // 0
 
-  closest_name: -- ~standard --> ~name
+  closest_name: -- ~standard --> ~|@~name, + distance
      ---
+     from:      ~|@~scheme
+     all:       ? // 0
+     full:      ? // 0
 
   distance:
      ---
+     to:      $color_def
+     ---
+     select:  ~|@~axis_names
+     range:   +|@+|@@+range
+     in:        ~space_name // 'RGB'
 
 
 -- single calc ---------------------------------------------------------
 
   set_value
-     ---
      partial hash def
+     --
+     in:
 
   add_value
-     ---
      partial hash def
+     --
+     in:
 
   mix
      ---
-     with => full def
-     factor => [0..1]
-     space => name|rgb
-
+     to:      $|@color_def
+     amount:  $|@+
+     in:      ~space_name // 'RGB'
 
   invert:
      ---
-     ---
-  ~space_name
+     in:      ~space_name // 'RGB'
+
 
 -- set calc ------------------------------------------------------------
 
   complement
      ---
-     ---
-     +steps
-     +tilt
-     %|+target
-     in: ~space_name # cylindrical only
+     steps:   + // 1
+     tilt:    + // 0
+     target:  %|+
+     in:      ~space_name # cylindrical only
 
   gradient
+     to:      $color_def
      ---
-     to: $color_def
-     ---
-     +steps:
-     +tilt:
-     in: ~space_name
+     steps:   + // 10
+     tilt:    + // 0
+     in:      ~space_name // 'RGB'
 
   cluster
+     min_disctance: +
+     radius:   +
      ---
-     +min_disctance
-     +radius => *
-     ---
-     in: ~space_name
+     in:       ~space_name // 'RGB'
 

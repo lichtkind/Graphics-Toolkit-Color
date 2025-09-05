@@ -76,12 +76,10 @@ Hierarchy
               = ::Space::Instance::(*)
               ======
                 = ::Space
-                  - clamp
-                  - round
-                  - normalize
-                  - denormalize
-                  - denormalize_delta
-                  - delta
+                  - can_convert
+                  - convert_to
+                  - convert_from
+                  - converter_normal_states
                   ======
                   = ::Space::Basis
                     - space_name
@@ -89,8 +87,23 @@ Hierarchy
                     - long_axis_names
                     - short_axis_names
                     - axis_count
+                    - axis_iterator
+                    ----
+                    - is_partial_hash
+                    - is_number_tuple
                   ======
                   = ::Space::Shape
+                    - is_euclidean
+                    - is_cylindrical
+                    - is_int_valued
+                    - is_equal
+                    ----
+                    - clamp
+                    - round
+                    - normalize
+                    - denormalize
+                    - denormalize_delta
+                    - delta
                   ======
                   = ::Space::Format
                     - format

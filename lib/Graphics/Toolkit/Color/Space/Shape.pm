@@ -13,7 +13,7 @@ sub new {
     my ($basis, $type, $range, $precision, $constraint) = @_;
     return unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
-    # check axis type definition
+    # expand axis type definition
     if (not defined $type){ $type = [ (1) x $basis->axis_count ] } # set all axis as linear per default
     elsif (ref $type eq 'ARRAY' and @$type == $basis->axis_count ) {
         for my $i ($basis->axis_iterator) {
@@ -31,7 +31,20 @@ sub new {
     $precision = expand_precision_definition( $basis, $precision );
     return $precision unless ref $precision;
 
-    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
+    # check constraint def
+    if (defined $constraint){
+        return 'color space constraint definition has to be not empty a HASH ref' if ref $constraint ne 'HASH' or not %$constraint;
+        for my $const_name (keys %$constraint){
+            my $const_properties = $constraint->{$const_name};
+            return 'color space constraint "$const_name" need the properties: "checker", "remedy" and error "remedy"'
+                unless exists $const_properties->{'checker'} and exists $const_properties->{'remedy'} and exists $const_properties->{'error'};
+            return 'color space constraint "$const_name" property: "checker" has to be a CODE ref' unless ref $const_properties->{'checker'} eq 'CODE';
+            return 'color space constraint "$const_name" property: "remedy" has to be a CODE ref'  unless ref $const_properties->{'remedy'} eq 'CODE';
+            return 'color space constraint "$const_name" property: "error" has to be a error message string' if ref $const_properties->{'error'};
+        }
+    } else { $constraint = {} }
+
+    bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => $constraint }
 }
 
 #### object attribute checker ##########################################
@@ -83,14 +96,6 @@ sub try_check_precision_definition { # check if range def is valid and eval (exp
     return expand_precision_definition( $self->{'basis'}, $precision );
 }
 
-sub add_constraint {
-    my ($self, $name, $error_msg, $checker, $remedy) = @_;
-    return unless defined $name and not exists $self->{'constraint'}{$name}
-              and defined $error_msg and not ref $error_msg and length($error_msg) > 10
-              and ref $checker eq 'CODE' and ref $remedy eq 'CODE';
-    $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
-}
-
 #### getter of space object ############################################
 sub basis           { $_[0]{'basis'}}
 # per axis
@@ -130,7 +135,7 @@ sub is_euclidean {     # all axis linear ?
     return 1;
 }
 
-sub is_cylindrical {# obe axis angular ?
+sub is_cylindrical {  # one axis angular, rest linear ?
     my ($self) = @_;
     my $angular_axis = 0;
     map { $angular_axis++ if $self->{'type'}[$_] == 0;

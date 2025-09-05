@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 186;
+use Test::More tests => 194;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
@@ -45,8 +45,17 @@ is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, -1), 
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [0,1,-1]), $module, 'full precision def');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [1,2]), '', 'precision def too short');
 is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [1,2,3,-1]), '', 'precision def too long');
-is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, '%'), $module, 'accepting fourth constructor arg - a suffix for axis numbers');
-
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, '%'), '', 'constraints def has to be a hash');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {}), '', 'empty constraints def is not acceptable');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => sub{}}}), '', 'only checker is not enough');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => sub{},remedy => sub{}}}), '', 'only checker and remedy is not enough');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => sub{},remedy => sub{}, error => 'no'}}), $module, 'minimal but correct constraint def');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {
+    t => {checker => sub{},remedy => sub{}, error => 'no'},
+    tt => {checker => sub{},remedy => sub{}, error => 'no'} }), $module, 'two constraint def');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => [],remedy => sub{}, error => []}}), '', 'constraint checker is not CODE ref');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => sub{},remedy => {}, error => []}}), '', 'constraint remedy is not CODE ref');
+is( ref Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, undef, {t => {checker => sub{},remedy => sub{}, error => []}}), '', 'error message in constraints def is not a string');
 
 #### arg eval + getter #################################################
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular','linear','no']);

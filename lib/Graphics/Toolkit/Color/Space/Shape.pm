@@ -8,10 +8,9 @@ use Graphics::Toolkit::Color::Space::Basis;
 use Graphics::Toolkit::Color::Space::Util qw/round_decimals is_nr/;
 
 #### constructor #######################################################
-
 sub new {
     my $pkg = shift;
-    my ($basis, $type, $range, $precision) = @_;
+    my ($basis, $type, $range, $precision, $constraint) = @_;
     return unless ref $basis eq 'Graphics::Toolkit::Color::Space::Basis';
 
     # check axis type definition
@@ -27,14 +26,16 @@ sub new {
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
-    $range = check_range_definition( $basis, $range );
+    $range = expand_range_definition( $basis, $range );
     return $range unless ref $range;
-    $precision = check_precision_definition( $basis, $precision );
+    $precision = expand_precision_definition( $basis, $precision );
     return $precision unless ref $precision;
 
     bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => {} }
 }
-sub check_range_definition { # check if range def is valid and eval (expand) it
+
+#### object attribute checker ##########################################
+sub expand_range_definition { # check if range def is valid and eval (expand) it
     my ($basis, $range) = @_;
     $basis = $basis->{'basis'} if ref $basis eq __PACKAGE__;
     my $error_msg = 'Bad value range definition!';
@@ -61,7 +62,13 @@ sub check_range_definition { # check if range def is valid and eval (expand) it
     }
     return $range;
 }
-sub check_precision_definition { # check if precision def is valid and eval (exapand) it
+sub try_check_range_definition { # check if range def is valid and eval (expand) it
+    my ($self, $range) = @_;
+    return $self->{'range'} unless defined $range;
+    return expand_range_definition( $self->{'basis'}, $range );
+}
+
+sub expand_precision_definition { # check if precision def is valid and eval (exapand) it
     my ($basis, $precision) = @_;
     $basis = $basis->{'basis'} if ref $basis eq __PACKAGE__;
     $precision = -1 unless defined $precision;
@@ -70,6 +77,12 @@ sub check_precision_definition { # check if precision def is valid and eval (exa
     return 'definition of axis value precision has to have same lengths as basis' unless @$precision == $basis->axis_count;
     return $precision;
 }
+sub try_check_precision_definition { # check if range def is valid and eval (expand) it
+    my ($self, $precision) = @_;
+    return $self->{'precision'} unless defined $precision;
+    return expand_precision_definition( $self->{'basis'}, $precision );
+}
+
 sub add_constraint {
     my ($self, $name, $error_msg, $checker, $remedy) = @_;
     return unless defined $name and not exists $self->{'constraint'}{$name}
@@ -78,7 +91,7 @@ sub add_constraint {
     $self->{'constraint'}{$name} = {checker => $checker, remedy => $remedy, error => $error_msg};
 }
 
-#### getter ############################################################
+#### getter of space object ############################################
 sub basis           { $_[0]{'basis'}}
 # per axis
 sub is_axis_numeric {
@@ -111,7 +124,6 @@ sub axis_value_precision { # --> +precision?
 }
 
 # all axis
-
 sub is_euclidean {     # all axis linear ?
     my ($self) = @_;
     map { return 0 if $self->{'type'}[$_] != 1 } $self->basis->axis_iterator;
@@ -132,18 +144,7 @@ sub is_int_valued { # all ranges int valued ?
     return 1;
 }
 
-#### data checker ######################################################
-sub try_check_range_definition { # check if range def is valid and eval (expand) it
-    my ($self, $range) = @_;
-    return $self->{'range'} unless defined $range;
-    return check_range_definition( $self->{'basis'}, $range );
-}
-sub try_check_precision_definition { # check if range def is valid and eval (expand) it
-    my ($self, $precision) = @_;
-    return $self->{'precision'} unless defined $precision;
-    return check_precision_definition( $self->{'basis'}, $precision );
-}
-
+#### value checker #####################################################
 sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     my ($self, $values, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
@@ -194,7 +195,7 @@ sub is_equal {
     return 1;
 }
 
-#### change value shape ################################################
+#### value ops #########################################################
 sub clamp { # change values if outside of range to nearest boundary, angles get rotated into range
     my ($self, $values, $range) = @_;
     $range = $self->try_check_range_definition( $range );

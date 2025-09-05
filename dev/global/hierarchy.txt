@@ -76,8 +76,6 @@ Hierarchy
               = ::Space::Instance::(*)
               ======
                 = ::Space
-                  - format
-                  - deformat
                   - clamp
                   - round
                   - normalize
@@ -86,10 +84,17 @@ Hierarchy
                   - delta
                   ======
                   = ::Space::Basis
+                    - space_name
+                    - alias_name
+                    - long_axis_names
+                    - short_axis_names
+                    - axis_count
                   ======
                   = ::Space::Shape
                   ======
                   = ::Space::Format
+                    - format
+                    - deformat
                   ======
                   = ::Space::Util
 

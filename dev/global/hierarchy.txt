@@ -113,4 +113,10 @@ Graphics::Toolkit::Color class and method call Hierarchy
                     - deformat
                   ======
                   = ::Space::Util
-
+                    - round_int
+                    - round_decimals
+                    - mod_real
+                    - is_nr
+                    - mult_matrix_vector_3
+                    -----
+                    - min, max, uniq

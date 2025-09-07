@@ -54,7 +54,7 @@
 1.92    2025-08-20    lichtkind
 -------
     * = mid sized feature release + 1 fix
-    * + methods "name" and "closest_name" work on any scheme from Graphics::ColorNames
+    * * methods "name" and "closest_name" work on any scheme from Graphics::ColorNames
     * ~ extended "CSS_string" format, commas are now optional
     * ~ no space between axis value and suffix allowed
     * ~ color space "CIELCHuv" got alias name "LCHuv"

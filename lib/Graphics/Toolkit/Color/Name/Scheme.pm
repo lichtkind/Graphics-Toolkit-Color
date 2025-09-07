@@ -98,7 +98,7 @@ sub names_in_range {
 #### util ##############################################################
 sub _clean_name {
     my $name = shift;
-    $name =~ tr/_'//d;
+    $name =~ tr/_'\///d;
     lc $name;
 }
 

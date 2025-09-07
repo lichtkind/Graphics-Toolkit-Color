@@ -287,4 +287,3 @@ is( $norm->[1],    5, 'denormalized second mid delta');
 is( $norm->[2],   10, 'denormalized third max delta');
 
 exit 0;
-

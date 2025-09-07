@@ -1,50 +1,53 @@
 
 
-Hierarchy
----------
+Graphics::Toolkit::Color class and method call Hierarchy
+--------------------------------------------------------
 
 
-    = G::T::Color    (public API)
-      - new          (GTC::Values::new_from_any_input)
+    = G::T::Color          (public API)
+      - new                (GTC::Values::new_from_any_input)
       -----
-      - values       (GTC::Values::formatted)
-      - name         (GTC::Values::get_name)
-      - closest_name (GTC::Values::closest_name_and_distance)
-      - distance     (GTC::Values::distance)
+      - values             (GTC::Values::formatted)
+      - name               (GTC::Name::from_values | GTC::Values::name)
+      - closest_name       (GTC::Name::closest_from_values)
+      - distance           (GTC::Space::Hub::distance)
       -----
-      - set_value    (GTC::Values::set)
-      - add_value    (GTC::Values::add)
-      - mix          (GTC::Values::mix)
-      - invert       (GTC::Values::invert)
+      - set_value          (GTC::Values::set)
+      - add_value          (GTC::Values::add)
+      - mix                (GTC::Values::mix)
+      - invert             (GTC::Values::invert)
       -----
-      - complement   (GTC::SetCalculator::complement)
-      - gradient     (GTC::SetCalculator::gradient)
-      - cluster      (GTC::SetCalculator::cluster)
+      - complement         (GTC::SetCalculator::complement)
+      - gradient           (GTC::SetCalculator::gradient)
+      - cluster            (GTC::SetCalculator::cluster)
       ======
         = ::SetCalculator
-          - gradient    (Values::mix)
-          - complement  (Values::add)
-          - cluster     (Values::add)
+          - gradient       (Values::mix)
+          - complement     (Values::add)
+          - cluster        (Values::add)
         ======
         = ::Values
-          - new_from_any_input         (GTC::Space::Hub::deformat |GTC::Name::values, -> ..)
-          - new_from_tuple             (GTC::Space::Hub::deconvert)
+          - new_from_any_input    (GTC::Space::Hub::deformat |GTC::Name::values, -> ..)
+          - new_from_tuple        (GTC::Space::Hub::deconvert)
           -----
-          - normalized  (  GTC::Space::Hub::convert)
-          - shaped      (.. Space->denormalize, clamp, round)
-          - formatted   (.. Space->format)
-          - name        (:_)
+          - normalized     (GTC::Space::Hub::convert)
+          - shaped         (GTC::Space->denormalize, ->clamp, ->round)
+          - formatted      (GTC::Space->format)
+          - name           (:name)
           ----
-          - set         (GTC::Space::Hub::partial_hash_deformat)
-          - add         (GTC::Space::Hub::partial_hash_deformat)
-          - mix         ()
-          - invert      ()
+          - set            (GTC::Space::Hub::partial_hash_deformat)
+          - add            (GTC::Space::Hub::partial_hash_deformat)
+          - mix            ()
+          - invert         ()
           ======
           = ::Space::Name
             - all
-            - get_values
-            - from_values
-            - closest_from_values
+            - get_values          (GTC::Name::Scheme->values_from_name)
+            - from_values         (GTC::Name::Scheme->names_in_range | ->names_from_values)
+            - closest_from_values (GTC::Name::Scheme->closest_names_from_values)
+            ----
+            - try_get_scheme
+            - add_scheme
             ======
             = ::Space::Name::Scheme
               - new
@@ -73,7 +76,7 @@ Hierarchy
               - deformat_partial_hash
               - distance
             ======
-              = ::Space::Instance::(*)
+              = ::Space::Instance::(......)
               ======
                 = ::Space
                   - can_convert

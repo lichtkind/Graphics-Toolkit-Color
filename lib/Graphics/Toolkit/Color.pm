@@ -413,7 +413,7 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
-    my @reds = $red->cluster( radius => 4, distance => 1 );
+    my @reds = $red->cluster( r => 1.1, min_d => 1 );# 13 shades of red
 
 
 =head1 DEPRECATION WARNING

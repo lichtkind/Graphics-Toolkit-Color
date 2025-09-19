@@ -4,6 +4,7 @@
     * = small feature release = 2 fixes
     * ~ when mixing more than 2 acolor wihtout amounts it will be mixed equally too
     * ? POD fixed / rewrote for methods "mix"
+    * ? POD fixed in main example
     * ? document new color space syntax
 
 1.972    2025-09-31    lichtkind

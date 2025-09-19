@@ -598,16 +598,16 @@ C<name> and C<full:name> are produce by the method L</name>.
 Format names are case insensitive. For more explanations, please see:
 L<formats section|Graphics::Toolkit::Color::Space::Hub/FORMATS> in GTC::Space::Hub.
 
-C<precision> is more exotic argument, but sometimes you need to escape
+C<precision> is a more exotic argument, but sometimes you need to escape
 the numeric precision, set by a color spaces definition.
 For instance C<LAB> values will have maximally three decimals, no matter
 how precise the input was. In case you prefer 4 decimals, just use
 C<< precision => 4 >>. A zero means no decimals and -1 stands for maximal
-precision -  which can spit out more decimals than you prefer.
+precision -  which may spit out more decimals than you prefer.
 Different precisions per axis are possible via an ARRAY ref:
 C<< precision => [1,2,3] >>.
 
-In same way you can atach a little strings per value by ussing the C<suffix>
+In the same way you can atach a little strings per value by using the C<suffix>
 argument. Normally these are percentage signs but in some spaces, where
 they appear by default you can surpress them by adding C<< suffix => '' >>
 

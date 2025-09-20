@@ -486,31 +486,33 @@ If you want to define a color by values from another color space,
 you have to prepend the values with the name of a supported color space.
 Out of range values will be corrected (clamped).
 
-    my $red = Graphics::Toolkit::Color->new(         255, 0, 0 );
-    my $red = Graphics::Toolkit::Color->new(        [255, 0, 0]); # does the same
-    my $red = Graphics::Toolkit::Color->new( 'RGB',  255, 0, 0 ); # named ARRAY syntax
-    my $red = Graphics::Toolkit::Color->new(  RGB => 255, 0, 0 ); # with fat comma
-    my $red = Graphics::Toolkit::Color->new([ RGB => 255, 0, 0]); # and brackets
-    my $red = Graphics::Toolkit::Color->new(  RGB =>[255, 0, 0]); # separate name and values
-    my $red = Graphics::Toolkit::Color->new(  YUV =>.299,-0.168736, .5); # same color in YUV
+    my $red = Graphics::Toolkit::Color->new(          255, 0, 0 );
+    my $red = Graphics::Toolkit::Color->new(         [255, 0, 0]); # does the same
+    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 ); # named ARRAY syntax
+    my $red = Graphics::Toolkit::Color->new(  RGB =>  255, 0, 0 ); # with fat comma
+    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]); # and brackets
+    my $red = Graphics::Toolkit::Color->new(  RGB => [255, 0, 0]); # separate name and values
+    my $red = Graphics::Toolkit::Color->new(  YUV => .299,-0.168736, .5); # same color in YUV
 
 
 =head2 new('rgb($r,$g,$b)')
 
 String format that is supported by CSS (I<css_string> format): it starts
 with the case insensitive color space name (lower case is default),
-followed by the (optionally with) comma separated values in round braces.
+followed by the (optionally) comma separated values in round braces.
 The value suffixes that are defined by the color space (I<'%'> in case
 of I<HSV>) are optional.
 
-    my $red = Graphics::Toolkit::Color->new( 'rgb(255 0 0)' );
+    my $red = Graphics::Toolkit::Color->new( 'rgb(255 0 0)' );        # comma optional
     my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100%, 100%)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );   # works too
 
 
 =head2 new('rgb: $r, $g, $b')
 
 String format I<named_string> (good for serialisation) that maximizes
-readability.
+readability. Here are commas not optional, but space name is still case
+insensitive.
 
     my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
     my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
@@ -522,7 +524,7 @@ Color definitions in hexadecimal format as widely used in the web, are
 also acceptable (I<RGB> only).
 
     my $color = Graphics::Toolkit::Color->new('#FF0000');
-    my $color = Graphics::Toolkit::Color->new('#f00');    # short works too
+    my $color = Graphics::Toolkit::Color->new('#f00');    # short version
 
 
 =head2 new('name')

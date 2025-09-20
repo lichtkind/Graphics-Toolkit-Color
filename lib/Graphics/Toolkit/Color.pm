@@ -473,7 +473,7 @@ Upper or lower case doesn't matter.
 
     my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
     my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
-                        ... ->new( Red => 255, Green => 0, Blue => 0);   # also fine
+                          ... ->new( Red => 255, Green => 0, Blue => 0); # also fine
               ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
                   ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
 

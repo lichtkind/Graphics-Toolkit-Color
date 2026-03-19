@@ -675,7 +675,7 @@ with C<all> to get all color names that are within a certain distance.
 =head2 closest_name
 
 Returns in scalar context a color name, which has the shortest L</distance>
-in I<RGB>nto the current color. In list context, you get additionally
+in I<RGB> to the current color. In list context, you get additionally
 the just mentioned distance as a second return value. This method works
 almost identically as method L</name>, but guarantees a none empty
 result, unless invoking a unusually empty color scheme.

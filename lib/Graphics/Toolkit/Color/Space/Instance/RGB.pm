@@ -20,6 +20,7 @@ sub tuple_from_hex {                                          # translate #00000
 }
 
 Graphics::Toolkit::Color::Space->new (
+        alias => 'sRGB',              # standard RGB
          axis => [qw/red green blue/],
         range => 255,
     precision => 0,

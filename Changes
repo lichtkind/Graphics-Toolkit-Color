@@ -1,7 +1,11 @@
-
-1.98    2026-03-18    lichtkind
+1.99    2026-03-19    lichtkind
 -------
-    * = small feature release = 2 fixes
+    * ~ added 'sRGB' as alias name of RGB space
+
+
+1.98    2026-03-19    lichtkind
+-------
+    * = small fix release = 2 fixes
     * ~ when mixing more than 2 color wihtout amounts it will be mixed equally too
     * ? POD fixed / rewrote for methods "mix"
     * ? POD fixed in main example

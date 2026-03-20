@@ -2,9 +2,6 @@ TODO:
 ------
 
  = 2.0: 
-   + ramp up precision by using converter flags
-   + space constraints for HWB and HSV
-   + complement in okLCH, cieLCHuv
 
  = 2.1: 
    + gamma correction via values
@@ -30,7 +27,7 @@ TODO:
    + linear RGB
    + cubehelix color space
    + r/g color blind space
-
+   + ramp up precision by using converter flags
 
  # Likely:                                      planned version
 

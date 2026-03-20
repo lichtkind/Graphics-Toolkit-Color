@@ -1,7 +1,10 @@
-1.99    2026-03-19    lichtkind
+1.99    2026-03-22    lichtkind
 -------
-    * ~ added 'sRGB' as alias name of RGB space
-
+    * = small feature release = 3 small features
+    * + space constraints for HWB and HSV
+    * + complement in okLCH, cieLCHuv, cieLCHab
+    * + added 'sRGB' as alias name of RGB space
+    * \ final test release before 2.0
 
 1.98    2026-03-19    lichtkind
 -------

@@ -429,8 +429,8 @@ will be removed with release of version 2.0.
 Graphics::Toolkit::Color, for short B<GTC>, is the top level API of this
 release and the only package a regular user should be concerned with.
 Its main purpose is the creation of related colors or sets of them,
-such as gradients, complements and others. But you can use it also to
-convert and/or reformat color definitions.
+such as gradients, complements and more. But if you want to convert, 
+quantize, round or reformat color definitions, it can be helpful too.
 
 GTC are read only, one color representing objects with no additional
 dependencies. Create them in many different ways (see L</CONSTRUCTOR>).
@@ -441,20 +441,21 @@ L</COLOR-SETS> methods will create a group of colors, that are not
 only related to the current color but also have relations between each other.
 Error messages will appear as return values instead of the expected result.
 
-While this module can understand and output color values to many
+While this module can understand and output color values for many
 L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>,
 L<RGB|Graphics::Toolkit::Color::Space::Hub/RGB>
 is the (internal) primal one, because GTC is about colors that can be
-shown on the screen, and these are usually encoded in I<RGB>.
+shown on the screen, and these are usually encoded in I<RGB> (nonlinear standard RGB).
 Humans access colors on hardware level (eye) in I<RGB>, on cognition level
-in I<HSL> (brain) and on cultural level (language) with names.
-Having easy access to all of those plus some color math and many formats
-should enable you to get the color palette you desire quickly.
+in I<HSL> or I<LAB> (brain) and on cultural level (language) with names.
+With all these options available you can express easily and intuitively
+with which color to start. And plenty of functions with lots of options
+help you to arrive at the desired color (palette) quickly.
 
 
 =head1 CONSTRUCTOR
 
-There are many options to create a color object. In short you can either
+There are many ways to create a color object. In short you can either
 use the name of a constant (see L</name>) or provide values, which are
 coordinates in one of several
 L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
@@ -484,14 +485,14 @@ takes a triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
 They can, but don't have to be put into an ARRAY reference (square brackets).
 If you want to define a color by values from another color space,
 you have to prepend the values with the name of a supported color space.
-Out of range values will be corrected (clamped).
+Out of range (gamut) values will be corrected (clamped).
 
     my $red = Graphics::Toolkit::Color->new(          255, 0, 0 );
-    my $red = Graphics::Toolkit::Color->new(         [255, 0, 0]); # does the same
-    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 ); # named ARRAY syntax
-    my $red = Graphics::Toolkit::Color->new(  RGB =>  255, 0, 0 ); # with fat comma
-    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]); # and brackets
-    my $red = Graphics::Toolkit::Color->new(  RGB => [255, 0, 0]); # separate name and values
+    my $red = Graphics::Toolkit::Color->new(         [255, 0, 0]);   # does the same
+    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 );   # named ARRAY syntax
+    my $red = Graphics::Toolkit::Color->new(  RGB =>  255, 0, 0 );   # with fat comma
+    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]);   # and brackets
+    my $red = Graphics::Toolkit::Color->new(  RGB => [255, 0, 0]);   # separate name and values
     my $red = Graphics::Toolkit::Color->new(  YUV => .299,-0.168736, .5); # same color in YUV
 
 
@@ -503,7 +504,7 @@ followed by the (optionally) comma separated values in round braces.
 The value suffixes that are defined by the color space (I<'%'> in case
 of I<HSV>) are optional.
 
-    my $red = Graphics::Toolkit::Color->new( 'rgb(255 0 0)' );        # comma optional
+    my $red = Graphics::Toolkit::Color->new(  'rgb(255 0 0)' );         # comma optional
     my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100%, 100%)' );
     my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );   # works too
 
@@ -514,7 +515,7 @@ String format I<named_string> (good for serialisation) that maximizes
 readability. Here are commas not optional, but space name is still case
 insensitive.
 
-    my $red = Graphics::Toolkit::Color->new( 'rgb: 255, 0, 0' );
+    my $red = Graphics::Toolkit::Color->new(  'rgb: 255, 0, 0' );
     my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
 
 
@@ -548,7 +549,7 @@ See all scheme names L<here | Graphics::Toolkit::Color::Name/SCHEMES>.
 The color name will be  normalized as above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
-    my @schemes = Graphics::ColorNames::all_schemes();      # look up the installed
+    my @schemes = Graphics::ColorNames::all_schemes();    # look up the installed
 
 
 =head2 color
@@ -590,12 +591,12 @@ use the C<range> argument only, if you like to deviate from the value
 ranges defined by the chosen color space.
 
 The maybe most characteristic argument for this method is C<as>, which
-enables all the same formats the constructor method C<new> accepts.
+enables all the same numeric formats the constructor method C<new> accepts.
 I<GTC> is built with the design principle of total serialisation.
 This means: every contructor input format can be reproduced by a getter
-method and vice versa. These formats are: C<list> (default),
-C<named_array>, C<hash>, C<char_hash>, C<named_string>, C<css_string>,
-C<array> (RGB only) and C<hex_string> (RGB only). The remaining two.
+method and vice versa. These formats are: C<'list'> (default),
+C'<named_array'>, C<'hash'>, C<'char_hash'>, C<'named_string'>, C<'css_string'>,
+C<'array'> (RGB only) and C<'hex_string'> (RGB only). The remaining two.
 C<name> and C<full:name> are produce by the method L</name>.
 Format names are case insensitive. For more explanations, please see:
 L<formats section|Graphics::Toolkit::Color::Space::Hub/FORMATS> in GTC::Space::Hub.
@@ -611,23 +612,23 @@ C<< precision => [1,2,3] >>.
 
 In the same way you can atach a little strings per value by using the C<suffix>
 argument. Normally these are percentage signs but in some spaces, where
-they appear by default you can surpress them by adding C<< suffix => '' >>
+they appear by default you can surpress them by adding C<< suffix => '' >>,
 
 
-    $blue->values();                                    # 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');          # 0, 0, 255 # explicit arguments
-    $blue->values(              as => 'array');         # [0, 0, 255] - RGB only
-    $blue->values( in => 'RGB', as => 'named_array');   # ['RGB', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');          # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');     # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'named_string');  # 'rgb: 0, 0, 255'
-    $blue->values( in => 'RGB', as => 'css_string');    # 'rgb( 0, 0, 255)'
-    $blue->values(              as => 'hex_string');    # '#0000ff' - RGB only
-    $blue->values(           range => 2**16 );          # 0, 0, 65536
-    $blue->values('HSL');                               # 240, 100, 50
-    $blue->values( in => 'HSL',suffix => ['', '%','%']);# 240, '100%', '50%'
-    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};# 240
-   ($blue->values( 'HSB'))[0];                          # 240
+    $blue->values();                                      # 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');            # 0, 0, 255 # explicit arguments
+    $blue->values(              as => 'array');           # [0, 0, 255] - RGB only
+    $blue->values( in => 'RGB', as => 'named_array');     # ['RGB', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');            # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');       # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string');    # 'rgb: 0, 0, 255'
+    $blue->values( in => 'RGB', as => 'css_string');      # 'rgb( 0, 0, 255)'
+    $blue->values(              as => 'hex_string');      # '#0000ff' - RGB only
+    $blue->values(           range => 2**16 );            # 0, 0, 65536
+    $blue->values('HSL');                                 # 240, 100, 50
+    $blue->values( in => 'HSL',suffix => ['', '%','%']);  # 240, '100%', '50%'
+    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};  # 240
+   ($blue->values( 'HSB'))[0];                            # 240
     $blue->values( in => 'XYZ', range => 1, precision => 2);# normalized, 2 decimals max.
 
 

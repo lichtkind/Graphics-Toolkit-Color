@@ -1,25 +1,35 @@
 TODO:
 ------
 
- = 2.0 features:
+ = 2.0: 
    + ramp up precision by using converter flags
    + space constraints for HWB and HSV
    + complement in okLCH, cieLCHuv
 
+ = 2.1: 
+   + gamma correction via values
+
+ = 2.2:
+   + difference method
+
+ = 2.3:
+   + linarSRGB
+   + CIERGB
+
+ = 2.4:
+   + OKHSL
+   + OKHSV
+   + OKHWB
+
  = 2.5 features
-   + new color spaces
-     - OKHSL
-     - OKHSV
-     - CIERGB
-   + cmp method
-   + gamma correction
    + palette method
 
 
  = 3.0 features
-   + color space parameter: gamma, illuminant, cubehelix
+   + color space parameter: illuminant
    + linear RGB
    + cubehelix color space
+   + r/g color blind space
 
 
  # Likely:                                      planned version

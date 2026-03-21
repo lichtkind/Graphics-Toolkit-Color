@@ -2,21 +2,25 @@ TODO:
 ------
 
  = 2.0: 
+   + additional space constraints
+   + method: is_in_gamut
 
  = 2.1: 
-   + gamma correction via values
-
- = 2.2:
-   + difference method
-
- = 2.3:
    + linarSRGB
    + CIERGB
 
- = 2.4:
+ = 2.2:
    + OKHSL
    + OKHSV
    + OKHWB
+   + complement can select space
+
+ = 2.3:
+   + gamma correction via method apply_gamma
+   + cubehelix color space
+ 
+ = 2.4:
+   + difference method
 
  = 2.5 features
    + palette method
@@ -24,8 +28,6 @@ TODO:
 
  = 3.0 features
    + color space parameter: illuminant
-   + linear RGB
-   + cubehelix color space
    + r/g color blind space
    + ramp up precision by using converter flags
 

@@ -53,5 +53,6 @@ Graphics::Toolkit::Color::Space->new(
        precision => 0,
             type => [qw/angular linear linear/],
           suffix => ['', '%', '%'],
+      #constraint => {triangle => checker},
          convert => {RGB => [\&to_rgb, \&from_rgb]},
 );

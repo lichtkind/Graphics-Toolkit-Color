@@ -34,13 +34,19 @@ sub new {
     # check constraint def
     if (defined $constraint){
         return 'color space constraint definition has to be not empty a HASH ref' if ref $constraint ne 'HASH' or not %$constraint;
-        for my $const_name (keys %$constraint){
-            my $const_properties = $constraint->{$const_name};
-            return 'color space constraint "$const_name" need the properties: "checker", "remedy" and error "remedy"'
-                unless exists $const_properties->{'checker'} and exists $const_properties->{'remedy'} and exists $const_properties->{'error'};
-            return 'color space constraint "$const_name" property: "checker" has to be a CODE ref' unless ref $const_properties->{'checker'} eq 'CODE';
-            return 'color space constraint "$const_name" property: "remedy" has to be a CODE ref'  unless ref $const_properties->{'remedy'} eq 'CODE';
-            return 'color space constraint "$const_name" property: "error" has to be a error message string' if ref $const_properties->{'error'};
+        for my $constraint_name (keys %$constraint){
+            my $properties = $constraint->{$constraint_name};
+            my $error_msg = 'constraint "$constraint_name" in '.$basis->space_name.' color space';
+            for (qw/checker error remedy/){
+				return $error_msg." needs the string-propertiy '$_'" 
+					unless exists $properties->{$_} and $properties->{$_} and not ref $properties->{$_};
+			}
+			$properties->{'checker_code'} = $properties->{'checker'};
+			$properties->{'checker'} = eval 'sub {'.$properties->{'checker_code'}.'}';
+			return 'checker code of '.$error_msg.":'$properties->{checker_code}' does not eval - $@" if $@;
+			$properties->{'remedy_code'} = $properties->{'remedy'};
+			$properties->{'remedy'} = eval 'sub {'.$properties->{'remedy_code'}.'}';
+			return 'remedy code of '.$error_msg.":'$properties->{remedy_code}' does not eval - $@" if $@;
         }
     } else { $constraint = {} }
 
@@ -169,11 +175,15 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
             if $precision->[$axis_index] >= 0
            and round_decimals($values->[$axis_index], $precision->[$axis_index]) != $values->[$axis_index];
     }
-    for my $constraint (values %{$self->{'constraint'}}){
-        return $constraint->{'error'} unless $constraint->{'checker'}->( $values );
-    }
     return $values;
 }
+
+sub is_in_constraints {  # :values --> ?  # normalized values only
+    my ($self, $values) = @_;
+   #~ for my $constraint (values %{$self->{'constraint'}}){
+        #~ return 0 unless $constraint->{'checker'}->( $values );
+    #~ }
+ }
 
 sub is_in_linear_bounds {  # :values --> ?
     my ($self, $values) = @_;
@@ -182,9 +192,6 @@ sub is_in_linear_bounds {  # :values --> ?
         return 0 if $self->{'type'}[$axis_nr] == 1
                 and ( $values->[$axis_nr] < $self->{'range'}[$axis_nr][0]
                    or $values->[$axis_nr] > $self->{'range'}[$axis_nr][1] );
-    }
-    for my $constraint (values %{$self->{'constraint'}}){
-        return 0 unless $constraint->{'checker'}->( $values );
     }
     return 1;
 }

@@ -4,7 +4,7 @@
 
 ### VERSION
 
-    1.98
+    1.99
 
 [on CPAN](https://metacpan.org/pod/Graphics::Toolkit::Color)
 
@@ -82,7 +82,7 @@
 
 ### COPYRIGHT
 
-    Copyright(c) 2022-25 by Herbert Breunung
+    Copyright(c) 2022-26 by Herbert Breunung
 
     All rights reserved.  This program is free software; you can
     redistribute it and/or modify it under the same terms as Perl

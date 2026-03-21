@@ -1043,7 +1043,7 @@ Herbert Breunung, <lichtkind@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright 2022-2025 Herbert Breunung.
+Copyright 2022-2026 Herbert Breunung.
 
 =head1 LICENSE
 

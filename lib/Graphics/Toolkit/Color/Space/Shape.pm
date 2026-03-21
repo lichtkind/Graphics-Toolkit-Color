@@ -41,6 +41,7 @@ sub new {
 				return $error_msg." needs the string-propertiy '$_'" 
 					unless exists $properties->{$_} and $properties->{$_} and not ref $properties->{$_};
 			}
+			# @_ = [0,0,0];	
 			$properties->{'checker_code'} = $properties->{'checker'};
 			$properties->{'checker'} = eval 'sub {'.$properties->{'checker_code'}.'}';
 			return 'checker code of '.$error_msg.":'$properties->{checker_code}' does not eval - $@" if $@;
@@ -193,6 +194,7 @@ sub is_in_linear_bounds {  # :values --> ?
                 and ( $values->[$axis_nr] < $self->{'range'}[$axis_nr][0]
                    or $values->[$axis_nr] > $self->{'range'}[$axis_nr][1] );
     }
+    # is_in_constraints
     return 1;
 }
 
@@ -233,9 +235,10 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
             $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] == $range->[$axis_nr][1];
         }
     }
-    for my $constraint (values %{$self->{'constraint'}}){
-        $values = $constraint->{'remedy'}->( $values ) unless $constraint->{'checker'}->( $values );
-    }
+    # has to be normalized
+    #~ for my $constraint (values %{$self->{'constraint'}}){
+        #~ $values = $constraint->{'remedy'}->( $values ) unless $constraint->{'checker'}->( $values );
+    #~ }
     return $values;
 }
 

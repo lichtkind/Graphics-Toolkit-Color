@@ -203,6 +203,10 @@ EOH
         $self->{'values'}->normalized, $target_color->{'values'}->normalized, $color_space->name ,$arg->{'select'}, $range_def );
 }
 
+
+sub is_in_gamut {
+}
+	
 ## single color creation methods #######################################
 sub set_value {
     my ($self, @args) = @_;
@@ -722,6 +726,13 @@ The last argument is named L</range>, which can change the result drasticly.
     $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
     $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
 
+=head2 is_in_gamut
+
+Takes any described color definition and returns a perlish pseudo boolean 
+(zero or one). It will tell you if the color values are within the gamut,
+the accepted value ranges of the space the color is defined in.
+
+    if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
 
 
 =head1 SINGLE COLOR

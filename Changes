@@ -1,8 +1,8 @@
 1.99    2026-03-22    lichtkind
 -------
     * = small feature release = 3 small features
-    * + space constraints for HWB and HSV
-    * + complement in okLCH, cieLCHuv, cieLCHab
+    * + method is_in_gamut checks if values are valid
+    * + cone shaped space constraints for HWB and HSV
     * + added 'sRGB' as alias name of RGB space
     * \ final test release before 2.0
 

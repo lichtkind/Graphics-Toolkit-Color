@@ -42,6 +42,9 @@ Graphics::Toolkit::Color::Space->new (
  precision => 0,
       type => [qw/angular linear linear/],
   # suffix => ['', '%', '%'],
+ constraint => {triangle => {checker => '$_[0][1] + $_[0][2] <= 1',
+		                    error   => 'saturation or value value is to big',
+		                    remedy  => '$_[0][2] = 1 - $_[0][1]', }},
    convert => {RGB => [\&to_rgb, \&from_rgb]},
 );
 

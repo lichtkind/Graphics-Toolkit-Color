@@ -5,6 +5,7 @@
     * -        rgb_hex, rgb_hash, hsl, hue, set, add, saturation, lightness,
     * -        hsl_hash, distance_to, blend, blend_with, gradient_to,
     * -        rgb_gradient_to, hsl_gradient_to, complementary
+    * + cone shaped space constraints for HWB
 
 
 1.99    2026-03-22    lichtkind

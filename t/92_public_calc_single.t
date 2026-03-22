@@ -49,7 +49,7 @@ is( $values[0],                                           0, 'red value has the 
 is( $values[1],                                          22, 'green value has the set number');
 is( $values[2],                                         255, 'blue has the clamped number, was too big');
 is( $white->set_value( lightness => 0)->name,       'black', 'dimming down to black');
-is( $white->set_value( blackness => 100)->name,     'black', 'works in HWB too');
+is( $white->set_value( blackness => 100)->name,      'gray', 'adding black to white = grey');
 
 #### add_value #########################################################
 is( ref $white->add_value(),                               '',  'need some argument for "add_value"');

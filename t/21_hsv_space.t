@@ -49,7 +49,7 @@ $hsv = $space->clamp([-1.1,-1,101,4]);
 is( int @$hsv,   3,     'removed superfluous value');
 is( $hsv->[0], 358.9,   'rotated up (H) value and removed decimals');
 is( $hsv->[1],   0,     'clamped up too small (S) value');
-is( $hsv->[2], 100,     'clamped down too large (V) value');;
+is( $hsv->[2], 100,     'clamped down too large (V) value');
 
 $hsv = $space->convert_from( 'RGB', [0.5, 0.5, 0.5]);
 is( int @$hsv,   3,     'convert grey from RGB to HSV');

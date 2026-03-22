@@ -42,9 +42,9 @@ Graphics::Toolkit::Color::Space->new (
  precision => 0,
       type => [qw/angular linear linear/],
   # suffix => ['', '%', '%'],
- constraint => {triangle => {checker => '$_[0][1] + $_[0][2] <= 1',
-		                    error   => 'saturation or value value is to big',
-		                    remedy  => '$_[0][1] = $_[0][1]/($_[0][1] + $_[0][2]);$_[0][2] = 1 - $_[0][1]', }},
+ constraint => {triangle => {checker => '$_[0][1] <= $_[0][2]',
+		                    error    => 'Saturation can not be greater than Value',
+		                    remedy   => '[$_[0][0], $_[0][2], $_[0][2]]', }},
    convert => {RGB => [\&to_rgb, \&from_rgb]},
 );
 

@@ -31,25 +31,27 @@ sub new {
     $precision = expand_precision_definition( $basis, $precision );
     return $precision unless ref $precision;
 
-    # check constraint def
+     # check constraint def
     if (defined $constraint){
-        return 'color space constraint definition has to be not empty a HASH ref' if ref $constraint ne 'HASH' or not %$constraint;
+        return 'color space constraint definition has to be a none empty HASH ref' if ref $constraint ne 'HASH' or not %$constraint;
         for my $constraint_name (keys %$constraint){
-            my $properties = $constraint->{$constraint_name};
+			my $properties = $constraint->{$constraint_name};
+			return 'a color space constraint has to be a HASH ref with three keys' unless ref $properties eq 'HASH' and %$properties == 3;
+            $properties = {%$properties};
             my $error_msg = 'constraint "$constraint_name" in '.$basis->space_name.' color space';
             for (qw/checker error remedy/){
 				return $error_msg." needs the string-propertiy '$_'" 
 					unless exists $properties->{$_} and $properties->{$_} and not ref $properties->{$_};
 			}
-			# @_ = [0,0,0];	
-			$properties->{'checker_code'} = $properties->{'checker'};
+ 			$properties->{'checker_code'} = $properties->{'checker'};
 			$properties->{'checker'} = eval 'sub {'.$properties->{'checker_code'}.'}';
 			return 'checker code of '.$error_msg.":'$properties->{checker_code}' does not eval - $@" if $@;
 			$properties->{'remedy_code'} = $properties->{'remedy'};
 			$properties->{'remedy'} = eval 'sub {'.$properties->{'remedy_code'}.'}';
 			return 'remedy code of '.$error_msg.":'$properties->{remedy_code}' does not eval - $@" if $@;
-        }
-    } else { $constraint = {} }
+			$constraint->{ $constraint_name } = $properties;
+       }
+    } else { $constraint = '' }
 
     bless { basis => $basis, type => $type, range => $range, precision => $precision, constraint => $constraint }
 }
@@ -176,7 +178,12 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
             if $precision->[$axis_index] >= 0
            and round_decimals($values->[$axis_index], $precision->[$axis_index]) != $values->[$axis_index];
     }
-    # is_in_constraints
+    if ($self->has_constraints){
+		my $values = $self->normalize($values, $range);
+		for my $constraint (values %{$self->{'constraint'}}){
+			return $constraint->{'error'} unless $constraint->{'checker'}->( $values );
+		}
+	}
     return $values;
 }
 
@@ -191,7 +198,7 @@ sub is_equal {  # @values_a, @values_b -- $precision --> ?
     return 1;
 }
 
-sub has_constraints {  my ($self) = @_;  return (%{$self->{'constraint'}}) ? 1 : 0 } # --> ?
+sub has_constraints {  my ($self) = @_;  return (ref $self->{'constraint'}) ? 1 : 0 } # --> ?
 
 sub is_in_constraints {  # @values --> ?  # normalized values only, so it works on any ranges
     my ($self, $values) = @_;
@@ -212,7 +219,7 @@ sub is_in_bounds {  # :values --> ?
                  or $values->[$axis_nr] > $range->[$axis_nr][1];
     }
     if ($self->has_constraints){
-		return $self->is_in_constraints( $self->normalize($values, $range) );
+		return $self->is_in_constraints( $self->normalize( $values, $range) );
 	}
     return 1;
 }
@@ -227,7 +234,7 @@ sub is_in_linear_bounds {  # :values --> ?
                  or $values->[$axis_nr] > $range->[$axis_nr][1];
     }
     if ($self->has_constraints){
-		return $self->is_in_constraints( $self->normalize($values, $range) );
+		return $self->is_in_constraints( $self->normalize( $values, $range) );
 	}
     return 1;
 }
@@ -238,7 +245,7 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
     $range = $self->try_check_range_definition( $range );
     return $range unless ref $range;
     $values = [] unless ref $values eq 'ARRAY';
-    pop  @$values    while @$values > $self->basis->axis_count;
+    pop  @$values     while @$values > $self->basis->axis_count;
     for my $axis_nr ($self->basis->axis_iterator){
         next unless $self->is_axis_numeric( $axis_nr ); # touch only numeric values
         if (not defined $values->[$axis_nr]){
@@ -258,10 +265,13 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
             $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] == $range->[$axis_nr][1];
         }
     }
-    # has to be normalized
-    #~ for my $constraint (values %{$self->{'constraint'}}){
-        #~ $values = $constraint->{'remedy'}->( $values ) unless $constraint->{'checker'}->( $values );
-    #~ }
+    if ($self->has_constraints){
+		$values = $self->normalize( $values, $range);
+		for my $constraint (values %{$self->{'constraint'}}){
+			$values = $constraint->{'remedy'}->($values) unless $constraint->{'checker'}->( $values );
+		}
+		$values = $self->denormalize( $values, $range);
+	}    
     return $values;
 }
 

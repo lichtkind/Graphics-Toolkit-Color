@@ -49,6 +49,16 @@ sub _new_from_normal_tuple { #
     bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, name => $name };
 }
 
+sub is_in_gamut {
+    my ($color_def, $range_def) = @_;
+    my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
+    return 1 if ref $rgb;
+    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    return 0 unless ref $color_space;
+    return $color_space->is_in_bounds( $values ); # , $range_def 
+}
+
 #### getter ############################################################
 sub normalized { # normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;

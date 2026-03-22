@@ -11,31 +11,36 @@ use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 
 my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
-our @EXPORT_OK = qw/color/;
+our @EXPORT_OK = qw/color is_in_gamut/;
 
 ## constructor #########################################################
 
-sub color { Graphics::Toolkit::Color->new ( @_ ) }
+sub color       { Graphics::Toolkit::Color->new ( @_ ) }
 
 sub new {
     my ($pkg, @args) = @_;
     my $help = <<EOH;
-    constructor new of Graphics::Toolkit::Color object needs either:
-    1. a color name: new('red') or new('SVG:red')
-    3. RGB hex string new('#FF0000') or new('#f00')
-    4. $default_space_name array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
-    5. named array or ARRAY ref:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
-    6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
-    7. HASH or HASH ref with values from RGB or any other space:
-       new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
+     constructor new of Graphics::Toolkit::Color object needs either:
+     1. a color name: new('red') or new('SVG:red')
+     3. RGB hex string new('#FF0000') or new('#f00')
+     4. $default_space_name array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
+     5. named array or ARRAY ref:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
+     6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
+     7. HASH or HASH ref with values from RGB or any other space:
+        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
 EOH
+    my $color_def = _compact_color_def_into_scalar( @args );
+    return $help unless defined $color_def;
+    my $self = _new_from_scalar_def( $color_def );
+    return (ref $self) ? $self : $help;
+}
+sub _compact_color_def_into_scalar {
+    my (@args) = @_;
     my $first_arg_is_color_space = Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0] );
     @args = ([ $args[0], @{$args[1]} ]) if @args == 2 and $first_arg_is_color_space and ref $args[1] eq 'ARRAY';
     @args = ([ @args ])                 if @args == 3 or (@args > 3 and $first_arg_is_color_space);
     @args = ({ @args })                 if @args == 6 or @args == 8;
-    return $help unless @args == 1;
-    my $self = _new_from_scalar_def( $args[0] );
-    return (ref $self) ? $self : $help;
+    return (@args == 1) ? $args[0] : undef;
 }
 sub _new_from_scalar_def { # color defs of method arguments
     my ($color_def) = shift;
@@ -205,6 +210,11 @@ EOH
 
 
 sub is_in_gamut {
+    my ($self, @args) = @_;
+    #unshift @args, $self unless ref $self eq __PACKAGE__;
+    #~ my $color_def = _compact_color_def_into_scalar(@args);
+	#~ return 0 unless defined $color_def;
+    #~ Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg
 }
 	
 ## single color creation methods #######################################
@@ -409,11 +419,12 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
 
 =head1 SYNOPSIS
 
-    use Graphics::Toolkit::Color qw/color/;
+    use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
     my $red = Graphics::Toolkit::Color->new('red');  # create color object
     say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'magenta'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
+    if (is_in_gamut('oklab(14, -106, 3)')) { ..      # check if valid
     $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
@@ -728,11 +739,19 @@ The last argument is named L</range>, which can change the result drasticly.
 
 =head2 is_in_gamut
 
-Takes any described color definition and returns a perlish pseudo boolean 
-(zero or one). It will tell you if the color values are within the gamut,
-the accepted value ranges of the space the color is defined in.
+Takes any here described color definition and returns a perlish pseudo 
+boolean (zero or one). It will tell you if the color is within the gamut,
+of the color space, the color was defined in. Or in simpler terms: 
+are the color values within the accepted ranges? Some spaces exclude
+certain value combinations. This is the way to ensure you got a valid
+color definition.
+
+If it is too clumsy for you to use an existing color object to check if
+another color is valid: use th importable routine with the same name.
 
     if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
+    use Graphics::Toolkit::Color qw/is_in_gamut/;
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
 
 
 =head1 SINGLE COLOR

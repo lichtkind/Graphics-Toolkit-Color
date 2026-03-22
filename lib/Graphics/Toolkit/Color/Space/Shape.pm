@@ -176,29 +176,11 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
             if $precision->[$axis_index] >= 0
            and round_decimals($values->[$axis_index], $precision->[$axis_index]) != $values->[$axis_index];
     }
+    # is_in_constraints
     return $values;
 }
 
-sub is_in_constraints {  # :values --> ?  # normalized values only
-    my ($self, $values) = @_;
-   #~ for my $constraint (values %{$self->{'constraint'}}){
-        #~ return 0 unless $constraint->{'checker'}->( $values );
-    #~ }
- }
-
-sub is_in_linear_bounds {  # :values --> ?
-    my ($self, $values) = @_;
-    return 0 unless $self->basis->is_number_tuple( $values );
-    for my $axis_nr ($self->basis->axis_iterator) {
-        return 0 if $self->{'type'}[$axis_nr] == 1
-                and ( $values->[$axis_nr] < $self->{'range'}[$axis_nr][0]
-                   or $values->[$axis_nr] > $self->{'range'}[$axis_nr][1] );
-    }
-    # is_in_constraints
-    return 1;
-}
-
-sub is_equal {
+sub is_equal {  # @values_a, @values_b -- $precision --> ? 
     my ($self, $values_a, $values_b, $precision) = @_;
     return 0 unless $self->basis->is_value_tuple( $values_a ) and $self->basis->is_value_tuple( $values_b );
     $precision = $self->try_check_precision_definition( $precision );
@@ -206,6 +188,47 @@ sub is_equal {
         return 0 if round_decimals($values_a->[$axis_nr], $precision->[$axis_nr])
                  != round_decimals($values_b->[$axis_nr], $precision->[$axis_nr]);
     }
+    return 1;
+}
+
+sub has_constraints {  my ($self) = @_;  return (%{$self->{'constraint'}}) ? 1 : 0 } # --> ?
+
+sub is_in_constraints {  # @values --> ?  # normalized values only, so it works on any ranges
+    my ($self, $values) = @_;
+    return 1 unless $self->has_constraints;
+    for my $constraint (values %{$self->{'constraint'}}){
+        return 0 unless $constraint->{'checker'}->( $values );
+    }
+    return 1;
+}
+
+sub is_in_bounds {  # :values --> ?
+    my ($self, $values, $range) = @_;
+    return 0 unless $self->basis->is_number_tuple( $values );
+    $range = $self->try_check_range_definition( $range );
+    for my $axis_nr ($self->basis->axis_iterator) {
+		next if $self->{'type'}[$axis_nr] > 1; # skip none numeric axis
+        return 0 if $values->[$axis_nr] < $range->[$axis_nr][0]
+                 or $values->[$axis_nr] > $range->[$axis_nr][1];
+    }
+    if ($self->has_constraints){
+		return $self->is_in_constraints( $self->normalize($values, $range) );
+	}
+    return 1;
+}
+
+sub is_in_linear_bounds {  # :values --> ?
+    my ($self, $values, $range) = @_;
+    return 0 unless $self->basis->is_number_tuple( $values );
+    $range = $self->try_check_range_definition( $range );
+    for my $axis_nr ($self->basis->axis_iterator) {
+		next if $self->{'type'}[$axis_nr] != 1; # skip none linear axis
+        return 0 if $values->[$axis_nr] < $range->[$axis_nr][0]
+                 or $values->[$axis_nr] > $range->[$axis_nr][1];
+    }
+    if ($self->has_constraints){
+		return $self->is_in_constraints( $self->normalize($values, $range) );
+	}
     return 1;
 }
 

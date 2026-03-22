@@ -1,8 +1,17 @@
+2.00    2026-03-23    lichtkind
+-------
+    * = API update release
+    * - removing support for methods: string, rgb, red, green, blue, 
+    * -        rgb_hex, rgb_hash, hsl, hue, set, add, saturation, lightness,
+    * -        hsl_hash, distance_to, blend, blend_with, gradient_to,
+    * -        rgb_gradient_to, hsl_gradient_to, complementary
+
+
 1.99    2026-03-22    lichtkind
 -------
     * = small feature release = 3 small features
     * + method is_in_gamut checks if values are valid
-    * + cone shaped space constraints for HWB and HSV
+    * + cone shaped space constraints for HSV
     * + added 'sRGB' as alias name of RGB space
     * \ final test release before 2.0
 

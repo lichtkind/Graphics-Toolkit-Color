@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 72;
+use Test::More tests => 74;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util ':all';
 
@@ -83,5 +83,9 @@ is( ref color( '#0000ff' ),                        $module, 'can also recieve lc
 is( ref color( [1,2,3] ),                          $module, 'ARRAY ref');
 is( ref color( {l => 50, c => 12.4, h => .6} ),    $module, 'LCH short axis name HASH');
 is( ref color( {hue => 0, whiteness => '0%', blackness => '100%'} ), $module, 'HWB long axis name HASH');
+
+is( is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut routine works with normal HSL color');
+is( is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut routine works with normal HSL color');
+
 
 exit 0;

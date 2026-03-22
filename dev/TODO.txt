@@ -8,6 +8,7 @@ TODO:
  = 2.1: 
    + linarSRGB
    + CIERGB
+   + gamma correction via method apply_gamma
 
  = 2.2:
    + OKHSL
@@ -16,7 +17,6 @@ TODO:
    + complement can select space
 
  = 2.3:
-   + gamma correction via method apply_gamma
    + cubehelix color space
  
  = 2.4:

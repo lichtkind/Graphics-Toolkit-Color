@@ -1,26 +1,30 @@
 TODO:
 ------
 
- = 2.0: 
-   + additional space constraints
-   + method: is_in_gamut
+ = 2.01
+   + gamma correction via method apply
 
- = 2.1: 
+ = 2.02
    + linarSRGB
-   + CIERGB
-   + gamma correction via method apply_gamma
 
- = 2.2:
+ = 2.03
+   + CIERGB
+
+ = 2.04: 
    + OKHSL
+
+ = 2.05:
    + OKHSV
    + OKHWB
+   
+ = 2.06:
    + complement can select space
 
  = 2.3:
-   + cubehelix color space
+   + cubehelix method
  
  = 2.4:
-   + difference method
+   + delta_e method
 
  = 2.5 features
    + palette method

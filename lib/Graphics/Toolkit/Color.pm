@@ -195,15 +195,15 @@ sub is_in_gamut {
 }
 	
 ## single color creation methods #######################################
-sub apply {
-    my ($self, @args) = @_;
-    my $help = <<EOH;
-    GTC method 'apply' accepts one named argument with a numeric value:
-    apply ( ...
-        gamma => 2.2,          # reverse is with 1 / 2.2
-        in => 'OKlab',         # compute in oklab space
-EOH
-}
+#~ sub apply {
+    #~ my ($self, @args) = @_;
+    #~ my $help = <<EOH;
+    #~ GTC method 'apply' accepts one named argument with a numeric value:
+    #~ apply ( ...
+        #~ gamma => 2.2,          # reverse is with 1 / 2.2
+        #~ in => 'OKlab',         # compute in oklab space
+#~ EOH
+#~ }
 
 sub set_value {
     my ($self, @args) = @_;

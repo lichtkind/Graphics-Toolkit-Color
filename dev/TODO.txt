@@ -3,6 +3,7 @@ TODO:
 
  = 2.01
    + gamma correction via method apply
+#    * + method apply with only argument 'gamma'
 
  = 2.02
    + linarSRGB

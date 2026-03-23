@@ -197,9 +197,16 @@ sub is_in_gamut {
 ## single color creation methods #######################################
 sub apply {
     my ($self, @args) = @_;
+    my $help = <<EOH;
+    GTC method 'apply' accepts one named argument with a numeric value:
+    apply ( ...
+        gamma => 2.2,          # reverse is with 1 / 2.2
+        in => 'OKlab',         # compute in oklab space
+EOH
 }
 
 sub set_value {
+    my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     my $help = <<EOH;
     GTC method 'set_value' needs a value HASH (not a ref) whose keys are axis names or
@@ -715,7 +722,9 @@ boolean (zero or one). It will tell you if the color is within the gamut,
 of the color space, the color was defined in. Or in simpler terms: 
 are the color values within the accepted ranges? Some spaces exclude
 certain value combinations. This is the way to ensure you got a valid
-color definition.
+color definition. Since the GTC L</CONSTRUCTOR> clamps out of shape values,
+and forces them to be in gamut - this method is only needed to ensure 
+that there is nothing to clamp and the constructor did not change any value.
 
 If it is too clumsy for you to use an existing color object to check if
 another color is valid: use th importable routine with the same name.
@@ -767,11 +776,22 @@ ones. The rest works as described in L</set_value>.
 This method was mainly created to get lighter, darker or more saturated
 colors by using it like:
 
-
     my $blue = Graphics::Toolkit::Color->new('blue');
-    my $darkblue = $blue->add_value( Lightness => -25 );  # get a darker tone
-    my $blue2 = $blue->add_value( blue => 10 );           # bluer than blue ?
-    my $blue3 = $blue->add_value( l => 10, in => 'LAB' ); # lighter color according CIELAB
+    my $darkblue = $blue->add_value( Lightness => -25 );    # get a darker tone
+    my $blue2 = $blue->add_value( blue => 10 );             # bluer than blue ?
+    my $blue3 = $blue->add_value( l => 10, in => 'LAB' );   # lighter color according CIELAB
+
+
+=head2 apply
+
+Creates a new GTC color object with recalculated values. Each calculation
+is triggered by one named argument and currently is only one possible.
+I<gamma> triggers a gamma correction which can be reversed with the inverse argument.
+Use an ARRAY ref to apply each color value with a different gamma. 
+The argument L</in> determines in which space the carlculation takes place:
+
+    my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
+    my $linear_blue = $blue->apply( gamma => [2.2, 2.2, 2.2], in => 'RGB' );
 
 
 =head2 mix

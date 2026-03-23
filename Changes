@@ -1,7 +1,7 @@
 2.01    2026-03-24    lichtkind
 -------
     * = mid feature release
-    * + method apply
+    * + method apply with only argument 'gamma'
     * ? removed deprecation warning in POD
     
 2.00    2026-03-23    lichtkind

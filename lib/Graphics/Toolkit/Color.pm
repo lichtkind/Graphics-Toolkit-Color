@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.0';
+our $VERSION = '2.01';
 
 use v5.12;
 use warnings;
@@ -195,8 +195,11 @@ sub is_in_gamut {
 }
 	
 ## single color creation methods #######################################
-sub set_value {
+sub apply {
     my ($self, @args) = @_;
+}
+
+sub set_value {
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
     my $help = <<EOH;
     GTC method 'set_value' needs a value HASH (not a ref) whose keys are axis names or
@@ -406,15 +409,6 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
     my @reds = $red->cluster( r => 1.1, min_d => 1 );# 13 shades of red
-
-
-=head1 DEPRECATION WARNING
-
-Methods of the old API ( I<string>, I<rgb>, I<red>,
-I<green>, I<blue>, I<rgb_hex>, I<rgb_hash>, I<hsl>, I<hue>, I<saturation>,
-I<lightness>, I<hsl_hash>, I<add>, I<set>, I<blend>, I<blend_with>,
-I<gradient_to>, I<rgb_gradient_to>, I<hsl_gradient_to>, I<complementary>)
-will be removed with release of version 2.0.
 
 =head1 DESCRIPTION
 
@@ -691,8 +685,8 @@ either the only argument or the named argument L</to>, which is the only
 required one.
 
 The C<distance> is measured in I<RGB> color space unless told otherwise
-by the argument L</in>. Please use the I<OKLAB> or I<CIELUV> space, if
-you are interested in getting a result that matches the human perception.
+by the argument L</in>. Please use the I<OKLAB> (better) or I<CIELUV> space,
+if you are interested in getting a result that matches the human perception.
 
 The third argument is named C<select>. It's useful if you want to regard
 only certain dimensions (axis - long and short axis names are accepted).

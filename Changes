@@ -1,3 +1,9 @@
+2.01    2026-03-24    lichtkind
+-------
+    * = mid feature release
+    * + method apply
+    * ? removed deprecation warning in POD
+    
 2.00    2026-03-23    lichtkind
 -------
     * = API update release
@@ -5,8 +11,7 @@
     * -        rgb_hex, rgb_hash, hsl, hue, set, add, saturation, lightness,
     * -        hsl_hash, distance_to, blend, blend_with, gradient_to,
     * -        rgb_gradient_to, hsl_gradient_to, complementary
-    * + cone shaped space constraints for HWB
-
+    * + cone shaped space constraints for HWB space
 
 1.99    2026-03-22    lichtkind
 -------

@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.01';
+our $VERSION = '2.02';
 
 use v5.12;
 use warnings;
@@ -195,15 +195,20 @@ sub is_in_gamut {
 }
 	
 ## single color creation methods #######################################
-#~ sub apply {
-    #~ my ($self, @args) = @_;
-    #~ my $help = <<EOH;
-    #~ GTC method 'apply' accepts one named argument with a numeric value:
-    #~ apply ( ...
-        #~ gamma => 2.2,          # reverse is with 1 / 2.2
-        #~ in => 'OKlab',         # compute in oklab space
-#~ EOH
-#~ }
+sub apply {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, undef, ['gamma'], {in => $default_space_name} ); 
+    my $help = <<EOH;
+    GTC method 'apply' accepts one named argument with a numeric value:
+    apply ( ...
+        gamma => 2.2,          # reverse is with 1 / 2.2
+        in => 'OKlab',         # compute in oklab space
+EOH
+    return $arg.$help unless ref $arg;# 'ARRAY' length == axis
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return "$color_space\n".$help unless ref $color_space;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::set_value( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
+}
 
 sub set_value {
     my ($self, @args) = @_;
@@ -220,7 +225,7 @@ EOH
     my $space_name = delete $partial_color->{'in'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return "$color_space\n".$help unless ref $color_space;
-    _new_from_value_obj( $self->{'values'}->set( $partial_color, $space_name ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::set_value( $self->{'values'}, $partial_color, $space_name ) );
 }
 
 sub add_value {
@@ -238,7 +243,7 @@ EOH
     my $space_name = delete $partial_color->{'in'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return "$color_space\n".$help unless ref $color_space;
-    _new_from_value_obj( $self->{'values'}->add( $partial_color, $space_name ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::add_value( $self->{'values'}, $partial_color, $space_name ) );
 }
 
 sub mix {
@@ -291,7 +296,7 @@ EOH
             }
         }
     }
-    _new_from_value_obj( $self->{'values'}->mix( $recipe, $color_space ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::mix( $self->{'values'}, $recipe, $color_space ) );
 }
 
 sub invert {
@@ -305,7 +310,7 @@ EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
-    _new_from_value_obj( $self->{'values'}->invert( $color_space ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::invert( $self->{'values'}, $color_space ) );
 }
 
 ## color set creation methods ##########################################
@@ -730,6 +735,7 @@ If it is too clumsy for you to use an existing color object to check if
 another color is valid: use th importable routine with the same name.
 
     if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
+
     use Graphics::Toolkit::Color qw/is_in_gamut/;
     if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
 

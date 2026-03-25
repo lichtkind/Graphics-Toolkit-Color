@@ -1,22 +1,28 @@
 TODO:
 ------
 
- = 2.01
-   + gamma correction via method apply
-#    * + method apply with only argument 'gamma'
-
  = 2.02
-   + linarSRGB
+   + apply
 
  = 2.03
+   + linearRGB  linRGB
    + CIERGB
+   + DCI-P3
+   + display-p3
 
  = 2.04: 
    + OKHSL
-
- = 2.05:
    + OKHSV
    + OKHWB
+
+ = 2.05:
+   Rec.2020 Future-proofing for HDR and video. Gaining traction fast in 2026.
+   A98 RGB (Adobe RGB 1998)    Still relevant for photography and print workflows.
+   ProPhoto RGB
+   Jzazbz / JzCzhz Modern perceptual space that handles HDR extremes better than OKLab in some cases.
+   HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
+
+
    
  = 2.06:
    + complement can select space

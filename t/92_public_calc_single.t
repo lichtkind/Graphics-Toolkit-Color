@@ -12,20 +12,8 @@ my $blue  = color('#0000FF');
 my $white = color('white');
 my $black = color('black');
 
-#### invert ############################################################
-is( ref $white->invert('-'),                     '',  'need a valid name space to invert');
-is( ref $white->invert( at => 'RGB'),            '',  'can not use invented arguments');
-is( ref $white->invert(),                   $module,  'works without argument');
-is( ref $white->invert(in => 'RGB'),        $module,  'can use "in" argument');
-is( $white->invert()->name,                 'black',  'black is white inverted');
-is( $white->invert('RGB')->name,            'black',  'explicit color space name works');
-is( $white->invert(in => 'RGB')->name,      'black',  'named argument works');
-is( $black->invert('RGB')->name,            'white',  'white is black inverted');
-is( $blue->invert('RGB')->name,            'yellow',  'yellow is blue inverted');
-is( $blue->invert('HSL')->name,              'gray',  'in HSL is gray opposite to any color');
-is( $blue->invert('LAB')->name,                  '',  'LAB is not symmetrical');
-is( $white->invert('HSL')->name,            'black',  'primary contrast works in HSL');
-is( $white->invert('HWB')->name,            'black',  'primary contrast works in HWB');
+#### aply ##############################################################
+
 
 #### set_value #########################################################
 is( ref $white->set_value(),                             '',  'need some argument for "set_value"');
@@ -131,5 +119,21 @@ is( $values[2],                                         204, 'blue value is 80% 
 is( $values[0],                                           0, 'red value is zero = 75% blue + 25% black = 0 + 0');
 is( $values[1],                                           0, 'green is same');
 is( $values[2],                                         191, 'blue value is 80% blue + nothing from black');
+
+#### invert ############################################################
+is( ref $white->invert('-'),                     '',  'need a valid name space to invert');
+is( ref $white->invert( at => 'RGB'),            '',  'can not use invented arguments');
+is( ref $white->invert(),                   $module,  'works without argument');
+is( ref $white->invert(in => 'RGB'),        $module,  'can use "in" argument');
+is( $white->invert()->name,                 'black',  'black is white inverted');
+is( $white->invert('RGB')->name,            'black',  'explicit color space name works');
+is( $white->invert(in => 'RGB')->name,      'black',  'named argument works');
+is( $black->invert('RGB')->name,            'white',  'white is black inverted');
+is( $blue->invert('RGB')->name,            'yellow',  'yellow is blue inverted');
+is( $blue->invert('HSL')->name,              'gray',  'in HSL is gray opposite to any color');
+is( $blue->invert('LAB')->name,                  '',  'LAB is not symmetrical');
+is( $white->invert('HSL')->name,            'black',  'primary contrast works in HSL');
+is( $white->invert('HWB')->name,            'black',  'primary contrast works in HWB');
+
 
 exit 0;

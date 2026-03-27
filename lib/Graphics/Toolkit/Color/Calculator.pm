@@ -1,11 +1,15 @@
 
-# methods to compute related color
+# methods to compute one related color
 
 package Graphics::Toolkit::Color::Calculator;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;
 
+
+sub apply_gamma {
+    my ($color_values, $gamma, $color_space) = @_;
+}
 
 sub set_value { # .values, %newval -- ~space_name --> _
     my ($color_values, $partial_hash, $preselected_space_name) = @_;
@@ -54,13 +58,8 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     $color_values->new_from_tuple( $result_values, $color_space->name );
 }
 
-sub apply_gamma {
-    my ($color_values, $gamma, $color_space) = @_;
-}
-
-
 sub invert {
-    my ($color_values, $color_space ) = @_;
+    my ($color_values, $axis, $color_space ) = @_;
     my $values = $color_values->normalized( $color_space->name );
     $color_values->new_from_tuple( [ map {1 - $_} @$values ], $color_space->name, 'normal' );
 }

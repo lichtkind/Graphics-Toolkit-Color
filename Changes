@@ -1,8 +1,8 @@
-2.02    2026-03-24    lichtkind
+2.02    2026-03-27   lichtkind
 -------
     * = minor feature release
-    * + method 'apply' with only argument 'gamma'
-    * + enhance 'invert', can now invert only selected dimensions
+    * + add method 'apply' with only argument 'gamma'
+    * + add argument 'only' to method 'invert', selecting axis to invert 
 
 2.01    2026-03-23    lichtkind
 -------

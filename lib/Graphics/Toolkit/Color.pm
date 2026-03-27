@@ -310,7 +310,7 @@ sub invert {
         only => [qw/s l/],              # axis name or names have to match selected space
 EOH
     return $arg.$help unless ref $arg and (not ref $arg->{'only'} or ref $arg->{'only'} eq 'ARRAY');
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'}, $arg->{'only'} );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::invert( $self->{'values'}, $arg->{'only'}, $color_space ) );
 }

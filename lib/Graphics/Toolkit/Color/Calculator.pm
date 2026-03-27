@@ -25,7 +25,7 @@ sub set_value { # .values, %newval -- ~space_name --> _
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
     }
-    $color_values->new_from_tuple( $values, $color_space->name );
+    return $color_values->new_from_tuple( $values, $color_space->name );
 }
 
 sub add_value { # .values, %newval -- ~space_name --> _
@@ -42,7 +42,7 @@ sub add_value { # .values, %newval -- ~space_name --> _
     for my $pos ($color_space->basis->axis_iterator) {
         $values->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
     }
-    $color_values->new_from_tuple( $values, $color_space->name );
+    return $color_values->new_from_tuple( $values, $color_space->name );
 }
 
 sub mix { #  @%(+percent, _color)  -- ~space_name --> _
@@ -55,13 +55,31 @@ sub mix { #  @%(+percent, _color)  -- ~space_name --> _
         my $values = $ingredient->{'color'}->shaped( $color_space->name );
         $result_values->[$_] +=  $values->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$values;
     }
-    $color_values->new_from_tuple( $result_values, $color_space->name );
+    return $color_values->new_from_tuple( $result_values, $color_space->name );
 }
 
 sub invert {
-    my ($color_values, $axis, $color_space ) = @_;
+    my ($color_values, $only, $color_space ) = @_;
+    return unless ref $color_space;
+    $only = [$only] if defined $only and not ref $only; # check which axis selected
+    my $selected_axis = [ ];
+    if (defined $only) {
+	    for my $axis_name (@$only){
+		    my $pos = $color_space->pos_from_axis_name( $axis_name );
+			return "axis name '$axis_name' is not part of clor space '".$color_space->name.
+			       "', please try: ".(join(' ', $color_space->long_axis_names)).
+			       ' or '.(join(' ', $color_space->short_axis_names)).' !' unless defined $pos;
+			return "axis '$axis_name' is already selected for inversion" if exists $selected_axis->[$pos];
+			$selected_axis->[$pos] = $pos;
+		}
+	} 
     my $values = $color_values->normalized( $color_space->name );
-    $color_values->new_from_tuple( [ map {1 - $_} @$values ], $color_space->name, 'normal' );
+    if (defined $only) {
+		for my $axis_nr ($color_space->axis_iterator){
+			$values->[$axis_nr] = 1 - $values->[$axis_nr] if exists $selected_axis->[$axis_nr];
+		}
+	} else { $values = [ map {1 - $_} @$values]	}
+    return $color_values->new_from_tuple( $values, $color_space->name, 'normal' );
 }
 
 1;

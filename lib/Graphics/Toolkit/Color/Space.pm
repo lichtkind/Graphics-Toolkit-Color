@@ -62,7 +62,7 @@ sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name --> ?
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values   --> ?
 sub is_number_tuple    { shift->basis->is_number_tuple(@_) }  # @+values   --> ?
 sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values   --> ?
-sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) } # ~name   --> +|
+sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) } # ~name    --> +|
 sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) }  # %+values --> ?
 
 ########################################################################

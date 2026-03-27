@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Values;
 my $module = 'Graphics::Toolkit::Color::Calculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
 eval "use $module";
-is( not($@), 1, "could load the module $module");
+is( not($@), 1, "could load the module $module"); # say "$@"; exit 1;
 
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');

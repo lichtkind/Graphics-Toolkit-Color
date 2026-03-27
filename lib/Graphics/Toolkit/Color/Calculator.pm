@@ -75,7 +75,7 @@ sub invert {
 	} 
     my $values = $color_values->normalized( $color_space->name );
     if (defined $only) {
-		for my $axis_nr ($color_space->axis_iterator){
+		for my $axis_nr (0 .. $color_space->axis_count-1){
 			$values->[$axis_nr] = 1 - $values->[$axis_nr] if exists $selected_axis->[$axis_nr];
 		}
 	} else { $values = [ map {1 - $_} @$values]	}

@@ -30,7 +30,7 @@ sub new_from_tuple { #
     return $color_space unless ref $color_space;
     return "Need ARRAY of ".$color_space->axis_count." ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $values );
-    $values = $color_space->clamp( $values, $range_def);
+    # $values = $color_space->clamp( $values, $range_def);
     $values = $color_space->normalize( $values, $range_def );
     $values = $color_space->clamp( $values, 'normal');
     _new_from_normal_tuple($values, $color_space);
@@ -46,7 +46,7 @@ sub _new_from_normal_tuple { #
     }
     $values = $RGB->clamp( $values, 'normal' );
     my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $values ) ) );
-    bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, name => $name };
+    bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, color_name => $name };
 }
 
 sub is_in_gamut {
@@ -85,7 +85,7 @@ sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~r
     return $values unless ref $values;
     return $color_space->format( $values, $format_name, $suffix_def );
 }
-sub name { $_[0]->{'name'} }
+sub name { $_[0]->{'color_name'} }
 
 
 1;

@@ -66,6 +66,7 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
         if defined $source_space_name xor defined $source_values;
     return "argument source_values has to be a tuple, if provided"
         if $source_values and not $source_space->is_value_tuple( $source_values );
+    $values = [@$values];
 
     # none conversion cases
     $values = $source_values if ref $source_values and $source_space eq $target_space;

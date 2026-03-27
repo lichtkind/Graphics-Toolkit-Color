@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 53;
+use Test::More tests => 55;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
@@ -15,6 +15,7 @@ is( not($@), 1, "could load the module $module"); # say "$@"; exit 1;
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
+
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
@@ -98,19 +99,24 @@ is( $values->[1],                     50,  'sat value is right');
 is( $values->[2],                     25,  'light value is right');
 
 #### invert ############################################################
-my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $RGB ) ;
+my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $RGB );
 is( $nblack->name,    'black',  'black is white inverted');
-my $nwhite = Graphics::Toolkit::Color::Calculator::invert ( $nblack, undef, $RGB ) ;
+my $nwhite = Graphics::Toolkit::Color::Calculator::invert ( $nblack, undef, $RGB );
 is( $nwhite->name,    'white',  'white is black inverted');
-my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $RGB ) ;
+my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $RGB );
 is(  $nyellow->name,  'yellow', 'yellow is blue inverted');
-my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $HSL ) ;
-is( $ngray->name,     'gray',  'in HSL is gray opposite to any color');
-my $nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $LAB ) ;
-is( $nblue->name,         '',  'LAB is not symmetrical');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HSL ) ;
-is( $nblack->name,   'black',  'primary contrast works in HSL');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HWB ) ;
+my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $HSL );
+is( $ngray->name,     'gray',   'in HSL is gray opposite to any color');
+my $nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $LAB );
+is( $nblue->name,         '',   'LAB is not symmetrical');
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HSL );
+is( $nblack->name,   'black',   'primary contrast works in HSL');
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HWB );
 is( $nblack->name,   'black',  'primary contrast works in HWB');
+my $ncyan = Graphics::Toolkit::Color::Calculator::invert ( $white, 'red', $RGB );
+is( $ncyan->name,     'cyan',  'inverted only on red axis: white to cyan');
+my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/], $RGB );
+is( $nred->name,       'red',  'inverted on two axis with short names');
+
 
 exit 0;

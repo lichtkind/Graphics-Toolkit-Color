@@ -9,6 +9,15 @@ use Graphics::Toolkit::Color::Values;
 
 sub apply_gamma {
     my ($color_values, $gamma, $color_space) = @_;
+    
+    #~ my ($new_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash(
+                                        #~ $partial_hash, $preselected_space_name );
+    #~ unless (ref $new_values){
+        #~ my $help_start = 'axis names: '.join(', ', keys %$partial_hash).' do not correlate to ';
+        #~ return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
+                                                 #~ : 'any supported color space!';
+    #~ }
+    # return $color_values->new_from_tuple( $values, $color_space->name, 'normal' );
 }
 
 sub set_value { # .values, %newval -- ~space_name --> _

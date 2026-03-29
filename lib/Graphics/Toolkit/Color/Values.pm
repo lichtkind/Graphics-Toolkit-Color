@@ -17,7 +17,7 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
         my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
         if (ref $rgb){
             $rgb = $RGB->clamp( $RGB->normalize( $rgb ), 'normal' );
-            return bless { name => $color_def, rgb => $rgb, source_values => '', source_space_name => ''};
+            return bless { color_name => $color_def, rgb => $rgb, source_values => '', source_space_name => ''};
         }
     }
     my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
@@ -45,6 +45,7 @@ sub _new_from_normal_tuple { #
         $values = Graphics::Toolkit::Color::Space::Hub::deconvert( $color_space->name, $values, 'normal' );
     }
     $values = $RGB->clamp( $values, 'normal' );
+    my $nv = $RGB->round( $RGB->denormalize( $values ) );
     my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $values ) ) );
     bless { rgb => $values, source_values => $source_values, source_space_name => $source_space_name, color_name => $name };
 }

@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 55;
+use Test::More tests => 59;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
@@ -118,5 +118,11 @@ is( $ncyan->name,     'cyan',  'inverted only on red axis: white to cyan');
 my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/], $RGB );
 is( $nred->name,       'red',  'inverted on two axis with short names');
 
+my $ndb = Graphics::Toolkit::Color::Calculator::invert ( $darkblue, [qw/h/], $HSL );
+$values = $ndb->shaped('HSL');
+is( @$values,                          3,  'get 3 HSL values');
+is( $values->[0],                    300,  'inverted / rotated hue value');
+is( $values->[1],                     50,  'saturation value was not touched');
+is( $values->[2],                     25,  'lightness value was not touched by inversion');
 
 exit 0;

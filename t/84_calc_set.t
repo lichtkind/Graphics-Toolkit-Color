@@ -106,8 +106,10 @@ is( $values->[2],                       75,   'lightness of third color is 75');
 # @:colors, +steps, +tilt, :space --> @:values
 my $gradient = \&Graphics::Toolkit::Color::SetCalculator::gradient;
 @colors = $gradient->([$black, $white], 2, 0, $RGB);
+say @colors;
 is( int @colors,                       2,  'gradient has length of two');
 is( $colors[0]->name,            'black',  'first one is black');
+exit 1;
 is( $colors[1]->name,            'white',  'second one is white');
 
 @colors = $gradient->([$black, $white], 3, 0, $RGB);

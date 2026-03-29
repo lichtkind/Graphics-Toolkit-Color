@@ -62,7 +62,7 @@ sub invert {
     my ($color_values, $only, $color_space ) = @_;
     return unless ref $color_space;
     $only = [$only] if defined $only and not ref $only; # check which axis selected
-    my $selected_axis = [ ];
+    my $selected_axis = (defined $only) ? [ ] : [0 .. $color_space->axis_count - 1];
     if (defined $only) {
 	    for my $axis_name (@$only){
 		    my $pos = $color_space->pos_from_axis_name( $axis_name );
@@ -74,11 +74,16 @@ sub invert {
 		}
 	} 
     my $values = $color_values->normalized( $color_space->name );
-    if (defined $only) {
-		for my $axis_nr (0 .. $color_space->axis_count-1){
-			$values->[$axis_nr] = 1 - $values->[$axis_nr] if exists $selected_axis->[$axis_nr];
-		}
-	} else { $values = [ map {1 - $_} @$values]	}
+	for my $axis_nr (0 .. $color_space->axis_count-1){
+        next unless defined $selected_axis->[$axis_nr];
+        if ($color_space->shape->is_axis_euclidean( $axis_nr )){
+            $values->[$axis_nr] = 1 - $values->[$axis_nr];
+        } else {
+            $values->[$axis_nr] = ($values->[$axis_nr] < 0.5)
+                                ? $values->[$axis_nr] + 0.5
+                                : $values->[$axis_nr] - 0.5;
+        }
+	}
     return $color_values->new_from_tuple( $values, $color_space->name, 'normal' );
 }
 

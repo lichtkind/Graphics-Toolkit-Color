@@ -569,7 +569,28 @@ import the subroutine C<color>, which accepts all the same arguments as C<new>.
 
 =head1 GETTER
 
-giving access to different parts of the objects data.
+giving access to different parts of the objects data or calculating 
+properties based on it.
+
+
+=head2 is_in_gamut
+
+Takes any here described color definition and returns a perlish pseudo 
+boolean (zero or one). It will tell you if the color is within the gamut,
+of the color space, the color was defined in. Or in simpler terms: 
+are the color values within the accepted ranges? Some spaces exclude
+certain value combinations. This is the way to ensure you got a valid
+color definition. Since the GTC L</CONSTRUCTOR> clamps out of shape values,
+and forces them to be in gamut - this method is only needed to ensure 
+that there is nothing to clamp and the constructor did not change any value.
+
+If it is too clumsy for you to use an existing color object to check if
+another color is valid: use th importable routine with the same name.
+
+    if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
+
+    use Graphics::Toolkit::Color qw/is_in_gamut/;
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
 
 
 =head2 values
@@ -722,25 +743,6 @@ The last argument is named L</range>, which can change the result drasticly.
     $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
     $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
 
-=head2 is_in_gamut
-
-Takes any here described color definition and returns a perlish pseudo 
-boolean (zero or one). It will tell you if the color is within the gamut,
-of the color space, the color was defined in. Or in simpler terms: 
-are the color values within the accepted ranges? Some spaces exclude
-certain value combinations. This is the way to ensure you got a valid
-color definition. Since the GTC L</CONSTRUCTOR> clamps out of shape values,
-and forces them to be in gamut - this method is only needed to ensure 
-that there is nothing to clamp and the constructor did not change any value.
-
-If it is too clumsy for you to use an existing color object to check if
-another color is valid: use th importable routine with the same name.
-
-    if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
-
-    use Graphics::Toolkit::Color qw/is_in_gamut/;
-    if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
-
 
 =head1 SINGLE COLOR
 
@@ -751,6 +753,22 @@ L</DESCRIPTION> read only. That supports a more functional programming
 style as well as method stacking like:
 
     $color->add_value( saturation => 5)->invert->mix( to => 'green');
+
+
+=head2 apply
+
+Creates a new GTC color object with recalculated values. Each calculation
+is triggered by one named argument and currently is only one possible.
+I<gamma> triggers a gamma correction which can be reversed with the inverse argument.
+Use an ARRAY ref to apply each color value with a different gamma. 
+The argument L</in> determines in which space the carlculation takes place:
+
+    my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
+    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'RGB' );
+
+
+Applying a gamma value mages only sense in euclidean spaces with the origin
+in one corner of the space like I<RGB> or I<CIEXYZ>.
 
 
 =head2 set_value
@@ -789,21 +807,6 @@ colors by using it like:
     my $blue2 = $blue->add_value( blue => 10 );             # bluer than blue ?
     my $blue3 = $blue->add_value( l => 10, in => 'LAB' );   # lighter color according CIELAB
 
-
-=head2 apply
-
-Creates a new GTC color object with recalculated values. Each calculation
-is triggered by one named argument and currently is only one possible.
-I<gamma> triggers a gamma correction which can be reversed with the inverse argument.
-Use an ARRAY ref to apply each color value with a different gamma. 
-The argument L</in> determines in which space the carlculation takes place:
-
-    my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
-    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'RGB' );
-
-
-Applying a gamma value mages only sense in euclidean spaces with the origin
-in one corner of the space like I<RGB> or I<CIEXYZ>.
 
 =head2 mix
 

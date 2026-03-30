@@ -2,14 +2,14 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 59;
+use Test::More tests => 84;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
-eval "use $module";
+eval "use $module"; # say "$@"; exit 1;
 is( not($@), 1, "could load the module $module"); # say "$@"; exit 1;
 
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
@@ -18,17 +18,57 @@ my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
 
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
+my $CMY = Graphics::Toolkit::Color::Space::Hub::get_space('CMY');
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 my $HWB = Graphics::Toolkit::Color::Space::Hub::get_space('HWB');
 my $LAB = Graphics::Toolkit::Color::Space::Hub::get_space('LAB');
 
 #### apply_gamma #######################################################
+my $nice_blue = Graphics::Toolkit::Color::Values->new_from_any_input([10,20,200]);
+my $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 1,  $RGB);
+is( ref $nblue,    $value_ref, 'gamma of one does not change anything');
+my $values =$nblue->shaped();
+is( ref $values,     'ARRAY',  'got values of nice blue');
+is( @$values,              3,  'got three RGB values');
+is( $values->[0],         10,  'red value is 10');
+is( $values->[1],         20,  'green value is 20)');
+is( $values->[2],        200,  'blue value is 200');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 2.2,  $RGB);
+is( ref $nblue,    $value_ref, 'gamma of 2.2 does skew down values');
+$values =$nblue->shaped();
+is( ref $values,     'ARRAY',  'got values of skewed blue');
+is( @$values,              3,  'got three RGB values');
+is( $values->[0],          0,  'red value is 0');
+is( $values->[1],          1,  'green value is 1');
+is( $values->[2],        149,  'blue value is 149');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 0.5, $CMY);
+is( ref $nblue,    $value_ref, 'gamma correction in CMY space');
+$values = $nblue->shaped();
+is( ref $values,     'ARRAY',  'got values of skewed blue');
+is( @$values,              3,  'got three RGB values');
+is( $values->[0],          5,  'red value is 5 now');
+is( $values->[1],         10,  'green value is 10 now ');
+is( $values->[2],        137,  'blue value is 137 now');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, cyan => 3},  $RGB);
+is( ref $nblue,           '', 'gamma value hash had names that not belong to RGB');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, blue => 3},  $RGB);
+is( ref $nblue,    $value_ref, 'mixed gamma values skew too');
+$values =$nblue->shaped();
+is( ref $values,     'ARRAY',  'got values of skewed blue');
+is( @$values,              3,  'got three RGB values');
+is( $values->[0],        184,  'red is skewed strongly into the other direction (184)');
+is( $values->[1],         20,  'green value is untouched (20)');
+is( $values->[2],        123,  'blue value is skewed more this time (123)');
 
 #### set_value #########################################################
 my $cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255} );
 is( ref $cyan,    $value_ref,  'aqua (set green value to max) value object');
 is( $cyan->name,      'cyan',  'color has the name "cyan" (blue + green)');
-my $values = $cyan->normalized();
+$values = $cyan->normalized();
 is( ref $values,     'ARRAY',  'RGB value ARRAY');
 is( @$values,              3,  'has three values');
 is( $values->[0],          0,  'red value is zero');
@@ -107,7 +147,7 @@ my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $RGB 
 is(  $nyellow->name,  'yellow', 'yellow is blue inverted');
 my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $HSL );
 is( $ngray->name,     'gray',   'in HSL is gray opposite to any color');
-my $nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $LAB );
+$nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $LAB );
 is( $nblue->name,         '',   'LAB is not symmetrical');
 $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HSL );
 is( $nblack->name,   'black',   'primary contrast works in HSL');

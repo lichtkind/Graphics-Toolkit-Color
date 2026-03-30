@@ -207,7 +207,7 @@ EOH
     return $arg.$help unless ref $arg;# 'ARRAY' length == axis
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
-    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::set_value( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::apply_gamma( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
 }
 
 sub set_value {
@@ -799,8 +799,11 @@ Use an ARRAY ref to apply each color value with a different gamma.
 The argument L</in> determines in which space the carlculation takes place:
 
     my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
-    my $linear_blue = $blue->apply( gamma => [2.2, 2.2, 2.2], in => 'RGB' );
+    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'RGB' );
 
+
+Applying a gamma value mages only sense in euclidean spaces with the origin
+in one corner of the space like I<RGB> or I<CIEXYZ>.
 
 =head2 mix
 
@@ -990,6 +993,10 @@ not a value list or hash.
 =head1 SEE ALSO
 
 =over 4
+
+=item *
+
+L<PDL::Transform::Color>
 
 =item *
 

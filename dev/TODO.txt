@@ -1,9 +1,6 @@
 TODO:
 ------
 
- = 2.02
-   + apply
-
  = 2.03
    + linearRGB  linRGB
    + CIERGB

@@ -1,8 +1,10 @@
-2.03    2026-03-30   lichtkind
+2.03    2026-04-03   lichtkind
 -------
     * = minor feature release
     * + add color space: linearRGB
     * + add color space: CIERGB
+    * + add color space: Adobe 98 RGB
+    * + add color space: ProPhoto RGB
 
 2.02    2026-03-30   lichtkind
 -------

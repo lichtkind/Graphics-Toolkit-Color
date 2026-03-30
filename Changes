@@ -1,3 +1,9 @@
+2.03    2026-03-30   lichtkind
+-------
+    * = minor feature release
+    * + add color space: linearRGB
+    * + add color space: CIERGB
+
 2.02    2026-03-30   lichtkind
 -------
     * = minor feature release

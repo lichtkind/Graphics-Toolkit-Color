@@ -4,24 +4,28 @@ TODO:
  = 2.03
    + linearRGB  linRGB
    + CIERGB
-   + DCI-P3
-   + display-p3
-
+   + A98 RGB (Adobe RGB 1998)
+   + ProPhoto RGB
+   
  = 2.04: 
    + OKHSL
    + OKHSV
    + OKHWB
 
  = 2.05:
+   + DCI-P3
+   + display-p3
+
+ = 2.06:
    Rec.2020 Future-proofing for HDR and video. Gaining traction fast in 2026.
-   A98 RGB (Adobe RGB 1998)    Still relevant for photography and print workflows.
-   ProPhoto RGB
+       Still relevant for photography and print workflows.
+   
    Jzazbz / JzCzhz Modern perceptual space that handles HDR extremes better than OKLab in some cases.
    HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
 
 
    
- = 2.06:
+ = 2.08:
    + complement can select space
 
  = 2.3:
@@ -56,4 +60,28 @@ TODO:
    + value prefixes in formats
 
  # Unlikely:
+
+Developed by: Adobe Systems in 1998 (hence the name).
+Purpose: Created as a wider-gamut alternative to sRGB, primarily for professional photographers and print workflows. It was designed to better match the color range of high-quality CMYK printers and inkjet printers at the time.
+Key characteristics:Significantly larger gamut than sRGB, especially in greens and cyans.
+Covers roughly 50% of the visible colors in CIELAB (compared to sRGB’s ~35%).
+Uses a simple gamma of 2.2 (no piecewise function like sRGB).
+White point: D65 (same as sRGB).
+
+Main use cases:Professional photography and photo editing when the final output is print.
+Still widely supported and accepted by many print labs and stock agencies.
+A good compromise: wider than sRGB, but most colors are still displayable on good monitors.
+
+In short: Adobe RGB (1998) was the “serious photographer’s space” for many years — bigger than sRGB without going overboard.2. ProPhoto RGB (also known as ROMM RGB)Developed by: Kodak.
+Purpose: Designed for high-end photographic output with the absolute maximum color gamut possible while still being usable in RGB workflows. It is an “output-referred” space meant to preserve as much data as possible from RAW files.
+Key characteristics:Extremely large gamut — covers over 90% of real-world surface colors (Pointer’s gamut) and a huge portion of CIELAB.
+Actually includes some imaginary colors (colors outside human vision) to allow an even larger real gamut without clipping.
+Uses a gamma of 1.8.
+White point: D50 (different from sRGB and Adobe RGB, which use D65).
+
+Main use cases:High-end photography and archival work where maximum color fidelity is desired.
+Working space for RAW editing in Lightroom/Photoshop when you want to preserve every possible color before converting to a smaller space for output.
+Best used in 16-bit mode (because in 8-bit it can cause banding due to the huge gamut).
+
+Important practical note: Because ProPhoto RGB is so large, many colors cannot be displayed on any monitor or printed on any printer. You almost always work in ProPhoto and then convert to a smaller space (Adobe RGB or sRGB) for final output.
 

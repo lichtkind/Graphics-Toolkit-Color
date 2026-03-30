@@ -66,12 +66,11 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
         if defined $source_space_name xor defined $source_values;
     return "argument source_values has to be a tuple, if provided"
         if $source_values and not $source_space->is_value_tuple( $source_values );
-    $values = [@$values];
 
     # none conversion cases
-    $values = $source_values if ref $source_values and $source_space eq $target_space;
+    $values = [@$source_values] if ref $source_values and $source_space eq $target_space;
     if ($target_space->name eq default_space()->name or $source_space eq $target_space) {
-        return ($want_result_normalized) ? $values : $target_space->round($target_space->denormalize( $values ));
+        return ($want_result_normalized) ? $values : $target_space->round( $target_space->denormalize( $values ) );
     }
     # find conversion chain
     my $current_space = $target_space;
@@ -94,7 +93,7 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
             my @normal_in_out = $current_space->converter_normal_states( 'from', $space_name_before );
             $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
             $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
-            $values = $current_space->convert_from( $space_name_before, $values);
+            $values = $current_space->convert_from( $space_name_before, $values );
             $values_are_normal = $normal_in_out[1];
         }
         $space_name_before = $current_space->name;

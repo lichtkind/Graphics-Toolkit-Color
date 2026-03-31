@@ -128,7 +128,7 @@ sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
-    return @{$self->{'convert'}{ $self->normalize_name( $space_name ) }{'normal'}{$direction}}{'in', 'out'};
+    return @{$self->{'convert'}{ $self->normalize_name( $space_name 	) }{'normal'}{$direction}}{'in', 'out'};
 }
 
 1;

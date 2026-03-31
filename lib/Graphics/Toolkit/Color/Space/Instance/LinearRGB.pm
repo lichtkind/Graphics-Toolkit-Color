@@ -20,7 +20,7 @@ sub to_rgb {
 }
 
 Graphics::Toolkit::Color::Space->new(
-       alias => 'LinearRGB',
+        name => 'LinearRGB',
        alias => 'linRGB',
         axis => [qw/red green blue/],
    precision => 6,

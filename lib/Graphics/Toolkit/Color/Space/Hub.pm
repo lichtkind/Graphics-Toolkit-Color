@@ -8,8 +8,8 @@ use warnings;
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
 my @search_order = ($default_space_name,
-                   qw/CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
-                   qw/CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB OKLCH HunterLAB/);
+                   qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
+                   qw/ OKLAB OKLCH CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/);
 my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 
@@ -67,6 +67,7 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
     return "argument source_values has to be a tuple, if provided"
         if $source_values and not $source_space->is_value_tuple( $source_values );
 
+	$values = [@$values];
     # none conversion cases
     $values = [@$source_values] if ref $source_values and $source_space eq $target_space;
     if ($target_space->name eq default_space()->name or $source_space eq $target_space) {
@@ -87,7 +88,7 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
     for my $space_name (@convert_chain){
         my $current_space = get_space( $space_name );
         if ($current_space eq $source_space){
-            $values = $source_values;
+            $values = [@$source_values];
             $values_are_normal = 1;
         } else {
             my @normal_in_out = $current_space->converter_normal_states( 'from', $space_name_before );

@@ -90,9 +90,9 @@ sub deformat           { shift->form->deformat(@_) }          # $*color         
 sub converter_names      { keys %{  $_[0]{'convert'} } }
 sub alias_converter_name {
     my ($self, $space_name, $name_alias) = @_;
-    $self->{'convert'}{ uc $name_alias } = $self->{'convert'}{ uc $space_name };
+    $self->{'convert'}{ _normalize_space_name($name_alias) } = $self->{'convert'}{ _normalize_space_name($space_name) };
 }
-sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ uc $_[1] }) ? 1 : 0 }
+sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ _normalize_space_name($_[1]) }) ? 1 : 0 }
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $normal) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
@@ -113,21 +113,26 @@ sub add_converter {
 sub convert_to { # convert value tuple from this space into another
     my ($self, $space_name, $values) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ uc $space_name }{'to'}->( $values );
+    return $self->{'convert'}{ _normalize_space_name($space_name) }{'to'}->( $values );
 }
 sub convert_from { # convert value tuple from another space into this
     my ($self, $space_name, $values) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ uc $space_name }{'from'}->( $values );
+    return $self->{'convert'}{ _normalize_space_name($space_name) }{'from'}->( $values );
 }
 
 sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
-    return @{$self->{'convert'}{ uc $space_name }{'normal'}{$direction}}{'in', 'out'};
+    return @{$self->{'convert'}{ _normalize_space_name($space_name) }{'normal'}{$direction}}{'in', 'out'};
 }
 
+sub _normalize_space_name {
+	my $name = uc shift;
+	$name =~ tr/_-//d;
+	return $name;
+}
 
 1;
 

@@ -122,7 +122,7 @@ cmp_ok( $vals->[2], '==',   .3, 'third value');
 is( $name,       'named_array', 'recognized named array with lc name');
 
 ($vals, $name) = $form->deformat( [' abg',1,2,3] );
-is( ref $vals,              '', 'spaces in name are not acceptable');
+is( ref $vals,         'ARRAY', 'spaces in name are acceptable');
 
 ($vals, $name) = $pform->deformat( ['abg',1,2,3] );
 is( $name,       'named_array', 'recognized named array with suffix missing');

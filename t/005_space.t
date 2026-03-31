@@ -2,13 +2,13 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 142;
+use Test::More tests => 143;
 BEGIN { unshift @INC, 'lib', '../lib'}
 
 #### basic object construction #########################################
 my $module = 'Graphics::Toolkit::Color::Space';
 eval "use $module";
-is( not($@), 1, 'could load the module');
+is( not($@), 1, 'could load the module'); # say "$@"; 
 
 my $fspace = Graphics::Toolkit::Color::Space->new();
 is( ref $fspace,         '', 'need axis names to create color space');
@@ -186,7 +186,8 @@ is( int @converter,               0, 'no converter names known');
 my $h = $space->add_converter('RGB', sub { [$_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1 ]},
                                      sub { [$_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1 ]} );
 is( ref $h, 'HASH', 'converter code accepted');
-is( $space->can_convert('RGB'),   1, 'converter inserted');
+is( $space->can_convert('RGB'),    1, 'converter inserted');
+is( $space->can_convert('R_G B-'), 1, 'convert ignores filler char in space names');
 @converter = $space->converter_names;
 is( int @converter,               1, 'one converter name is known');
 is( $converter[0],            'RGB', 'correct converter name is known');

@@ -42,11 +42,20 @@ sub axis_count   { int @{$_[0]{'axis_iterator'}} }   # amount of axis
 
 #### predicates ########################################################
 sub is_name          {   # --> ?                     # is this a valid name of this space
-    return 0 if not defined $_[1];
-    return 1 if uc $_[1] eq $_[0]{'space_name'};
-    return 1 if $_[0]{'alias_name'} and uc $_[1] eq $_[0]{'alias_name'};
+    my ($self, $name) = @_;
+    return 0 unless defined $name;
+    $name = $self->normalize_name( $name );
+    return 1 if                           $name eq $self->{'space_name'};
+    return 1 if $self->{'alias_name'} and $name eq $self->{'alias_name'};
     return 0;
 }
+sub normalize_name {
+    my ($self, $name) = @_;
+	$name = uc $name;
+	$name =~ tr/_ -//d;
+	return $name;
+}
+
 sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~long_name  --> ?
 sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 }# ~short_name --> ?
 sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }       # ~name       --> ?

@@ -57,6 +57,7 @@ sub basis              { $_[0]{'basis'} }
 sub name               { shift->basis->space_name }           #            --> ~
 sub alias              { shift->basis->alias_name }           #            --> ~
 sub is_name            { shift->basis->is_name(@_) }          #      ~name --> ?
+sub normalize_name     { shift->basis->normalize_name(@_) }   #      ~name --> ~
 sub axis_count         { shift->basis->axis_count }           #            --> +
 sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name --> ?
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values   --> ?
@@ -90,9 +91,11 @@ sub deformat           { shift->form->deformat(@_) }          # $*color         
 sub converter_names      { keys %{  $_[0]{'convert'} } }
 sub alias_converter_name {
     my ($self, $space_name, $name_alias) = @_;
-    $self->{'convert'}{ _normalize_space_name($name_alias) } = $self->{'convert'}{ _normalize_space_name($space_name) };
+    $space_name = $self->normalize_name( $space_name );
+    $name_alias = $self->normalize_name( $name_alias );
+    $self->{'convert'}{ $name_alias } = $self->{'convert'}{ $space_name };
 }
-sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ _normalize_space_name($_[1]) }) ? 1 : 0 }
+sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ $_[0]->normalize_name($_[1]) }) ? 1 : 0 }
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $normal) = @_;
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
@@ -113,25 +116,19 @@ sub add_converter {
 sub convert_to { # convert value tuple from this space into another
     my ($self, $space_name, $values) = @_;
     return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ _normalize_space_name($space_name) }{'to'}->( $values );
+    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'to'}->( $values );
 }
 sub convert_from { # convert value tuple from another space into this
     my ($self, $space_name, $values) = @_;
     return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ _normalize_space_name($space_name) }{'from'}->( $values );
+    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'from'}->( $values );
 }
 
 sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
-    return @{$self->{'convert'}{ _normalize_space_name($space_name) }{'normal'}{$direction}}{'in', 'out'};
-}
-
-sub _normalize_space_name {
-	my $name = uc shift;
-	$name =~ tr/_-//d;
-	return $name;
+    return @{$self->{'convert'}{ $self->normalize_name( $space_name ) }{'normal'}{$direction}}{'in', 'out'};
 }
 
 1;

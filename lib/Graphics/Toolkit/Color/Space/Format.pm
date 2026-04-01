@@ -90,80 +90,80 @@ sub deformat {
     return $suffix unless ref $suffix;
     for my $format_name (sort keys %{$self->{'deformatter'}}){
         my $deformatter = $self->{'deformatter'}{$format_name};
-        my $values = $deformatter->( $self, $color );
-        next unless ref $values;
-        $values = $self->check_raw_value_format( $values );
-        next unless ref $values;
-        $values = $self->remove_suffix($values, $suffix);
-        next unless ref $values;
-        return wantarray ? ($values, $format_name) : $values;
+        my $tuple = $deformatter->( $self, $color );
+        next unless ref $tuple;
+        $tuple = $self->check_raw_value_format( $tuple );
+        next unless ref $tuple;
+        $tuple = $self->remove_suffix($tuple, $suffix);
+        next unless ref $tuple;
+        return wantarray ? ($tuple, $format_name) : $tuple;
     }
     return undef;
 }
 sub format {
-    my ($self, $values, $format, $suffix, $prefix) = @_;
-    return '' unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $format, $suffix, $prefix) = @_;
+    return '' unless $self->basis->is_value_tuple( $tuple );
     return '' unless $self->has_formatter( $format );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
-    $values = $self->add_suffix( $values, $suffix );
-    $self->{'formatter'}{ lc $format }->($self, $values);
+    $tuple = $self->add_suffix( $tuple, $suffix );
+    $self->{'formatter'}{ lc $format }->($self, $tuple);
 }
 
 #### work methods ######################################################
 sub remove_suffix { # and unnecessary white space
-    my ($self, $values, $suffix) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $suffix) = @_;
+    return unless $self->basis->is_value_tuple( $tuple );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
-    $values = [@$values]; # loose ref and side effects
+    $tuple = [@$tuple]; # loose ref and side effects
     if (ref $self->{'value_numifier'}{'into_numric'}){
-        $values = $self->{'value_numifier'}{'into_numric'}->($values);
-        return unless $self->basis->is_value_tuple( $values );
+        $tuple = $self->{'value_numifier'}{'into_numric'}->($tuple);
+        return unless $self->basis->is_value_tuple( $tuple );
     }
     local $/ = ' ';
-    chomp $values->[$_] for $self->basis->axis_iterator;
+    chomp $tuple->[$_] for $self->basis->axis_iterator;
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
-        my $val_length = length $values->[ $axis_index ];
+        my $val_length = length $tuple->[ $axis_index ];
         my $suf_length = length $suffix->[ $axis_index ];
-        $values->[$axis_index] = substr($values->[$axis_index], 0, $val_length - $suf_length)
-            if substr( $values->[$axis_index], - $suf_length) eq $suffix->[ $axis_index ]
-            and substr( $values->[$axis_index], - ($suf_length+1),1) ne ' ';
+        $tuple->[$axis_index] = substr($tuple->[$axis_index], 0, $val_length - $suf_length)
+            if substr( $tuple->[$axis_index], - $suf_length) eq $suffix->[ $axis_index ]
+            and substr( $tuple->[$axis_index], - ($suf_length+1),1) ne ' ';
     }
-    return $values;
+    return $tuple;
 }
 sub add_suffix {
-    my ($self, $values, $suffix) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $suffix) = @_;
+    return unless $self->basis->is_value_tuple( $tuple );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix; # has to be array or error message
-    $values = [@$values]; # loose ref and side effects
+    $tuple = [@$tuple]; # loose ref and side effects
     if (ref $self->{'value_numifier'}{'from_numeric'}){
-        $values = $self->{'value_numifier'}{'from_numeric'}->($values);
-        return unless $self->basis->is_value_tuple( $values );
+        $tuple = $self->{'value_numifier'}{'from_numeric'}->($tuple);
+        return unless $self->basis->is_value_tuple( $tuple );
     }
     local $/ = ' ';
-    chomp $values->[$_] for $self->basis->axis_iterator;
+    chomp $tuple->[$_] for $self->basis->axis_iterator;
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
-        my $val_length = length $values->[ $axis_index ];
+        my $val_length = length $tuple->[ $axis_index ];
         my $suf_length = length $suffix->[ $axis_index ];
-        $values->[$axis_index] .= $suffix->[ $axis_index ]
-            if substr( $values->[$axis_index], - $suf_length) ne $suffix->[ $axis_index ];
+        $tuple->[$axis_index] .= $suffix->[ $axis_index ]
+            if substr( $tuple->[$axis_index], - $suf_length) ne $suffix->[ $axis_index ];
     }
-    return $values;
+    return $tuple;
 }
 
 sub check_raw_value_format {
-    my ($self, $values) = @_;
-    return 0 if ref $values ne 'ARRAY';
-    return 0 if @$values != $self->basis->axis_count;
+    my ($self, $tuple) = @_;
+    return 0 if ref $tuple ne 'ARRAY';
+    return 0 if @$tuple != $self->basis->axis_count;
     my @re = $self->get_value_regex();
     for my $axis_index ($self->basis->axis_iterator){
-        return 0 unless $values->[$axis_index] =~ /^$re[$axis_index]$/;
+        return 0 unless $tuple->[$axis_index] =~ /^$re[$axis_index]$/;
     }
-    return $values;
+    return $tuple;
 }
 
 sub get_value_regex {
@@ -224,19 +224,19 @@ sub tuple_from_hash        {
 
 #### converter: values --> format ######################################
 sub named_array_from_tuple {
-    my ($self, $values, $name) = @_;
+    my ($self, $tuple, $name) = @_;
     $name //= $self->basis->space_name;
-    return [$name, @$values];
+    return [$name, @$tuple];
 }
 sub named_string_from_tuple {
-    my ($self, $values, $name) = @_;
+    my ($self, $tuple, $name) = @_;
     $name //= $self->basis->space_name;
-    return lc( $name).': '.join(', ', @$values);
+    return lc( $name).': '.join(', ', @$tuple);
 }
 sub css_string_from_tuple {
-    my ($self, $values, $name) = @_;
+    my ($self, $tuple, $name) = @_;
     $name //= $self->basis->space_name;
-    return  lc( $name).'('.join(', ', @$values).')';
+    return  lc( $name).'('.join(', ', @$tuple).')';
 }
 
 1;

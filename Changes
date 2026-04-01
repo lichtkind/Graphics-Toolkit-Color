@@ -5,7 +5,7 @@
     * + add color space: CIERGB
     * + add color space: Adobe 98 RGB
     * + add color space: ProPhoto RGB
-    * + add constructor arguments: color, range
+    * + can insert space dasha nd underscore into color space names
 
 2.02    2026-03-30   lichtkind
 -------

@@ -104,14 +104,14 @@ sub long_axis_name_from_short {
 }
 
 sub long_name_hash_from_tuple {
-    my ($self, $values) = @_;
-    return unless $self->is_value_tuple( $values );
-    return { map { $self->{'axis_long_name'}[$_] => $values->[$_]} $self->axis_iterator };
+    my ($self, $tuple) = @_;
+    return unless $self->is_value_tuple( $tuple );
+    return { map { $self->{'axis_long_name'}[$_] => $tuple->[$_]} $self->axis_iterator };
 }
 sub short_name_hash_from_tuple {
-    my ($self, $values) = @_;
-    return unless $self->is_value_tuple( $values );
-    return { map {$self->{'axis_short_name'}[$_] => $values->[$_]} $self->axis_iterator };
+    my ($self, $tuple) = @_;
+    return unless $self->is_value_tuple( $tuple );
+    return { map {$self->{'axis_short_name'}[$_] => $tuple->[$_]} $self->axis_iterator };
 }
 
 sub tuple_from_hash {

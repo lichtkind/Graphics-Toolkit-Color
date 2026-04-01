@@ -11,6 +11,8 @@ TODO:
    + OKHSL
    + OKHSV
    + OKHWB
+    * + add constructor arguments: color, range
+   
 
  = 2.05:
    + DCI-P3

@@ -114,14 +114,14 @@ sub add_converter {
 }
 
 sub convert_to { # convert value tuple from this space into another
-    my ($self, $space_name, $values) = @_;
-    return unless $self->is_value_tuple( $values ) and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'to'}->( $values );
+    my ($self, $space_name, $tuple) = @_;
+    return unless $self->is_value_tuple( $tuple ) and defined $space_name and $self->can_convert( $space_name );
+    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'to'}->( $tuple );
 }
 sub convert_from { # convert value tuple from another space into this
-    my ($self, $space_name, $values) = @_;
-    return unless ref $values eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'from'}->( $values );
+    my ($self, $space_name, $tuple) = @_;
+    return unless ref $tuple eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
+    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'from'}->( $tuple );
 }
 
 sub converter_normal_states {

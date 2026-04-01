@@ -55,23 +55,23 @@ sub remove_space {
 
 #### value API #########################################################
 sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wanted space
-    my ($values, $target_space_name, $want_result_normalized, $source_space_name, $source_values) = @_;
+    my ($tuple, $target_space_name, $want_result_normalized, $source_space_name, $source_tuple) = @_;
     my $target_space = try_get_space( $target_space_name );
     my $source_space = try_get_space( $source_space_name );
     $want_result_normalized //= 0;
     return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
-        unless default_space()->is_value_tuple( $values );
+        unless default_space()->is_value_tuple( $tuple );
     return $target_space unless ref $target_space;
     return "arguments source_space_name and source_values have to be provided both or none."
-        if defined $source_space_name xor defined $source_values;
+        if defined $source_space_name xor defined $source_tuple;
     return "argument source_values has to be a tuple, if provided"
-        if $source_values and not $source_space->is_value_tuple( $source_values );
+        if $source_tuple and not $source_space->is_value_tuple( $source_tuple );
 
-	$values = [@$values];
+	$tuple = [@$tuple];
     # none conversion cases
-    $values = [@$source_values] if ref $source_values and $source_space eq $target_space;
+    $tuple = [@$source_tuple] if ref $source_tuple and $source_space eq $target_space;
     if ($target_space->name eq default_space()->name or $source_space eq $target_space) {
-        return ($want_result_normalized) ? $values : $target_space->round( $target_space->denormalize( $values ) );
+        return ($want_result_normalized) ? $tuple : $target_space->round( $target_space->denormalize( $tuple ) );
     }
     # find conversion chain
     my $current_space = $target_space;
@@ -83,67 +83,67 @@ sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wante
         $current_space = get_space( $next_space_name );
     }
     # actual conversion
-    my $values_are_normal = 1;
+    my $tuple_is_normal = 1;
     my $space_name_before = default_space_name();
     for my $space_name (@convert_chain){
         my $current_space = get_space( $space_name );
         if ($current_space eq $source_space){
-            $values = [@$source_values];
-            $values_are_normal = 1;
+            $tuple = [@$source_tuple];
+            $tuple_is_normal = 1;
         } else {
             my @normal_in_out = $current_space->converter_normal_states( 'from', $space_name_before );
-            $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
-            $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
-            $values = $current_space->convert_from( $space_name_before, $values );
-            $values_are_normal = $normal_in_out[1];
+            $tuple = $current_space->normalize( $tuple ) if not $tuple_is_normal and $normal_in_out[0];
+            $tuple = $current_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
+            $tuple = $current_space->convert_from( $space_name_before, $tuple );
+            $tuple_is_normal = $normal_in_out[1];
         }
         $space_name_before = $current_space->name;
     }
-    $values = $target_space->normalize( $values )   if not $values_are_normal and $want_result_normalized;
-    $values = $target_space->denormalize( $values ) if $values_are_normal and not $want_result_normalized;
-    return    $target_space->clamp( $values, ($want_result_normalized ? 'normal' : undef));
+    $tuple = $target_space->normalize( $tuple )   if not $tuple_is_normal and $want_result_normalized;
+    $tuple = $target_space->denormalize( $tuple ) if $tuple_is_normal and not $want_result_normalized;
+    return    $target_space->clamp( $tuple, ($want_result_normalized ? 'normal' : undef));
 }
 sub deconvert { # normalizd value tuple --> RGB tuple
-    my ($space_name, $values, $want_result_normalized) = @_;
+    my ($space_name, $tuple, $want_result_normalized) = @_;
     return "need a space name to convert to as first argument" unless defined $space_name;
     my $original_space = try_get_space( $space_name );
     return $original_space unless ref $original_space;
     return "need an ARRAY ref with 3 or 4 values as first argument in order to deconvert them"
-        unless ref $values eq 'ARRAY' and (@$values == 3 or @$values == 4);
+        unless ref $tuple eq 'ARRAY' and (@$tuple == 3 or @$tuple == 4);
     $want_result_normalized //= 0;
     if ($original_space->name eq $default_space_name) { # nothing to convert
-        return ($want_result_normalized) ? $values : $original_space->round( $original_space->denormalize( $values ));
+        return ($want_result_normalized) ? $tuple : $original_space->round( $original_space->denormalize( $tuple ));
     }
 
     my $current_space = $original_space;
-    my $values_are_normal = 1;
+    my $tuple_is_normal = 1;
     while (uc $current_space->name ne $default_space_name){
         my ($next_space_name, @next_options) = $current_space->converter_names;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         my @normal_in_out = $current_space->converter_normal_states( 'to', $next_space_name );
-        $values = $current_space->normalize( $values ) if not $values_are_normal and $normal_in_out[0];
-        $values = $current_space->denormalize( $values ) if $values_are_normal and not $normal_in_out[0];
-        $values = $current_space->convert_to( $next_space_name, $values);
-        $values_are_normal = $normal_in_out[1];
+        $tuple = $current_space->normalize( $tuple ) if not $tuple_is_normal and $normal_in_out[0];
+        $tuple = $current_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
+        $tuple = $current_space->convert_to( $next_space_name, $tuple);
+        $tuple_is_normal = $normal_in_out[1];
         $current_space = get_space( $next_space_name );
     }
-    return ($want_result_normalized) ? $values : $current_space->round( $current_space->denormalize( $values ));
+    return ($want_result_normalized) ? $tuple : $current_space->round( $current_space->denormalize( $tuple ));
 }
 
 sub deformat { # formatted color def --> normalized values
     my ($color_def, $ranges, $suffix) = @_;
     return 'got no color definition' unless defined $color_def;
-    my ($values, $original_space, $format_name);
+    my ($tuple, $original_space, $format_name);
     for my $space_name (all_space_names()) {
         my $color_space = get_space( $space_name );
-        ($values, $format_name) = $color_space->deformat( $color_def );
+        ($tuple, $format_name) = $color_space->deformat( $color_def );
         if (defined $format_name){
             $original_space = $color_space;
             last;
         }
     }
     return 'could not deformat color definition: "$color_def"' unless ref $original_space;
-    return $values, $original_space->name, $format_name;
+    return $tuple, $original_space->name, $format_name;
 }
 sub deformat_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
@@ -153,20 +153,20 @@ sub deformat_partial_hash { # convert partial hash into
     my @space_name_options = (defined $space_name and $space_name) ? ($space->name) : (@search_order);
     for my $space_name (@space_name_options) {
         my $color_space = get_space( $space_name );
-        my $values = $color_space->tuple_from_partial_hash( $value_hash );
-        next unless ref $values;
-        return wantarray ? ($values, $color_space->name) : $values;
+        my $tuple = $color_space->tuple_from_partial_hash( $value_hash );
+        next unless ref $tuple;
+        return wantarray ? ($tuple, $color_space->name) : $tuple;
     }
     return undef;
 }
 
 sub distance { # @c1 @c2 -- ~space ~select @range --> +
-    my ($values_a, $values_b, $space_name, $select_axis, $range) = @_;
+    my ($tuple_a, $tuple_b, $space_name, $select_axis, $range) = @_;
     my $color_space = try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    $values_a = convert( $values_a, $space_name, 'normal' );
-    $values_b = convert( $values_b, $space_name, 'normal' );
-    my $delta = $color_space->delta( $values_a, $values_b );
+    $tuple_a = convert( $tuple_a, $space_name, 'normal' );
+    $tuple_b = convert( $tuple_b, $space_name, 'normal' );
+    my $delta = $color_space->delta( $tuple_a, $tuple_b );
     $delta = $color_space->denormalize_delta( $delta, $range );
     if (defined $select_axis){
         $select_axis = [$select_axis] unless ref $select_axis;

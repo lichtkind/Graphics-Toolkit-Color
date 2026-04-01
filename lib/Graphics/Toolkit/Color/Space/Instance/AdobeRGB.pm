@@ -1,7 +1,7 @@
 
-# CIE 1931 RGB
+# Adobe RGB (1998) color space, IEC 61966-2-5:2007, ISO 12640-4:2011
 
-package Graphics::Toolkit::Color::Space::Instance::CIERGB;
+package Graphics::Toolkit::Color::Space::Instance::AdobeRGB;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
@@ -23,7 +23,24 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
         name => 'CIERGB',
+       alias => 'opRGB',
         axis => [qw/red green blue/],
    precision => 6,
      convert => {CIEXYZ => [\&to_xyz, \&from_xyz]},
 );
+
+__END__
+
+my $XYZ_to_A98RGB = [
+    [  2.0415879038, -0.5650069743, -0.3447313508 ],
+    [ -0.9692436363,  1.8759675015,  0.0415550574 ],
+    [  0.0134442803, -0.1183623924,  1.0154095990 ]
+];
+
+$gamma = 563/256;
+
+my $A98RGB_to_XYZ = [
+    [ 0.5766690422,  0.1855582373,  0.1882286733 ],
+    [ 0.2973445754,  0.6273635663,  0.0752919193 ],
+    [ 0.0270313614,  0.0706888730,  0.9913375368 ]
+];

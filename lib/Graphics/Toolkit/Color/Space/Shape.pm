@@ -166,9 +166,9 @@ sub is_int_valued { # all ranges int valued ?
 
 #### value checker #####################################################
 sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
-    my ($self, $values, $range, $precision) = @_;
+    my ($self, $tuple, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
-        unless $self->basis->is_value_tuple( $values );
+        unless $self->basis->is_value_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
     return $range unless ref $range;
     $precision = $self->try_check_precision_definition( $precision );
@@ -177,29 +177,29 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     for my $axis_index ($self->basis->axis_iterator){
         next unless $self->is_axis_numeric( $axis_index );
         return $names[$axis_index]." value is below minimum of ".$range->[$axis_index][0]
-            if $values->[$axis_index] < $range->[$axis_index][0];
+            if $tuple->[$axis_index] < $range->[$axis_index][0];
         return $names[$axis_index]." value is above maximum of ".$range->[$axis_index][1]
-            if $values->[$axis_index] > $range->[$axis_index][1];
+            if $tuple->[$axis_index] > $range->[$axis_index][1];
         return $names[$axis_index]." value is not properly rounded "
             if $precision->[$axis_index] >= 0
-           and round_decimals($values->[$axis_index], $precision->[$axis_index]) != $values->[$axis_index];
+           and round_decimals($tuple->[$axis_index], $precision->[$axis_index]) != $tuple->[$axis_index];
     }
     if ($self->has_constraints){
-		my $values = $self->normalize($values, $range);
+		my $tuple = $self->normalize($tuple, $range);
 		for my $constraint (values %{$self->{'constraint'}}){
-			return $constraint->{'error'} unless $constraint->{'checker'}->( $values );
+			return $constraint->{'error'} unless $constraint->{'checker'}->( $tuple );
 		}
 	}
-    return $values;
+    return $tuple;
 }
 
 sub is_equal {  # @values_a, @values_b -- $precision --> ? 
-    my ($self, $values_a, $values_b, $precision) = @_;
-    return 0 unless $self->basis->is_value_tuple( $values_a ) and $self->basis->is_value_tuple( $values_b );
+    my ($self, $tuple_a, $tuple_b, $precision) = @_;
+    return 0 unless $self->basis->is_value_tuple( $tuple_a ) and $self->basis->is_value_tuple( $tuple_b );
     $precision = $self->try_check_precision_definition( $precision );
     for my $axis_nr ($self->basis->axis_iterator) {
-        return 0 if round_decimals($values_a->[$axis_nr], $precision->[$axis_nr])
-                 != round_decimals($values_b->[$axis_nr], $precision->[$axis_nr]);
+        return 0 if round_decimals($tuple_a->[$axis_nr], $precision->[$axis_nr])
+                 != round_decimals($tuple_b->[$axis_nr], $precision->[$axis_nr]);
     }
     return 1;
 }
@@ -207,105 +207,105 @@ sub is_equal {  # @values_a, @values_b -- $precision --> ?
 sub has_constraints {  my ($self) = @_;  return (ref $self->{'constraint'}) ? 1 : 0 } # --> ?
 
 sub is_in_constraints {  # @values --> ?  # normalized values only, so it works on any ranges
-    my ($self, $values) = @_;
+    my ($self, $tuple) = @_;
     return 1 unless $self->has_constraints;
     for my $constraint (values %{$self->{'constraint'}}){
-        return 0 unless $constraint->{'checker'}->( $values );
+        return 0 unless $constraint->{'checker'}->( $tuple );
     }
     return 1;
 }
 
 sub is_in_bounds {  # :values --> ?
-    my ($self, $values, $range) = @_;
-    return 0 unless $self->basis->is_number_tuple( $values );
+    my ($self, $tuple, $range) = @_;
+    return 0 unless $self->basis->is_number_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
     for my $axis_nr ($self->basis->axis_iterator) {
 		next if $self->{'type'}[$axis_nr] > 1; # skip none numeric axis
-        return 0 if $values->[$axis_nr] < $range->[$axis_nr][0]
-                 or $values->[$axis_nr] > $range->[$axis_nr][1];
+        return 0 if $tuple->[$axis_nr] < $range->[$axis_nr][0]
+                 or $tuple->[$axis_nr] > $range->[$axis_nr][1];
     }
     if ($self->has_constraints){
-		return $self->is_in_constraints( $self->normalize( $values, $range) );
+		return $self->is_in_constraints( $self->normalize( $tuple, $range) );
 	}
     return 1;
 }
 
 sub is_in_linear_bounds {  # :values --> ?
-    my ($self, $values, $range) = @_;
-    return 0 unless $self->basis->is_number_tuple( $values );
+    my ($self, $tuple, $range) = @_;
+    return 0 unless $self->basis->is_number_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
     for my $axis_nr ($self->basis->axis_iterator) {
 		next if $self->{'type'}[$axis_nr] != 1; # skip none linear axis
-        return 0 if $values->[$axis_nr] < $range->[$axis_nr][0]
-                 or $values->[$axis_nr] > $range->[$axis_nr][1];
+        return 0 if $tuple->[$axis_nr] < $range->[$axis_nr][0]
+                 or $tuple->[$axis_nr] > $range->[$axis_nr][1];
     }
     if ($self->has_constraints){
-		return $self->is_in_constraints( $self->normalize( $values, $range) );
+		return $self->is_in_constraints( $self->normalize( $tuple, $range) );
 	}
     return 1;
 }
 
 #### value ops #########################################################
 sub clamp { # change values if outside of range to nearest boundary, angles get rotated into range
-    my ($self, $values, $range) = @_;
+    my ($self, $tuple, $range) = @_;
     $range = $self->try_check_range_definition( $range );
     return $range unless ref $range;
-    $values = [] unless ref $values eq 'ARRAY';
-    pop  @$values     while @$values > $self->basis->axis_count;
+    $tuple = [] unless ref $tuple eq 'ARRAY';
+    pop  @$tuple     while @$tuple > $self->basis->axis_count;
     for my $axis_nr ($self->basis->axis_iterator){
         next unless $self->is_axis_numeric( $axis_nr ); # touch only numeric values
-        if (not defined $values->[$axis_nr]){
+        if (not defined $tuple->[$axis_nr]){
             my $default_value = 0;
             $default_value = $range->[$axis_nr][0] if $default_value < $range->[$axis_nr][0]
                                                    or $default_value > $range->[$axis_nr][1];
-            $values->[$axis_nr] = $default_value;
+            $tuple->[$axis_nr] = $default_value;
             next;
         }
         if ($self->{'type'}[$axis_nr]){
-            $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] < $range->[$axis_nr][0];
-            $values->[$axis_nr] = $range->[$axis_nr][1] if $values->[$axis_nr] > $range->[$axis_nr][1];
+            $tuple->[$axis_nr] = $range->[$axis_nr][0] if $tuple->[$axis_nr] < $range->[$axis_nr][0];
+            $tuple->[$axis_nr] = $range->[$axis_nr][1] if $tuple->[$axis_nr] > $range->[$axis_nr][1];
         } else {
             my $delta = $range->[$axis_nr][1] - $range->[$axis_nr][0];
-            $values->[$axis_nr] += $delta while $values->[$axis_nr] < $range->[$axis_nr][0];
-            $values->[$axis_nr] -= $delta while $values->[$axis_nr] > $range->[$axis_nr][1];
-            $values->[$axis_nr] = $range->[$axis_nr][0] if $values->[$axis_nr] == $range->[$axis_nr][1];
+            $tuple->[$axis_nr] += $delta while $tuple->[$axis_nr] < $range->[$axis_nr][0];
+            $tuple->[$axis_nr] -= $delta while $tuple->[$axis_nr] > $range->[$axis_nr][1];
+            $tuple->[$axis_nr] = $range->[$axis_nr][0] if $tuple->[$axis_nr] == $range->[$axis_nr][1];
         }
     }
     if ($self->has_constraints){
-		$values = $self->normalize( $values, $range);
+		$tuple = $self->normalize( $tuple, $range);
 		for my $constraint (values %{$self->{'constraint'}}){
-			$values = $constraint->{'remedy'}->($values) unless $constraint->{'checker'}->( $values );
+			$tuple = $constraint->{'remedy'}->($tuple) unless $constraint->{'checker'}->( $tuple );
 		}
-		$values = $self->denormalize( $values, $range);
+		$tuple = $self->denormalize( $tuple, $range);
 	}    
-    return $values;
+    return $tuple;
 }
 
 sub round {
-    my ($self, $values, $precision) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $precision) = @_;
+    return unless $self->basis->is_value_tuple( $tuple );
     $precision = $self->try_check_precision_definition( $precision );
     return "round got bad precision definition" unless ref $precision;
-    [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($values->[$_], $precision->[$_]) : $values->[$_] } $self->basis->axis_iterator ];
+    [ map { ($self->is_axis_numeric( $_ ) and $precision->[$_] >= 0) ? round_decimals ($tuple->[$_], $precision->[$_]) : $tuple->[$_] } $self->basis->axis_iterator ];
 }
 
 # normalisation
 sub normalize {
-    my ($self, $values, $range) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $range) = @_;
+    return unless $self->basis->is_value_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
     return $range unless ref $range;
-    [ map { ($self->is_axis_numeric( $_ )) ? (($values->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
-                                           : $values->[$_]    } $self->basis->axis_iterator ];
+    [ map { ($self->is_axis_numeric( $_ )) ? (($tuple->[$_] - $range->[$_][0]) / ($range->[$_][1]-$range->[$_][0]))
+                                           : $tuple->[$_]    } $self->basis->axis_iterator ];
 }
 
 sub denormalize {
-    my ($self, $values, $range) = @_;
-    return unless $self->basis->is_value_tuple( $values );
+    my ($self, $tuple, $range) = @_;
+    return unless $self->basis->is_value_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
     return $range unless ref $range;
-    return [ map { ($self->is_axis_numeric( $_ )) ? ($values->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
-                                                   : $values->[$_]   } $self->basis->axis_iterator ];
+    return [ map { ($self->is_axis_numeric( $_ )) ? ($tuple->[$_] * ($range->[$_][1]-$range->[$_][0]) + $range->[$_][0])
+                                                   : $tuple->[$_]   } $self->basis->axis_iterator ];
 }
 
 sub denormalize_delta {
@@ -319,10 +319,10 @@ sub denormalize_delta {
 }
 
 sub delta { # values have to be normalized
-    my ($self, $values1, $values2) = @_;
-    return unless $self->basis->is_value_tuple( $values1 ) and $self->basis->is_value_tuple( $values2 );
+    my ($self, $tuple1, $tuple2) = @_;
+    return unless $self->basis->is_value_tuple( $tuple1 ) and $self->basis->is_value_tuple( $tuple2 );
     # ignore none numeric dimensions
-    my @delta = map { $self->is_axis_numeric($_) ? ($values2->[$_] - $values1->[$_]) : 0 } $self->basis->axis_iterator;
+    my @delta = map { $self->is_axis_numeric($_) ? ($tuple2->[$_] - $tuple1->[$_]) : 0 } $self->basis->axis_iterator;
     [ map { $self->{'type'}[$_] ? $delta[$_]   :                                      # adapt to circular dimensions
             $delta[$_] < -0.5 ? ($delta[$_]+1) :
             $delta[$_] >  0.5 ? ($delta[$_]-1) : $delta[$_] } $self->basis->axis_iterator ];

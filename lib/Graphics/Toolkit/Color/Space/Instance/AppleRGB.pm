@@ -1,7 +1,7 @@
 
-# CIE 1931 RGB
+# Apple RGB 1998
 
-package Graphics::Toolkit::Color::Space::Instance::CIERGB;
+package Graphics::Toolkit::Color::Space::Instance::AppleRGB;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
@@ -18,11 +18,12 @@ sub to_xyz {
 }
 
 Graphics::Toolkit::Color::Space->new(
-        name => 'CIERGB',
+        name => 'AppleRGB',
         axis => [qw/red green blue/],
        range => [96.422, 100, 82.521],
    precision => 6,
      convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );
 
-# D50: 0.96422 1.00000 0.82521
+# D65 gamma 1.8
+

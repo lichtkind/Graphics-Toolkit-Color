@@ -49,69 +49,67 @@ is( $space->format([0,1,0], 'css_string'), 'xyz(0, 1, 0)', 'can format css strin
 # black
 my $xyz = $space->convert_from( 'LinearRGB', [ 0, 0, 0]);
 is( int @$xyz,   3,   'converted black from RGB to XYZ');
-is( $xyz->[0],   0,   'right X value');
-is( $xyz->[1],   0,   'right Y value');
-is( $xyz->[2],   0,   'right Z value');
+is( $xyz->[0],   0,   'black has right X value');
+is( $xyz->[1],   0,   'black has right Y value');
+is( $xyz->[2],   0,   'black has right Z value');
 
 my $rgb = $space->convert_to( 'LinearRGB', [0, 0, 0]);
 is( int @$rgb,                     3,   'convert back from XYZ to RGB');
-is( round_decimals($rgb->[0],  5), 0,   'right red value');
-is( round_decimals($rgb->[1],  5), 0,   'right green value');
-is( round_decimals($rgb->[2],  5), 0,   'right blue value');
+is( round_decimals($rgb->[0],  5), 0,   'black has right red value');
+is( round_decimals($rgb->[1],  5), 0,   'black has right green value');
+is( round_decimals($rgb->[2],  5), 0,   'black has right blue value');
 
 # grey
 $xyz = $space->convert_from( 'LinearRGB', [ 0.5, 0.5, 0.5]);
-is( ref $xyz,                    'ARRAY',  'converted grey from RGB to XYZ');
-is( int @$xyz,                         3,  'got three values');
-is( round_decimals($xyz->[0],5), 0.21404,  'right X value');
-is( round_decimals($xyz->[1],5), 0.21404,  'right Y value');
-is( round_decimals($xyz->[2],5), 0.21404,  'right Z value');
-exit 1;
+is( ref $xyz,                     'ARRAY',  'converted grey from RGB to XYZ');
+is( int @$xyz,                          3,  'got three values');
+is( round_decimals($xyz->[0],8), 0.475235,  'grey has right X value');
+is( round_decimals($xyz->[1],8), 0.50000005,'grey has right Y value');
+is( round_decimals($xyz->[2],8), 0.544415,  'grey has right Z value');
 
-$rgb = $space->convert_to( 'LinearRGB', [0.21404, 0.21404, 0.214037]);
+$rgb = $space->convert_to( 'LinearRGB', [0.475235, 0.50000005, 0.544415]);
 is( int @$rgb,                       3,   'converted gray from XYZ to RGB');
-is( round_decimals($rgb->[0],5 ),  0.5,   'right red value');
-is( round_decimals($rgb->[1],5 ),  0.5,   'right green value');
-is( round_decimals($rgb->[2],5 ),  0.5,   'right blue value');
+is( round_decimals($rgb->[0], 6),  0.5,   'grey has right red value');
+is( round_decimals($rgb->[1], 6),  0.5,   'grey has right green value');
+is( round_decimals($rgb->[2], 6),  0.5,   'grey has right blue value');
 
 # white
 $xyz = $space->convert_from( 'LinearRGB', [1, 1, 1]);
-is( int @$xyz,                        3,  'converted white from RGB to XYZ');
-is( round_decimals($xyz->[0],   5),   1,  'right X value');
-is( round_decimals($xyz->[1],   5),   1,  'right Y value');
-is( round_decimals($xyz->[2],   5),   1,  'right Z value');
+is( int @$xyz,                            3, 'converted white from RGB to XYZ');
+is( round_decimals($xyz->[0],   5), 0.95047, 'white has right X value');
+is( round_decimals($xyz->[1],   5), 1,       'white has right Y value');
+is( round_decimals($xyz->[2],   5), 1.08883, 'white has right Z value');
 
-$rgb = $space->convert_to( 'LinearRGB', [1, 1, 1]);
-is( int @$rgb,                        3,  'converted back gray with 3 values');
-is( round_decimals($rgb->[0],  5),    1,  'right red value');
-is( round_decimals($rgb->[1],  5),    1,  'right green value');
-is( round_decimals($rgb->[2],  5),    1,  'right blue value');
+$rgb = $space->convert_to( 'LinearRGB', [0.95047, 1, 1.08883]);
+is( int @$rgb,                      3,  'converted back gray with 3 values');
+is( round_decimals($rgb->[0],  5),  1,  'white has right red value');
+is( round_decimals($rgb->[1],  5),  1,  'white has right green value');
+is( round_decimals($rgb->[2],  5),  1,  'white has right blue value');
 
 # pink
 $xyz = $space->convert_from( 'LinearRGB', [1, 0, 0.5]);
-is( int @$xyz,                          3,  'converted pink from RGB to XYZ');
-is( round_decimals($xyz->[0], 5), 0.47458, 'right X value');
-is( round_decimals($xyz->[1], 5), 0.22812, 'right Y value');
-is( round_decimals($xyz->[2], 5), 0.20457, 'right Z value');
+is( int @$xyz,                          3, 'converted pink from RGB to XYZ');
+is( round_decimals($xyz->[0], 9), 0.502675181, 'pink has right X value');
+is( round_decimals($xyz->[1], 9), 0.248760383, 'pink has right Y value');
+is( round_decimals($xyz->[2], 9), 0.494485935, 'pink has right Z value');
 
-$rgb = $space->convert_to( 'LinearRGB', [0.474583573181078, 0.228121319314305, 0.204566436987141]);
+$rgb = $space->convert_to( 'LinearRGB', [0.502675181, 0.248760383, 0.494485935]);
 is( int @$rgb,                      3,   'converted gray from XYZ to RGB');
-is( round_decimals($rgb->[0], 5),   1,   'right red value');
-is( $rgb->[1] < 0.00005,            1,   'right green value');
-is( round_decimals($rgb->[2], 5), 0.5,   'right blue value');
+is( round_decimals($rgb->[0], 5),   1,   'pink has right red value');
+is(        $rgb->[1] < 0.0000001,   1,   'pink has right green value');
+is( round_decimals($rgb->[2], 5), 0.5,   'pink has right blue value');
 
 # mid blue
 $xyz = $space->convert_from( 'LinearRGB', [.2, .2, .6]);
 is( int @$xyz,                           3,  'convert mid blue from RGB to XYZ');
-is( round_decimals($xyz->[0],  5), 0.08729,  'right X value');
-is( round_decimals($xyz->[1],  5), 0.05371,  'right Y value');
-is( round_decimals($xyz->[2],  5), 0.28223,  'right Z value');
+is( round_decimals($xyz->[0], 9), 0.262268993,  'mid blue has right X value');
+is( round_decimals($xyz->[1], 9), 0.228870045,  'mid blue has right Y value');
+is( round_decimals($xyz->[2], 9), 0.597887631,  'mid blue has right Z value');
 
-$rgb = $space->convert_to( 'LinearRGB', [0.0872931606914908, 0.0537065470652866, 0.282231548430505]);
+$rgb = $space->convert_to( 'LinearRGB', [0.262268993, 0.228870045, 0.597887631]);
 is( int @$rgb,                      3,   'convert mid blue from XYZ to RGB');
-is( round_decimals($rgb->[0], 5), .2  ,   'right red value');
-is( round_decimals($rgb->[1], 5), .2  ,   'right green value');
-is( round_decimals($rgb->[2], 5), .6  ,   'right blue value');
-
+is( round_decimals($rgb->[0], 5), .2  ,  'mid blue has right red value');
+is( round_decimals($rgb->[1], 5), .2  ,  'mid blue has right green value');
+is( round_decimals($rgb->[2], 5), .6  ,  'mid blue has right blue value');
 
 exit 0;

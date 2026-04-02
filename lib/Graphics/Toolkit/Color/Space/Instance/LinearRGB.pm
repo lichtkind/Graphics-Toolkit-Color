@@ -10,13 +10,13 @@ use Graphics::Toolkit::Color::Space;
 
 sub from_rgb {
     my ($rgb) = shift;
-    return [ map {  ($_ > 0.04045)  ? ((($_ + 0.055) / 1.055 ) ** 2.4) 
-		                            : ($_ / 12.92)                     } @$rgb ];
+    return [ map {  ($_ > 0.04045)  ? ((($_ + 0.055) /  1.055 ) ** 2.4) 
+		                            :   ($_          / 12.92)          } @$rgb ];
 }
 sub to_rgb {
     my ($lrgb) = shift;
-    return [ map { ($_ > 0.0031308) ? ((($_**(1/2.4)) * 1.055) - 0.055) 
-		                            : ($_ * 12.92)                     } @$lrgb ];
+    return [ map { ($_ > 0.0031308) ? ((($_**(1/2.4)) *  1.055) - 0.055) 
+		                            :   ($_           * 12.92)         } @$lrgb ];
 }
 
 Graphics::Toolkit::Color::Space->new(

@@ -5,7 +5,8 @@
     * + add color space: CIERGB
     * + add color space: Adobe 98 RGB
     * + add color space: ProPhoto RGB
-    * + can insert space dasha nd underscore into color space names
+    * + can insert ' ', '-' and '_' into color space names
+    * ~ CIEXYZ converts now from linearRGB
 
 2.02    2026-03-30   lichtkind
 -------

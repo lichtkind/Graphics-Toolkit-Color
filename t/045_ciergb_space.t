@@ -6,14 +6,14 @@ use Test::More tests => 58;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Instance::LinearRGB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::CIERGB';
 
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,        'LINEARRGB',              'color space has right name');
-is( $space->alias,          'LINRGB',              'color space has no alias name');
-is( $space->is_name('linear RGB'), 1,              'one way to write the space name');
+is( $space->name,           'CIERGB',              'color space has right name');
+is( $space->alias,                '',              'color space has no alias name');
+is( $space->is_name('cieRGB'),     1,              'one way to write the space name');
 is( $space->is_name('RGB'),        0,              'SRGB is not linear SRGB');
 is( $space->axis_count,            3,              'CMY color space has 3 axis');
 is( $space->is_euclidean,          1,              'CMY is euclidean');
@@ -88,7 +88,4 @@ is( $d->[0],  -0.1,    'R delta');
 is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
 
-
-
 exit 0;
-

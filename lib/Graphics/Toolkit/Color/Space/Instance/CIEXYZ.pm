@@ -22,9 +22,9 @@ sub to_Lrgb {
 }
 
 Graphics::Toolkit::Color::Space->new(
-       alias => 'CIEXYZ',
+       alias => 'CIEXYZ',  # name is XYZ
         axis => [qw/X Y Z/],
-       range => [95.047, 100, 108.8830],
+       range => [95.047, 100, 108.883],
    precision => 3,
-     convert => {LinearRGB => [\&to_Lrgb, \&from_Lrgb]},
+     convert => {LinearRGB => [\&to_Lrgb, \&from_Lrgb, {from => {in => 1, out => 0}, to => {in => 0, out => 1}}] },
 );

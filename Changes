@@ -1,6 +1,6 @@
 2.1    2026-04-05   lichtkind
 -------
-    * = mid level feature release
+    * = mid level feature release: 5 new color spaces
     * + add color space: LinearRGB
     * + add color space: CIERGB
     * + add color space: Adobe 98 RGB
@@ -11,13 +11,13 @@
 
 2.02    2026-03-30   lichtkind
 -------
-    * = minor feature release
+    * = minor feature release: 2 small new features
     * + add method 'apply' with only argument 'gamma'
     * + add argument 'only' to method 'invert', selecting axis to invert 
 
 2.01    2026-03-23    lichtkind
 -------
-    * = bug fix release
+    * = minor bug fix release: 3 fixes
     * ? removed deprecation warning in POD
     * ? rewrote GT::Color::Space POD
     * ! tried to fix eval in scalar kontext hash error with < 5.26 Perl versions
@@ -33,7 +33,7 @@
 
 1.99    2026-03-22    lichtkind
 -------
-    * = small feature release = 3 small features
+    * = small feature release: 3 small features
     * + method is_in_gamut checks if values are valid
     * + cone shaped space constraints for HSV
     * + added 'sRGB' as alias name of RGB space
@@ -41,7 +41,7 @@
 
 1.98    2026-03-19    lichtkind
 -------
-    * = small fix release = 2 fixes
+    * = small fix release: 2 fixes
     * ~ when mixing more than 2 color wihtout amounts it will be mixed equally too
     * ? POD fixed / rewrote for methods "mix"
     * ? POD fixed in main example
@@ -50,13 +50,13 @@
 
 1.972    2025-09-31    lichtkind
 -------
-    * = small fix release = 2 fixes
+    * = small fix release: 2 fixes
     * ? POD fixed / rewrote for methods "values", "name", "closest_name", "distance"
     * ! public API cluster method test fix
 
 1.971    2025-08-31    lichtkind
 -------
-    * = small fix release = 3 fixes
+    * = small fix release: 3 fixes
     * ? documented latest input format
     * ? typos in POD
     * ! more cluster method test fixes

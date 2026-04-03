@@ -1,5 +1,5 @@
 
-# Apple RGB 1998
+# Apple RGB 1998 (illuminant D65, gamma 1.8)
 
 package Graphics::Toolkit::Color::Space::Instance::AppleRGB;
 use v5.12;
@@ -7,16 +7,16 @@ use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
 
 sub from_xyz {
-    [ mult_matrix_vector_3( [[  2.36461385, -0.89654057, -0.46807328 ],
-                             [ -0.51516621,  1.42640810,  0.08875810 ], 
-                             [  0.00520370, -0.01440816,  1.00920458 ]  ], @{$_[0]}) ];
+    [ mult_matrix_vector_3( [[  2.9515373, -1.2894116, -0.4738445 ],
+                             [ -1.0851093,  1.9908566,  0.0372026 ], 
+                             [  0.0854934, -0.2694964,  1.0912975 ]  ], @{$_[0]}) ];
 }
 sub to_xyz {
-    [ mult_matrix_vector_3( [[ 0.49000,  0.31000,  0.20000 ],
-                             [ 0.17697,  0.81240,  0.01063 ],
-                             [ 0.00000,  0.01000,  0.99000 ] ], @{$_[0]}) ];
+    [ mult_matrix_vector_3( [[ 0.4497288,  0.3162486,  0.1844926 ],
+                             [ 0.2446525,  0.6720283,  0.0833192 ],
+                             [ 0.0251848,  0.1411824,  0.9224628 ] ], @{$_[0]}) ];
 }
-
+ 
 Graphics::Toolkit::Color::Space->new(
         name => 'AppleRGB',
         axis => [qw/red green blue/],
@@ -24,5 +24,5 @@ Graphics::Toolkit::Color::Space->new(
      convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );
 
-# D65 gamma 1.8
+
 

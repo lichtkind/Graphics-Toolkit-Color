@@ -8,8 +8,10 @@ use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
-my @space_names = qw /RGB CMY CMYK HSL HSv HSB HWB NCol YIQ YUV CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv OKLAB OKLCH HunterLAB/;
-my $space_name_aliases = 7;
+my @space_names = qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
+                  qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
+                  qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/;
+my $space_name_aliases = 10;
 my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
 is( not($@), 1, 'could load the module');
@@ -47,5 +49,6 @@ my %sn = map {$_ => 1} @names;
 is( $sn{$rgb_name},  1  , 'default space is among color spaces');
 
 ########################################################################
+# convert
 
 exit 0;

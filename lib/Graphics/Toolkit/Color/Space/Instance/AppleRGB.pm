@@ -20,7 +20,6 @@ sub to_xyz {
 Graphics::Toolkit::Color::Space->new(
         name => 'AppleRGB',
         axis => [qw/red green blue/],
-       range => [96.422, 100, 82.521],
    precision => 6,
      convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );

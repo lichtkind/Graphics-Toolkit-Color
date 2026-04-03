@@ -9,7 +9,8 @@ use warnings;
 our $default_space_name = 'RGB';
 my @search_order = ($default_space_name,
                    qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
-                   qw/ OKLAB OKLCH CIEXYZ CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/);
+                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
+                   qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/);
 my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 

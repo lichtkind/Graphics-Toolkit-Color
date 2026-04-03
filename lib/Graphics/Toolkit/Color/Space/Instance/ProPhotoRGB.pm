@@ -1,5 +1,5 @@
 
-# Pro Photo RGB D 50
+# Pro Photo RGB (illuminant D50, gamma 1.8)
 
 package Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB;
 use v5.12;
@@ -7,14 +7,18 @@ use warnings;
 use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
 
 sub from_xyz {
-    [ mult_matrix_vector_3( [[  1.3459433, -0.2556075, -0.0511118 ],
-                             [ -0.5445989,  1.5081673,  0.0205351 ], 
-                             [  0.0000000,  0.0000000,  1.2118128 ]  ], @{$_[0]}) ];
+	my $xyz = shift;
+    my @rgb = mult_matrix_vector_3( [[  1.3459433, -0.2556075, -0.0511118 ],
+                                     [ -0.5445989,  1.5081673,  0.0205351 ], 
+                                     [  0.0000000,  0.0000000,  1.2118128 ]  ], @$xyz);
+    return [map {$_ ** (1 / 1.8)} @rgb];
 }
 sub to_xyz {
-    [ mult_matrix_vector_3( [[ 0.7976749,  0.1351917,  0.0313534 ],
-                             [ 0.2880402,  0.7118741,  0.0000857 ],
-                             [ 0.0000000,  0.0000000,  0.8252100 ] ], @{$_[0]}) ];
+	my $rgb = shift;
+	$rgb = [map {$_ ** 1.8} @$rgb];
+    return [ mult_matrix_vector_3( [[ 0.7976749,  0.1351917,  0.0313534 ],
+                                    [ 0.2880402,  0.7118741,  0.0000857 ],
+                                    [ 0.0000000,  0.0000000,  0.8252100 ] ], @$rgb) ];
 }
 
 Graphics::Toolkit::Color::Space->new(

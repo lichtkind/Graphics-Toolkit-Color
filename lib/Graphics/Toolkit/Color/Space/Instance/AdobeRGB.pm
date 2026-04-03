@@ -8,13 +8,15 @@ use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
 
 sub from_xyz {
     my ($xyz) = shift;
-    return [ mult_matrix_vector_3(
+    my @rgb = mult_matrix_vector_3(
       [[  2.0413690, -0.5649464, -0.3446944 ],
        [ -0.9692660,  1.8760108,  0.0415560 ], 
-       [  0.0134474, -0.1183897,  1.0154096 ]  ], @$xyz) ];
+       [  0.0134474, -0.1183897,  1.0154096 ]  ], @$xyz);
+    return [map {$_ ** (256/563)} @rgb];
 }
 sub to_xyz {
-    my ($rgb) = shift;
+	my $rgb = shift;
+	$rgb = [map {$_ ** 563/256} @$rgb];
     return [ mult_matrix_vector_3(
       [[ 0.5767309,  0.1855540,  0.1881852 ],
        [ 0.2973769,  0.6273491,  0.0752741 ],

@@ -19,7 +19,12 @@ sub is_space_name      { (ref get_space($_[0])) ? 1 : 0 }
 sub all_space_names    { sort keys %space_obj }
 sub default_space_name { $default_space_name }
 sub default_space      { get_space( $default_space_name ) }
-sub get_space          { (defined $_[0] and exists $space_obj{ uc $_[0] }) ? $space_obj{ uc $_[0] } : '' }
+sub get_space          { 
+    my $name = shift;
+    return unless defined $name;
+    $name = default_space->normalize_name( $name );
+	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
+}
 sub try_get_space {
     my $name = shift || $default_space_name;
     my $space = get_space( $name );
@@ -31,18 +36,19 @@ sub try_get_space {
 sub add_space {
     my $space = shift;
     return 'got no Graphics::Toolkit::Color::Space object' if ref $space ne 'Graphics::Toolkit::Color::Space';
-    my $name = $space->name;
-    return "space objct has no name" unless $name;
+    my $name = $space->normalize_name( $space->name );
+    my $alias = $space->normalize_name( $space->alias );
+    return "color space object has no name" unless $name;
     return "color space name $name is already taken" if ref get_space( $name );
     my @converter_target = $space->converter_names;
     return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
-     for my $converter_target (@converter_target){
-        my $target_space = get_space( $converter_target );
-        return "space object $name does convert into $converter_target, which is no known color space" unless $target_space;
-        $space->alias_converter_name( $converter_target, $target_space->alias ) if $target_space->alias;
+     for my $converter_parent (@converter_target){
+        my $parent_space = get_space( $converter_parent );
+        return "color space object $name does only convert into '$converter_parent', which is no known color space" unless $parent_space;
+        $space->alias_converter_name( $parent_space );
     }
-    $space_obj{ uc $name } = $space;
-    $space_obj{ uc $space->alias } = $space if $space->alias and not ref get_space( $space->alias );
+    $space_obj{ $name } = $space;
+    $space_obj{ $alias } = $space if $alias and not ref get_space( $alias );
     return 1;
 }
 sub remove_space {

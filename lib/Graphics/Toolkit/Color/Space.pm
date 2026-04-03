@@ -36,11 +36,11 @@ sub new {
         }
     }
     if (ref $args{'convert'} eq 'HASH'){
-        for my $converter_target (keys %{$args{'convert'}}){
-            my $converter = $args{'convert'}{ $converter_target };
-            next unless ref $converter eq 'ARRAY' and @$converter > 1
-                    and ref $converter->[0] eq 'CODE' and ref $converter->[1] eq 'CODE';
-            $self->add_converter( $converter_target, @$converter );
+        for my $converter_target_space_name (keys %{$args{'convert'}}){
+            my $converter_data = $args{'convert'}{ $converter_target_space_name };
+            next unless ref converter_data eq 'ARRAY' and @converter_data > 1
+                    and ref converter_data->[0] eq 'CODE' and ref converter_data->[1] eq 'CODE';
+            $self->add_converter( $converter_target_space_name, @converter_data );
         }
     }
     if (ref $args{'values'} eq 'HASH') {
@@ -90,10 +90,11 @@ sub deformat           { shift->form->deformat(@_) }          # $*color         
 #### conversion ########################################################
 sub converter_names      { keys %{  $_[0]{'convert'} } }
 sub alias_converter_name {
-    my ($self, $space_name, $name_alias) = @_;
-    $space_name = $self->normalize_name( $space_name );
-    $name_alias = $self->normalize_name( $name_alias );
-    $self->{'convert'}{ $name_alias } = $self->{'convert'}{ $space_name };
+    my ($self, $parent_space) = @_;
+    return unless $parent_space->alias;
+    my $parent_name = $self->normalize_name( $parent_space->name );
+    my $parent_alias = $self->normalize_name( $parent_space->alias );
+    $self->{'convert'}{ $parent_alias } = $self->{'convert'}{ $parent_name };
 }
 sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ $_[0]->normalize_name($_[1]) }) ? 1 : 0 }
 sub add_converter {
@@ -110,7 +111,7 @@ sub add_converter {
     $normal->{'to'} = {in => 1, out => 1} if not ref $normal->{'to'};
     $normal->{'to'}{'in'} = 0 unless exists $normal->{'to'}{'in'};
     $normal->{'to'}{'out'} = 0 unless exists $normal->{'to'}{'out'};
-    $self->{'convert'}{ uc $space_name } = { from => $from_code, to => $to_code, normal => $normal };
+    $self->{'convert'}{ $self->normalize_name( $space_name )  } = { from => $from_code, to => $to_code, normal => $normal };
 }
 
 sub convert_to { # convert value tuple from this space into another

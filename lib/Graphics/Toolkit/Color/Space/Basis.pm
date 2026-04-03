@@ -45,8 +45,8 @@ sub is_name          {   # --> ?                     # is this a valid name of t
     my ($self, $name) = @_;
     return 0 unless defined $name;
     $name = $self->normalize_name( $name );
-    return 1 if                           $name eq $self->{'space_name'};
-    return 1 if $self->{'alias_name'} and $name eq $self->{'alias_name'};
+    return 1 if                           $name eq $self->normalize_name( $self->{'space_name'} );
+    return 1 if $self->{'alias_name'} and $name eq $self->normalize_name( $self->{'alias_name'} );
     return 0;
 }
 sub normalize_name {

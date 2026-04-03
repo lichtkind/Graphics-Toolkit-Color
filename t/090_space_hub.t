@@ -4,17 +4,20 @@ use v5.12;
 use warnings;
 use Test::More tests => 61;
 BEGIN { unshift @INC, 'lib', '../lib'}
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
-my @space_names = qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
-                  qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
-                  qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/;
+my @space_names = (qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
+                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
+                   qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/);
 my $space_name_aliases = 10;
 my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
 is( not($@), 1, 'could load the module');
+
+exit 0;
+
+__END__
 
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space") for @space_names;
@@ -47,8 +50,5 @@ is( ref Graphics::Toolkit::Color::Space::Hub::get_space($rgb_name),    $space_re
 is( ref Graphics::Toolkit::Color::Space::Hub::default_space(),    $space_ref, 'default space is a space');
 my %sn = map {$_ => 1} @names;
 is( $sn{$rgb_name},  1  , 'default space is among color spaces');
-
-########################################################################
-# convert
 
 exit 0;

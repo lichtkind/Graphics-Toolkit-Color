@@ -13,8 +13,8 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
 is( $space->name,           'CIERGB',              'color space has right name');
 is( $space->alias,                '',              'color space has no alias name');
-is( $space->is_name('cieRGB'),     1,              'one way to write the space name');
-is( $space->is_name('RGB'),        0,              'SRGB is not linear SRGB');
+is( $space->is_name('CIE_RGB'),    1,              'one way to write the space name');
+is( $space->is_name('RGB'),        0,              'CIERGB is not RGB');
 is( $space->axis_count,            3,              'CMY color space has 3 axis');
 is( $space->is_euclidean,          1,              'CMY is euclidean');
 is( $space->is_cylindrical,        0,              'CMY is not cylindrical');
@@ -22,11 +22,10 @@ is( $space->is_cylindrical,        0,              'CMY is not cylindrical');
 is( $space->is_value_tuple([0,0,0]),                   1,  'vector has 3 elements');
 is( $space->can_convert('xyz'),                        1,  'do only convert from and to CIEXYZ');
 is( $space->can_convert('XYZ'),                        1,  'color space name can be written upper case');
-is( $space->can_convert('RGB'),                     0,  'does not convert directly to RGB');
+is( $space->can_convert('RGB'),                        0,  'does not convert directly to RGB');
 is( $space->is_partial_hash({r => 1, b => 0, g=>0}),   1,  'found hash with some short axis names as keys');
 is( $space->is_partial_hash({green => 1, blue => 0}),  1,  'found hash with some other long axis names as keys');
 is( $space->is_partial_hash({green => 1, cyan => 0}),  0,  'some axis name match some do not');
-
 
 is( ref $space->check_value_shape( [0,0,0]),    'ARRAY', 'check LRGB values works on lower bound values');
 is( ref $space->check_value_shape( [1, 1, 1]),  'ARRAY', 'check LRGB values works on upper bound values');
@@ -38,7 +37,6 @@ is( ref $space->check_value_shape( [0, -0.001, 0]),  '', "green value is too sma
 is( ref $space->check_value_shape( [0, 1.1, 0]),     '', "green value is too big");
 is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too small");
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
-
 
 my $rgb = $space->clamp([]);
 is( int @$rgb,   3,     'default color is set by clamp');

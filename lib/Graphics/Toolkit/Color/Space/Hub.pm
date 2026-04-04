@@ -7,12 +7,13 @@ use warnings;
 
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
-our @search_order = ($default_space_name,
+my @load_order = ($default_space_name,
                    qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                    qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                    qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/);
+add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
+my @search_order;
 my %space_obj;
-add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 
 #### space API #########################################################
 sub is_space_name      { (ref get_space( default_space()->normalize_name( $_[0] ))) ? 1 : 0 }
@@ -48,6 +49,7 @@ sub add_space {
         return "color space object $name does only convert into '$converter_parent', which is no known color space" unless $parent_space;
         $space->alias_converter_name( $parent_space );
     }
+    push @search_order, $name;
     $space_obj{ $name } = $space;
     $space_obj{ $alias } = $space if $alias and not ref get_space( $alias );
     return 1;
@@ -168,7 +170,7 @@ sub deformat { # formatted color def --> normalized values
     my ($color_def, $ranges, $suffix) = @_;
     return 'got no color definition' unless defined $color_def;
     my ($tuple, $original_space, $format_name);
-    for my $space_name (all_space_names()) {
+    for my $space_name (@search_order) {
         my $color_space = get_space( $space_name );
         ($tuple, $format_name) = $color_space->deformat( $color_def );
         if (defined $format_name){

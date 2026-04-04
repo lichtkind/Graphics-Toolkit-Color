@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 my $module = 'Graphics::Toolkit::Color';
 eval "use $module qw/color is_in_gamut/";
 
-is( not( $@), 1, 'could load the module');
+is( not( $@), 1, 'could load the module'); # say $@;
 is( ref Graphics::Toolkit::Color->new(),        '', 'constructor need arguments');
 is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts color name');
 is( ref Graphics::Toolkit::Color->new( 'red', 'green'), '', 'constructor needs only one color name');
@@ -59,7 +59,6 @@ is( ref Graphics::Toolkit::Color->new( {r=> 1, g=>2 }),                      '',
 is( ref Graphics::Toolkit::Color->new( r=> 1, g=>2 ),                        '', 'also without a HASH ref');
 is( ref Graphics::Toolkit::Color->new( { }),                                 '', 'HASH needs keys');
 is( ref Graphics::Toolkit::Color->new( {r => 0, g => 0, b => 0 }),         $module, 'RGB short HASH');
-exit 1;
 is( ref Graphics::Toolkit::Color->new( r => 0, g => 0, b => 0 ),           $module, 'RGB short axis name HASH without ref (curly braces)');
 is( ref Graphics::Toolkit::Color->new( red => 0, G => 0, b => 0 ),         $module, 'can mix long and short, lc and uc axis names');
 is( ref Graphics::Toolkit::Color->new( {r => 0, g => 0, b => 0, y=> 1 }),       '', 'too many keys');
@@ -72,9 +71,7 @@ is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '100','b*'=> .5),$modu
 is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '10e0', 'b*' => .5),  '', 'dont accept scientific notation');
 is( ref Graphics::Toolkit::Color->new( l => 0,  chroma => '0',  hue => 0), $module, 'CIELCHuv hash');
 is( ref Graphics::Toolkit::Color->new( l => "0%",  c => '0',  hue => 0),        '', 'CIELCHuv has no value suffix');
-exit 1;
 is( ref Graphics::Toolkit::Color->new( h => "0",  w => '0',  b => 0),      $module, 'HWB hash');
-exit 1;
 is( ref Graphics::Toolkit::Color->new( h=> "R100",w => '0%', b=> '100%'),  $module, 'NCol hash');
 is( ref Graphics::Toolkit::Color->new( Y => 0, U => 0, V => 100),          $module, 'YPbPr short hash');
 is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $module, 'XYZ short hash (has no long names)');

@@ -33,11 +33,14 @@ sub new {
 sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 #### getter ############################################################
-sub space_name       {   $_[0]{'space_name'}  }      # color space name
-sub normal_name      {   $_[0]{'normal_name'}  }     # color space name
-sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
-sub normal_alias     {   $_[0]{'normal_alias'}  }    # alternative space name
-
+sub space_name { #  -- ?alias ?given  --> ~
+    my ($self, $alias, $given) = @_;
+    if (defined $alias and $alias ){
+		return (defined $given and $given) ? $self->{'alias_name'} : $self->{'normal_alias'};
+	} else {
+		return (defined $given and $given) ? $self->{'space_name'} : $self->{'normal_name'};
+	}
+}      
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
 sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1

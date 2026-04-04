@@ -2,12 +2,13 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 175;
+use Test::More tests => 178;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
 eval "use $module";
-is( not($@), 1, 'could load the module'); #say "$@";
+is( not($@), 1, 'could load the module'); #
+say "$@";
 #### basic construction ################################################
 is( ref Graphics::Toolkit::Color::Space::Basis->new(),         '', 'constructor needs arguments');
 is( ref Graphics::Toolkit::Color::Space::Basis->new([1]), $module, 'one constructor argument is enough');
@@ -51,8 +52,9 @@ is( $s3d->is_name('a_bg'),                     1,     'underscore chars get igno
 is( $s3d->is_name('a b-g'),                    1,     'dash chars get ignored in space name');
 is( $s3d->is_name('a.bg'),                     0,     'dot chars get not ignored in space name');
 is( $s3d->space_name,                      'ABG',     'correct name from 3 initials');
-is( $s3d->alias_name,                         '',     'ABG space has no alias, because its not auto generated');
+is( $s3d->space_name('alias'),                '',     'ABG space has no alias, because its not auto generated');
 is( $s5d->space_name,                    'MNOPQ',     'correct name from 5 initials');
+is( $s3d->space_name('alias'),                '',     'MNOPQ space has also no alias');
 
 is( $s3d->is_long_axis_name('Alpha'),         1,     'found long axis name "alpha", ecen if case does not match');
 is( $s3d->is_long_axis_name('zeta'),          0,     'not found made up long axis key "zeta"');
@@ -202,27 +204,29 @@ is( $ph->[4],  undef,  'fifth key was omitted');
 
 my $p5d = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'name');
 is( ref $p5d,  $module,  'created space with user set name and user set axis short names');
-is( $p5d->space_name,    'name',  'space name is user set and overwrites axis initials');
-is( $p5d->normal_name,   'NAME',  'normalized space name is upper case');
-is( $p5d->alias_name,        '',  'space name kept empty');
-is( $p5d->normal_alias,      '',  'normalized empty alias is still empty');
+is( $p5d->space_name,    'NAME',  'normalized, user set space name and overwrites axis initials');
+is( $p5d->space_name(undef, 'given'), 'name',  'given space name was lower case');
+is( $p5d->space_name('alias'),            '',  'space name has no auto generated alias');
+is( $p5d->space_name('alias','g'),        '',  'normalized alias is still empty');
 is( $p5d->is_name('mnopq'),   0,  'initials are not an accepted space name');
 is( $p5d->is_name('name'),    1,  '"name" is an accepted space name');
 
 my $p5p = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], undef, 'ali_as');
 is( ref $p5p,  $module,  'created space with name prefix and user set axis short names');
 is( $p5p->space_name,    'MNOPQ',  'space name are initials');
-is( $p5p->alias_name,   'ali_as',  'space name "ali_as" is user set');
-is( $p5p->normal_alias,  'ALIAS',  'normalized alias name');
+is( $p5p->space_name('alias','given'),   'ali_as',  'space name "ali_as" is user set');
+is( $p5p->space_name('alias'),            'ALIAS',  'normalized alias name');
 is( $p5p->is_name('mnopq'),    1,  '"mnopq" is an accepted space name');
 is( $p5p->is_name('alias'),    1,  '"alias" is an accepted space name');
 
 my $p5pn = Graphics::Toolkit::Color::Space::Basis->new([qw/Aleph beth gimel daleth he/], [qw/m n o p q/], 'na-me', 'alias');
-is( $p5pn->space_name,   'na-me',  'got correct name with the dash');
-is( $p5pn->normal_name,   'NAME',  'got correct name with prefix');
-is( $p5pn->alias_name,   'alias',  'got user set alias name');
-is( $p5pn->normal_alias, 'ALIAS',  'got user set alias name');
-is( $p5pn->is_name('name'),    1,  '"name" is an accepted space name');
-is( $p5pn->is_name('alias'),   1,  '"alias" is an accepted space name');
+is( $p5pn->space_name,                   'NAME',  'normalized given name is default');
+is( $p5pn->space_name(undef, 'given'),  'na-me',  'still acess to original, given space name');
+is( $p5pn->space_name('alias', 'given'),'alias',  'got user set alias name');
+is( $p5pn->space_name('alias'),         'ALIAS',  'normalized space name alias');
+is( $p5pn->is_name('na-me'),                  1,  'given space name is acceptable');
+is( $p5pn->is_name('NAME'),                   1,  'normal space name is acceptable');
+is( $p5pn->is_name('alias'),                  1,  'given space name alias is acceptable');
+is( $p5pn->is_name('ALIAS'),                  1,  'normal space name alias is acceptable');
 
 exit 0;

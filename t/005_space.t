@@ -14,10 +14,10 @@ my $fspace = Graphics::Toolkit::Color::Space->new();
 is( ref $fspace,         '', 'need axis names to create color space');
 
 my $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/]);
-is( ref $space,     $module, 'created color space just with axis names');
-is( $space->name,    'ABCD', 'got space name from AXIS short names');
-is( $space->alias,       '', 'space name alias is empty');
-is( $space->axis_count,   4, 'counted axis right');
+is( ref $space,       $module, 'created color space just with axis names');
+is( $space->name,      'ABCD', 'got space name from AXIS short names');
+is( $space->name('alias'), '', 'space name alias is empty');
+is( $space->axis_count,     4, 'counted axis right');
 
 #### invalid args ######################################################
 is( $space->is_value_tuple([1,2,3,4]),   1, 'correct value tuple');

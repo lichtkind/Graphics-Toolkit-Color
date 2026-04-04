@@ -38,9 +38,9 @@ sub new {
     if (ref $args{'convert'} eq 'HASH'){
         for my $converter_target_space_name (keys %{$args{'convert'}}){
             my $converter_data = $args{'convert'}{ $converter_target_space_name };
-            next unless ref converter_data eq 'ARRAY' and @converter_data > 1
-                    and ref converter_data->[0] eq 'CODE' and ref converter_data->[1] eq 'CODE';
-            $self->add_converter( $converter_target_space_name, @converter_data );
+            next unless ref $converter_data eq 'ARRAY' and @$converter_data > 1
+                    and ref $converter_data->[0] eq 'CODE' and ref $converter_data->[1] eq 'CODE';
+            $self->add_converter( $converter_target_space_name, @$converter_data );
         }
     }
     if (ref $args{'values'} eq 'HASH') {
@@ -54,17 +54,16 @@ sub new {
 
 ########################################################################
 sub basis              { $_[0]{'basis'} }
-sub name               { shift->basis->normal_name }          #            --> ~
-sub alias              { shift->basis->normal_alias }         #            --> ~
-sub is_name            { shift->basis->is_name(@_) }          #      ~name --> ?
-sub normalize_name     { shift->basis->normalize_name(@_) }   #      ~name --> ~
-sub axis_count         { shift->basis->axis_count }           #            --> +
-sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name --> ?
-sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+values   --> ?
-sub is_number_tuple    { shift->basis->is_number_tuple(@_) }  # @+values   --> ?
-sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+values   --> ?
-sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) } # ~name    --> +|
-sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) }  # %+values --> ?
+sub name               { shift->basis->space_name }           #       -- ?alias ?given     --> ~
+sub is_name            { shift->basis->is_name(@_) }          # ~name                      --> ?
+sub normalize_name     { shift->basis->normalize_name(@_) }   # ~name                      --> ~
+sub axis_count         { shift->basis->axis_count }           #                            --> +
+sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name                 --> ?
+sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) }# ~axis_name                --> +|
+sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+tuple                    --> ?
+sub is_number_tuple    { shift->basis->is_number_tuple(@_) }  # @+tuple                    --> ?
+sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+partial_hash             --> ?
+sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) } # %+partial_hash --> @+tuple
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
@@ -91,10 +90,8 @@ sub deformat           { shift->form->deformat(@_) }          # $*color         
 sub converter_names      { keys %{  $_[0]{'convert'} } }
 sub alias_converter_name {
     my ($self, $parent_space) = @_;
-    return unless $parent_space->alias;
-    my $parent_name = $self->normalize_name( $parent_space->name );
-    my $parent_alias = $self->normalize_name( $parent_space->alias );
-    $self->{'convert'}{ $parent_alias } = $self->{'convert'}{ $parent_name };
+    return unless $parent_space->name('alias');
+    $self->{'convert'}{ $parent_space->name('alias') } = $self->{'convert'}{ $parent_space->name };
 }
 sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ $_[0]->normalize_name($_[1]) }) ? 1 : 0 }
 sub add_converter {
@@ -102,7 +99,7 @@ sub add_converter {
     return 0 if not defined $space_name or ref $space_name or ref $from_code ne 'CODE' or ref $to_code ne 'CODE';
     return 0 if $self->can_convert( $space_name );
     return 0 if defined $normal and ref $normal ne 'HASH';
-    $normal = { from => 1, to => 1, } unless ref $normal; # default is full normalisation
+    $normal = { from => 1, to => 1, } unless ref $normal; # flags: default is full normalisation
     $normal->{'from'} = {} if not exists $normal->{'from'} or (exists $normal->{'from'} and not $normal->{'from'});
     $normal->{'from'} = {in => 1, out => 1} if not ref $normal->{'from'};
     $normal->{'from'}{'in'} = 0 unless exists $normal->{'from'}{'in'};
@@ -124,7 +121,6 @@ sub convert_from { # convert value tuple from another space into this
     return unless ref $tuple eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
     return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'from'}->( $tuple );
 }
-
 sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
     return unless $self->can_convert( $space_name )

@@ -180,7 +180,7 @@ sub tuple_from_named_string {
     $string =~ /^\s*$name:\s*(\s*[^:]+)\s*$/i;
     my $match = $1;
     unless ($match){
-        my $name = $self->basis->alias_name;
+        my $name = $self->basis->space_name('alias');
         return 0 unless $name;
         $string =~ /^\s*$name:\s*(\s*[^:]+)\s*$/i;
         $match = $1;
@@ -198,7 +198,7 @@ sub tuple_from_css_string {
     $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
     my $match = $1;
     unless ($match){
-        my $name = $self->basis->alias_name;
+        my $name = $self->basis->space_name('alias');
         return 0 unless $name;
         $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
         $match = $1;
@@ -225,17 +225,17 @@ sub tuple_from_hash        {
 #### converter: values --> format ######################################
 sub named_array_from_tuple {
     my ($self, $tuple, $name) = @_;
-    $name //= $self->basis->space_name;
+    $name //= $self->basis->space_name(undef, 'given');
     return [$name, @$tuple];
 }
 sub named_string_from_tuple {
     my ($self, $tuple, $name) = @_;
-    $name //= $self->basis->space_name;
+    $name //= $self->basis->space_name(undef, 'given');
     return lc( $name).': '.join(', ', @$tuple);
 }
 sub css_string_from_tuple {
     my ($self, $tuple, $name) = @_;
-    $name //= $self->basis->space_name;
+    $name //= $self->basis->space_name(undef, 'given');
     return  lc( $name).'('.join(', ', @$tuple).')';
 }
 

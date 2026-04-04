@@ -24,7 +24,8 @@ sub new {
     $space_name //= $axis_initials;
     $alias_name //= '';
 
-    bless { space_name => uc $space_name, alias_name => uc $alias_name,
+    bless { space_name => $space_name, alias_name => $alias_name,
+		    normal_name => normalize_name('',$space_name), normal_alias => normalize_name('',$alias_name) ,
             axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
             long_name_order => \%long_name_order, short_name_order => \%short_name_order,
             axis_iterator => \@iterator }
@@ -33,7 +34,9 @@ sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 #### getter ############################################################
 sub space_name       {   $_[0]{'space_name'}  }      # color space name
+sub normal_name      {   $_[0]{'normal_name'}  }     # color space name
 sub alias_name       {   $_[0]{'alias_name'}  }      # alternative space name
+sub normal_alias     {   $_[0]{'normal_alias'}  }    # alternative space name
 
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
@@ -45,8 +48,8 @@ sub is_name          {   # --> ?                     # is this a valid name of t
     my ($self, $name) = @_;
     return 0 unless defined $name;
     $name = $self->normalize_name( $name );
-    return 1 if                           $name eq $self->normalize_name( $self->{'space_name'} );
-    return 1 if $self->{'alias_name'} and $name eq $self->normalize_name( $self->{'alias_name'} );
+    return 1 if                           $name eq $self->{'normal_name'};
+    return 1 if $self->{'alias_name'} and $name eq $self->{'normal_alias'};
     return 0;
 }
 sub normalize_name {

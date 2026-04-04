@@ -15,11 +15,9 @@ my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
+is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 exit 0;
 
-__END__
-
-is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space") for @space_names;
 my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
 is( int @names,  $space_names, 'intalled 21 space names');

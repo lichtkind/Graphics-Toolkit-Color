@@ -22,11 +22,11 @@ sub default_space      { get_space( $default_space_name ) }
 sub get_space          { 
     my $name = shift;
     return unless defined $name;
-    $name = default_space->normalize_name( $name );
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
 sub try_get_space {
     my $name = shift || $default_space_name;
+    $name = default_space->normalize_name( $name );
     my $space = get_space( $name );
     return $name if ref $name eq 'Graphics::Toolkit::Color::Space' and is_space_name( $name->name );
     return (ref $space) ? $space
@@ -43,6 +43,7 @@ sub add_space {
     my @converter_target = $space->converter_names;
     return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
      for my $converter_parent (@converter_target){
+        $converter_parent = $space->normalize_name( $converter_parent ) ;
         my $parent_space = get_space( $converter_parent );
         return "color space object $name does only convert into '$converter_parent', which is no known color space" unless $parent_space;
         $space->alias_converter_name( $parent_space );
@@ -54,8 +55,11 @@ sub add_space {
 sub remove_space {
     my $name = shift;
     return "need name of color space as argument in order to remove the space" unless defined $name and $name;
-    my $space = get_space( $name );
-    return "can not remove unknown color space: $name" unless ref $space;
+    my $space = try_get_space( $name );
+    return "can not remove unknown color space: $name" if $space eq default_space;
+    for my $space_name (all_space_names()){
+		
+	}
     delete $space_obj{ uc $space->alias } if $space->alias;
     delete $space_obj{ uc $space->name };
 }

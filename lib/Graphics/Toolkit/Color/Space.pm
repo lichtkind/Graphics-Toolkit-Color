@@ -54,8 +54,8 @@ sub new {
 
 ########################################################################
 sub basis              { $_[0]{'basis'} }
-sub name               { shift->basis->space_name }           #            --> ~
-sub alias              { shift->basis->alias_name }           #            --> ~
+sub name               { shift->basis->normal_name }          #            --> ~
+sub alias              { shift->basis->normal_alias }         #            --> ~
 sub is_name            { shift->basis->is_name(@_) }          #      ~name --> ?
 sub normalize_name     { shift->basis->normalize_name(@_) }   #      ~name --> ~
 sub axis_count         { shift->basis->axis_count }           #            --> +

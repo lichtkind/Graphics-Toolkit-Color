@@ -1,38 +1,26 @@
 TODO:
 ------
    
- = 2.11: 
+ = 2.2: 
    + OKHSL
    + OKHSV
    + OKHWB
-    * + add constructor arguments: color, range
+   + Jzazbz / JzCzhz Modern perceptual space that handles HDR extremes better than OKLab in some cases.
+   + add constructor arguments: color, range
    
-
- = 2.12:
+ = 2.3:
    + DCI-P3
    + display-p3
-
- = 2.2:
-   Rec.2020 Future-proofing for HDR and video. Gaining traction fast in 2026.
-       Still relevant for photography and print workflows.
-   
-   Jzazbz / JzCzhz Modern perceptual space that handles HDR extremes better than OKLab in some cases.
-   HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
-
-
-   
- = 2.21:
+   + Rec.2020
+   + HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
    + complement can select space
 
- = 2.3:
-   + cubehelix method
- 
  = 2.4:
+   + cubehelix method
    + delta_e method
 
  = 2.5 features
    + palette method
-
 
  = 3.0 features
    + color space parameter: illuminant

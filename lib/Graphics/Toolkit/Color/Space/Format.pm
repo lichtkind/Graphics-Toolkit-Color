@@ -231,12 +231,12 @@ sub named_array_from_tuple {
 sub named_string_from_tuple {
     my ($self, $tuple, $name) = @_;
     $name //= $self->basis->space_name(undef, 'given');
-    return lc( $name).': '.join(', ', @$tuple);
+    return lc($name).': '.join(', ', @$tuple);
 }
 sub css_string_from_tuple {
     my ($self, $tuple, $name) = @_;
     $name //= $self->basis->space_name(undef, 'given');
-    return  lc( $name).'('.join(', ', @$tuple).')';
+    return  lc($name).'('.join(', ', @$tuple).')';
 }
 
 1;

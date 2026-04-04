@@ -26,5 +26,5 @@ Graphics::Toolkit::Color::Space->new(
         axis => [qw/X Y Z/],
        range => [95.047, 100, 108.883],
    precision => 3,
-     convert => {LinearRGB => [\&to_Lrgb, \&from_Lrgb, {from => {in => 1, out => 0}, to => {in => 0, out => 1}} ] },
+     convert => {LinearRGB => [\&to_Lrgb, \&from_Lrgb, {from => {in => 1}, to => {out => 1}} ] },
 );

@@ -6,7 +6,6 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-my @D65 = (0.95047, 1, 1.08883); # illuminant
 my $eta = 0.008856 ;
 my $kappa = 903.3;
 
@@ -32,5 +31,5 @@ Graphics::Toolkit::Color::Space->new (
          axis => [qw/L* a* b*/],    # short l a b  -  lightness, cyan-orange balance, magenta-green balance
         range => [100, [-500, 500], [-200, 200]],
     precision => 3,
-      convert => {XYZ => [\&to_xyz, \&from_xyz]},
+      convert => {XYZ => [\&to_xyz, \&from_xyz, ]},
 );

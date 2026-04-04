@@ -42,7 +42,7 @@ sub _new_from_normal_tuple { #
     if ($color_space->name ne $RGB->name){
         $source_tuple = $tuple;
         $source_space_name = $color_space->name;
-        $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $color_space->name, $tuple, 'normal' );
+        $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $tuple, $color_space->name, 'normal' );
     }
     $tuple = $RGB->clamp( $tuple, 'normal' );
     my $nv = $RGB->round( $RGB->denormalize( $tuple ) );
@@ -64,7 +64,7 @@ sub is_in_gamut {
 sub normalized { # normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
-        $self->{'rgb'}, $space_name, 'normal', $self->{'source_space_name'}, $self->{'source_values'},
+        $self->{'rgb'}, $space_name, 'normal', $self->{'source_tuple'}, $self->{'source_space_name'},
     );
 }
 sub shaped  { # in any color space, range and precision

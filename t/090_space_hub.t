@@ -13,7 +13,7 @@ my @space_names = (qw/RGB LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
 my $space_name_aliases = 10;
 my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
-is( not($@), 1, 'could load the module'); #say $@;
+is( not($@), 1, 'could load the module'); # say $@;
 
 is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RGB is a color space');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space") for @space_names;

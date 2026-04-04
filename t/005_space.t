@@ -40,9 +40,9 @@ is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid 
 
 #### getter ############################################################
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], name => 'name');
-is( ref $space,     $module, 'created color space just with axis names and space name');
-is( $space->name,    'NAME', 'got given space name back');
-is( $space->alias,       '', 'no space anme alias this time');
+is( ref $space,           $module, 'created color space just with axis names and space name');
+is( $space->name,          'NAME', 'got given space name back');
+is( $space->name('alias'),     '', 'no space anme alias this time');
 is( $space->is_euclidean,       1,  'per default spaces are euclidean');
 is( $space->is_name('name'),    1,  'can ask if given name is right');
 is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
@@ -53,8 +53,8 @@ is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid 
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], alias => 'alias');
-is( $space->name,    'ABCD', 'got auto generated space name');
-is( $space->alias,    'ALIAS', 'got user set space name alias');
+is( $space->name,          'ABCD', 'got auto generated space name');
+is( $space->name('alias'),'ALIAS', 'got user set space name alias');
 is( $space->is_name('abcd'),     1,  'axis initials are a space name');
 is( $space->is_name('alias'),    1,  'user set alias is name too');
 is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid space basis sub object');
@@ -79,11 +79,11 @@ is( $val->[3],                     0, 'zero is default value');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => [10,20,'normal', [-10,10]],
                                               name => 'name', alias => 'alias' );
-is( $space->name,    'NAME', 'got back user set space name');
-is( $space->alias,  'ALIAS', 'got back user set space name alias');
-is( $space->is_name('name'),    1,  'axis initials are space name');
-is( $space->is_name('alias'),   1,  'user set alias is a space name');
-is( $space->is_name('abcd'),    0,  'axis initials are not a space name');
+is( $space->name,          'NAME', 'got back user set space name');
+is( $space->name('alias'), 'ALIAS', 'got back user set space name alias');
+is( $space->is_name('name'),     1,  'axis initials are space name');
+is( $space->is_name('alias'),    1,  'user set alias is a space name');
+is( $space->is_name('abcd'),     0,  'axis initials are not a space name');
 
 #### value shape #######################################################
 is( ref $space,     $module, 'created color space with axis names and ranges');

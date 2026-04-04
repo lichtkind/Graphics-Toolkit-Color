@@ -54,7 +54,7 @@ sub new {
 
 ########################################################################
 sub basis              { $_[0]{'basis'} }
-sub name               { shift->basis->space_name }           #       -- ?alias ?given     --> ~
+sub name               { shift->basis->space_name(@_) }       #       -- ?alias ?given     --> ~
 sub is_name            { shift->basis->is_name(@_) }          # ~name                      --> ?
 sub normalize_name     { shift->basis->normalize_name(@_) }   # ~name                      --> ~
 sub axis_count         { shift->basis->axis_count }           #                            --> +
@@ -113,19 +113,22 @@ sub add_converter {
 
 sub convert_to { # convert value tuple from this space into another
     my ($self, $space_name, $tuple) = @_;
+    $space_name = $self->normalize_name( $space_name );
     return unless $self->is_value_tuple( $tuple ) and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'to'}->( $tuple );
+    return $self->{'convert'}{ $space_name }{'to'}->( $tuple );
 }
 sub convert_from { # convert value tuple from another space into this
     my ($self, $space_name, $tuple) = @_;
+    $space_name = $self->normalize_name( $space_name );
     return unless ref $tuple eq 'ARRAY' and defined $space_name and $self->can_convert( $space_name );
-    return $self->{'convert'}{ $self->normalize_name( $space_name ) }{'from'}->( $tuple );
+    return $self->{'convert'}{ $space_name }{'from'}->( $tuple );
 }
 sub converter_normal_states {
     my ($self, $direction, $space_name) = @_;
+    $space_name = $self->normalize_name( $space_name );
     return unless $self->can_convert( $space_name )
               and defined $direction and ($direction eq 'from' or $direction eq 'to');
-    return @{$self->{'convert'}{ $self->normalize_name( $space_name 	) }{'normal'}{$direction}}{'in', 'out'};
+    return @{$self->{'convert'}{ $space_name }{'normal'}{$direction}}{'in', 'out'};
 }
 
 1;

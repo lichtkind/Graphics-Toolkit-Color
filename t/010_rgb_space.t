@@ -11,7 +11,7 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got right return value by loading module');
 is( $space->name,              'RGB',              'color space has right name');
-is( $space->alias,            'SRGB',              'color space has no alias name');
+is( $space->name('alias'),    'SRGB',              'color space has no alias name');
 is( $space->is_name('rgb'),        1,              'asked for right space name');
 is( $space->is_name('srgb'),       1,              'asked for right space name alias');
 is( $space->is_name('lrgb'),       0,              'asked for wrong space name');

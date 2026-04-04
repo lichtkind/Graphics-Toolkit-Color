@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 58;
+use Test::More tests => 60;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -11,8 +11,10 @@ my $module = 'Graphics::Toolkit::Color::Space::Instance::LinearRGB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,        'LINEARRGB',              'color space has right name');
-is( $space->alias,          'LINRGB',              'color space has alias name "LINRGB"');
+is( $space->name,           'LINEARRGB',           'color space has right name');
+is( $space->name(undef,'given'), 'LinearRGB',      'got original name');
+is( $space->name('alias'),     'LINRGB',           'color space has alias name "LINRGB"');
+is( $space->name('alias','g'), 'linRGB',           'original alias name');
 is( $space->is_name('linear RGB'), 1,              'one way to write the space name');
 is( $space->is_name('RGB'),        0,              'SRGB is not linear SRGB');
 is( $space->axis_count,            3,              'lin RGB color space has 3 axis');

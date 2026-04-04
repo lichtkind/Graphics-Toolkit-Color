@@ -11,7 +11,7 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,             'CMYK',              'color space has right name');
-is( $space->alias,                '',              'CMYK has no alias name');
+is( $space->name('alias'),        '',              'CMYK has no alias name');
 is( $space->axis_count,            4,              'CMYK has 4 axis');
 is( $space->is_euclidean,          1,              'CMYK is euclidean');
 is( $space->is_cylindrical,        0,              'CMYK is not cylindrical');

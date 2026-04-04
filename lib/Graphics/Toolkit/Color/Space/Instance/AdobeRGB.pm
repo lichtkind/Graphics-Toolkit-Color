@@ -24,7 +24,7 @@ sub to_xyz {
 } 
  
 Graphics::Toolkit::Color::Space->new(
-        name => 'CIERGB',
+        name => 'AdobeRGB',
        alias => 'opRGB',
         axis => [qw/red green blue/],
    precision => 6,

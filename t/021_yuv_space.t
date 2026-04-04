@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
 is( $space->name,                           'YUV',  'color space has initials as name');
-is( $space->alias,                        'YPBPR',  'color space has alias name YCbCr');
+is( $space->name('alias'),                'YPBPR',  'color space has alias name YCbCr');
 is( $space->is_name('YPbPr'),                   1,  'color space name YCbCr is correct');
 is( $space->is_name('YUV'),                     1,  'color space name YUV is correct');
 is( $space->axis_count,                         3,  'color space has 3 axis');

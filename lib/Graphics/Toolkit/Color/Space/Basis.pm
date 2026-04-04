@@ -57,6 +57,7 @@ sub is_name          {   # --> ?                     # is this a valid name of t
 }
 sub normalize_name {
     my ($self, $name) = @_;
+    return $name unless defined $name;
 	$name = uc $name;
 	$name =~ tr/_ -//d;
 	return $name;

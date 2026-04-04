@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,                           'YIQ', 'color space has axis initials as name');
-is( $space->alias,                             '', 'color space has no alias name');
+is( $space->name('alias'),                     '', 'color space has no alias name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'YIQ is euclidean');
 is( $space->is_cylindrical,                     0, 'YIQ is not cylindrical');

@@ -13,7 +13,7 @@ use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'could load module');
 is( $space->name,                           'HSL', 'space has name from axis initials');
-is( $space->alias,                             '', 'color space has no alias name');
+is( $space->name('alias'),                     '', 'color space has no alias name');
 is( $space->is_name('Hsl'),                     1, 'recognized name');
 is( $space->is_name('HSV'),                     0, 'ignored wrong name');
 is( $space->axis_count,                         3, 'color space has 3 axis');

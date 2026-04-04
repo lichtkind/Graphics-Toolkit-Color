@@ -7,7 +7,7 @@ use warnings;
 
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
-my @search_order = ($default_space_name,
+our @search_order = ($default_space_name,
                    qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                    qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                    qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/);
@@ -15,16 +15,16 @@ my %space_obj;
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @search_order;
 
 #### space API #########################################################
-sub is_space_name      { (ref get_space($_[0])) ? 1 : 0 }
+sub is_space_name      { (ref get_space( default_space()->normalize_name( $_[0] ))) ? 1 : 0 }
 sub all_space_names    { sort keys %space_obj }
 sub default_space_name { $default_space_name }
 sub default_space      { get_space( $default_space_name ) }
-sub get_space          { 
+sub get_space          { # takes only normal names or alias names
     my $name = shift;
     return unless defined $name;
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
-sub try_get_space {
+sub try_get_space      { # takes any name vaiant and defaults to  $default_space_name
     my $name = shift || $default_space_name;
     $name = default_space->normalize_name( $name );
     my $space = get_space( $name );
@@ -36,9 +36,9 @@ sub try_get_space {
 sub add_space {
     my $space = shift;
     return 'got no Graphics::Toolkit::Color::Space object' if ref $space ne 'Graphics::Toolkit::Color::Space';
-    my $name = $space->normalize_name( $space->name );
-    my $alias = $space->normalize_name( $space->alias );
-    return "color space object has no name" unless $name;
+    my $name = $space->name;
+    my $alias = $space->name('alias');
+    return "can not add color space object without a name" unless $name;
     return "color space name $name is already taken" if ref get_space( $name );
     my @converter_target = $space->converter_names;
     return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
@@ -56,12 +56,10 @@ sub remove_space {
     my $name = shift;
     return "need name of color space as argument in order to remove the space" unless defined $name and $name;
     my $space = try_get_space( $name );
-    return "can not remove unknown color space: $name" if $space eq default_space;
-    for my $space_name (all_space_names()){
-		
-	}
-    delete $space_obj{ uc $space->alias } if $space->alias;
-    delete $space_obj{ uc $space->name };
+    return "can not remove unknown color space: $name" if not ref $space;
+    return "can not remove default color space: $name" if default_space() eq $space;
+    delete $space_obj{ $space->name('alias') } if $space->name('alias');
+    delete $space_obj{ $space->name };
 }
 
 #### value API #########################################################

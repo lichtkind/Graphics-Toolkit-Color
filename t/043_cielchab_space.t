@@ -12,7 +12,7 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,                           'LCH', 'color space name is LCH');
-is( $space->alias,                     'CIELCHAB', 'color space name alias name is CIELCHab');
+is( $space->name('alias'),             'CIELCHAB', 'color space name alias name is CIELCHab');
 is( $space->is_name('CIELCHab'),                1, 'color space name CIELCHab is correct');
 is( $space->is_name('LCH'),                     1, 'color space name LCH is correct');
 is( $space->is_name('hab'),                     0, 'color space name LCH is correct');

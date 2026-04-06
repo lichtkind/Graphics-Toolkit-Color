@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 122;
+use Test::More tests => 130;
 BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Space::Hub;
@@ -139,7 +139,7 @@ is( round_decimals( $tuple->[1], 5), 0.2, 'G value is right');
 is( round_decimals( $tuple->[2], 5), 0.3, 'B value is right');
 
 $tuple = $convert->([1, 1/255, 0], 'CIELCHab');
-is( int @$tuple,           3, 'convert bright red to LCH (4 hop conversion)');
+is( int @$tuple,           3, 'convert bright red to LCHab (4 hop conversion)');
 is( round_decimals( $tuple->[0],  3),  53.264, 'L value is right');
 is( round_decimals( $tuple->[1],  3), 104.505, 'C value is right');
 is( round_decimals( $tuple->[2],  3),  40.026, 'H value is right');
@@ -149,6 +149,18 @@ is( int @$tuple,           3, 'convert bright red to normalized LCH');
 is( round_decimals( $tuple->[0],  5), .53264, 'L value is right');
 is( round_decimals( $tuple->[1],  5), .19389, 'C value is right');
 is( round_decimals( $tuple->[2],  5), 0.11118, 'H value is right');
+
+$tuple = $convert->([0.1, 0.2, 0.9], 'CIELCHuv');
+is( int @$tuple,           3, 'convert bright blue to LCHuv (4 hop conversion)');
+is( round_decimals( $tuple->[0],  4),  34.5264, 'L value is right');
+is( round_decimals( $tuple->[1],  4), 119.3958, 'C value is right');
+is( round_decimals( $tuple->[2],  5), 264.63634, 'H value is right'); # ...64 is right
+
+$tuple = $deconvert->([0.3453, 0.4575, 0.7351], 'CIELCHuv', 'normal');
+is( int @$tuple,           3, 'deconvert bright blue back to normal RGB');
+is( round_decimals( $tuple->[0],  4), .1, 'R value is right');
+is( round_decimals( $tuple->[1],  4), .2, 'G value is right');
+is( round_decimals( $tuple->[2],  3), .9, 'B value is right');
 
 ########################################################################
 $tuple = $deconvert->( [0,1/255,1], 'RGB');

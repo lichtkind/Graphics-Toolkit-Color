@@ -59,7 +59,7 @@ sub normalize_name {
     my ($self, $name) = @_;
     return $name unless defined $name;
 	$name = uc $name;
-	$name =~ tr/_ -//d;
+	$name =~ tr/_ .-//d; # '-' has to be last
 	return $name;
 }
 

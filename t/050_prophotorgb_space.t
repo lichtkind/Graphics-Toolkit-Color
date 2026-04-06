@@ -6,7 +6,7 @@ use Test::More tests => 58;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 BEGIN { unshift @INC, 'lib', '../lib'}
-my $module = 'Graphics::Toolkit::Color::Space::Instance::LinearRGB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB';
 
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');

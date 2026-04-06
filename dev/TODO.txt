@@ -11,7 +11,6 @@ TODO:
  = 2.3:
    + DCI-P3
    + display-p3
-   + Rec.2020
    + HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
    + complement can select space
 

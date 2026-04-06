@@ -1,11 +1,14 @@
 2.1    2026-04-05   lichtkind
 -------
-    * = mid level feature release: 5 new color spaces
+    * = big feature release: 8 new color spaces
     * + add color space: LinearRGB
     * + add color space: CIERGB
     * + add color space: Adobe 98 RGB
     * + add color space: Apple RGB
     * + add color space: ProPhoto RGB
+    * + add color space: Rec.2020
+    * + add color space: Display P3
+    * + add color space: BT.709
     * + can insert ' ', '-' and '_' into color space names
     * ~ CIEXYZ converts now from and to linearRGB
 

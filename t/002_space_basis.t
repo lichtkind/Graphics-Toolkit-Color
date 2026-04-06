@@ -2,13 +2,12 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 178;
+use Test::More tests => 180;
 
 BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
 eval "use $module";
-is( not($@), 1, 'could load the module'); #
-say "$@";
+is( not($@), 1, 'could load the module'); # say "$@";
 #### basic construction ################################################
 is( ref Graphics::Toolkit::Color::Space::Basis->new(),         '', 'constructor needs arguments');
 is( ref Graphics::Toolkit::Color::Space::Basis->new([1]), $module, 'one constructor argument is enough');
@@ -50,7 +49,9 @@ is( $s3d->is_name('abg'),                      1,     '"is_name" accepts lower c
 is( $s3d->is_name('a b g'),                    1,     'spaces get ignored in space name');
 is( $s3d->is_name('a_bg'),                     1,     'underscore chars get ignored in space name');
 is( $s3d->is_name('a b-g'),                    1,     'dash chars get ignored in space name');
-is( $s3d->is_name('a.bg'),                     0,     'dot chars get not ignored in space name');
+is( $s3d->is_name('a.bg'),                     1,     'dot chars get also ignored in space name');
+is( $s3d->is_name('a(bg'),                     0,     'brace chars get not ignored in space name');
+is( $s3d->is_name('a]bg'),                     0,     'square brace chars get not ignored in space name');
 is( $s3d->space_name,                      'ABG',     'correct name from 3 initials');
 is( $s3d->space_name('alias'),                '',     'ABG space has no alias, because its not auto generated');
 is( $s5d->space_name,                    'MNOPQ',     'correct name from 5 initials');

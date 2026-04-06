@@ -11,18 +11,19 @@ my $module = 'Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,        'LINEARRGB',              'color space has right name');
-is( $space->name('alias'),  'LINRGB',              'color space has alias name "LINRGB"');
-is( $space->is_name('linear RGB'), 1,              'one way to write the space name');
-is( $space->is_name('RGB'),        0,              'SRGB is not linear SRGB');
+is( $space->name,      'PROPHOTORGB',              'color space has name: "PROPHOTORGB"');
+is( $space->name('alias'), 'ROMMRGB',              'color space has alias name is "ROMMRGB"');
+is( $space->is_name('romm RGB'), 1,                'one way to write the space name');
+is( $space->is_name('Pro-Photo RGB'), 1,           'another way to write the space name');
+is( $space->is_name('RGB'),        0,              'SRGB is not ProPhoto SRGB');
 is( $space->axis_count,            3,              'lin RGB color space has 3 axis');
 is( $space->is_euclidean,          1,              'lin RGB is euclidean');
 is( $space->is_cylindrical,        0,              'lin RGB is not cylindrical');
 
 is( $space->is_value_tuple([0,0,0]),                   1,  'vector has 3 elements');
-is( $space->can_convert('rgb'),                        1,  'do only convert from and to rgb');
-is( $space->can_convert('RGB'),                        1,  'color space name can be written upper case');
-is( $space->can_convert('A98RGB'),                     0,  'does not convert directly to Adobe RGB');
+is( $space->can_convert('XYZ'),                        1,  'do only convert from and to rgb');
+is( $space->can_convert('xyz'),                        1,  'color space name can be written lower case');
+is( $space->can_convert('RGB'),                        0,  'does not convert directly to RGB');
 is( $space->is_partial_hash({r => 1, b => 0, g=>0}),   1,  'found hash with some short axis names as keys');
 is( $space->is_partial_hash({green => 1, blue => 0}),  1,  'found hash with some other long axis names as keys');
 is( $space->is_partial_hash({green => 1, cyan => 0}),  0,  'some axis name match some do not');
@@ -67,13 +68,6 @@ is( $rgb->[2],   1,      'converted to maximal blue value');
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
-$rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
-is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
-is( int @$rgb,   3,      'converted CMY to RGB triplets');
-is( $rgb->[0],   1,      'converted max red value');
-is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
-is( $rgb->[2],   0,      'converted minimal blue value');
-
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
 is( int @$d,    3,      'zero delta vector has right length');
 is( $d->[0],    0,      'no delta in R component');
@@ -85,5 +79,14 @@ is( int @$d,   3,      'delta vector has right length');
 is( $d->[0],  -0.1,    'R delta');
 is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
+
+
+$rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
+is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
+is( int @$rgb,   3,      'converted CMY to RGB triplets');
+is( $rgb->[0],   1,      'converted max red value');
+is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
+is( $rgb->[2],   0,      'converted minimal blue value');
+
 
 exit 0;

@@ -843,13 +843,15 @@ one scalar amout value, then will be applied to all mixed in colors.
 
 =head2 invert
 
-Computes the a new color object, where all values are inverted according
-to the ranges of the chosen color space (see L</in>). It takes only one
-optional, positional argument, a space name.
+Computes the a new color object, where all or some values are inverted 
+according to the ranges of the chosen color space (see L</in>). It takes 
+two optional, positional argument, a space name and axis names.
 
-    my $black = $white->invert();         # to state the obvious
-    my $blue = $yellow->invert( 'LUV' );  # invert in LUV space
-    $yellow->invert( in => 'LUV' );       # would work too
+    my $black = $white->invert();                   # to state the obvious
+    my $blue = $yellow->invert( 'LUV' );            # invert in LUV space
+    $yellow->invert( in => 'LUV' );                 # would work too
+    $yellow->invert( in => 'HSL', only => 'hue' );  # same result as $yellow->complement();
+    $yellow->invert( in => 'HSL', only => [qw/s l/] ); # invert only saturation and lightness
 
 
 

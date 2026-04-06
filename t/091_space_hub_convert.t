@@ -2,8 +2,8 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 130;
-BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Space::Hub;
 

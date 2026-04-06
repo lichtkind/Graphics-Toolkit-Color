@@ -2,10 +2,10 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 78;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIERGB';
 
 my $space = eval "require $module";

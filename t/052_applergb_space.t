@@ -2,14 +2,15 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 80;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
 
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
+say $@;
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
 is( $space->name,         'APPLERGB',              'color space has right name');
 is( $space->name('alias'),        '',              'APPLERGB has no alias');
@@ -110,7 +111,7 @@ is( round_decimals($xyz->[1],7),   1,      'Y is zero');
 is( round_decimals($xyz->[2],7),   1,      'Z is zero');
 
 $rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
-is( ref $rgb,   'ARRAY', 'convert white from XYZ');
+is( ref $rgb,   'ARRAY', 'convert light blue from XYZ');
 is( int @$rgb,   3,      'got three values');
 is( round_decimals($rgb->[0], 9),  -0.591985674,  'red is right');
 is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');

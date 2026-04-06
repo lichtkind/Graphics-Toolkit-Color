@@ -2,11 +2,10 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 99;
 
-BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
-
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got right return value by loading module');

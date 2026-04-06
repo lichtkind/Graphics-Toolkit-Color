@@ -2,8 +2,8 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 95;
-BEGIN { unshift @INC, 'lib', '../lib'}
 use Graphics::Toolkit::Color qw/color/;
 
 my $module  = 'Graphics::Toolkit::Color';

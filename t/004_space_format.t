@@ -2,11 +2,10 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 143;
 
-BEGIN { unshift @INC, 'lib', '../lib'}
 my $module = 'Graphics::Toolkit::Color::Space::Format';
-
 eval "use $module";
 is( not($@), 1, 'could load the module');
 use Graphics::Toolkit::Color::Space::Basis;

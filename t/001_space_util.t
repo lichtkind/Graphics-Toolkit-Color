@@ -2,11 +2,10 @@
 
 use v5.12;
 use warnings;
+use lib 'lib', '../lib/';
 use Test::More tests => 66;
 
-BEGIN { unshift @INC, 'lib', '../lib' }
 my $module = 'Graphics::Toolkit::Color::Space::Util';
-
 eval "use $module";
 is( not($@), 1, 'could load the module');
 
@@ -75,7 +74,7 @@ is( $rmod->(-3, 2),                 -1,     'int mod with negative dividend');
 is( $rmod->(3, -2),                  1,     'int mod with negative divisor');
 is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
 
-my $pow = \&Graphics::Toolkit::Color::Space::Util::pow;
+my $pow = \&Graphics::Toolkit::Color::Space::Util::power;
 is( $pow->(0,0),                       1,   'default of multiplication is 1');
 is( $pow->(2.2, 2),                 4.84,   'simple power');
 is( $pow->(-2.2, 2),               -4.84,   'simple power negative');

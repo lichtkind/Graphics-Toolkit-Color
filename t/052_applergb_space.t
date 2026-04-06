@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 80;
+use Test::More tests => 84;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
@@ -106,16 +106,23 @@ is( round_decimals($rgb->[2], 9),   0.947385691,  'blue is right');
 $xyz = $space->convert_to( 'XYZ', [1.100580446, 0.967892246, 0.947385691 ]);
 is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of white into XYZ');
 is( int @$xyz,   3,      'got 3 values');
-is( round_decimals($xyz->[0],7),   1,      'X is zero');
-is( round_decimals($xyz->[1],7),   1,      'Y is zero');
-is( round_decimals($xyz->[2],7),   1,      'Z is zero');
+is( round_decimals($xyz->[0],7),   1,      'X is one');
+is( round_decimals($xyz->[1],7),   1,      'Y is one');
+is( round_decimals($xyz->[2],7),   1,      'Z is one');
 
 $rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
 is( ref $rgb,   'ARRAY', 'convert light blue from XYZ');
 is( int @$rgb,   3,      'got three values');
 is( round_decimals($rgb->[0], 9),  -0.591985674,  'red is right');
-is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');
-is( round_decimals($rgb->[2], 9),   0.947385691,  'blue is right');
+is( round_decimals($rgb->[1], 9),   0.533877143,  'green is right');
+is( round_decimals($rgb->[2], 9),   0.964390347,  'blue is right');
+
+$xyz = $space->convert_to( 'XYZ', [-0.591985674, 0.533877143, 0.964390347 ]);
+is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of white into XYZ');
+is( int @$xyz,   3,      'got 3 values');
+is( round_decimals($xyz->[0],7),   .1,  'X is right');
+is( round_decimals($xyz->[1],7),   .2,  'Y is right');
+is( round_decimals($xyz->[2],7),   .9,  'Z is right');
 
 
 exit 0;

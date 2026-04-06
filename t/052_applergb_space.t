@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 58;
+use Test::More tests => 80;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 BEGIN { unshift @INC, 'lib', '../lib'}
@@ -73,21 +73,48 @@ is( $d->[2],   0.6,    'B delta');
 is( $rgb,   undef,     'array format is RGB only');
 
 ($rgb, $name) = $space->deformat('apple_rgb: 0.1, 0.2, 0.8');
-is( $name,   'named_string',     'recognized named string format');
+is( $name,   'named_string', 'recognized named string format');
+is( int @$rgb,            3, 'got three values');
+is( $rgb->[0],          0.1, 'right red value');
+is( $rgb->[1],          0.2, 'right green value');
+is( $rgb->[2],          0.8, 'right blue value');
 
+is( $space->format([0.2,.3,.7],'named_string'),  'applergb: 0.2, 0.3, 0.7',  'formatted back into named string');
 
-$rgb = $space->convert_from( 'RGB', [0, 0.01, 1]);
-is( ref $rgb,   'ARRAY', 'converted RGB values tuple into CMY tuple');
-is( int @$rgb,   3,      'converted RGB values to CMY');
-is( $rgb->[0],   0,      'converted to minimal red value');
-is( round_decimals($rgb->[1],9), 0.000773994, 'converted to mid magenta value');
-is( $rgb->[2],   1,      'converted to maximal blue value');
+$rgb = $space->convert_from( 'XYZ', [0, 0, 0], 1);
+is( ref $rgb,   'ARRAY', 'convert black from XYZ');
+is( int @$rgb,   3,      'got three values');
+is( $rgb->[0],   0,      'red is zero');
+is( $rgb->[1],   0,      'green is zero');
+is( $rgb->[2],   0,      'blue is zero');
 
-$rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
-is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
-is( int @$rgb,   3,      'converted CMY to RGB triplets');
-is( $rgb->[0],   1,      'converted max red value');
-is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
-is( $rgb->[2],   0,      'converted minimal blue value');
+my $xyz = $space->convert_to( 'XYZ', [0, 0, 0 ]);
+is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of black color into XYZ');
+is( int @$xyz,   3,      'got 3 values');
+is( $xyz->[0],   0,      'X is zero');
+is( $xyz->[1],   0,      'Y is zero');
+is( $xyz->[2],   0,      'Z is zero');
+
+$rgb = $space->convert_from( 'XYZ', [1, 1, 1]);
+is( ref $rgb,   'ARRAY', 'convert white from XYZ');
+is( int @$rgb,   3,      'got three values');
+is( round_decimals($rgb->[0], 9),   1.100580446,  'red is right');
+is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');
+is( round_decimals($rgb->[2], 9),   0.947385691,  'blue is right');
+
+$xyz = $space->convert_to( 'XYZ', [1.100580446, 0.967892246, 0.947385691 ]);
+is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of white into XYZ');
+is( int @$xyz,   3,      'got 3 values');
+is( round_decimals($xyz->[0],7),   1,      'X is zero');
+is( round_decimals($xyz->[1],7),   1,      'Y is zero');
+is( round_decimals($xyz->[2],7),   1,      'Z is zero');
+
+$rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
+is( ref $rgb,   'ARRAY', 'convert white from XYZ');
+is( int @$rgb,   3,      'got three values');
+is( round_decimals($rgb->[0], 9),  -0.591985674,  'red is right');
+is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');
+is( round_decimals($rgb->[2], 9),   0.947385691,  'blue is right');
+
 
 exit 0;

@@ -2,43 +2,13 @@
 
 use v5.12;
 use warnings;
-use Test::More tests => 61;
+use Test::More tests => 66;
 
 BEGIN { unshift @INC, 'lib', '../lib' }
 my $module = 'Graphics::Toolkit::Color::Space::Util';
 
 eval "use $module";
 is( not($@), 1, 'could load the module');
-
-my $round = \&Graphics::Toolkit::Color::Space::Util::round_int;
-is( $round->(0.5),           1,     'round 0.5 upward');
-is( $round->(0.500000001),   1,     'everything above 0.5 gets also increased');
-is( $round->(0.4999999),     0,     'everything below 0.5 gets smaller');
-is( $round->(-0.5),         -1,     'round -0.5 downward');
-is( $round->(-0.500000001), -1,     'everything below -0.5 gets also lowered');
-is( $round->(-0.4999999),    0,     'everything upward from -0.5 gets increased');
-is( $round->( 1.4999999),    1,     'positive rounding works above 1');
-is( $round->(-1.4999999),   -1,     'negative rounding works below 1');
-
-my $rd = \&Graphics::Toolkit::Color::Space::Util::round_decimals;
-is( $rd->( 1.4999999),    1,     'positive rounding works above 1 with round 2');
-is( $rd->(-1.4999999),   -1,     'negative rounding works below 1 with round 2');
-is( $rd->( 1.4999999, 0),    1,  'positive rounding with no decimals');
-is( $rd->(-1.4999999, 0),   -1,  'negative rounding with no decimals');
-is( $rd->( 1.4999999, 1),  1.5,  'positive rounding with one decimal');
-is( $rd->(-1.4999999, 1), -1.5,  'negative rounding with one decimal');
-is( $rd->( 1.4999999, 2),  1.5,  'positive rounding with one decimal');
-is( $rd->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
-
-
-my $rmod = \&Graphics::Toolkit::Color::Space::Util::mod_real;
-is( $rmod->(),                       0,     'default to 0 when both values missing');
-is( $rmod->(1),                      0,     'default to 0 when a value is missing');
-is( $rmod->(1,0),                    0,     'default to 0 when a divisor is zero');
-is( $rmod->(3, 2),                   1,     'normal int mod');
-is( $rmod->(-3, 2),                 -1,     'int mod with negative dividend');
-is( $rmod->(3, -2),                  1,     'int mod with negative divisor');
-is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
 
 my $min  = \&Graphics::Toolkit::Color::Space::Util::min;
 is( $min->(),                 undef,     'undef is default for min');
@@ -73,6 +43,46 @@ is( $list[1],                     2,     'second element right');
 @list = $uniq->(0,0,0,0);
 is( int @list,                    1,     'dleted all none uniq elements');
 is( $list[0],                     0,     'no issues with zero');
+
+
+my $round = \&Graphics::Toolkit::Color::Space::Util::round_int;
+is( $round->(0.5),           1,     'round 0.5 upward');
+is( $round->(0.500000001),   1,     'everything above 0.5 gets also increased');
+is( $round->(0.4999999),     0,     'everything below 0.5 gets smaller');
+is( $round->(-0.5),         -1,     'round -0.5 downward');
+is( $round->(-0.500000001), -1,     'everything below -0.5 gets also lowered');
+is( $round->(-0.4999999),    0,     'everything upward from -0.5 gets increased');
+is( $round->( 1.4999999),    1,     'positive rounding works above 1');
+is( $round->(-1.4999999),   -1,     'negative rounding works below 1');
+
+my $rd = \&Graphics::Toolkit::Color::Space::Util::round_decimals;
+is( $rd->( 1.4999999),    1,     'positive rounding works above 1 with round 2');
+is( $rd->(-1.4999999),   -1,     'negative rounding works below 1 with round 2');
+is( $rd->( 1.4999999, 0),    1,  'positive rounding with no decimals');
+is( $rd->(-1.4999999, 0),   -1,  'negative rounding with no decimals');
+is( $rd->( 1.4999999, 1),  1.5,  'positive rounding with one decimal');
+is( $rd->(-1.4999999, 1), -1.5,  'negative rounding with one decimal');
+is( $rd->( 1.4999999, 2),  1.5,  'positive rounding with one decimal');
+is( $rd->(-1.4999999, 2), -1.5,  'negative rounding with one decimal');
+
+
+my $rmod = \&Graphics::Toolkit::Color::Space::Util::mod_real;
+is( $rmod->(),                       0,     'default to 0 when both values missing');
+is( $rmod->(1),                      0,     'default to 0 when a value is missing');
+is( $rmod->(1,0),                    0,     'default to 0 when a divisor is zero');
+is( $rmod->(3, 2),                   1,     'normal int mod');
+is( $rmod->(-3, 2),                 -1,     'int mod with negative dividend');
+is( $rmod->(3, -2),                  1,     'int mod with negative divisor');
+is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
+
+my $pow = \&Graphics::Toolkit::Color::Space::Util::pow;
+is( $pow->(0,0),                       1,   'default of multiplication is 1');
+is( $pow->(2.2, 2),                 4.84,   'simple power');
+is( $pow->(-2.2, 2),               -4.84,   'simple power negative');
+is( $rd->($pow->(2.2, .1),8),   1.08203739,   'power with decimals');
+is( $rd->($pow->(-2.2, .1),8), -1.08203739,   'negative power with decimals');
+
+
 
 
 my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix_vector_3;

@@ -5,19 +5,19 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/round_int round_decimals mod_real min max uniq mult_matrix_vector_3 is_nr/;
+our @EXPORT_OK = qw/ min max uniq round_int round_decimals mod_real pow mult_matrix_vector_3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 #### lists #############################################################
-sub max {
-    my $v = shift;
-    for (@_) { next unless defined $_; $v = $_ if $v < $_ }
-    return $v;
-}
-
 sub min {
     my $v = shift;
     for (@_) { next unless defined $_; $v = $_ if $v > $_ }
+    return $v;
+}
+
+sub max {
+    my $v = shift;
+    for (@_) { next unless defined $_; $v = $_ if $v < $_ }
     return $v;
 }
 
@@ -46,6 +46,12 @@ sub round_decimals {
 sub mod_real { # real value modulo
     return 0 unless defined $_[1] and $_[1];
     return  $_[0] - (int($_[0] / $_[1]) * $_[1]);
+}
+
+sub pow {
+    my ($base, $exponent) = @_;
+    return $base ** $exponent if $base >= 0;
+    return -((-$base) ** $exponent);
 }
 
 sub is_nr { $_[0] =~ /^\-?\d+(\.\d+)?$/ }

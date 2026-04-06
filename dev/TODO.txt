@@ -6,12 +6,11 @@ TODO:
    + OKHSV
    + OKHWB
    + Jzazbz / JzCzhz Modern perceptual space that handles HDR extremes better than OKLab in some cases.
+   + DCI-P3
+   + HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
    + add constructor arguments: color, range
    
  = 2.3:
-   + DCI-P3
-   + display-p3
-   + HSLuv / HPLuv Perceptual version of HSL. Some designers still prefer it for consistent 
    + complement can select space
 
  = 2.4:

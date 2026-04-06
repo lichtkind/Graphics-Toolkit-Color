@@ -176,38 +176,26 @@ sub get_value_regex {
 sub tuple_from_named_string {
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
-    my $name = $self->basis->space_name;
-    $string =~ /^\s*$name:\s*(\s*[^:]+)\s*$/i;
-    my $match = $1;
-    unless ($match){
-        my $name = $self->basis->space_name('alias');
-        return 0 unless $name;
-        $string =~ /^\s*$name:\s*(\s*[^:]+)\s*$/i;
-        $match = $1;
-    }
-    return 0 unless $match;
+    $string =~ /^\s*([^ :]+):\s*(\s*[^:]+)\s*$/i;
+    my $space_name = $1;
+    my $tuple_string = $2;
+    return 0 unless $self->{'basis'}->is_name( $space_name ) and $tuple_string;
     local $/ = ' ';
-    chomp $match;
-    return [split(/\s*,\s*/, $match)] if index($match, ',') > -1;
-    return [split(/\s+/,     $match)];
+    chomp $tuple_string;
+    return [split(/\s*,\s*/, $tuple_string)] if index($tuple_string, ',') > -1;
+    return [split(/\s+/,     $tuple_string)];
 }
 sub tuple_from_css_string {
     my ($self, $string) = @_;
     return 0 unless defined $string and not ref $string;
-    my $name = $self->basis->space_name;
-    $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
-    my $match = $1;
-    unless ($match){
-        my $name = $self->basis->space_name('alias');
-        return 0 unless $name;
-        $string =~ /^\s*$name\(\s*([^)]+)\s*\)\s*$/i;
-        $match = $1;
-    }
-    return 0 unless $match;
+    $string =~ /^\s*([^()]+)\(\s*([^()]+)\s*\)\s*$/i;
+    my $space_name = $1;
+    my $tuple_string = $2;
+    return 0 unless $self->{'basis'}->is_name( $space_name ) and $tuple_string;
     local $/ = ' ';
-    chomp $match;
-    return [split(/\s*,\s*/, $match)] if index($match, ',') > -1;
-    return [split(/\s+/,     $match)];
+    chomp $tuple_string;
+    return [split(/\s*,\s*/, $tuple_string)] if index($tuple_string, ',') > -1;
+    return [split(/\s+/,     $tuple_string)];
 }
 sub tuple_from_named_array {
     my ($self, $array) = @_;

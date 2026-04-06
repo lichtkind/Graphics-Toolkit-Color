@@ -103,7 +103,6 @@ is( $rgb->[0],  -1,     'to small red is not clamped up');
 is( $rgb->[1], 256,     'too large green is not clamped down');
 is( $rgb->[2], 3.3,     'blue decimals do not get clamped');
 
-
 ($rgb, $name) = $space->deformat('rgb:0,1,2');
 is( $name,  'named_string', 'could deformat named string without spaces');
 is( int @$rgb,  3,     'deformat STRING format without spaces and lc name: got 3 values');
@@ -112,7 +111,7 @@ is( $rgb->[1],   1,    'green is one');
 is( $rgb->[2],   2,    'blue is two');
 
 $rgb = $space->deformat('cmy: 1,2,3.3');
-is( $rgb->[0],  undef,  'OO deformat STRING reacts only to right space name');
+is( $rgb->[0],  undef,  'deformat STRING reacts only to right space name');
 is( $space->format([0,256,3.3], 'named_string'), 'rgb: 0, 256, 3.3', 'formated rgb triplet into value string');
 
 

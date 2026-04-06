@@ -302,6 +302,13 @@ above a black background, so that black is (0,0,0), white (255,255,255)
 and a pure red (fully saturated color) is (255, 0, 0). The space can also
 be addressed under its alias name: B<sRGB>(standard RGB).
 
+=head2 LinearRGB
+
+Same as L</RGB> but with normal value ranges (0 .. 1) and removed piecewise
+gamma correction. That means there is a linear correlation between the 
+shown values and the RGB brightness of the pixel on the screen without
+any adaptation to human sensibilities. Its alias name is B<LinRGB>.
+
 =head2 CMY
 
 is the opposite of L</RGB> since it follows the logic of subtractive
@@ -443,6 +450,15 @@ column the value I<chroma> has no importance and will be in this
 implementation implementation alsway be zero.
 
 =head2 CIELCHuv
+
+=head2 CIERGB
+
+=head2 AdobeRGB
+
+=head2 AppleRGB
+
+=head2 ProPhotoRGB
+
 
 (alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works similar to
 L<CIELCHab> except the real valued range of B<chroma> is (0 .. 261) and

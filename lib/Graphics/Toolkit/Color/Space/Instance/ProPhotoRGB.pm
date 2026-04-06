@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/mult_matrix_vector_3/;
+use Graphics::Toolkit::Color::Space qw/power mult_matrix_vector_3/;
 
 my $eta = 0.001953;
 my $gamma = 1.8;
@@ -15,12 +15,10 @@ sub from_xyz {
                                      [ -0.5445989,  1.5081673,  0.0205351 ], 
                                      [  0.0000000,  0.0000000,  1.2118128 ]  ], @$xyz);
 
-    return [map { ($_ <= $eta) ? ($_ * 16) 
-		                       : ($_ ** (1 / $gamma))} @rgb];
+    return [map { ($_ <= $eta) ? ($_ * 16) : power($_, 1 / $gamma)} @rgb];
 }
 sub to_xyz {
-	my @rgb = map { ($_ <= 16 * $eta) ? ($_ / 16) 
-		                              : ( $_ ** $gamma ) } @{$_[0]};
+	my @rgb = map { ($_ <= 16 * $eta) ? ($_ / 16) : power( $_, $gamma ) } @{$_[0]};
 
     return [ mult_matrix_vector_3( [[ 0.7976749,  0.1351917,  0.0313534 ],
                                     [ 0.2880402,  0.7118741,  0.0000857 ],

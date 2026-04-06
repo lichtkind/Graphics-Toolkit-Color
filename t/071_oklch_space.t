@@ -21,7 +21,7 @@ is( $space->is_cylindrical,                     1, 'OKLCH is cylindrical');
 
 is( ref $space->check_value_shape([0,0]),              '',   "OKLCH got too few values");
 is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "OKLCH got too many values");
-is( ref $space->check_value_shape([0, 0, 0]),  'ARRAY',   'check minimal OKLCH values are in bounds');
+is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY',   'check minimal OKLCH values are in bounds');
 is( ref $space->check_value_shape([1, 0.5, 360]), 'ARRAY',   'check maximal OKLCH values are in bounds');
 is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "L value is too small");
 is( ref $space->check_value_shape([1.01, 0, 0]),       '',   'L value is too big');

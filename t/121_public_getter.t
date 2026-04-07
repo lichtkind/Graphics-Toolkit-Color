@@ -3,9 +3,9 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 94;
+use Test::More tests => 98;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
-use Graphics::Toolkit::Color qw/color/;
+use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
 my $red    = color( 255,0,0 );
 my $blue   = color( {r => 0, g => 0, b=>255} );
@@ -141,5 +141,9 @@ is( $values->{'l'},            50, '"lightness" value is correct');
 #### is_in_gamut #######################################################
 is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');
 is( $blue->is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut method works with normal HSL color');
+is( $blue->is_in_gamut('xyz: 100,100,100'), 0, 'x value is out of gamut');
+is( is_in_gamut([0,0,0]),                   1, 'is_in_gamut symbol got imported');
+is( is_in_gamut(okLAB => [1,0,0]),          1, 'is_in_gamut symbol works with any color space');
+is( is_in_gamut(okLAB => [1.1,0,0]),        0, 'too much lightness');
 
 exit 0;

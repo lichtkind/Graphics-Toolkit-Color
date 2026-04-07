@@ -1,11 +1,13 @@
-2.1    2026-04-05   lichtkind
+2.1    2026-04-15   lichtkind
 -------
-    * = big feature release: 8 new color spaces
+    * = big feature release: 9 new color spaces
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB,
-                          ProPhoto RGB, Rec.2020, Display P3, BT.709
+                          ProPhoto RGB, Display P3, OKHSL, OKHSV, OKHWB
+    * + add constructor argument 'color' and 'range' to input custom ranged values
+    * + add 'is_in_gamut' argument 'color' and 'in' (check if color is in gamut of some space)
     * + can insert ' ', '-', '_' and '.' into color space names
     * ~ CIEXYZ converts now from and to linearRGB
-    * ? document the 'only' argument
+    * ? document the 'only' argument of 'invert'
 
 2.02    2026-03-30   lichtkind
 -------
@@ -32,7 +34,8 @@
 1.99    2026-03-22    lichtkind
 -------
     * = small feature release: 3 small features
-    * + method is_in_gamut checks if values are valid
+    * + method 'is_in_gamut' checks if values are valid
+    * + exortable symbol 'is_in_gamut'
     * + cone shaped space constraints for HSV
     * + added 'sRGB' as alias name of RGB space
     * \ final test release before 2.0

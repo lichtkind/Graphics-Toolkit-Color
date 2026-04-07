@@ -545,11 +545,26 @@ L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
 Get a color by name from a specific scheme or standard as provided by an
 external module L<Graphics::ColorNames>::* , which has to be installed
 separately or with L<Bundle::Graphics::ColorNames>.
-See all scheme names L<here | Graphics::Toolkit::Color::Name/SCHEMES>.
-The color name will be  normalized as above.
+See all scheme names L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
+The color name will be normalized as described above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
     my @schemes = Graphics::ColorNames::all_schemes();    # look up the installed
+
+
+=head2 new( color => .., range => ..)
+
+In the rare occasion you are given a color definition with values in a 
+none standard range, you will need a mechanism to tell GTC what ranges
+to use when reading the color definition. This is also imortant in 
+combination with wide gamut spaces such as I<AppleRGB> that use either
+normalized values or several huge none standard ranges, in order to get
+a similar resolution for the normal colors as stadard RGB.
+
+Just use the named argumend color and give it a scalar color definition
+as described above. The second argument that can be L</range>.
+
+    my $color = Graphics::Toolkit::Color->new( AppleRGB => [1438, 374, 8285], range => 2**32);
 
 
 =head2 color
@@ -587,10 +602,17 @@ that there is nothing to clamp and the constructor did not change any value.
 If it is too clumsy for you to use an existing color object to check if
 another color is valid: use th importable routine with the same name.
 
+Please note also that gamuts of color spaces are different. A color which 
+is out of gamut in one space can be in gamut in another space. This method
+will use the color space the color is defined in per default. But you
+can also specify the space as always with the argument L</in>.
+
+
     if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
     if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
+    is_in_gamut(color => 'rgb: 0, 0, 300', in => 'ProPhotoRGB') # might be ? 
 
 
 =head2 values
@@ -848,6 +870,7 @@ according to the ranges of the chosen color space (see L</in>). It takes
 two optional, positional argument, a space name and axis names.
 
     my $black = $white->invert();                   # to state the obvious
+    my $gray = $gray->invert();                     # changed nothing
     my $blue = $yellow->invert( 'LUV' );            # invert in LUV space
     $yellow->invert( in => 'LUV' );                 # would work too
     $yellow->invert( in => 'HSL', only => 'hue' );  # same result as $yellow->complement();
@@ -1002,6 +1025,10 @@ not a value list or hash.
 =item *
 
 L<PDL::Transform::Color>
+
+=item *
+
+L<PDL::Graphics::ColorSpace>
 
 =item *
 

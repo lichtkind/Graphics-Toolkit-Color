@@ -1,6 +1,6 @@
-2.1    2026-04-15   lichtkind
+2.2    2026-04-15   lichtkind
 -------
-    * = big feature release: 10 new color spaces
+    * = big feature release: 11 (now 29) new color spaces
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB, ProPhoto RGB,
                           Rec.709, Rec.2020, Display P3, OKHSL, OKHSV, OKHWB
     * + add constructor argument 'color' and 'range' to input custom ranged values

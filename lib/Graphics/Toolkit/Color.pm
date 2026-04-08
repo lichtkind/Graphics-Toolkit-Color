@@ -2,7 +2,7 @@
 # public user level API: docs, help and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.03';
+our $VERSION = '2.2';
 
 use v5.12;
 use warnings;

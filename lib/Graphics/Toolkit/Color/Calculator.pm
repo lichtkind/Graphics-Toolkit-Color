@@ -93,9 +93,7 @@ sub invert {
         if ($color_space->shape->is_axis_euclidean( $axis_nr )){
             $tuple->[$axis_nr] = 1 - $tuple->[$axis_nr];
         } else {
-            $tuple->[$axis_nr] = ($tuple->[$axis_nr] < 0.5)
-                                ? $tuple->[$axis_nr] + 0.5
-                                : $tuple->[$axis_nr] - 0.5;
+            $tuple->[$axis_nr] = 0.5 - ($tuple->[$axis_nr] - 0.5);
         }
 	}
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );

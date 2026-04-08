@@ -216,6 +216,7 @@ sub distance { # @c1 @c2 -- ~space ~select @range --> +
 }
 
 1;
+# =head2 Rec.2020  =head2 BT.709 
 
 __END__
 
@@ -288,19 +289,19 @@ the main goal of this software is seamless interoperabilitiy between them.
 
 =head2 RGB
 
-... is the default color space of this CPAN module. It is used
-by most computer hardware like monitors and follows the logic of additive
-color mixing as produced by an overlay of three colored light beams.
-The sum of all colors will be white, as in opposite to subtractive mixing.
-Its is a completely Cartesian (Euclidean) 3D space and thus a RGB tuple
-consists of three integer values:
+... (alias B<SRGB> - standard RGB) is the default color space of this 
+CPAN module. It is used by most computer hardware like monitors and follows
+the logic of additive color mixing as produced by an overlay of three 
+colored light beams. The sum of all colors will be white, as in opposite
+to subtractive mixing. Its is a completely Cartesian (Euclidean) 3D space
+and thus a RGB tuple consists of three integer values:
 
 B<red> (short B<r>) range: 0 .. 255, B<green> (short B<g>) range: 0 .. 255
 and B<blue> (short B<b>) range: 0 .. 255.
 A higher value means a stronger beam of that base color flows into the mix
-above a black background, so that black is (0,0,0), white (255,255,255)
-and a pure red (fully saturated color) is (255, 0, 0). The space can also
-be addressed under its alias name: B<sRGB>(standard RGB).
+above a black background, so that black is (0, 0, 0), white (255, 255, 255)
+and a pure red (fully saturated color) is (255, 0, 0). RGB has a gamma
+of 2.4, which is clipped in the corners (piecewise transfer function).
 
 =head2 LinearRGB
 
@@ -406,18 +407,26 @@ It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
 range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. C<Pr>
 (short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
 
+=head2 HunterLAB
+
+predecessor of L</CIELAB> by Richard S. Hunter with no alias name and
+slightly different color transitions on yellow-blue-direction.
+The axis have same long and short names: B<L> with normal values (0 .. 1),
+B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
+
+
 =head2 CIEXYZ
 
 this space (alias B<XYZ>) has the axis B<X>, B<Y> and B<Z> (long and short
-names are same this time), that refer to the red, green and blue receptors
-(cones) in the retina (on the back side of the eye). Because those cones
-measure a lot more left and right than just exactly those colors, they got
-these technical names. The values in that space tell you about the amount
-of chemical and neurological activity a color produces inside the eye.
-The values range of C<X>, C<Y> and C<Z> go from zero to to 0.95047, 1
-and 1.08883 respectively.
-These values are due to the use of the standard luminant I<D65>, which
-holds true for all CIE spaces in GTC.
+axis names are this time the same), that refer to the red, green and blue 
+receptors (cones) in the retina (on the back side of the eye). Because 
+those cones measure a lot more left and right than just exactly those colors,
+they got these technical names. The values in that space tell you about 
+the amount of chemical and neurological activity a color produces inside
+the eye. The values ranges are always from zero and reach 95.047 on the
+C<X> - axis, 100 on C<Y> and 108.883 on C<Z>, due to the used white
+point of I<D65> which has these values divided by 100. The illuminant
+I<D65> is standard for all CIE spaces except I<CIERGB>.
 
 =head2 CIELAB
 
@@ -451,24 +460,33 @@ implementation implementation alsway be zero.
 
 =head2 CIELCHuv
 
+(alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works 
+similar to L<CIELCHab> except the real valued range of B<chroma> is 
+(0 .. 261) and the space has no alias name.
+
 =head2 CIERGB
+
+1931 standardized, normal valued (0 .. 1) space with same axis as L<\RGB>:
+I<red> (I<r>), I<green> (I<g>) and I<blue> (I<b>). 
+It has the illuminant E and no gamma (linear RGB).
 
 =head2 AdobeRGB
 
+(alias name B<opRGB>) is an normalized L<\RGB> variant with the 
+CIE white point D65 a gamma of about 2.2.
+
 =head2 AppleRGB
+
+normal L<\RGB> variant with white point of D65 and gamma = 1.8.
 
 =head2 ProPhotoRGB
 
+(alias name B<ROMMRGB>) normal L<\RGB> variant with a white point of
+D50, gamma = 1.8 and a wide gamut.
+
 =head2 Display P3
 
-=head2 Rec.2020 
-
-=head2 BT.709 
-
-
-(alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works similar to
-L<CIELCHab> except the real valued range of B<chroma> is (0 .. 261) and
-the space has no alias name.
+wide gamut RGB variant with same gamma function as L<\RGB>
 
 =head2 OKLAB
 
@@ -487,12 +505,11 @@ I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 I and <hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
 
-=head2 HunterLAB
+=head2 OKHSL
 
-predecessor of L</CIELAB> by Richard S. Hunter with no alias name and
-slightly different color transitions on yellow-blue-direction.
-The axis have same long and short names: B<L> with normal values (0 .. 1),
-B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
+=head2 OKHSV
+
+=head2 OKHWB
 
 
 =head1 RANGES

@@ -1,8 +1,8 @@
 2.1    2026-04-15   lichtkind
 -------
-    * = big feature release: 9 new color spaces
-    * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB,
-                          ProPhoto RGB, Display P3, OKHSL, OKHSV, OKHWB
+    * = big feature release: 10 new color spaces
+    * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB, ProPhoto RGB,
+                          Rec.709, Rec.2020, Display P3, OKHSL, OKHSV, OKHWB
     * + add constructor argument 'color' and 'range' to input custom ranged values
     * + add 'is_in_gamut' argument 'color' and 'in' (check if color is in gamut of some space)
     * + can insert ' ', '-', '_' and '.' into color space names

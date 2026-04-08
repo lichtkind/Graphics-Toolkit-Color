@@ -73,7 +73,7 @@ is( $d->[0],  -0.1,    'R delta');
 is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
 
-$rgb = $space->convert_from( 'RGB', [0, 0.01, 1]);
+$rgb = $space->convert_from( 'RGB', [0, 0, 0]);
 is( ref $rgb,   'ARRAY', 'converted XYZ values tuple into ADOBERGB tuple');
 is( int @$rgb,   3,      'got three values');
 is( $rgb->[0],   0,      'converted to minimal red value');

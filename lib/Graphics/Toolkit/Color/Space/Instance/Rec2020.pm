@@ -1,7 +1,7 @@
 
 # Rec.2020
 
-package Graphics::Toolkit::Color::Space::Instance::AppleRGB;
+package Graphics::Toolkit::Color::Space::Instance::Rec2020;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/power mult_matrix_vector_3/;

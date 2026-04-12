@@ -10,8 +10,9 @@ our $default_space_name = 'RGB';
 my @load_order = ($default_space_name,
                   qw/LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
-                  qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/,
-                  qw/DisplayP3Linear DisplayP3/,);
+                  qw/AdobeRGB AppleRGB ProPhotoRGB WideGamutRGB/,
+                  qw/DisplayP3Linear DisplayP3/,
+                  qw/OKLAB OKLCH/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
 my @search_order;
 my %space_obj;

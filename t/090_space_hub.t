@@ -3,14 +3,15 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 74;
+use Test::More tests => 80;
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
 my @space_names = (qw/RGB LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                    qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
-                   qw/ProPhotoRGB AdobeRGB AppleRGB OKLAB OKLCH/);
-my $space_name_aliases = 10;
+                   qw/ProPhotoRGB AdobeRGB AppleRGB DisplayP3Linear DisplayP3/,
+                   qw/OKLAB OKLCH/);
+my $space_name_aliases = 12;
 my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
 is( not($@), 1, 'could load the module'); # say $@;

@@ -6,7 +6,7 @@ use lib 'lib', '../lib/';
 use Test::More tests => 60;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-my $module = 'Graphics::Toolkit::Color::Space::Instance::LinearRGB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::RGBLinear';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');

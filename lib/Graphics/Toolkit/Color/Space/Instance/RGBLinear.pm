@@ -1,7 +1,7 @@
 
 # linear standard (S)RGB, RGB with removed gamma
 
-package Graphics::Toolkit::Color::Space::Instance::LinearRGB;
+package Graphics::Toolkit::Color::Space::Instance::RGBLinear;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space qw/power/;

@@ -479,7 +479,7 @@ CIE white point D65 a gamma of about 2.2.
 
 =head2 AppleRGB
 
-normal L<\RGB> variant with white point of D65 and gamma = 1.8.
+normal L<\RGB> variant with white point of D65 and gamma is 1.8.
 
 =head2 ProPhotoRGB
 
@@ -488,6 +488,7 @@ D50, gamma = 1.8 and a wide gamut.
 
 =head2 WideGamutRGB
 
+Even greater gamut then previous spaces with white point D50 and gamma of ~2.2.
 
 =head2 Display P3
 
@@ -497,7 +498,9 @@ wide gamut RGB variant with same gamma function as L<\RGB>
 
 P3 variant without any gamma - wider gamut variant of L<\LinearRGB>.
 
-=head2 DCI P3
+=head2 DCI-P3
+
+Simply I<Display P3 Linear> with a gamma of 2.4.
 
 =head2 OKLAB
 

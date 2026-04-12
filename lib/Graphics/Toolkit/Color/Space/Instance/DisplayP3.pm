@@ -11,9 +11,9 @@ my $gamma = 2.4;
 sub from_xyz {
     my ($xyz) = shift;
     my @rgb = mult_matrix_vector_3(
-      [[  2.4039840,  -0.9899069,  -0.3976415 ],
-       [ -0.8422229,   1.7988437,   0.0160354 ], 
-       [  0.0482059,  -0.0974068,   1.2740049 ]  ], @$xyz);
+               [[  2.4039840,  -0.9899069,  -0.3976415 ],
+                [ -0.8422229,   1.7988437,   0.0160354 ], 
+                [  0.0482059,  -0.0974068,   1.2740049 ]  ], @$xyz);
     return [ map { ($_ > 0.0031308) ? ( (power($_, 1/$gamma) *  1.055) - 0.055) 
 		                            :         ($_            * 12.92)          } @rgb ];
 }
@@ -28,8 +28,8 @@ sub to_xyz {
 }
  
 Graphics::Toolkit::Color::Space->new(
-        name => 'AdobeRGB',
-       alias => 'opRGB',
+        name => 'display-p3',
+       alias => 'P3',
         axis => [qw/red green blue/],
    precision => 6,
      convert => {CIEXYZ => [\&to_xyz, \&from_xyz]},

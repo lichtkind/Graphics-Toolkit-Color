@@ -485,9 +485,18 @@ normal L<\RGB> variant with white point of D65 and gamma = 1.8.
 (alias name B<ROMMRGB>) normal L<\RGB> variant with a white point of
 D50, gamma = 1.8 and a wide gamut.
 
+=head2 WideGamutRGB
+
+
 =head2 Display P3
 
 wide gamut RGB variant with same gamma function as L<\RGB>
+
+=head2 Display P3 Linear
+
+P3 variant without any gamma - wider gamut variant of L<\LinearRGB>.
+
+=head2 DCI P3
 
 =head2 OKLAB
 

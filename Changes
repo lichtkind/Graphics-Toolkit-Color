@@ -1,4 +1,4 @@
-2.2    2026-04-15   lichtkind
+2.1    2026-04-15   lichtkind
 -------
     * = big feature release: 12 (now 30) new color spaces
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB, 

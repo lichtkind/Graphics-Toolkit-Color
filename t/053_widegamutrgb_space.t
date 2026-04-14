@@ -6,23 +6,23 @@ use lib 'lib', '../lib/';
 use Test::More tests => 58;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-my $module = 'Graphics::Toolkit::Color::Space::Instance::AdobeRGB';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB';
 
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,         'ADOBERGB',              'color space has right name');
-is( $space->name('alias'),   'OPRGB',              'color space has alias name: "OPRGB"');
-is( $space->is_name('AdobeRGB'),   1,              'one way to write the space name');
-is( $space->is_name('opRGB'),      1,              'another way to write the space name');
-is( $space->is_name('RGB'),        0,              'Adobe RGB is not standard RGB');
-is( $space->axis_count,            3,              'Adobe RGB color space has 3 axis');
-is( $space->is_euclidean,          1,              'Adobe RGB is euclidean');
-is( $space->is_cylindrical,        0,              'Adobe RGB is not cylindrical');
+is( $space->name,      'PROPHOTORGB',              'color space has name: "PROPHOTORGB"');
+is( $space->name('alias'), 'ROMMRGB',              'color space has alias name is "ROMMRGB"');
+is( $space->is_name('romm RGB'), 1,                'one way to write the space name');
+is( $space->is_name('Pro-Photo RGB'), 1,           'another way to write the space name');
+is( $space->is_name('RGB'),        0,              'SRGB is not ProPhoto SRGB');
+is( $space->axis_count,            3,              'lin RGB color space has 3 axis');
+is( $space->is_euclidean,          1,              'lin RGB is euclidean');
+is( $space->is_cylindrical,        0,              'lin RGB is not cylindrical');
 
 is( $space->is_value_tuple([0,0,0]),                   1,  'vector has 3 elements');
-is( $space->can_convert('CIEXYZ'),                     1,  'normal converter parent, can only convert to and from XYZ');
-is( $space->can_convert('CIE_xyz'),                    1,  'converter parent gets normalized');
+is( $space->can_convert('XYZ'),                        1,  'do only convert from and to rgb');
+is( $space->can_convert('xyz'),                        1,  'color space name can be written lower case');
 is( $space->can_convert('RGB'),                        0,  'does not convert directly to RGB');
 is( $space->is_partial_hash({r => 1, b => 0, g=>0}),   1,  'found hash with some short axis names as keys');
 is( $space->is_partial_hash({green => 1, blue => 0}),  1,  'found hash with some other long axis names as keys');
@@ -56,11 +56,18 @@ is( ref $rgb,   'ARRAY',  'clamped tuple and got tuple back');
 is( int @$rgb,   3,     'removed missing argument in value vector by clamp');
 is( $rgb->[0],   0,     'clamped up  (R) value to minimum');
 is( $rgb->[1],   1,     'clamped down (G) value to maximum');
-is( $rgb->[2],  0.5,    'passed (B) value');
-exit 1;
+is( $rgb->[2], 0.5,    'passed (B) value');
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( $rgb,    undef,     'array format is RGB only');
+
+($rgb, $name) = $space->deformat('pro_photo_rgb: 0.2, 0.3, 0.7');
+is( $name, 'named_string',     'discovered "named_string" format');
+is( ref $rgb,     'ARRAY',     'got the value tuple');
+is( @$rgb,              3,     'with three values');
+is( $rgb->[0],        0.2,     'red value is 0.2');
+is( $rgb->[1],        0.3,     'green value is 0.3');
+is( $rgb->[2],        0.7,     'blue value is 0.7');
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
 is( int @$d,    3,      'zero delta vector has right length');
@@ -75,20 +82,18 @@ is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
 exit 1;
 
-$rgb = $space->convert_from( 'RGB', [0, 0, 0]);
-is( ref $rgb,   'ARRAY', 'converted XYZ values tuple into ADOBERGB tuple');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   0,      'converted to minimal red value');
-is( round_decimals($rgb->[1],9), 0.000773994, 'converted to mid magenta value');
-is( $rgb->[2],   1,      'converted to maximal blue value');
-
-$rgb = $space->convert_to( 'CIEXYZ', [1, 0.9, 0 ]);
+$rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
 is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
-is( int @$rgb,   3,      'got three values');
+is( int @$rgb,   3,      'converted CMY to RGB triplets');
 is( $rgb->[0],   1,      'converted max red value');
 is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
 is( $rgb->[2],   0,      'converted minimal blue value');
 
-
+$rgb = $space->convert_from( 'RGB', [0, 0.01, 1]);
+is( ref $rgb,   'ARRAY', 'converted RGB values tuple into CMY tuple');
+is( int @$rgb,   3,      'converted RGB values to CMY');
+is( $rgb->[0],   0,      'converted to minimal red value');
+is( round_decimals($rgb->[1],9), 0.000773994, 'converted to mid magenta value');
+is( $rgb->[2],   1,      'converted to maximal blue value');
 
 exit 0;

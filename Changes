@@ -3,10 +3,10 @@
     * = big feature release: +12 spaces, +1 method, +3 args
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB, 
                           ProPhoto RGB, Wide Gamut RGB,      Rec.709, Rec.2020, 
-                          Linear Display P3 Linear, Display P3, DCI P3 Linear, DCI P3
+                          Linear Display P3, Display P3, Linear DCI P3, DCI P3
     * + add constructor argument 'color' and 'range' to input custom ranged values
     * + add 'is_in_gamut' argument 'color' and 'in' (check if color is in gamut of some space)
-    * + add argument 'raw' to method 'values' to return even ut of gamut values
+    * + add argument 'raw' to method 'values' to return even out of gamut values
     * + can insert ' ', '-', '_' and '.' into color space names
     * ~ CIEXYZ converts now from and to linearRGB
     * ? document the 'only' argument of 'invert'

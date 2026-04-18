@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 89;
+use Test::More tests => 94;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
@@ -104,8 +104,15 @@ is( $xyz->[0],   0,      'X is zero');
 is( $xyz->[1],   0,      'Y is zero');
 is( $xyz->[2],   0,      'Z is zero');
 
+$rgb = $space->convert_from( 'XYZ', [0.9504701, 1, 1.08883]);
+is( ref $rgb,   'ARRAY', 'convert real white from XYZ');
+is( int @$rgb,   3,      'got three values');
+is( round_decimals($rgb->[0], 6),   1,  'red is right');
+is( round_decimals($rgb->[1], 7),   1,  'green is right');
+is( round_decimals($rgb->[2], 7),   1,  'blue is right');
+
 $rgb = $space->convert_from( 'XYZ', [1, 1, 1]);
-is( ref $rgb,   'ARRAY', 'convert white from XYZ');
+is( ref $rgb,   'ARRAY', 'convert unreal white from XYZ');
 is( int @$rgb,   3,      'got three values');
 is( round_decimals($rgb->[0], 9),   1.100580446,  'red is right');
 is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');

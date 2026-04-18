@@ -57,7 +57,6 @@ is( int @$rgb,   3,     'removed missing argument in value vector by clamp');
 is( $rgb->[0],   0,     'clamped up  (R) value to minimum');
 is( $rgb->[1],   1,     'clamped down (G) value to maximum');
 is( $rgb->[2],  0.5,    'passed (B) value');
-exit 1;
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
@@ -73,7 +72,36 @@ is( int @$d,   3,      'delta vector has right length');
 is( $d->[0],  -0.1,    'R delta');
 is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
-exit 1;
+
+$rgb = $space->convert_from( 'CIEXYZ', [0, 0, 0]);
+is( ref $rgb,   'ARRAY', 'converted black from XYZ into AdobeRGB');
+is( int @$rgb,   3,      'got three values');
+is( $rgb->[0],   0,      'red value is correct');
+is( $rgb->[1],   0,      'green value is correct');
+is( $rgb->[2],   0,      'blue value is correct');
+
+my $xyz = $space->convert_to( 'CIEXYZ', [0, 0, 0]);
+is( ref $xyz,   'ARRAY', 'converted black to XYZ from AdobeRGB');
+is( int @$xyz,   3,      'got three values');
+is( $xyz->[0],   0,      'X value is correct');
+is( $xyz->[1],   0,      'Y value is correct');
+is( $xyz->[2],   0,      'Z value is correct');
+
+$rgb = $space->convert_from( 'CIEXYZ', [1, 1, 1]);
+is( ref $rgb,   'ARRAY', 'converted white from XYZ into AdobeRGB');
+is( int @$rgb,   3,      'got three values');
+is( $rgb->[0],   1,      'red value is correct');
+is( $rgb->[1],   1,      'green value is correct');
+is( $rgb->[2],   1,      'blue value is correct');
+
+my $xyz = $space->convert_to( 'CIEXYZ', [1, 1, 1]);
+is( ref $xyz,   'ARRAY', 'converted white to XYZ from AdobeRGB');
+is( int @$xyz,   3,      'got three values');
+is( $xyz->[0],   1,      'X value is correct');
+is( $xyz->[1],   1,      'Y value is correct');
+is( $xyz->[2],   1,      'Z value is correct');
+
+exit 0;
 
 $rgb = $space->convert_from( 'RGB', [0, 0, 0]);
 is( ref $rgb,   'ARRAY', 'converted XYZ values tuple into ADOBERGB tuple');
@@ -89,6 +117,8 @@ is( $rgb->[0],   1,      'converted max red value');
 is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
 is( $rgb->[2],   0,      'converted minimal blue value');
 
-
+# 1,1,1
+# 1,0,0.1
+# .1,0.2,0.9
 
 exit 0;

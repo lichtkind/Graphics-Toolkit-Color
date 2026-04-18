@@ -608,18 +608,19 @@ will use the color space the color is defined in per default. But you
 can also specify the space as always with the argument L</in>.
 
 
-    if ($color->is_in_gamut([ RGB =>  255, 0, 0])){         # it has to be ..
+    $color->is_in_gamut( in => 'okLab');                    # convert current without clamp ?
+    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # can read color without clamp ?
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
-    if (is_in_gamut('rgb: 0, 0, 300')){                     # too much blue ..
-    is_in_gamut(color => 'rgb: 0, 0, 300', in => 'ProPhotoRGB') # might be ? 
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # 300 will be clamped to 255
+    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
 
 
 =head2 values
 
 Returns the numeric values of the color, held by the object.
-The method accepts five optional, named arguments:
-L</in> (color space), C<as> (format), L</range>, C<precision> and C<suffix>.
+The method accepts six optional, named arguments:
+L</in> (color space), C<as> (format), L</range>, C<precision>, C<suffix>. and I<raw>.
 In most cases, only the first one is needed.
 
 When given no arguments, the method returns a list with the integer
@@ -628,19 +629,20 @@ the default color space of this module.
 
 If one positional argument is provided, the values get converted into the
 color space of the given name. The same is done when using the named
-argument L</in> (full explanation behind the link). The named argument
-L</range> is also explained in its own section. Please note you have to
-use the C<range> argument only, if you like to deviate from the value
-ranges defined by the chosen color space.
+argument L</in> (full explanation behind the link). 
 
-The maybe most characteristic argument for this method is C<as>, which
-enables all the same numeric formats the constructor method C<new> accepts.
-I<GTC> is built with the design principle of total serialisation.
-This means: every contructor input format can be reproduced by a getter
-method and vice versa. These formats are: C<'list'> (default),
-C'<named_array'>, C<'hash'>, C<'char_hash'>, C<'named_string'>, C<'css_string'>,
-C<'array'> (RGB only) and C<'hex_string'> (RGB only). The remaining two.
-C<name> and C<full:name> are produce by the method L</name>.
+The named argument L</range> is also explained in its own section. 
+Please note you have to use the C<range> argument only, if you like to
+deviate from the value ranges defined by the chosen color space.
+
+Maybe the most characteristic argument of this method is C<as>, which
+selects the format of the output. I<GTC> is built with the design principle
+of total serialisation or I<idempotent> data format. This means: every 
+contructor input format can be reproduced by a getter method and vice versa. 
+These formats are: C<'list'> (default), C'<named_array'>, C<'hash'>, 
+C<'char_hash'>, C<'named_string'>, C<'css_string'>, C<'array'> (RGB only) 
+and C<'hex_string'> (RGB only). The remaining two: C<name> and C<full:name>
+are produce by the method L</name>.
 Format names are case insensitive. For more explanations, please see:
 L<formats section|Graphics::Toolkit::Color::Space::Hub/FORMATS> in GTC::Space::Hub.
 
@@ -655,7 +657,12 @@ C<< precision => [1,2,3] >>.
 
 In the same way you can atach a little strings per value by using the C<suffix>
 argument. Normally these are percentage signs but in some spaces, where
-they appear by default you can surpress them by adding C<< suffix => '' >>,
+they appear by default you can surpress them by adding C<< suffix => '' >>.
+
+The last argument is C<raw> which takes any perlish boolean true value,
+since it defaults to false (0). When true the values will not be clamped
+into range and might be outof gamut. Its only useful if you want the
+unsanitized input  converted as output.
 
 
     $blue->values();                                      # 0, 0, 255

@@ -41,9 +41,9 @@ is( $name,     'named_string', 'found right format name');
 ($vals, $name) = $pform->deformat('abg:1%,2%,3%');
 is( ref $vals,        'ARRAY', 'could deformat values with suffix');
 is( @$vals,                 3, 'right amount of values');
-is( $vals->[0],             1, 'first value');
-is( $vals->[1],             2, 'second value');
-is( $vals->[2],             3, 'third value');
+is( $vals->[0],             1, 'first value without suffix');
+is( $vals->[1],             2, 'second value without suffix');
+is( $vals->[2],             3, 'third value without suffix');
 is( $name,     'named_string', 'found right format name');
 
 ($vals, $name) = $pform->deformat(' alias:1,2,3');
@@ -64,6 +64,7 @@ is( ref $vals,         '', 'can not have spaces before suffix');
 ($vals, $name) = $cobj->deformat(' abg: 1%, 2% , 3% ');
 is( ref $vals,        '', 'ignored custom suffixed, brought wrong ones');
 ($vals, $name) = $cobj->deformat(' abg: 1$, 22@ , 333% ');
+
 is( ref $vals,        'ARRAY', 'recognized custom format');
 is( $name,     'named_string', 'found named string as custom format');
 ($vals, $name) = $pform->deformat(' abg:.1% .22%    0.33% ');
@@ -88,10 +89,9 @@ is( $vals->[1],             2, 'second value');
 is( $vals->[2],             3, 'third value');
 ($vals, $name) = $pform->deformat(' abg( .1 1.2  3 ) ');
 is( ref $vals,        'ARRAY', 'commas in CSS string format are optional');
-cmp_ok( $vals->[0], '==',  .1, 'first value');
-cmp_ok( $vals->[1], '==', 1.2, 'second value');
-cmp_ok( $vals->[2], '==',   3, 'third value');
-
+cmp_ok( $vals->[0], '==',  .1, 'first value without comma');
+cmp_ok( $vals->[1], '==', 1.2, 'second value without comma');
+cmp_ok( $vals->[2], '==',   3, 'third value without comma');
 
 ($vals, $name) = $form->deformat( ['ABG',1,2,3] );
 is( $name,       'named_array', 'recognized named array');

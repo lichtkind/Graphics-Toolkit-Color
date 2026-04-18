@@ -199,10 +199,12 @@ sub tuple_from_css_string {
 }
 sub tuple_from_named_array {
     my ($self, $array) = @_;
-    return 0 unless ref $array eq 'ARRAY';
-    return 0 unless @$array == $self->basis->axis_count+1;
+    return 0 if ref $array ne 'ARRAY' or not @$array;
     return 0 unless $self->basis->is_name( $array->[0] );
-    return [@{$array}[1 .. $#$array]];
+    $array = [@$array[1 .. $#$array]];
+    $array = $array->[0] if @$array == 1 and ref $array->[0] eq 'ARRAY';
+    return 0 unless @$array == $self->basis->axis_count;
+    return $array;
 }
 sub tuple_from_hash        {
     my ($self, $hash) = @_;

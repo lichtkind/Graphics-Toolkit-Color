@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 84;
+use Test::More tests => 89;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
@@ -39,7 +39,26 @@ is( ref $space->check_value_shape( [0, 1.1, 0]),     '', "green value is too big
 is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too small");
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
 
-my $rgb = $space->clamp([]);
+my  ($rgb, $name) = $space->deformat('apple_rgb: 0.1, 0.2, 0.8');
+is( $name,   'named_string', 'recognized named string format');
+is( int @$rgb,            3, 'got three values');
+is( $rgb->[0],          0.1, 'right red value');
+is( $rgb->[1],          0.2, 'right green value');
+is( $rgb->[2],          0.8, 'right blue value');
+
+($rgb, $name) = $space->deformat([ 33, 44, 55]);
+is( $rgb,   undef,     'array format is RGB only');
+
+($rgb, $name) = $space->deformat([AppleRGB => [0, 0.2, 1.2]]);
+is( $name,   'named_array', 'recognized named named array format with nested array');
+is( int @$rgb,            3, 'got three values');
+is( $rgb->[0],            0, 'red value is zero');
+is( $rgb->[1],          0.2, 'green value is 0.2');
+is( $rgb->[2],          1.2, 'blue value was not clamped');
+
+is( $space->format([0.2,.3,.7],'named_string'),  'applergb: 0.2, 0.3, 0.7',  'formatted back into named string');
+
+$rgb = $space->clamp([]);
 is( int @$rgb,   3,     'default color is set by clamp');
 is( $rgb->[0],   0,     'default color is black (R) no args');
 is( $rgb->[1],   0,     'default color is black (G) no args');
@@ -70,17 +89,6 @@ is( $d->[0],  -0.1,    'R delta');
 is( $d->[1],   0.3,    'G delta');
 is( $d->[2],   0.6,    'B delta');
 
-($rgb, my $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
-
-($rgb, $name) = $space->deformat('apple_rgb: 0.1, 0.2, 0.8');
-is( $name,   'named_string', 'recognized named string format');
-is( int @$rgb,            3, 'got three values');
-is( $rgb->[0],          0.1, 'right red value');
-is( $rgb->[1],          0.2, 'right green value');
-is( $rgb->[2],          0.8, 'right blue value');
-
-is( $space->format([0.2,.3,.7],'named_string'),  'applergb: 0.2, 0.3, 0.7',  'formatted back into named string');
 
 $rgb = $space->convert_from( 'XYZ', [0, 0, 0], 1);
 is( ref $rgb,   'ARRAY', 'convert black from XYZ');

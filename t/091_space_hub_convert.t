@@ -2,8 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 130;
+use lib 'lib', '../lib/', '.', './t';
+use Test::More tests => 114;
+use Test::Color;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Space::Hub;
 
@@ -22,38 +23,26 @@ is( ref $deconvert->('RGB', {r => 1,g => 1,b => 1}), '', 'deconvert tule as ARRA
 is( ref $deconvert->('JAP', [0,0,0]),                '', 'space name bad but tuple good');
 
 #### simple conversion #################################################
-my $tuple = $convert->([0,1/255,1], 'RGB');
-is( ref $tuple,      'ARRAY', 'did minimal none conversion');
-is( int @$tuple,           3, 'RGB has 3 axis');
-is( $tuple->[0],           0, 'red value is right');
-is( $tuple->[1],           1, 'green value is right');
-is( $tuple->[2],         255, 'blue value is right');
+my $rgb_axis = [qw/red green blue/];
+my $yuv_axis = [qw/y u v/];
+my $cmy_axis = [qw/yellow cyan magenta/];
 
-$tuple = $convert->([0,1/255,1], 'RGB', 'normal');
-is( int @$tuple,           3, 'wanted  normalized result');
-is( $tuple->[0],           0, 'red value is right');
-is( $tuple->[1],       1/255, 'green value is right');
-is( $tuple->[2],           1, 'blue value is right');
+my $rgb = $convert->([0,1/255,1], 'RGB');
+is_tuple( $rgb, [0, 1, 255], $rgb_axis, 'none conversion from RGB space to RGB');
 
-$tuple = $convert->([.1, .2, .3], 'YUV', 'normal', [1, .1, 0] ,'YUV');
-is( int @$tuple,           3, 'take source values instead of convert RGB');
-is( $tuple->[0],           1, 'Red value is right');
-is( $tuple->[1],          .1, 'green value is right');
-is( $tuple->[2],           0, 'blue value is right');
+$rgb = $convert->([0,1/255,1], 'RGB', 'normal');
+is_tuple( $rgb, [0, 1/255, 1], $rgb_axis, 'none conversion with normalisation');
 
-$tuple = $convert->([.1, .2, .3], 'YUV', undef, [1, 0.1, 0] ,'YUV');
-is( int @$tuple,           3, 'get normalized source values');
-is( $tuple->[0],           1, 'Red value is right');
-is( $tuple->[1],         -.4, 'green value is right');
-is( $tuple->[2],         -.5, 'blue value is right');
+my $yuv = $convert->([.1, .2, .3], 'YUV', 'normal', [1, .1, 0] ,'YUV');
+is_tuple( $yuv, [1, .1, 0], $yuv_axis, 'conversion to YUV, normal with drop in source values');
 
-$tuple = $convert->([0, 0.1, 1], 'CMY');
-is( int @$tuple,           3, 'invert RGB values');
-is( $tuple->[0],           1, 'cyan value is right');
-is( $tuple->[1],         0.9, 'magenta value is right');
-is( $tuple->[2],           0, 'yellow value is right');
+$yuv = $convert->( [.1, .2, .3], 'YUV', undef, [1, 0.1, 0] ,'YUV');
+is_tuple( $yuv, [1, -0.4, -0.5], $yuv_axis, 'conversion to YUV, no normal with drop in source values');
 
-$tuple = $deconvert->([1, 0.9, 0], 'CMY', 'normal');
+my $cmy = $convert->([0, 0.1, 1], 'CMY');
+is_tuple( $cmy, [1, 0.9, 0], $cmy_axis, 'conversion to CMY');
+
+my $tuple = $deconvert->([1, 0.9, 0], 'CMY', 'normal');
 is( ref $tuple,      'ARRAY', 'deconvert from CMY to normal RGB');
 is( int @$tuple,           3, 'invert CMY values');
 is( $tuple->[0],           0, 'cyan value is right');

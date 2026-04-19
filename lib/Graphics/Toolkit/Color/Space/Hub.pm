@@ -67,7 +67,7 @@ sub remove_space {
 }
 
 #### value API #########################################################
-sub convert { # normalized RGB tuple, ~space_name --> ?normalized tuple in wanted space
+sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wanted space
     my ($tuple, $target_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
     my $target_space = try_get_space( $target_space_name );
     my $source_space = try_get_space( $source_space_name );

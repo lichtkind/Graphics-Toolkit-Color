@@ -1,13 +1,15 @@
 TODO:
 ------
    
- = 2.3:
+ = 2.2:
    + complement can select space
      Jzazbz / JzCzhz, HSLuv / HPLuv
-     OKHSL, OKHSV, OKHWB
+     OKHSL, OKHSV, OKHWB, HSI, Yxy
+   + cammut mapping
+   + complemement in selectable cylidrical space
  
 
- = 2.4:
+ = 2.3:
    + cubehelix method
    + delta_e method
 
@@ -21,12 +23,9 @@ TODO:
 
  # Likely:                                      planned version
 
-   + easier API for CSS format for oklab        (2.1)
+   + easier API for CSS format for oklab    (2.3)
    + Color spaces :
-     - HSI
-     - Yxy                                      (2.3)
-     - RYB
-     - NCS ? different than Ncol?
+                                            (2.3)
 
  # Maybe:
 
@@ -37,4 +36,5 @@ TODO:
 
  # Unlikely:
 
-
+     - RYB
+     - NCS (different from Ncol)

@@ -2,11 +2,13 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 58;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 41;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AdobeRGB';
+my $rgb_axis   = [qw/red green blue/];
+my $xyz_axis   = [qw/X Y Z/];
 
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
@@ -14,7 +16,7 @@ is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading 
 is( $space->name,         'ADOBERGB',              'color space has right name');
 is( $space->name('alias'),   'OPRGB',              'color space has alias name: "OPRGB"');
 is( $space->is_name('AdobeRGB'),   1,              'one way to write the space name');
-is( $space->is_name('opRGB'),      1,              'another way to write the space name');
+is( $space->is_name('opRGB'),      1,              'alias name of the space name');
 is( $space->is_name('RGB'),        0,              'Adobe RGB is not standard RGB');
 is( $space->axis_count,            3,              'Adobe RGB color space has 3 axis');
 is( $space->is_euclidean,          1,              'Adobe RGB is euclidean');
@@ -40,85 +42,45 @@ is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too smal
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
 
 my $rgb = $space->clamp([]);
-is( int @$rgb,   3,     'default color is set by clamp');
-is( $rgb->[0],   0,     'default color is black (R) no args');
-is( $rgb->[1],   0,     'default color is black (G) no args');
-is( $rgb->[2],   0,     'default color is black (B) no args');
+is_tuple( $rgb, [0, 0, 0], $rgb_axis, 'clamp filled in three zeros from empty ARRAY');
 
 $rgb = $space->clamp([0, 1]);
-is( int @$rgb,   3,     'clamp added missing argument in vector');
-is( $rgb->[0],   0,     'passed (R) value');
-is( $rgb->[1],   1,     'passed (G) value');
-is( $rgb->[2],   0,     'added (B) value when too few args');
+is_tuple( $rgb, [0, 1, 0], $rgb_axis, 'clamp filled in one zero for a missing value');
 
 $rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
-is( ref $rgb,   'ARRAY',  'clamped tuple and got tuple back');
-is( int @$rgb,   3,     'removed missing argument in value vector by clamp');
-is( $rgb->[0],   0,     'clamped up  (R) value to minimum');
-is( $rgb->[1],   1,     'clamped down (G) value to maximum');
-is( $rgb->[2],  0.5,    'passed (B) value');
+is_tuple( $rgb, [0, 1, 0.5], $rgb_axis, 'clamp remove superfluous values and clamped into range');
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
-is( int @$d,    3,      'zero delta vector has right length');
-is( $d->[0],    0,      'no delta in R component');
-is( $d->[1],    0,      'no delta in G component');
-is( $d->[2],    0,      'no delta in B component');
+is_tuple( $d, [0, 0, 0], $rgb_axis, 'zero delta vector between a tuple and itself');
 
 $d = $space->delta([0.1,0.2,0.4],[0, 0.5, 1]);
-is( int @$d,   3,      'delta vector has right length');
-is( $d->[0],  -0.1,    'R delta');
-is( $d->[1],   0.3,    'G delta');
-is( $d->[2],   0.6,    'B delta');
+is_tuple( $d, [-0.1, 0.3, 0.6], $rgb_axis, 'right delta vector between two very different tuple');
 
 $rgb = $space->convert_from( 'CIEXYZ', [0, 0, 0]);
-is( ref $rgb,   'ARRAY', 'converted black from XYZ into AdobeRGB');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   0,      'red value is correct');
-is( $rgb->[1],   0,      'green value is correct');
-is( $rgb->[2],   0,      'blue value is correct');
+is_tuple( $rgb, [0, 0, 0], $rgb_axis, 'convert black from XYZ into AdobeRGB');
 
 my $xyz = $space->convert_to( 'CIEXYZ', [0, 0, 0]);
-is( ref $xyz,   'ARRAY', 'converted black to XYZ from AdobeRGB');
-is( int @$xyz,   3,      'got three values');
-is( $xyz->[0],   0,      'X value is correct');
-is( $xyz->[1],   0,      'Y value is correct');
-is( $xyz->[2],   0,      'Z value is correct');
+is_tuple( $xyz, [0, 0, 0], $xyz_axis, 'convert black back to XYZ from AdobeRGB');
 
 $rgb = $space->convert_from( 'CIEXYZ', [1, 1, 1]);
-is( ref $rgb,   'ARRAY', 'converted white from XYZ into AdobeRGB');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   1,      'red value is correct');
-is( $rgb->[1],   1,      'green value is correct');
-is( $rgb->[2],   1,      'blue value is correct');
+is_tuple( $space->round( $rgb, 7), [1, 1, 1], $rgb_axis, 'convert white from XYZ into AdobeRGB');
 
-my $xyz = $space->convert_to( 'CIEXYZ', [1, 1, 1]);
-is( ref $xyz,   'ARRAY', 'converted white to XYZ from AdobeRGB');
-is( int @$xyz,   3,      'got three values');
-is( $xyz->[0],   1,      'X value is correct');
-is( $xyz->[1],   1,      'Y value is correct');
-is( $xyz->[2],   1,      'Z value is correct');
+$xyz = $space->convert_to( 'CIEXYZ', [1, 1, 1]);
+is_tuple( $space->round( $xyz, 6), [1, 1, 1], $xyz_axis, 'convert white back to XYZ from AdobeRGB');
 
-exit 0;
+$rgb = $space->convert_from( 'CIEXYZ', [1, 0, .1]);
+is_tuple( $space->round( $rgb, [9,9,7]), [1.339783394, -0.961239657, 0.3861199], $rgb_axis, 'convert blueish red from XYZ into AdobeRGB');
 
-$rgb = $space->convert_from( 'RGB', [0, 0, 0]);
-is( ref $rgb,   'ARRAY', 'converted XYZ values tuple into ADOBERGB tuple');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   0,      'converted to minimal red value');
-is( round_decimals($rgb->[1],9), 0.000773994, 'converted to mid magenta value');
-is( $rgb->[2],   1,      'converted to maximal blue value');
+$xyz = $space->convert_to( 'CIEXYZ', [1.339783394, -0.961239657, 0.386119895]);
+is_tuple( $space->round( $xyz, [8,6,6]), [1, 0, .1], $xyz_axis, 'convert back blueish red to XYZ from AdobeRGB');
 
-$rgb = $space->convert_to( 'CIEXYZ', [1, 0.9, 0 ]);
-is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   1,      'converted max red value');
-is( round_decimals($rgb->[1],9),   0.954687172,    'converted green value');
-is( $rgb->[2],   0,      'converted minimal blue value');
+$rgb = $space->convert_from( 'CIEXYZ', [.1, 0.2, .9]);
+is_tuple( $space->round( $rgb, [9,9,9]), [-0.538885961, 0.598851148, 0.987468678], $rgb_axis, 'convert deep blue from XYZ into AdobeRGB');
 
-# 1,1,1
-# 1,0,0.1
-# .1,0.2,0.9
+$xyz = $space->convert_to( 'CIEXYZ', [-0.538885961, 0.598851148, 0.987468678]);
+is_tuple( $space->round( $xyz, [7,7,8]), [.1, 0.2, .9], $xyz_axis, 'convert back deep blue to XYZ from AdobeRGB');
 
 exit 0;

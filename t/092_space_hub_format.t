@@ -2,38 +2,26 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 100;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 60;
 use Graphics::Toolkit::Color::Space::Hub;
 
-my $deformat      = \&Graphics::Toolkit::Color::Space::Hub::deformat;
-my $dehash        = \&Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash;
+my $deformat   = \&Graphics::Toolkit::Color::Space::Hub::deformat;
+my $dehash     = \&Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash;
+my $RGB        =   Graphics::Toolkit::Color::Space::Hub::default_space();
+my $rgb_axis   = [qw/red green blue/];
 
 #### deformat ##########################################################
 my ($values, $space) = $deformat->([0, 255, 256]);
-is( $space,                         'RGB', 'color triple can only be RGB');
-is( ref $values,                  'ARRAY', 'got ARRAY tuple');
-is( int @$values,                       3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 5),   0, 'red value is right');
-is( round_decimals( $values->[1], 5), 255, 'green value is right');
-is( round_decimals( $values->[2], 5), 256, 'blue value got not  clamped yet');
+is_tuple( $RGB->round($values, 5), [0, 255, 256], $rgb_axis, 'deformat RGB ARRAY (tuple)');
 
 ($values, $space) = $deformat->('#FF2200');
-is( $space,                         'RGB', 'RGB hex string');
-is( ref $values,                  'ARRAY', 'got ARRAY tuple');
-is( int @$values,                       3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 5), 255, 'red value is right');
-is( round_decimals( $values->[1], 5),  34, 'green value is right');
-is( round_decimals( $values->[2], 5),   0, 'blue value has right value');
-
+is( $space, 'RGB', 'recignized short hex_string  as RGB');
+is_tuple( $RGB->round($values, 5), [255, 34, 0], $rgb_axis, 'deformat long RGB hex_string');
 ($values, $space) = $deformat->('#f20');
-is( $space,                         'RGB', 'short RGB hex string');
-is( ref $values,                  'ARRAY', 'got ARRAY tuple');
-is( int @$values,                       3, 'RGB has 3 axis');
-is( round_decimals( $values->[0], 5), 255, 'red value is right');
-is( round_decimals( $values->[1], 5),  34, 'green value is right');
-is( round_decimals( $values->[2], 5),   0, 'blue value has right value');
+is( $space, 'RGB', 'recignized long hex_string  as RGB');
+is_tuple( $RGB->round($values, 5), [255, 34, 0], $rgb_axis, 'deformat short RGB hex_string');
 
 ($values, $space) = $deformat->('blue');
 is( $space,                     undef, 'deformat is not for color names');
@@ -42,52 +30,29 @@ is( $space,                     undef, 'deformat does not get confused by extern
 
 ($values, $space) = $deformat->('cmy:  1,0.1, 0 ');
 is( $space,                     'CMY', 'named string works even with lower case');
-is( ref $values,              'ARRAY', 'got ARRAY tuple even spacing was weird');
-is( int @$values,                   3, 'CMY has 3 axis');
-is( $values->[0], 1,     'cyan value is right');
-is( $values->[1], 0.1,   'magenta value is right');
-is( $values->[2], 0,     'yellow value has right value');
+is_tuple( $values, [1, 0.1, 0], [qw/cyan magenta yellow/], 'deformat CMY named_string');
 
 ($values, $space) = $deformat->('ncol:  y10, 22%, 5.1% ');
 is( ref $values,                '', 'wrong precision, NCol doesnt accept decimals');
 ($values, $space) = $deformat->('ncol:  y20, 22%, 5 ');
-is( $space,                     'NCOL', 'color char can be lower case and percent is not mandatory');
-is( ref $values,               'ARRAY', 'got ARRAY tuple even spacing was weird');
-is( int @$values,                    3, 'NCol has 3 axis');
-is( $values->[0],                  120, 'hue value is right');
-is( $values->[1],                   22, 'w value is right');
-is( $values->[2],                    5, 'b value is right');
+is( $space,                     'NCOL', 'identified NCol from named_string');
+is_tuple( $RGB->round($values, 5), [120, 22, 5], [qw/hue whiteness blackness/], 'deformat NCol named_string');
 
 ($values, $space) = $deformat->('lab(0, -500, 200)');
 is( $space,       'LAB', 'got LAB css_string right');
-is( ref $values,'ARRAY', 'got ARRAY tuple');
-is( int @$values,     3, 'CIELAB has 3 axis');
-is( $values->[0],     0, 'L* value is right');
-is( $values->[1],  -500, 'a* value is right');
-is( $values->[2],   200, 'b* value has right value');
+is_tuple( $values, [0, -500, 200], [qw/L* a* b*/], 'deformat LAB CSS_string');
 
 ($values, $space) = $deformat->(['yuv', 0.4, -0.5, 0.5]);
 is( $space,        'YUV', 'found YUV named array');
-is( ref $values, 'ARRAY', 'got ARRAY tuple');
-is( int @$values,      3, 'RGB has 3 axis');
-is( $values->[0],    0.4, 'Y value is right');
-is( $values->[1],   -0.5,  'U value is right');
-is( $values->[2],    0.5,  'V value got clamped to max');
+is_tuple( $values, [0.4, -0.5, 0.5], [qw/Y U V/], 'deformat YUV named_array');
 
 ($values, $space) = $deformat->(['hunterLAB', 12, 2.5, 0.04]);
 is( $space,                    'HUNTERLAB', 'found HUNTERLAB named array');
-is( int @$values,                          3, 'RGB has 3 axis');
-is( $values->[0],    12,  'L value is right');
-is( $values->[1],   2.5,  'a value is right');
-is( $values->[2],  0.04,  'b value got clamped to max');
+is_tuple( $values, [12, 2.5, 0.04], [qw/L* a* b*/], 'deformat HunterLAB named_array');
 
 ($values, $space) = $deformat->({h => 360, s => 10, v => 100});
 is( $space,          'HSV', 'found HSV short named hash');
-is( ref $values,   'ARRAY', 'got ARRAY tuple');
-is( int @$values,        3, 'HSV has 3 axis');
-is( $values->[0],      360,  'hue value got rotated in');
-is( $values->[1],       10,  'saturation value is right');
-is( $values->[2],      100,  'value (kinda lightness) value got clamped to max');
+is_tuple( $values, [360, 10, 100], [qw/hue saturation value/], 'deformat HSV hash with short axis names');
 
 ($values, $space) = $deformat->({hue => 360, s => 10, v => 100});
 is( $space,                     'HSV', 'found HSV short and long named hash');
@@ -98,11 +63,7 @@ is( $space,                     undef, 'not found HSV hash due lacking value');
 
 ($values, $space) = $deformat->({h => 360, whiteness => 0, blackness => 20});
 is( $space,                     'HWB', 'found HWB short and long named hash');
-is( ref $values,              'ARRAY', 'got ARRAY tuple');
-is( int @$values,                   3, 'HWB has 3 axis');
-is( $values->[0], 360,      'hue value got rotated in');
-is( $values->[1],  0,      'whiteness value is right');
-is( $values->[2], 20,    'blackness value got clamped to max');
+is_tuple( $values, [360, 0, 20], [qw/hue whiteness blacknes/], 'deformat HWB hash with mixed axis names');
 
 #### dehash ############################################################
 my ($part_values, $space_name) = $dehash->( {hue => 20} );

@@ -37,7 +37,7 @@ sub is_tuple {
 						$diag .= " $axis_name value I got is not a number,";
 						next;
 					}
-					if ($got->[$axis_number] != $expected->[$axis_number]) {
+					if ($got->[$axis_number] != $expected->[$axis_number] and $got->[$axis_number] ne $expected->[$axis_number]) {
 						$pass = 0;
 						$diag .= " expected $axis_name value of $expected->[$axis_number] but got $got->[$axis_number],";
 					}

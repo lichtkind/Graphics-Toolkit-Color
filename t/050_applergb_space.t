@@ -2,15 +2,16 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 94;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 44;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
+my $rgb_axis   = [qw/red green blue/];
+my $xyz_axis   = [qw/X Y Z/];
 
 my $space = eval "require $module";
-is( not($@), 1, 'could load the module');
-say $@;
+is( not($@), 1, 'could load the module'); # say $@;
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
 is( $space->name,         'APPLERGB',              'color space has right name');
 is( $space->name('alias'),        '',              'APPLERGB has no alias');
@@ -39,105 +40,53 @@ is( ref $space->check_value_shape( [0, 1.1, 0]),     '', "green value is too big
 is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too small");
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
 
-my  ($rgb, $name) = $space->deformat('apple_rgb: 0.1, 0.2, 0.8');
+my ($rgb, $name) = $space->deformat('apple_rgb: 0.1, 0.2, 0.8');
 is( $name,   'named_string', 'recognized named string format');
-is( int @$rgb,            3, 'got three values');
-is( $rgb->[0],          0.1, 'right red value');
-is( $rgb->[1],          0.2, 'right green value');
-is( $rgb->[2],          0.8, 'right blue value');
+is_tuple( $rgb, [0.1, 0.2, 0.8], $rgb_axis, 'got values from named_string');
 
 ($rgb, $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
 ($rgb, $name) = $space->deformat([AppleRGB => [0, 0.2, 1.2]]);
 is( $name,   'named_array', 'recognized named named array format with nested array');
-is( int @$rgb,            3, 'got three values');
-is( $rgb->[0],            0, 'red value is zero');
-is( $rgb->[1],          0.2, 'green value is 0.2');
-is( $rgb->[2],          1.2, 'blue value was not clamped');
+is_tuple( $rgb, [0, 0.2, 1.2], $rgb_axis, 'got values from named_array with nested tuple');
 
 is( $space->format([0.2,.3,.7],'named_string'),  'applergb: 0.2, 0.3, 0.7',  'formatted back into named string');
 
 $rgb = $space->clamp([]);
-is( int @$rgb,   3,     'default color is set by clamp');
-is( $rgb->[0],   0,     'default color is black (R) no args');
-is( $rgb->[1],   0,     'default color is black (G) no args');
-is( $rgb->[2],   0,     'default color is black (B) no args');
+is_tuple( $rgb, [0, 0, 0], $rgb_axis, 'created default color black by clamping empty array ref');
 
 $rgb = $space->clamp([0, 1]);
-is( int @$rgb,   3,     'clamp added missing argument in vector');
-is( $rgb->[0],   0,     'passed (R) value');
-is( $rgb->[1],   1,     'passed (G) value');
-is( $rgb->[2],   0,     'added (B) value when too few args');
+is_tuple( $rgb, [0, 1, 0], $rgb_axis, 'clamp inserted zero as missing value');
 
 $rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
-is( ref $rgb,   'ARRAY',  'clamped tuple and got tuple back');
-is( int @$rgb,   3,     'removed missing argument in value vector by clamp');
-is( $rgb->[0],   0,     'clamped up  (R) value to minimum');
-is( $rgb->[1],   1,     'clamped down (G) value to maximum');
-is( $rgb->[2],  0.5,    'passed (B) value');
+is_tuple( $rgb, [0, 1, 0.5], $rgb_axis, 'clamp removed superfluous values and moved too small(red) to min. and too large(green) to max');
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
-is( int @$d,    3,      'zero delta vector has right length');
-is( $d->[0],    0,      'no delta in R component');
-is( $d->[1],    0,      'no delta in G component');
-is( $d->[2],    0,      'no delta in B component');
+is_tuple( $d, [0, 0, 0], $rgb_axis, 'vector has with itself zero delta');
 
 $d = $space->delta([0.1,0.2,0.4],[0, 0.5, 1]);
-is( int @$d,   3,      'delta vector has right length');
-is( $d->[0],  -0.1,    'R delta');
-is( $d->[1],   0.3,    'G delta');
-is( $d->[2],   0.6,    'B delta');
-
+is_tuple( $d, [-0.1, 0.3, 0.6], $rgb_axis, 'computed delta vector between bery different vectors');
 
 $rgb = $space->convert_from( 'XYZ', [0, 0, 0], 1);
-is( ref $rgb,   'ARRAY', 'convert black from XYZ');
-is( int @$rgb,   3,      'got three values');
-is( $rgb->[0],   0,      'red is zero');
-is( $rgb->[1],   0,      'green is zero');
-is( $rgb->[2],   0,      'blue is zero');
+is_tuple( $rgb, [0, 0, 0], $rgb_axis, 'convert black from XYZ');
 
 my $xyz = $space->convert_to( 'XYZ', [0, 0, 0 ]);
-is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of black color into XYZ');
-is( int @$xyz,   3,      'got 3 values');
-is( $xyz->[0],   0,      'X is zero');
-is( $xyz->[1],   0,      'Y is zero');
-is( $xyz->[2],   0,      'Z is zero');
+is_tuple( $xyz, [0, 0, 0], $xyz_axis, 'convert black back to XYZ');
 
 $rgb = $space->convert_from( 'XYZ', [0.9504701, 1, 1.08883]);
-is( ref $rgb,   'ARRAY', 'convert real white from XYZ');
-is( int @$rgb,   3,      'got three values');
-is( round_decimals($rgb->[0], 6),   1,  'red is right');
-is( round_decimals($rgb->[1], 7),   1,  'green is right');
-is( round_decimals($rgb->[2], 7),   1,  'blue is right');
+is_tuple( $space->round( $rgb, [6,7,7]), [1, 1, 1], $rgb_axis, 'convert real white from XYZ');
 
 $rgb = $space->convert_from( 'XYZ', [1, 1, 1]);
-is( ref $rgb,   'ARRAY', 'convert unreal white from XYZ');
-is( int @$rgb,   3,      'got three values');
-is( round_decimals($rgb->[0], 9),   1.100580446,  'red is right');
-is( round_decimals($rgb->[1], 9),   0.967892246,  'green is right');
-is( round_decimals($rgb->[2], 9),   0.947385691,  'blue is right');
+is_tuple( $space->round( $rgb, 9), [1.100580446, 0.967892246, 0.947385691], $rgb_axis, 'convert unreal white from XYZ');
 
 $xyz = $space->convert_to( 'XYZ', [1.100580446, 0.967892246, 0.947385691 ]);
-is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of white into XYZ');
-is( int @$xyz,   3,      'got 3 values');
-is( round_decimals($xyz->[0],7),   1,      'X is one');
-is( round_decimals($xyz->[1],7),   1,      'Y is one');
-is( round_decimals($xyz->[2],7),   1,      'Z is one');
+is_tuple( $space->round( $xyz, 7 ), [1, 1, 1], $xyz_axis, 'converted unreal white from Apple RGB into XYZ');
 
 $rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
-is( ref $rgb,   'ARRAY', 'convert light blue from XYZ');
-is( int @$rgb,   3,      'got three values');
-is( round_decimals($rgb->[0], 9),  -0.591985674,  'red is right');
-is( round_decimals($rgb->[1], 9),   0.533877143,  'green is right');
-is( round_decimals($rgb->[2], 9),   0.964390347,  'blue is right');
+is_tuple( $space->round( $rgb, 9), [-0.591985674, 0.533877143, 0.964390347], $rgb_axis, 'convert light blue from XYZ');
 
 $xyz = $space->convert_to( 'XYZ', [-0.591985674, 0.533877143, 0.964390347 ]);
-is( ref $xyz,  'ARRAY',  'converted Apple RGB tuple of white into XYZ');
-is( int @$xyz,   3,      'got 3 values');
-is( round_decimals($xyz->[0],7),   .1,  'X is right');
-is( round_decimals($xyz->[1],7),   .2,  'Y is right');
-is( round_decimals($xyz->[2],7),   .9,  'Z is right');
-
+is_tuple( $space->round( $xyz, 7 ), [.1, .2, .9], $xyz_axis, 'converted light blue back from AppleRGB back into XYZ');
 
 exit 0;

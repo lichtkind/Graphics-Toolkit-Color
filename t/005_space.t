@@ -2,7 +2,7 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
+use lib 'lib', '../lib/', '.', './t';
 use Test::More tests => 143;
 
 #### basic object construction #########################################
@@ -199,6 +199,7 @@ is( $val->[0],    0.1, 'first value correctly converted');
 is( $val->[1],      0, 'second value correctly converted');
 is( $val->[2],    0.3, 'third value correctly converted');
 is( $val->[3],    0.2, 'fourth value correctly converted');
+
 $val = $space->convert_from('rgb', [0.1, 0, 0.3, .2]);
 is( ref $val, 'ARRAY', 'could deconvert to RGB, even if space spelled in lower case');
 is( int @$val,      4, 'right number of values');

@@ -34,7 +34,6 @@ is( ref $space->check_value_shape( [0, 0, -1 ] ),       '', "blue value is too s
 is( ref $space->check_value_shape( [0, 0, 0.5] ),       '', "blue value is not integer");
 is( ref $space->check_value_shape( [0, 0, 256] ),       '', "blue value is too big");
 
-
 my $rgb = $space->clamp([]);
 is( int @$rgb,  3,     'clamp resets missing color to black');
 is( $rgb->[0],   0,     'default color is black (R)');
@@ -61,7 +60,6 @@ is( $rgb->[2], 255,     'too large blue value is clamp down');
 is(    $space->format([0,0,0],      'hex_string'), '#000000',     'converted black from rgb to hex');
 is( uc $space->format([255,255,255],'HEX_string'), '#FFFFFF',     'converted white from rgb to hex');
 is( uc $space->format([ 10, 20, 30],'hex_strinG'), '#0A141E',     'converted random color from rgb to hex');
-
 
 ($rgb, my $name) = $space->deformat('#332200');
 is( $name,  'hex_string', 'recognized long hex string format');

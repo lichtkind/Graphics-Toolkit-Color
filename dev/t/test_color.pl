@@ -1,5 +1,9 @@
 
+# self made test functions
+
 package Test::Color;
+use v5.12;
+use warnings;
 
 use Test::Builder;
 my $tb = Test::Builder->new;

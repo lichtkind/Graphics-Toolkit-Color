@@ -2,9 +2,11 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 99;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 68;
 
+my $rgb_axis   = [qw/red green blue/];
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
@@ -47,8 +49,8 @@ is( $rgb->[2],   0,     'set missing color value to zero');
 $rgb = $space->clamp([1.1, 2, 3, 4]);
 is( int @$rgb,   3,     'left out the needless argument');
 is( $rgb->[0],  1.1,    'not clamped badly rounded value (job of round)');
-is( $rgb->[1],   2,     'carried color is black (G) took second of too many args');
-is( $rgb->[2],   3,     'default color is black (B) too third of too many args');
+is( $rgb->[1],   2,     'kept second value');
+is( $rgb->[2],   3,     'kept third value');
 
 $rgb = $space->clamp([-1,10,256]);
 is( int @$rgb,   3,     'clamp does not change number of negative values');
@@ -60,66 +62,41 @@ is(    $space->format([0,0,0],      'hex_string'), '#000000',     'converted bla
 is( uc $space->format([255,255,255],'HEX_string'), '#FFFFFF',     'converted white from rgb to hex');
 is( uc $space->format([ 10, 20, 30],'hex_strinG'), '#0A141E',     'converted random color from rgb to hex');
 
-my ($vals, $name) = $space->deformat('#332200');
-is( ref $vals,  'ARRAY', 'could deformat hex string');
-is( $name,  'hex_string', 'could deformat hex string');
-is( @$vals,       3,      'right amount of values');
-is( $vals->[0],  51,      'red is correctly tranlated from hex');
-is( $vals->[1],  34,      'green is correctly tranlated from hex');
-is( $vals->[2],   0,      'blue is correctly tranlated from hex');
+
+($rgb, my $name) = $space->deformat('#332200');
+is( $name,  'hex_string', 'recognized long hex string format');
+is_tuple( $rgb, [51, 34, 0], $rgb_axis, 'got right values from long hex_string');
 
 ($rgb, $name) = $space->deformat('#DEF');
-is( ref $rgb,    'ARRAY', 'could deformat short hex string');
-is( int @$rgb,    3,      'right amount of values');
-is( $name,  'hex_string', 'could deformat hex string');
-is( $rgb->[0],   221,     'converted (short form) hex to RGB red is correct');
-is( $rgb->[1],   238,     'converted (short form) hex to RGB green is correct');
-is( $rgb->[2],   255,     'converted (short form) hex to RGB blue is correct');
+is( $name,  'hex_string', 'recognized short hex_string format');
+is_tuple( $rgb, [221, 238, 255], $rgb_axis, 'got right values from short hex_string');
 
-($rgb, $name) = $space->deformat([ 33, 44, 55]);
+($rgb, $name) = $space->deformat([33, 44, 55]);
 is( $name,     'array', 'could deformat ARRAY ref (RGB special)');
-is( ref $rgb,  'ARRAY', 'got value tuple');
-is( int @$rgb,   3,     'number triplet in ARRAY is recognized by ARRAY');
-is( $rgb->[0],  33,     'red is transported');
-is( $rgb->[1],  44,     'green is transported');
-is( $rgb->[2],  55,     'blue is transported');
+is_tuple( $rgb, [33, 44, 55], $rgb_axis, 'got right values from ARRAY');
 
 ($rgb, $name) = $space->deformat([rgb => 11, 22, 256]);
-is( $name,     'named_array', 'could deformat named array');
-is( ref $rgb,  'ARRAY', 'deformat lc named ARRAY');
-is( int @$rgb,  3,      'got 3 values');
-is( $rgb->[0],  11,     'red is correct');
-is( $rgb->[1],  22,     'green got transported');
-is( $rgb->[2], 256,     'blue value does not get clamped');
+is( $name,     'named_array', 'recognized named_string format with in values');
+is_tuple( $rgb, [11, 22, 256], $rgb_axis, 'got right values from named_string');
 
 $rgb = $space->deformat(['CMY', 11, 22, 33]);
 is( $rgb->[0],  undef,  'OO deformat reacts only to right name');
 
 ($rgb, $name) = $space->deformat('RGB: -1, 256, 3.3 ');
-is( $name,  'named_string', 'could deformat named string');
-is( int @$rgb,   3,     'deformat STRING format: got 3 values');
-is( $rgb->[0],  -1,     'to small red is not clamped up');
-is( $rgb->[1], 256,     'too large green is not clamped down');
-is( $rgb->[2], 3.3,     'blue decimals do not get clamped');
+is( $name,  'named_string', 'recognized named_string format');
+is_tuple( $rgb, [-1, 256, 3.3], $rgb_axis, 'got right values from named_string');
 
 ($rgb, $name) = $space->deformat('rgb:0,1,2');
-is( $name,  'named_string', 'could deformat named string without spaces');
-is( int @$rgb,  3,     'deformat STRING format without spaces and lc name: got 3 values');
-is( $rgb->[0],   0,    'red is zero');
-is( $rgb->[1],   1,    'green is one');
-is( $rgb->[2],   2,    'blue is two');
+is( $name,  'named_string', 'recognized named_string format without spaces between comma');
+is_tuple( $rgb, [0, 1, 2], $rgb_axis, 'got right values from named_string');
 
 $rgb = $space->deformat('cmy: 1,2,3.3');
 is( $rgb->[0],  undef,  'deformat STRING reacts only to right space name');
 is( $space->format([0,256,3.3], 'named_string'), 'rgb: 0, 256, 3.3', 'formated rgb triplet into value string');
 
-
 ($rgb, $name) = $space->deformat('rgb( -1 , 2.3, 4444)');
-is( $name,    'css_string', 'could deformat css string');
-is( int @$rgb,     3,   'got 3 values');
-is( $rgb->[0],    -1,   'red is -1');
-is( $rgb->[1],   2.3,   'green is one');
-is( $rgb->[2],   4444,  'blue is two');
+is( $name,    'css_string', 'recognized css_string format');
+is_tuple( $rgb, [-1, 2.3, 4444], $rgb_axis, 'got right values from CSS_string');
 
 is( $space->format([-1,2.3,4444], 'css_string'), 'rgb(-1, 2.3, 4444)', 'formated rgb triplet into css string');
 
@@ -133,17 +110,10 @@ is( $rgb->[3],    3.3,   'blue still has decimal');
 
 is( $space->format([10,20,30], 'hex_string'), '#0A141E', 'formated rgb triplet into hex string');
 
-my $d = $space->delta([0,44,256],[256,88,0]);
-is( int @$d,    3,      'delta vector has right length');
-is( $d->[0],  256,      'delta in R component');
-is( $d->[1],   44,      'delta in G component');
-is( $d->[2], -256,      'delta in B component');
+my $d = $space->delta( [0,44,256], [256,88,0] );
+is_tuple( $d, [256, 44, -256], $rgb_axis, 'computes in standard range distance');
 
 $rgb = $space->denormalize( [0.3, 0.4, 0.5], 255, 0 );
-is( int @$rgb,    3,     'denormalized triplet, got 3 values');
-is( $rgb->[0], 76.5,    'right red value');
-is( $rgb->[1],   102,   'right green value');
-is( $rgb->[2], 127.5,   'right blue value');
-exit 0;
+is_tuple( $rgb, [76.5, 102, 127.5], $rgb_axis, 'denormalized tuple');
 
 exit 0;

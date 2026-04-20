@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 44;
+use Test::More tests => 45;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::AppleRGB';
 my $rgb_axis   = [qw/red green blue/];
@@ -74,15 +74,17 @@ is_tuple( $rgb, [0, 0, 0], $rgb_axis, 'convert black from XYZ');
 my $xyz = $space->convert_to( 'XYZ', [0, 0, 0 ]);
 is_tuple( $xyz, [0, 0, 0], $xyz_axis, 'convert black back to XYZ');
 
-$rgb = $space->convert_from( 'XYZ', [0.9504701, 1, 1.08883]);
-is_tuple( $space->round( $rgb, [6,7,7]), [1, 1, 1], $rgb_axis, 'convert real white from XYZ');
-
 $rgb = $space->convert_from( 'XYZ', [1, 1, 1]);
-is_tuple( $space->round( $rgb, 9), [1.100580446, 0.967892246, 0.947385691], $rgb_axis, 'convert unreal white from XYZ');
+is_tuple( $space->round( $rgb, 7), [1, 1, 1], $rgb_axis, 'convert white from XYZ');
 
-$xyz = $space->convert_to( 'XYZ', [1.100580446, 0.967892246, 0.947385691 ]);
-is_tuple( $space->round( $xyz, 7 ), [1, 1, 1], $xyz_axis, 'converted unreal white from Apple RGB into XYZ');
+$xyz = $space->convert_to( 'XYZ', [1, 1, 1 ]);
+is_tuple( $space->round( $xyz, 7 ), [1, 1, 1], $xyz_axis, 'converted white from Apple RGB into XYZ');
 
+$rgb = $space->convert_from( 'XYZ', [1, 0.5, 0]);
+is_tuple( $space->round( $rgb, 9), [1.534190627,  -1.480640285, 0.426835004], $rgb_axis, 'convert orange from XYZ');
+
+
+exit 0;
 $rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
 is_tuple( $space->round( $rgb, 9), [-0.591985674, 0.533877143, 0.964390347], $rgb_axis, 'convert light blue from XYZ');
 

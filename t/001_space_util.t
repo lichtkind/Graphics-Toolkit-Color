@@ -74,7 +74,7 @@ is( $rmod->(-3, 2),                 -1,     'int mod with negative dividend');
 is( $rmod->(3, -2),                  1,     'int mod with negative divisor');
 is( $rmod->(-3, -2),                -1,     'int mod with negative divisor');
 
-my $pow = \&Graphics::Toolkit::Color::Space::Util::power;
+my $pow = \&Graphics::Toolkit::Color::Space::Util::gamma_correct;
 is( $pow->(0,0),                       1,   'default of multiplication is 1');
 is( $pow->(2.2, 2),                 4.84,   'simple power');
 is( $pow->(-2.2, 2),               -4.84,   'simple power negative');

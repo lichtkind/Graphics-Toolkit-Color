@@ -4,19 +4,19 @@
 package Graphics::Toolkit::Color::Space::Instance::DisplayP3;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/power/;
+use Graphics::Toolkit::Color::Space qw/gamma_correct/;
 
 my $gamma = 2.4;
 
 sub from_dp3l {
     my ($lrgb) = shift;
-    return [ map { ($_ > 0.0031308) ? ( (power($_, 1/$gamma) *  1.055) - 0.055) 
-		                            :         ($_            * 12.92)          } @$lrgb ];
+    return [ map { ($_ > 0.0031308) ? ( (gamma_correct($_, 1/$gamma) *  1.055) - 0.055) 
+		                            :                 ($_            * 12.92)          } @$lrgb ];
 }
 sub to_dp3l {
 	my ($rgb) = shift;
-	return [  map {  ($_ > 0.04045)  ? power((($_ + 0.055) /  1.055 ), $gamma) 
-                                     :        ($_          / 12.92)           } @$rgb ];
+	return [  map {  ($_ > 0.04045)  ? gamma_correct((($_ + 0.055) /  1.055 ), $gamma) 
+                                     :                ($_          / 12.92)           } @$rgb ];
 }
  
 Graphics::Toolkit::Color::Space->new(

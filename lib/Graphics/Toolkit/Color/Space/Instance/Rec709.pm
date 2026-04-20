@@ -4,15 +4,15 @@
 package Graphics::Toolkit::Color::Space::Instance::Rec709;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/power/;
+use Graphics::Toolkit::Color::Space qw/gamma_correct/;
 
 sub from_lrgb {
 	my $lrgb = shift;
-    return [ map {($_ < 0.018) ? ($_ * 4.5) : ((power($_, 0.45) *  1.099) - 0.099)} @$lrgb];
+    return [ map {($_ < 0.018) ? ($_ * 4.5) : ((gamma_correct($_, 0.45) *  1.099) - 0.099)} @$lrgb];
 }
 sub to_lrgb {
 	my $rgb = shift;
-	return [ map {($_ < 0.081) ? ($_ / 4.5) : power(($_ + 0.099) / 1.099, 1 / 0.45)} @$rgb];
+	return [ map {($_ < 0.081) ? ($_ / 4.5) : gamma_correct(($_ + 0.099) / 1.099, 1 / 0.45)} @$rgb];
 
 }
  

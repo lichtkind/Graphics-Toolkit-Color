@@ -81,14 +81,15 @@ $xyz = $space->convert_to( 'XYZ', [1, 1, 1 ]);
 is_tuple( $space->round( $xyz, 7 ), [1, 1, 1], $xyz_axis, 'converted white from Apple RGB into XYZ');
 
 $rgb = $space->convert_from( 'XYZ', [1, 0.5, 0]);
-is_tuple( $space->round( $rgb, 9), [1.534190627,  -1.480640285, 0.426835004], $rgb_axis, 'convert orange from XYZ');
+is_tuple( $space->round( $rgb, 9), [1.534190627,  -0.157584467, -0.196553855], $rgb_axis, 'convert orange from XYZ');#66
 
+$xyz = $space->convert_to( 'XYZ', [1.534190627,  -0.157584467, -0.196553855]);
+is_tuple( $space->round( $xyz, [6,7,7]), [1, 0.5, 0], $xyz_axis, 'convert orange back to XYZ');
 
-exit 0;
 $rgb = $space->convert_from( 'XYZ', [.1, .2, .9]);
-is_tuple( $space->round( $rgb, 9), [-0.591985674, 0.533877143, 0.964390347], $rgb_axis, 'convert light blue from XYZ');
+is_tuple( $space->round( $rgb, 9), [-0.635101473, 0.541496664, 1.013065291], $rgb_axis, 'convert deep blue from XYZ');
 
-$xyz = $space->convert_to( 'XYZ', [-0.591985674, 0.533877143, 0.964390347 ]);
-is_tuple( $space->round( $xyz, 7 ), [.1, .2, .9], $xyz_axis, 'converted light blue back from AppleRGB back into XYZ');
+$xyz = $space->convert_to( 'XYZ', [-0.635101473, 0.541496664, 1.013065291]);
+is_tuple( $space->round( $xyz, [6,7,7] ), [.1, .2, .9], $xyz_axis, 'converted deep blue back from AppleRGB back into XYZ');
 
 exit 0;

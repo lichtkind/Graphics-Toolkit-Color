@@ -47,7 +47,7 @@ sub mod_real { # real value modulo
     return  $_[0] - (int($_[0] / $_[1]) * $_[1]);
 }
 
-sub gamma_correct {
+sub gamma_correct { # spow: sign preserving power function
     my ($base, $exponent) = @_;
     return $base ** $exponent if $base >= 0;
     return -((-$base) ** $exponent);

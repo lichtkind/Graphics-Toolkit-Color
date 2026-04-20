@@ -2,12 +2,11 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 58;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 40;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::ProPhotoRGB';
-
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');

@@ -2,20 +2,26 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 51;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 32;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CMY';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,              'CMY',              'color space has right name');
-is( $space->name('alias'),        '',              'color space has no alias name');
-is( $space->is_name('CMY'),        1,              'asked for right space name');
-is( $space->is_name('CMYK'),       0,              'asked for right space name');
-is( $space->axis_count,            3,              'CMY color space has 3 axis');
-is( $space->is_euclidean,          1,              'CMY is euclidean');
-is( $space->is_cylindrical,        0,              'CMY is not cylindrical');
+is( $space->name,                    'CMY',        'color space has right name');
+is( $space->name('alias'),              '',        'color space has no alias name');
+is( $space->is_name('CMY'),              1,        'asked for right space name');
+is( $space->is_name('CMYK'),             0,        'CMYK is not CMY');
+is( $space->is_axis_name('CMY'),         0,        'space name is not axis name');
+is( $space->is_axis_name('Cyan'),        1,        'cyan is an axis name');
+is( $space->is_axis_name('magenta'),     1,        'magenta is an axis name');
+is( $space->is_axis_name('yellow'),      1,        'yellow is an axis name');
+is( $space->is_axis_name('agenta'),      0,        'can not miss  lettter of axis name');
+is( $space->axis_count,                  3,        'CMY color space has 3 axis');
+is( $space->is_euclidean,                1,        'CMY is euclidean');
+is( $space->is_cylindrical,              0,        'CMY is not cylindrical');
 
 is( ref $space->check_value_shape( [0,0,0]),    'ARRAY',   'check CMY values works on lower bound values');
 is( ref $space->check_value_shape( [1, 1, 1]),  'ARRAY',   'check CMY values works on upper bound values');
@@ -28,57 +34,28 @@ is( ref $space->check_value_shape( [0, 2, 0]),       '', "magenta value is too b
 is( ref $space->check_value_shape( [0, 0, -1 ] ),    '',  "yellow value is too small");
 is( ref $space->check_value_shape( [0, 0, 2] ),      '',  "yellow value is too big");
 
-
 my $cmy = $space->clamp([]);
-is( int @$cmy,   3,     'default color is set by clamp');
-is( $cmy->[0],   0,     'default color is black (C) no args');
-is( $cmy->[1],   0,     'default color is black (M) no args');
-is( $cmy->[2],   0,     'default color is black (Y) no args');
+is_tuple( $cmy, [0, 0, 0], [qw/cyan magenta yellow/], 'clamped empty tuple into default color (white)');
 
 $cmy = $space->clamp([0, 1]);
-is( int @$cmy,   3,     'clamp added missing argument in vector');
-is( $cmy->[0],   0,     'passed (C) value');
-is( $cmy->[1],   1,     'passed (M) value');
-is( $cmy->[2],   0,     'added (Y) value when too few args');
+is_tuple( $cmy, [0, 1, 0], [qw/cyan magenta yellow/], 'clamp inserted zero for missing value');
 
 $cmy = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
-is( ref $cmy,   'ARRAY',  'clamped tuple and got tuple back');
-is( int @$cmy,   3,     'removed missing argument in value vector by clamp');
-is( $cmy->[0],   0,     'clamped up  (C) value to minimum');
-is( $cmy->[1],   1,     'clamped down (M) value to maximum');
-is( $cmy->[2],  0.5,    'passed (Y) value');
-
+is_tuple( $cmy, [0, 1, 0.5], [qw/cyan magenta yellow/], 'clamp changes values to min, max and removes superfluous values');
 
 $cmy = $space->convert_from( 'RGB', [0, 0.1, 1]);
-is( ref $cmy,   'ARRAY',  'converted RGB values tuple into CMY tuple');
-is( int @$cmy,   3,     'converted RGB values to CMY');
-is( $cmy->[0],   1,      'converted to maximal cyan value');
-is( $cmy->[1],   0.9,    'converted to mid magenta value');
-is( $cmy->[2],   0,      'converted to minimal yellow value');
+is_tuple( $cmy, [1, 0.9, 0], [qw/cyan magenta yellow/], 'convert deep blue from RGB to CMY');
 
 my ($rgb, $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
 $rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
-is( ref $rgb,  'ARRAY',  'converted CMY values tuple into RGB tuple');
-is( int @$rgb,   3,      'converted CMY to RGB triplets');
-is( $rgb->[0],   0,      'converted red value');
-is( $rgb->[1],   0.1,    'converted green value');
-is( $rgb->[2],   1,      'converted blue value');
+is_tuple( $rgb, [0, 0.1, 1], [qw/red green blue/], 'convert deep red from CMY to RGB');
 
+my $d = $space->delta([.2, 0, .2],[.2, 0,.2]);
+is_tuple( $d, [0, 0, 0], [qw/cyan magenta yellow/], 'delta vector between tuple and itself is zero');
 
-my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
-is( int @$d,    3,      'zero delta vector has right length');
-is( $d->[0],    0,      'no delta in C component');
-is( $d->[1],    0,      'no delta in M component');
-is( $d->[2],    0,      'no delta in Y component');
-
-$d = $space->delta([0.1,0.2,0.4],[0, 0.5, 1]);
-is( int @$d,   3,      'delta vector has right length');
-is( $d->[0],  -0.1,     'C delta');
-is( $d->[1],   0.3,     'M delta');
-is( $d->[2],   0.6,     'Y delta');
-
-
+$d = $space->delta([0.1, 0.2, 0.4],[0, 0.5, 1]);
+is_tuple( $d, [-0.1, 0.3, 0.6], [qw/cyan magenta yellow/], 'delta vector between two very different tuple');
 
 exit 0;

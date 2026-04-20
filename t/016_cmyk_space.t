@@ -2,18 +2,27 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 68;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 37;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CMYK';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,             'CMYK',              'color space has right name');
-is( $space->name('alias'),        '',              'CMYK has no alias name');
-is( $space->axis_count,            4,              'CMYK has 4 axis');
-is( $space->is_euclidean,          1,              'CMYK is euclidean');
-is( $space->is_cylindrical,        0,              'CMYK is not cylindrical');
+is( $space->name,                  'CMYK',         'color space has right name');
+is( $space->name('alias'),             '',         'CMYK has no alias name');
+is( $space->is_name('CMYK'),            1,         'asked for right space name');
+is( $space->is_name('CMY'),             0,         'CMY is not CMYK');
+is( $space->is_axis_name('CMYK'),       0,         'space name is not axis name');
+is( $space->is_axis_name('Cyan'),       1,         'cyan is an axis name');
+is( $space->is_axis_name('magenta'),    1,         'magenta is an axis name');
+is( $space->is_axis_name('yellow'),     1,         'yellow is an axis name');
+is( $space->is_axis_name('key'),        1,         'key is an axis name');
+is( $space->is_axis_name('ey'),         0,         'can not miss  lettter of axis name');
+is( $space->axis_count,                 4,         'CMYK has 4 axis');
+is( $space->is_euclidean,               1,         'CMYK is euclidean');
+is( $space->is_cylindrical,             0,         'CMYK is not cylindrical');
 
 is( ref $space->check_value_shape( [0,0,0, 0]),    'ARRAY',   'check CMYK values works on lower bound values');
 is( ref $space->check_value_shape( [1, 1, 1, 1]),  'ARRAY',   'check CMYK values works on upper bound values');
@@ -29,78 +38,34 @@ is( ref $space->check_value_shape( [0, 0, 2, 0] ),      '',   "yellow value is t
 is( ref $space->check_value_shape( [0, 0, 0, -1] ),     '',   "key value is too small");
 is( ref $space->check_value_shape( [0, 0, 0, 2] ),      '',   "key value is too big");
 
-
 my $cmyk = $space->clamp([]);
-is( int @$cmyk,   4,     'missing args are clamped down to black (default color)');
-is( $cmyk->[0],   0,     'default color is black (C)');
-is( $cmyk->[1],   0,     'default color is black (M)');
-is( $cmyk->[2],   0,     'default color is black (Y)');
-is( $cmyk->[3],   0,     'default color is black (K)');
+is_tuple( $cmyk, [0, 0, 0, 0], [qw/cyan magenta yellow key/], 'clamped empty tuple into default color (white)');
 
 $cmyk = $space->clamp([0.1, 0.2, 0.3]);
-is( int @$cmyk,    4,     'clamp added missing argument in vector');
-is( $cmyk->[0], 0.1,     'passed (C) value when too few args');
-is( $cmyk->[1], 0.2,     'passed (M) value when too few args');
-is( $cmyk->[2], 0.3,     'passed (Y) value when too few args');
-is( $cmyk->[3],   0,     'added zero value (K) when too few args');
+is_tuple( $cmyk, [0.1, 0.2, 0.3, 0], [qw/cyan magenta yellow key/], 'clamp inserted zero for missing value');
 
-$cmyk = $space->clamp([0.1, 0.2, 0.3, 0.4, 0.5]);
-is( int @$cmyk,  4,     'clamp removed missing argument in vector');
-is( $cmyk->[0], 0.1,     'passed (C) value when too few args');
-is( $cmyk->[1], 0.2,     'passed (M) value when too few args');
-is( $cmyk->[2], 0.3,     'passed (Y) value when too few args');
-is( $cmyk->[3], 0.4,     'added (K) value when too few args');
-
-$cmyk = $space->clamp([-1,0,1,1.1]);
-is( int @$cmyk,    4,     'clamp kept vector length');
-is( $cmyk->[0],   0,     'too low cyan value is clamped up');
-is( $cmyk->[1],   0,     'min magenta value is kept');
-is( $cmyk->[2],   1,     'max yellow value is kept');
-is( $cmyk->[3],   1,     'too large key value is clamped down');
-
+$cmyk = $space->clamp([-0.1, 1.2, 0.3, 0.4, 0.5]);
+is_tuple( $cmyk, [0, 1, 0.3, .4], [qw/cyan magenta yellow key/], 'clamp changes values to min, max and removes superfluous values');
 
 $cmyk = $space->convert_from( 'RGB', [0.5, 0.5, 0.5]);
-is( int @$cmyk,   4,     'converted grey has four cmyk values');
-is( $cmyk->[0],   0,     'converted grey has right cyan value');
-is( $cmyk->[1],   0,     'converted grey has right magenta value');
-is( $cmyk->[2],   0,     'converted grey has right yellow value');
-is( $cmyk->[3],   0.5,   'converted grey has right key value');
+is_tuple( $cmyk, [0, 0, 0, .5], [qw/cyan magenta yellow key/], 'convert grey from RGB');
 
 my $rgb = $space->convert_to( 'RGB', [0, 0, 0, 0.5]);
-is( int @$rgb,   3,     'converted back grey has three rgb values');
-is( $rgb->[0], 0.5,     'converted back grey has right red value');
-is( $rgb->[1], 0.5,     'converted back grey has right green value');
-is( $rgb->[2], 0.5,     'converted back grey has right blue value');
+is_tuple( $rgb, [.5, .5, .5], [qw/red green blue/], 'convert grey back to RGB');
 
 $cmyk = $space->convert_from( 'RGB', [0.3, 0.4, 0.5]);
-is( int @$cmyk,     4,    'converted color has four cmyk values');
-is( $cmyk->[0],   0.4,    'converted color has right cyan value');
-is( $cmyk->[1],   0.2,    'converted color has right magenta value');
-is( $cmyk->[2],   0 ,     'converted color has right yellow value');
-is( $cmyk->[3],   0.5,    'converted color has right key value');
+is_tuple( $cmyk, [.4, .2, 0, .5], [qw/cyan magenta yellow key/], 'convert bluish grey from RGB');
 
 $rgb = $space->convert_to( 'RGB', [0.4, 0.2, 0, 0.5]);
-is( int @$rgb,     3,   'trimmed and converted back color black');
-is( $rgb->[0],   0.3,   'right red value');
-is( $rgb->[1],   0.4,   'right green value');
-is( $rgb->[2],   0.5,   'right blue value');
-
+is_tuple( $rgb, [.3, .4, .5], [qw/red green blue/], 'convert bluish grey back to RGB');
 
 $cmyk = $space->deformat([cmyk => 11, 22, 256, -1]);
-is( int @$cmyk,   4,     'deformat lc named ARRAY: got 4 values');
-is( $cmyk->[0],  11,    'cyan got transported');
-is( $cmyk->[1],  22,    'also too large magenta');
-is( $cmyk->[2], 256,    'yallow transported, range ignored');
-is( $cmyk->[3], -1,     'too small key ignored');
+is_tuple( $cmyk, [11, 22, 256, -1], [qw/cyan magenta yellow key/], 'deformat named_array, no clamping');
 
 $cmyk = $space->deformat(['CMYK', 11, 22, 33]);
 is( $cmyk,  undef,  'OO deformat reacts only to right amount of values');
 
 $cmyk = $space->deformat('cmyk: -1, 256, 3.3, 4 ');
-is( int @$cmyk,  4,     'deformat STRING: got 4 values');
-is( $cmyk->[0],  -1,     'cyan');
-is( $cmyk->[1], 256,     'magenta');
-is( $cmyk->[2], 3.3,     'yellow');
-is( $cmyk->[3],   4,     'key value');
+is_tuple( $cmyk, [-1, 256, 3.3, 4], [qw/cyan magenta yellow key/], 'deformat named_string, no clamping');
 
 exit 0;

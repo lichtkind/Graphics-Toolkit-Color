@@ -14,7 +14,7 @@ is( $space->name,           'PROPHOTORGB',         'color space has name: "PROPH
 is( $space->name('alias'),      'ROMMRGB',         'color space has alias name is "ROMMRGB"');
 is( $space->is_name('romm RGB'),        1,         'one way to write the space name');
 is( $space->is_name('Pro-Photo RGB'),   1,         'another way to write the space name');
-is( $space->is_name('RGB'),             0,         'SRGB is not ProPhoto SRGB');
+is( $space->is_name('RGB'),             0,         'SRGB is not ProPhoto RGB');
 is( $space->is_axis_name('ROMMRGB'),    0,         'space name is not axis name');
 is( $space->is_axis_name('Red'),        1,         'red is an axis name');
 is( $space->is_axis_name('gREEN'),      1,         'green is an axis name');

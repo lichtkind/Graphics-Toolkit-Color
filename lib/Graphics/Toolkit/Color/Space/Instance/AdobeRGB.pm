@@ -1,5 +1,5 @@
 
-# Adobe RGB (1998) color space, IEC 61966-2-5:2007, ISO 12640-4:2011
+# Adobe RGB (1998) color space, D65 IEC 61966-2-5:2007, ISO 12640-4:2011
 
 package Graphics::Toolkit::Color::Space::Instance::AdobeRGB;
 use v5.12;

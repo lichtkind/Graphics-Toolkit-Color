@@ -480,6 +480,7 @@ CIE white point D65 a gamma of about 2.2.
 =head2 AppleRGB
 
 normal L<\RGB> variant with white point of D65 and gamma is 1.8.
+It is the legace color space Apple use in the 90ies.
 
 =head2 ProPhotoRGB
 

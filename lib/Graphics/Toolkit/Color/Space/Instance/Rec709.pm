@@ -8,11 +8,11 @@ use Graphics::Toolkit::Color::Space qw/gamma_correct/;
 
 sub from_lrgb {
 	my $lrgb = shift;
-    return [ map {($_ < 0.018) ? ($_ * 4.5) : ((gamma_correct($_, 0.45) *  1.099) - 0.099)} @$lrgb];
+    return [ map {(abs($_) < 0.018) ? ($_ * 4.5) : ((gamma_correct($_, 0.45) *  1.099) - 0.099)} @$lrgb];
 }
 sub to_lrgb {
 	my $rgb = shift;
-	return [ map {($_ < 0.081) ? ($_ / 4.5) : gamma_correct(($_ + 0.099) / 1.099, 1 / 0.45)} @$rgb];
+	return [ map {(abs($_) < 0.081) ? ($_ / 4.5) : gamma_correct(($_ + 0.099) / 1.099, 1 / 0.45)} @$rgb];
 
 }
  

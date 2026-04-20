@@ -11,7 +11,7 @@ my $kappa = 903.3;
 
 sub from_xyz {
     my ($xyz) = shift;
-    my @xyz = map {($_ > $eta) ? ($_ ** (1/3)) : ((($kappa * $_) + 16) / 116)} @$xyz;
+    my @xyz = map {(abs($_) > $eta) ? ($_ ** (1/3)) : ((($kappa * $_) + 16) / 116)} @$xyz;
     my $l = (1.16 * $xyz[1]) - 0.16;
     my $a = ($xyz[0] - $xyz[1] + 1) / 2;
     my $b = ($xyz[1] - $xyz[2] + 1) / 2;
@@ -22,7 +22,7 @@ sub to_xyz {
     my $fy = ($lab->[0] + 0.16) / 1.16;
     my $fx = $fy - 1 + ($lab->[1] * 2);
     my $fz = $fy + 1 - ($lab->[2] * 2);
-    my @xyz = map {my $f3 = $_** 3; ($f3 > $eta) ? $f3 : (( 116 * $_ - 16 ) / $kappa) } $fx, $fy, $fz;
+    my @xyz = map {my $f3 = $_** 3; (abs($f3) > $eta) ? $f3 : (( 116 * $_ - 16 ) / $kappa) } $fx, $fy, $fz;
     return \@xyz;
 }
 

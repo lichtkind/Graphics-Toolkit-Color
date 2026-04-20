@@ -15,11 +15,13 @@ my $gamma = 0.45;
 
 sub from_lrgb {
 	my $lrgb = shift;
-    return [ map {($_ <= $beta) ? ($_ * $lin_factor) : ((gamma_correct($_, $gamma) *  $alpha) - $alpha + 1)} @$lrgb];
+    return [ map {(abs($_) <= $beta) ? ($_ * $lin_factor) 
+		                             : ((gamma_correct($_, $gamma) *  $alpha) - $alpha + 1)} @$lrgb];
 }
 sub to_lrgb {
 	my $rgb = shift;
-	return [ map {($_ <= $beta_inv) ? ($_ / $lin_factor) : gamma_correct(($_ + $alpha - 1) / $alpha, 1 / $gamma)} @$rgb];
+	return [ map {(abs($_) <= $beta_inv) ? ($_ / $lin_factor) 
+		                                 : gamma_correct(($_ + $alpha - 1) / $alpha, 1 / $gamma)} @$rgb];
 }
  
 Graphics::Toolkit::Color::Space->new(

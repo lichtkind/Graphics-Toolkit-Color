@@ -63,12 +63,21 @@ sub expand_range_definition { # check if range def is valid and eval (expand) it
     my $error_msg = 'Bad value range definition!';
     $range =   1 if not defined $range or $range eq 'normal';
     $range = 100 if                       $range eq 'percent';
-    return $error_msg." It has to be 'normal', 'percent', a number or ARRAY of numbers or ARRAY of ARRAY's with two number!"
-        unless (not ref $range and is_nr( $range )) or (ref $range eq 'ARRAY') ;
+    return $error_msg." It has to be 'normal', 'percent', a number or ARRAY of numbers (by axis position) or HASH (by axis name).'.
+                      ' Instead of a number you can also insert ARRAY with two number!"
+        unless (not ref $range and is_nr( $range )) or ref $range eq 'ARRAY' or ref $range eq 'HASH';
+    if (ref $range eq 'HASH') {
+		my $range_array = [];
+		for my $axis_name (keys %$range){
+			next unless $basis->is_axis_name( $axis_name );
+			$range_array->[ $basis->pos_from_axis_name($axis_name) ] = $range->{$axis_name};
+		}
+		$range = $range_array;
+	}
     $range = [$range] unless ref $range;
     $range = [(@$range) x $basis->axis_count] if @$range == 1;
-    return "Range definition needs inside an ARRAY either one definition for all axis or one definition".
-           " for each axis!"                  if @$range != $basis->axis_count;
+    return "Range definition needs inside an ARRAY or HASH a number or pair of them in an ARRAY for each axis!"
+		if @$range != $basis->axis_count;
     for my $axis_index ($basis->axis_iterator) {
         my $axis_range = $range->[$axis_index];
         if (not ref $axis_range){

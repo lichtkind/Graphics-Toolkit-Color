@@ -29,23 +29,32 @@ sub new {
      7. HASH or HASH ref with values from RGB or any other space:
         new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
 EOH
-    my $color_def = _compact_color_def_into_scalar( @args );
+    my ($color_def, $range_def) = _compact_color_def_into_scalar( @args );
     return $help unless defined $color_def;
-    my $self = _new_from_scalar_def( $color_def );
+    my $self = _new_from_scalar_def( $color_def, $range_def );
     return (ref $self) ? $self : $help;
 }
 sub _compact_color_def_into_scalar {
     my (@args) = @_;
+    return unless @args;
+    if (lc $args[0] eq 'range' or lc $args[0] eq 'color'){
+		if (@args == 2 and lc $args[0] eq 'color'){ shift @args }
+		elsif (@args == 4) {
+			return ($args[1], $args[3]) if lc $args[0] eq 'color' and lc $args[2] eq 'range';
+			return ($args[3], $args[1]) if lc $args[2] eq 'color' and lc $args[0] eq 'range';
+	    }
+	    else { return }
+	}
     my $first_arg_is_color_space = Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0] );
     @args = ([ $args[0], @{$args[1]} ]) if @args == 2 and $first_arg_is_color_space and ref $args[1] eq 'ARRAY';
     @args = ([ @args ])                 if @args == 3 or (@args > 3 and $first_arg_is_color_space);
-    @args = ({ @args })                 if @args == 6 or @args == 8;
+    @args = ({ @args })                 if @args == 6 or  @args == 8;
     return (@args == 1) ? $args[0] : undef;
 }
 sub _new_from_scalar_def { # color defs of method arguments
-    my ($color_def) = shift;
+    my ($color_def, $range_def) = shift;
     return $color_def if ref $color_def eq __PACKAGE__;
-    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def ) );
+    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def ) );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
@@ -192,7 +201,7 @@ sub is_in_gamut {
     unshift @args, $self unless ref $self eq __PACKAGE__;
     my $color_def = _compact_color_def_into_scalar(@args);
 	return 0 unless defined $color_def;
-    Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg
+    Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg # in is third
 }
 	
 ## single color creation methods #######################################

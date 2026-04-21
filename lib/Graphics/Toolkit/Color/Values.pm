@@ -11,7 +11,7 @@ my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 #### constructor #######################################################
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
-    my ($pkg, $color_def) = @_;
+    my ($pkg, $color_def, $range_def) = @_;
     return "Can not create color value object without color definition!" unless defined $color_def;
     if (not ref $color_def) { # try to resolve color name
         my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );

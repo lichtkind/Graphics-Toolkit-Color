@@ -100,7 +100,7 @@ sub _split_named_args {
 sub values       {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'in', [],
-                               { in => $default_space_name, as => 'list',
+                               { in => $default_space_name, as => 'list', raw => 0,
                                  precision => undef, range => undef, suffix => undef } );
     my $help = <<EOH;
     GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
@@ -110,6 +110,7 @@ sub values       {
         range => 1,           # value range (SCALAR or ARRAY), default set by space def
         precision => 3,       # value precision (SCALAR or ARRAY), default set by space
         suffix => '%',        # value suffix (SCALAR or ARRAY), default set by color space
+        raw => 1,             # no value clamping, rounding and scaling inly by arg request
 
 EOH
     return $arg.$help unless ref $arg;

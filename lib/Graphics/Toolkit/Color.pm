@@ -38,7 +38,7 @@ sub _compact_color_def_into_scalar {
     my (@args) = @_;
     return unless @args;
     if (lc $args[0] eq 'range' or lc $args[0] eq 'color'){
-		if (@args == 2 and lc $args[0] eq 'color'){ shift @args }
+		if (@args == 2 and lc $args[0] eq 'color'){ shift @args } # ->new (color => ...) is allowed
 		elsif (@args == 4) {
 			return ($args[1], $args[3]) if lc $args[0] eq 'color' and lc $args[2] eq 'range';
 			return ($args[3], $args[1]) if lc $args[2] eq 'color' and lc $args[0] eq 'range';
@@ -123,7 +123,7 @@ sub values       {
 
 EOH
     return $arg.$help unless ref $arg;
-    $self->{'values'}->formatted( @$arg{qw/in as suffix range precision/} );
+    $self->{'values'}->formatted( @$arg{qw/in as suffix range precision raw/} );
 }
 
 sub name         {

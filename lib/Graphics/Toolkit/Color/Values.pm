@@ -22,7 +22,7 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
     }
     my ($tuple, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
     return "could not recognize color value format or color name: $color_def" unless ref $tuple;
-    new_from_tuple( '', $tuple, $space_name);
+    new_from_tuple( '', $tuple, $space_name, $range_def);
 }
 sub new_from_tuple { #
     my ($pkg, $tuple, $space_name, $range_def) = @_;
@@ -30,9 +30,8 @@ sub new_from_tuple { #
     return $color_space unless ref $color_space;
     return "Need ARRAY of ".$color_space->axis_count." ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $tuple );
-    # $tuple = $color_space->clamp( $tuple, $range_def);
     $tuple = $color_space->normalize( $tuple, $range_def );
-    $tuple = $color_space->clamp( $tuple, 'normal');
+#    $tuple = $color_space->clamp( $tuple, 'normal');
     _new_from_normal_tuple( $tuple, $color_space );
 }
 sub _new_from_normal_tuple { #
@@ -68,21 +67,21 @@ sub normalized { # normalized (0..1) value tuple in any color space
     );
 }
 sub shaped  { # in any color space, range and precision
-    my ($self, $space_name, $range_def, $precision_def) = @_;
+    my ($self, $space_name, $range_def, $precision_def, $raw) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     my $tuple = $self->normalized( $color_space->name );
     return $tuple if not ref $tuple;
     $tuple = $color_space->denormalize( $tuple, $range_def );
-    $tuple = $color_space->clamp( $tuple, $range_def );
-    $tuple = $color_space->round( $tuple, $precision_def );
+    $tuple = $color_space->clamp( $tuple, $range_def ) unless $raw;
+    $tuple = $color_space->round( $tuple, $precision_def ) unless $raw and not defined $precision_def;
     return $tuple;
 }
 sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~range, @~|~suffix
-    my ($self, $space_name, $format_name, $suffix_def, $range_def, $precision_def) = @_;
+    my ($self, $space_name, $format_name, $suffix_def, $range_def, $precision_def, $raw) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
-    my $tuple = $self->shaped( $color_space->name, $range_def, $precision_def );
+    my $tuple = $self->shaped( $color_space->name, $range_def, $precision_def, $raw );
     return $tuple unless ref $tuple;
     return $color_space->format( $tuple, $format_name, $suffix_def );
 }

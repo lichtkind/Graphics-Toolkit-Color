@@ -81,16 +81,15 @@ $xyz = $space->convert_to( 'XYZ', [1, 1, 1]);
 is_tuple( $space->round($xyz, 9), [1, 1, 1], [qw/X Y Z/], "convert white back to XYZ");
 
 $rgb = $space->convert_from( 'XYZ', [1, 0.9, 0]);
-is_tuple( $space->round($rgb, [8,9, 9]), [1.03708387, 0.903010729, 0], [qw/red green blue/], "convert deep yellow from XYZ");
-exit 0;
+is_tuple( $space->round($rgb, [9, 9, 8]), [1.104699728, 0.903199937, -0.26414684], [qw/red green blue/], "convert deep yellow from XYZ");
 
-$xyz = $space->convert_to( 'XYZ', [1.03708387, 0.903010729, 0]);
-is_tuple( $space->round($xyz, [6,6,9]), [1, 0.9, 0], [qw/X Y Z/], "convert deep yellow back to XYZ");
+$xyz = $space->convert_to( 'XYZ', [1.104699728, 0.903199937, -0.264146841]);
+is_tuple( $space->round($xyz, [6,6,7]), [1, 0.9, 0], [qw/X Y Z/], "convert deep yellow back to XYZ");
 
 $rgb = $space->convert_from( 'XYZ', [0.1, 0.01, 0.95]);
-is_tuple( $space->round($rgb, [9,8,9]), [0.257791785, -0.11794369, 0.971905937], [qw/red green blue/], "convert deep blue from XYZ");
+is_tuple( $space->round($rgb, [8,9,9]), [-0.30958708, 0.157859083, 1.00564101], [qw/red green blue/], "convert deep blue from XYZ");
 
-$xyz = $space->convert_to( 'XYZ', [0.257791785, -0.117943692, 0.971905937]);
+$xyz = $space->convert_to( 'XYZ', [-0.309587084, 0.157859083, 1.00564101]);
 is_tuple( $space->round($xyz, 7), [0.1, 0.01, 0.95], [qw/X Y Z/], "convert deep blue back to XYZ");
 
 exit 0;

@@ -2,8 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 84;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 40;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
 
@@ -28,29 +29,17 @@ my $nice_blue = Graphics::Toolkit::Color::Values->new_from_any_input([10,20,200]
 my $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 1,  $RGB);
 is( ref $nblue,    $value_ref, 'gamma of one does not change anything');
 my $values = $nblue->shaped();
-is( ref $values,     'ARRAY',  'got values of nice blue');
-is( @$values,              3,  'got three RGB values');
-is( $values->[0],         10,  'red value is 10');
-is( $values->[1],         20,  'green value is 20)');
-is( $values->[2],        200,  'blue value is 200');
+is_tuple( $values, [10, 20, 200], [qw/red green blue/], 'nice blue with no gamma');
 
 $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 2.2,  $RGB);
 is( ref $nblue,    $value_ref, 'gamma of 2.2 does skew down values');
 $values = $nblue->shaped();
-is( ref $values,     'ARRAY',  'got values of skewed blue');
-is( @$values,              3,  'got three RGB values skewed down');
-is( $values->[0],          0,  'red value is 0');
-is( $values->[1],          1,  'green value is 1');
-is( $values->[2],        149,  'blue value is 149');
+is_tuple( $values, [0, 1, 149], [qw/red green blue/], 'nice blue with gamma 2.2');
 
 $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 0.5, $CMY);
 is( ref $nblue,    $value_ref, 'gamma correction in CMY space');
 $values = $nblue->shaped();
-is( ref $values,     'ARRAY',  'got values of skewed blue');
-is( @$values,              3,  'got three RGB values skewed up');
-is( $values->[0],          5,  'red value is 5 now');
-is( $values->[1],         10,  'green value is 10 now ');
-is( $values->[2],        137,  'blue value is 137 now');
+is_tuple( $values, [5, 10, 137], [qw/red green blue/], 'nice blue with gamma 0.5');
 
 $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, cyan => 3},  $RGB);
 is( ref $nblue,           '', 'gamma value hash had names that not belong to RGB');
@@ -58,85 +47,58 @@ is( ref $nblue,           '', 'gamma value hash had names that not belong to RGB
 $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, blue => 3},  $RGB);
 is( ref $nblue,    $value_ref, 'mixed gamma values skew too');
 $values =$nblue->shaped();
-is( ref $values,     'ARRAY',  'got values of skewed blue');
-is( @$values,              3,  'got three RGB values');
-is( $values->[0],        184,  'red is skewed strongly into the other direction (184)');
-is( $values->[1],         20,  'green value is untouched (20)');
-is( $values->[2],        123,  'blue value is skewed more this time (123)');
+is_tuple( $values, [184, 20, 123], [qw/red green blue/], 'red and blue values have individual gamma applied');
 
 #### set_value #########################################################
 my $cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255} );
 is( ref $cyan,    $value_ref,  'aqua (set green value to max) value object');
 is( $cyan->name,      'cyan',  'color has the name "cyan" (blue + green)');
 $values = $cyan->normalized();
-is( ref $values,     'ARRAY',  'RGB value ARRAY');
-is( @$values,              3,  'has three values');
-is( $values->[0],          0,  'red value is zero');
-is( $values->[1],          1,  'green value is one (max)');
-is( $values->[2],          1,  'blue value is one too');
-my $ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 256}, 'CMY' );
-is( ref $ret,             '',  'green is in RGB, not CMY');
-$ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 256, yellow => 0} );
+is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by maxing green on blue color');
+
+my $ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255}, 'CMY' );
+is( ref $ret,             '',  'green is axis in RGB, not CMY');
+$ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255, yellow => 0} );
 is( ref $ret,             '',  'green and yellow axis are from different spaces');
-$cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 256}, 'RGB' );
+$cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255}, 'RGB' );
 $values = $cyan->normalized();
-is( ref $cyan,    $value_ref,  'green is in RGB, and set green over max, got clamped');
-is( @$values,              3,  'has three values');
-is( $values->[0],          0,  'red value is zero');
-is( $values->[1],          1,  'green value is one (max)');
-is( $values->[2],          1,  'blue value is one too');
+is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by maxing green on blue color in RGB');
 
 #### add_value #########################################################
 $cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255} );
 is( ref $cyan,    $value_ref,  'aqua (add green value to max) value object');
 is( $cyan->name,      'cyan',  'color has the name "cyan"');
 $values = $cyan->normalized();
-is( ref $values,     'ARRAY',  'RGB value ARRAY');
-is( @$values,              3,  'has three values');
-is( $values->[0],          0,  'red value is zero');
-is( $values->[1],          1,  'green value is one (max)');
-is( $values->[2],          1,  'blue value is one too');
+is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color');
+
 $ret = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255}, 'CMY' );
 is( ref $ret,             '',  'green is in RGB, not CMY');
-$ret = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 256, yellow => 0}, 'CMY' );
+$ret = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255, yellow => 0}, 'CMY' );
 is( ref $ret,             '',  'green and yellow axis are from different spaces');
-$cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 256}, 'RGB' );
+$cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255}, 'RGB' );
 $values = $cyan->normalized();
-is( ref $cyan,    $value_ref,  'green is in RGB, and set green over max, got clamped');
-is( @$values,              3,  'has three values');
-is( $values->[0],          0,  'red value is zero');
-is( $values->[1],          1,  'green value is one (max)');
-is( $values->[2],          1,  'blue value is one too');
+is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color in RGB');
 
 #### mix ###############################################################
 my $grey = Graphics::Toolkit::Color::Calculator::mix ( 
 	$white, [{color => $black, percent => 50}, {color => $white, percent => 50}], $RGB );
 is( ref $grey,                   $value_ref,  'created gray by mixing black and white');
 $values = $grey->shaped();
-is( @$values,                          3,  'get RGB values of grey');
-is( $values->[0],                    128,  'red value of gray');
-is( $values->[1],                    128,  'green value of gray');
-is( $values->[2],                    128,  'blue value of gray');
+is_tuple( $values, [128, 128, 128], [qw/red green blue/], 'mixed grey from black and white');
 is( $grey->name(),                'gray',  'created gray by mixing black and white');
 
 my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( 
 	$white, [{color => $black, percent => 5}, {color => $white, percent => 95}], $RGB);
 is( ref $lgrey,                   $value_ref,  'created light gray');
 $values = $lgrey->shaped();
-is( @$values,                          3,  'get RGB values of grey');
-is( $values->[0],                    242,  'red value of gray');
-is( $values->[1],                    242,  'green value of gray');
-is( $values->[2],                    242,  'blue value of gray');
+is_tuple( $values, [242, 242, 242], [qw/red green blue/], 'mixed light grey from black and white');
 is( $lgrey->name(),             'gray95',  'created gray by mixing black and white');
 
 my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( 
 	$white, [{color => $blue, percent => 50},{color => $black, percent => 50},], $HSL);
 is( ref $darkblue,               $value_ref,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
 $values = $darkblue->shaped('HSL');
-is( @$values,                          3,  'get 3 HSL values');
-is( $values->[0],                    120,  'hue value is right');
-is( $values->[1],                     50,  'sat value is right');
-is( $values->[2],                     25,  'light value is right');
+is_tuple( $values, [120, 50, 25], [qw/hue saturation lightness/], 'mixed grey from black and white in HSL');
 
 #### invert ############################################################
 my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $RGB );
@@ -160,9 +122,6 @@ is( $nred->name,       'red',  'inverted on two axis with short names');
 
 my $ndb = Graphics::Toolkit::Color::Calculator::invert ( $darkblue, [qw/h/], $HSL );
 $values = $ndb->shaped('HSL');
-is( @$values,                          3,  'get 3 HSL values');
-is( $values->[0],                    300,  'inverted / rotated hue value');
-is( $values->[1],                     50,  'saturation value was not touched');
-is( $values->[2],                     25,  'lightness value was not touched by inversion');
+is_tuple( $values, [300, 50, 25], [qw/hue saturation lightness/], 'inverted dark blue in HSL');
 
 exit 0;

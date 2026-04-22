@@ -17,7 +17,7 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
         my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
         if (ref $rgb){
             $rgb = $RGB->clamp( $RGB->normalize( $rgb ), 'normal' );
-            return bless { color_name => $color_def, rgb => $rgb, source_tuple => '', source_space_name => ''};
+            return bless { color_name => $color_def, rgb_tuple => $rgb, source_tuple => '', source_space_name => ''};
         }
     }
     my ($tuple, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
@@ -31,11 +31,8 @@ sub new_from_tuple { #
     return "Need ARRAY of ".$color_space->axis_count." ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $tuple );
     $tuple = $color_space->normalize( $tuple, $range_def );
-#    $tuple = $color_space->clamp( $tuple, 'normal');
-    _new_from_normal_tuple( $tuple, $color_space );
-}
-sub _new_from_normal_tuple { #
-    my ($tuple, $color_space) = @_;
+
+    # convert into RGB if needed
     my $source_tuple = '';
     my $source_space_name = '';
     if ($color_space->name ne $RGB->name){
@@ -43,10 +40,10 @@ sub _new_from_normal_tuple { #
         $source_space_name = $color_space->name;
         $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $tuple, $color_space->name, 'normal' );
     }
-    $tuple = $RGB->clamp( $tuple, 'normal' );
-    my $nv = $RGB->round( $RGB->denormalize( $tuple ) );
+    #$tuple = $RGB->clamp( $tuple, 'normal' );
+    #my $nv = $RGB->round( $RGB->denormalize( $tuple ) );
     my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $tuple ) ) );
-    bless { rgb => $tuple, source_tuple => $source_tuple, source_space_name => $source_space_name, color_name => $name };
+    bless { rgb_tuple => $tuple, source_tuple => $source_tuple, source_space_name => $source_space_name, color_name => $name };
 }
 
 sub is_in_gamut {
@@ -63,7 +60,7 @@ sub is_in_gamut {
 sub normalized { # normalized (0..1) value tuple in any color space
     my ($self, $space_name) = @_;
     Graphics::Toolkit::Color::Space::Hub::convert(
-        $self->{'rgb'}, $space_name, 'normal', $self->{'source_tuple'}, $self->{'source_space_name'},
+        $self->{'rgb_tuple'}, $space_name, 'normal', $self->{'source_tuple'}, $self->{'source_space_name'},
     );
 }
 sub shaped  { # in any color space, range and precision
@@ -74,7 +71,8 @@ sub shaped  { # in any color space, range and precision
     return $tuple if not ref $tuple;
     $tuple = $color_space->denormalize( $tuple, $range_def );
     $tuple = $color_space->clamp( $tuple, $range_def ) unless $raw;
-    $tuple = $color_space->round( $tuple, $precision_def ) unless $raw and not defined $precision_def;
+    $tuple = $color_space->round( $tuple, $precision_def ) unless ($raw and not defined $precision_def) 
+                                                               or (defined $range_def and not defined $precision_def);
     return $tuple;
 }
 sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~range, @~|~suffix

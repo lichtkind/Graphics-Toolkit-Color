@@ -2,55 +2,30 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 76;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 46;
 use Graphics::Toolkit::Color::Values;
 
 my (@values, $values);
-my $fuchsia = Graphics::Toolkit::Color::Values->new_from_tuple([255,0,256], 'RGB');
+my $fuchsia = Graphics::Toolkit::Color::Values->new_from_tuple([255, 0, 255], 'RGB');
 my $blue_hsl = Graphics::Toolkit::Color::Values->new_from_any_input({hue => 240, s => 100, l => 50});
 
 #### normalized ########################################################
 $values = $fuchsia->normalized();
-is( ref $values, 'ARRAY',  'get fuchsia value tuple');
-is( @$values,          3,  'has 3 values');
-is( $values->[0],      1,  'red value is right');
-is( $values->[1],      0,  'green value is right');
-is( $values->[2],      1,  'blue value is right');
+is_tuple( $values, [1, 0, 1], [qw/red green blue/], 'fuchsia values normalized');
 $values = $fuchsia->normalized('RGB');
-is( ref $values, 'ARRAY',  'RGB is default color, get same values');
-is( @$values,          3,  'same 3 values');
-is( $values->[0],      1,  'red value is right');
-is( $values->[1],      0,  'green value is right');
-is( $values->[2],      1,  'blue value is right');
+is_tuple( $values, [1, 0, 1], [qw/red green blue/], 'calling for RGB is a no operation');
 $values = $fuchsia->normalized('CMYK');
-is( ref $values, 'ARRAY',  'get CMYK values');
-is( @$values,          4,  'all 4 values');
-is( $values->[0],      0,  'cyan value is right');
-is( $values->[1],      1,  'magenta value is right');
-is( $values->[2],      0,  'yellow value is right');
-is( $values->[3],      0,  'key value is right');
+is_tuple( $values, [ 0, 1, 0, 0], [qw/cyan magenta yekkow key/], 'converting fuchsia into CMYK');
 
 #### shaped ##########################################################
 $values = $fuchsia->shaped();
-is( ref $values, 'ARRAY',  'get fuchsia RGB (default) values in ragular range');
-is( @$values,          3,  'all 3 values');
-is( $values->[0],    255,  'red value is right');
-is( $values->[1],      0,  'green value is right');
-is( $values->[2],    255,  'blue value is right');
+is_tuple( $values, [255, 0, 255], [qw/red green blue/], 'fuchsia RGB (default) values in regular range');
 $values = $fuchsia->shaped('CMYK', [[-10,5],10, [-1,5], 20]);
-is( ref $values, 'ARRAY',  'get CMYK values with custom ranges');
-is( @$values,          4,  '4 values');
-is( $values->[0],    -10,  'cyan value is right');
-is( $values->[1],     10,  'magenta value is right');
-is( $values->[2],     -1,  'yellow value is right');
-is( $values->[3],      0,  'key value is right');
+is_tuple( $values, [ -10, 10, -1, 0], [qw/cyan magenta yekkow key/], 'CMYK values with custom ranges');
 $values = $fuchsia->shaped('XYZ', undef, [0, 1,2]);
-is( ref $values, 'ARRAY',  'get XYZ values with custom precision');
-is( @$values,          3,  '3 values');
-is( $values->[0],     59,  'X value is right');
-is( $values->[1],   28.5,  'Y value is right');
-is( $values->[2],   96.96, 'Z value is right');
+is_tuple( $values, [59, 28.5, 96.96], [qw/X Y Z/], 'fuchsia XYZ values in regular range and rounded');
 
 #### formatted #########################################################
 #~space, @~|~format, @~|~range, @~|~suffix
@@ -65,11 +40,7 @@ is( ref $fuchsia->formatted('CMY', 'array'),      '',  'array format is RGB only
 is( ref $fuchsia->formatted('CMY', 'hex_string'), '',  'hex_string formatis RGB only');
 is( $fuchsia->formatted('RGB', 'hex_string'), '#FF00FF', 'but works under RGB');
 $values = $fuchsia->formatted('RGB', 'array');
-is( ref $values,  'ARRAY',  'get fuchsia RGB values in array format');
-is( @$values,           3,  'all 3 values');
-is( $values->[0],     255,  'red value is right');
-is( $values->[1],       0,  'green value is right');
-is( $values->[2],     255,  'blue value is right');
+is_tuple( $values, [255, 0, 255], [qw/red green blue/], 'regular ranged RGB values in array format (fuchsia)');
 $values = $fuchsia->formatted( undef, 'named_array');
 is( ref $values,  'ARRAY',  'get fuchsia RGB values in named array format');
 is( @$values,           4,  'all 4 values');

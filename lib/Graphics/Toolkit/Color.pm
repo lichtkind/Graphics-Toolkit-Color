@@ -23,8 +23,9 @@ sub new {
      constructor new of Graphics::Toolkit::Color object needs either:
      1. a color name: new('red') or new('SVG:red')
      3. RGB hex string new('#FF0000') or new('#f00')
-     4. $default_space_name array or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
-     5. named array or ARRAY ref:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
+     4. RGB list or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
+     5. named list or named ARRAY:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
+        which works even nested: new( 'HSL' => [ 255, 0, 0 ])
      6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
      7. HASH or HASH ref with values from RGB or any other space:
         new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
@@ -52,7 +53,7 @@ sub _compact_color_def_into_scalar {
     return (@args == 1) ? $args[0] : undef;
 }
 sub _new_from_scalar_def { # color defs of method arguments
-    my ($color_def, $range_def) = shift;
+    my ($color_def, $range_def) = @_;
     return $color_def if ref $color_def eq __PACKAGE__;
     return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def ) );
 }
@@ -500,10 +501,11 @@ Out of range (gamut) values will be corrected (clamped).
 
     my $red = Graphics::Toolkit::Color->new(          255, 0, 0 );
     my $red = Graphics::Toolkit::Color->new(         [255, 0, 0]);   # does the same
-    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 );   # named ARRAY syntax
+    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 );   # named list syntax
     my $red = Graphics::Toolkit::Color->new(  RGB =>  255, 0, 0 );   # with fat comma
-    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]);   # and brackets
+    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]);   # named ARRAY
     my $red = Graphics::Toolkit::Color->new(  RGB => [255, 0, 0]);   # separate name and values
+    my $red = Graphics::Toolkit::Color->new([ RGB => [255, 0, 0]]);  # even inside an ARRAY
     my $red = Graphics::Toolkit::Color->new(  YUV => .299,-0.168736, .5); # same color in YUV
 
 
@@ -575,7 +577,9 @@ a similar resolution for the normal colors as stadard RGB.
 Just use the named argumend color and give it a scalar color definition
 as described above. The second argument that can be L</range>.
 
-    my $color = Graphics::Toolkit::Color->new( AppleRGB => [1438, 374, 8285], range => 2**32);
+    my $color = Graphics::Toolkit::Color->new( 
+                 color => [AppleRGB => [1438, 374, 8285]], range => 2**32
+    );
 
 
 =head2 color

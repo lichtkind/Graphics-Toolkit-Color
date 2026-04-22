@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 74;
+use Test::More tests => 80;
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color';
@@ -13,7 +13,6 @@ is( not( $@), 1, 'could load the module'); # say $@;
 is( ref Graphics::Toolkit::Color->new(),        '', 'constructor need arguments');
 is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts color name');
 is( ref Graphics::Toolkit::Color->new( 'red', 'green'), '', 'constructor needs only one color name');
-#~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
 #~ is( ref Graphics::Toolkit::Color->new('SVG::red'), $module, 'constructor accepts color name from a scheme');
 is( ref Graphics::Toolkit::Color->new('#000'),     $module, 'short hex string with min value');
 is( ref Graphics::Toolkit::Color->new('#FFFFFF'),  $module, 'long hex string with max value');
@@ -31,8 +30,8 @@ is( ref Graphics::Toolkit::Color->new('YIQ:5.22,   0, -10  '), $module, 'named s
 is( ref Graphics::Toolkit::Color->new('NCol: B10,  100, 0'),   $module, 'named string in Ncol space with min and max values');
 is( ref Graphics::Toolkit::Color->new( 4),      '', 'constructor needs more than one number');
 is( ref Graphics::Toolkit::Color->new( 4,5),    '', 'constructor needs more than two numbers');
-is( ref Graphics::Toolkit::Color->new( 4,5,6,7), '', 'constructor needs less than four numbers');
 is( ref Graphics::Toolkit::Color->new( 1,2,3), $module, 'constructor got three RGB numbers');
+is( ref Graphics::Toolkit::Color->new( 4,5,6,7), '', 'constructor needs less than four numbers');
 is( ref Graphics::Toolkit::Color->new( 1,2,'e4'),   '', 'third RGB value has to be number');
 is( ref Graphics::Toolkit::Color->new( 1, '2a', 4), '', 'second RGB value has to be number');
 is( ref Graphics::Toolkit::Color->new( '%', 2, 4), '', 'first RGB value has to be number');
@@ -51,6 +50,7 @@ is( ref Graphics::Toolkit::Color->new( ['hsb', 100.23, 0.173, .214]),   $module,
 is( ref Graphics::Toolkit::Color->new( ['NCol','B10','100%','0%']),     $module, 'named ARRAY with values that need preprocessing');
 is( ref Graphics::Toolkit::Color->new( ['ncol','B0','100','0']),        $module, 'try single digit string value');
 is( ref Graphics::Toolkit::Color->new( OKLAB => [0,0,0] ),              $module, 'named ARRAY ref in uc oklab space');
+is( ref Graphics::Toolkit::Color->new( [OKLAB => [0,0,0]] ),            $module, 'named ARRAY ref, nsted version');
 is( ref Graphics::Toolkit::Color->new( 'hunterlab', [1,2,3] ),          $module, 'named ARRAY ref in lc hunterlab space');
 is( ref Graphics::Toolkit::Color->new( { }),                                 '', 'HASH needs keys');
 is( ref Graphics::Toolkit::Color->new( {r=> 1 }),                            '', 'HASH one key is not enough');
@@ -75,6 +75,10 @@ is( ref Graphics::Toolkit::Color->new( h => "0",  w => '0',  b => 0),      $modu
 is( ref Graphics::Toolkit::Color->new( h=> "R100",w => '0%', b=> '100%'),  $module, 'NCol hash');
 is( ref Graphics::Toolkit::Color->new( Y => 0, U => 0, V => 100),          $module, 'YPbPr short hash');
 is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $module, 'XYZ short hash (has no long names)');
+is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $module, 'XYZ short hash (has no long names)');
+is( ref Graphics::Toolkit::Color->new( color => [4,5,6], range => 10),     $module, 'use color/range arguments for cutom ranged color');
+is( ref Graphics::Toolkit::Color->new( range => 10, color => [4,5,6] ),    $module, 'args work in reverse order too');
+is( ref Graphics::Toolkit::Color->new( color => 'green', color => [4,5,6] ),    '', 'use arg color only once');
 
 is( ref color( Y => 0, U => 0, V => 100),          $module, 'short named constructor method');
 is( ref color( ),                                       '', 'needs also args');
@@ -85,8 +89,9 @@ is( ref color( [1,2,3] ),                          $module, 'ARRAY ref');
 is( ref color( {l => 50, c => 12.4, h => .6} ),    $module, 'LCH short axis name HASH');
 is( ref color( {hue => 0, whiteness => '0%', blackness => '100%'} ), $module, 'HWB long axis name HASH');
 
-is( is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut routine works with normal HSL color');
-is( is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut routine works with normal HSL color');
+is( is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut detected normal HSL color');
+is( is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut detected out of range HSL color');
+is( is_in_gamut(RGB => [255,255,256]), 0, 'is_in_gamut routine detected out of range RGB color');
 
 
 exit 0;

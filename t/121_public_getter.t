@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 98;
+use Test::More tests => 110;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
@@ -137,6 +137,25 @@ is( keys %$values,              3, 'HSL has 3 keays');
 is( $values->{'h'},           240, '"hue" value is correct');
 is( $values->{'s'},           100, '"saturation" value is correct');
 is( $values->{'l'},            50, '"lightness" value is correct');
+
+my $too_blue = Graphics::Toolkit::Color->new( -1, 10, 256);
+my @rgb = $too_blue->values(range => 1, precision => 3);
+is( @rgb,                      3, '3 RGB values converted into special range');
+is( $rgb[0],                   0, 'red is 0, clamped up');
+is( $rgb[1],               0.039, 'green is 0.039, correct precision');
+is( $rgb[2],                   1, 'blue is 1, got clamped down');
+
+@rgb = $too_blue->values(raw => 1);
+is( @rgb,                      3, '3 RGB values in raw mode');
+is( $rgb[0],                  -1, 'red is -1, unclamped');
+is( $rgb[1],                  10, 'green is 10');
+is( $rgb[2],                 256, 'blue is 256, unclamped');
+
+@rgb = Graphics::Toolkit::Color->new( color => [4,5,6], range => 10)->values(range => 'normal');
+is( @rgb,                      3, '3 RGB values read with special range');
+is( $rgb[0],                 0.4, 'red is 0.4');
+is( $rgb[1],                 0.5, 'green is 0.5');
+is( $rgb[2],                 0.6, 'blue is 0.6');
 
 #### is_in_gamut #######################################################
 is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');

@@ -50,11 +50,11 @@ sub _new_from_normal_tuple { #
 }
 
 sub is_in_gamut {
-    my ($color_def, $range_def) = @_;
+    my ($color_def, $space_name) = @_;
     my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
     return 1 if ref $rgb;
-    my ($tuple, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+    my ($tuple, $found_space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $found_space_name );
     return 0 unless ref $color_space;
     return $color_space->is_in_bounds( $tuple ); # , $range_def 
 }

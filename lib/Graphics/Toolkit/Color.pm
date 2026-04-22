@@ -201,6 +201,7 @@ sub is_in_gamut {
     unshift @args, $self unless ref $self eq __PACKAGE__;
     my $color_def = _compact_color_def_into_scalar(@args);
 	return 0 unless defined $color_def;
+	# _new_from_scalar_def()
     Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg # in is third
 }
 	

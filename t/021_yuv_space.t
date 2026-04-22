@@ -2,12 +2,12 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 95;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 54;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YUV';
 my $space = eval "require $module";
-use Graphics::Toolkit::Color::Space::Util ':all';
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space',  'got tight return value by loading module');
@@ -15,9 +15,21 @@ is( $space->name,                           'YUV',  'color space has initials as
 is( $space->name('alias'),                'YPBPR',  'color space has alias name YCbCr');
 is( $space->is_name('YPbPr'),                   1,  'color space name YCbCr is correct');
 is( $space->is_name('YUV'),                     1,  'color space name YUV is correct');
+is( $space->is_axis_name('YUV'),                0,  'space name is not axis name');
+is( $space->is_axis_name('luma'),               1,  'luma is an axis name');
+is( $space->is_axis_name('pb'),                 1,  'Pb_phase is an axis name');
+is( $space->is_axis_name('Pr'),                 1,  'Pr is an axis name');
+is( $space->is_axis_name('y'),                  1,  'y is an axis name');
+is( $space->is_axis_name('u'),                  1,  'u is an axis name');
+is( $space->is_axis_name('v'),                  1,  'q is an axis name');
+is( $space->is_axis_name('inphase'),            0,  'can not miss  lettter of axis name');
+is( $space->pos_from_axis_name('y'),            0,  'y is the first axis');
+is( $space->pos_from_axis_name('z'),        undef,  'z is not an axis in YUV');
 is( $space->axis_count,                         3,  'color space has 3 axis');
 is( $space->is_euclidean,                       1,  'YUV is euclidean');
 is( $space->is_cylindrical,                     0,  'YUV is not cylindrical');
+is( $space->can_convert('rgb'),                 1,   'do only convert from and to rgb');
+is( $space->can_convert('yuv'),                 0,   'can not convert to itself');
 
 is( ref $space->check_value_shape([0, 0, 0]),  'ARRAY',   'check neutral YUV values are in bounds');
 is( ref $space->check_value_shape([0, -0.5, -0.5]), 'ARRAY',   'check YUV values works on lower bound values');
@@ -36,113 +48,54 @@ is( $space->is_partial_hash({y => 1, Pb => 0}), 1,  'found hash with some keys')
 is( $space->is_partial_hash({Y => 1, U => 0, V => 0}), 1,  'found hash with some axis names');
 is( $space->is_partial_hash({luma => 1, Pb => 0, Pr => 0}), 1, 'found hash with all axis names');
 is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
-
-is( $space->can_convert('rgb'), 1,                  'do only convert from and to rgb');
-is( $space->can_convert('yuv'), 0,                  'can not convert to itself');
 is( $space->format([0,1,2], 'css_string'), 'yuv(0, 1, 2)', 'can format css string');
 
+my $yuv = $space->deformat(['yuv', 1, 0, -0.1]);
+is_tuple( $yuv, [1, 0, -0.1], [qw/Y U V/], 'deformat flat named ARRAY');
 
-my $val = $space->deformat(['yuv', 1, 0, -0.1]);
-is( int @$val,    3,  'deformated value triplet (vector)');
-is( $val->[0],    1,  'first value good');
-is( $val->[1],    0,  'second value good');
-is( $val->[2], -0.1,  'third value good');
-
-
-my $yuv = $space->convert_from( 'RGB', [ 0, 0, 0]);
-is( ref $yuv, 'ARRAY','reconverted black has to be a ARRAY reference');
-is( int @$yuv,  3,    'reconverted black has three YUV values');
-is( $yuv->[0],  0,    'reconverted black has computed right luma value');
-is( $yuv->[1],  0.5,  'reconverted black has computed right Pb');
-is( $yuv->[2],  0.5,  'reconverted black has computed right Pr');
+$yuv = $space->convert_from( 'RGB', [ 0, 0, 0]);
+is_tuple( $yuv, [0, 0.5, 0.5], [qw/Y U V/], 'convert black from RGB');
 
 $yuv = $space->denormalize( [0, 0.5, 0.5] );
-is( ref $yuv, 'ARRAY','denormalized black has to be a ARRAY reference');
-is( int @$yuv,  3,    'denormalized black has three YUV values');
-is( $yuv->[0],  0,    'denormalized black has computed right luma value');
-is( $yuv->[1],  0,    'denormalized black has computed right Pb');
-is( $yuv->[2],  0,    'denormalized black has computed right Pr');
+is_tuple( $yuv, [0, 0, 0], [qw/Y U V/], 'denormalize black in YUV');
 
 $yuv = $space->normalize( [0, 0, 0] );
-is( ref $yuv, 'ARRAY','normalized black has to be a ARRAY reference');
-is( int @$yuv,  3,    'normalized black has three YUV values');
-is( $yuv->[0],  0,    'normalized black has computed right luma value');
-is( $yuv->[1],  0.5,  'normalized black has computed right Pb');
-is( $yuv->[2],  0.5,  'normalized black has computed right Pr');
+is_tuple( $yuv, [0, 0.5, 0.5], [qw/Y U V/], 'normalize black in YUV');
 
 my $rgb = $space->convert_to( 'RGB', [0, 0.5, 0.5]);
-is( int @$rgb,  3,    'converted black has three rgb values');
-is( $rgb->[0],  0,    'converted black has right red value');
-is( $rgb->[1],  0,    'converted black has right green value');
-is( $rgb->[2],  0,    'converted black has right blue value');
-
+is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'convert black to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 1, 1, 1]);
-is( int @$yuv,  3,               'reconverted black has three YUV values');
-is( $yuv->[0],  1, 'reconverted black has computed right luma value');
-is( $yuv->[1], .5, 'reconverted black has computed right Pb');
-is( $yuv->[2], .5, 'reconverted black has computed right Pr');
+is_tuple( $yuv, [1, 0.5, 0.5], [qw/Y U V/], 'convert white from RGB');
 
 $yuv = $space->denormalize( [1, 0.5, 0.5] );
-is( int @$yuv,  3,    'denormalized white has three YUV values');
-is( $yuv->[0],  1,    'denormalized white has computed right luma value');
-is( $yuv->[1],  0,    'denormalized white has computed right Pb');
-is( $yuv->[2],  0,    'denormalized white has computed right Pr');
+is_tuple( $yuv, [1, 0, 0], [qw/Y U V/], 'denormalize white in YUV');
 
 $rgb = $space->convert_to( 'RGB', [1, .5, .5]);
-is( int @$rgb,  3,    'converted white has three rgb values');
-is( $rgb->[0],  1,    'converted white has right red value');
-is( $rgb->[1],  1,    'converted white has right green value');
-is( $rgb->[2],  1,    'converted white has right blue value');
-
+is_tuple( $rgb, [1, 1, 1], [qw/red green blue/], 'convert white to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ .5, .5, .5]);
-is( int @$yuv,  3,                'reconverted gray has three YIQ values');
-is( $yuv->[0],  .5, 'reconverted gray has computed right luma value');
-is( $yuv->[1],  .5, 'reconverted gray has computed right Pb');
-is( $yuv->[2],  .5, 'reconverted gray has computed right Pr');
+is_tuple( $yuv, [.5, .5, .5], [qw/Y U V/], 'convert grey from RGB');
 
 $yuv = $space->denormalize( [0.5, 0.5, 0.5] );
-is( int @$yuv,  3,    'denormalized gray has three YUV values');
-is( $yuv->[0],  0.5,  'denormalized gray has computed right luma value');
-is( $yuv->[1],  0,    'denormalized gray has computed right Pb');
-is( $yuv->[2],  0,    'denormalized gray has computed right Pr');
+is_tuple( $yuv, [.5, 0, 0], [qw/Y U V/], 'denormalize grey in YUV');
 
 $yuv = $space->normalize( [0.5, 0, 0] );
-is( int @$yuv,  3,    'normalized gray has three YUV values');
-is( $yuv->[0],  0.5,  'normalized gray has computed right luma value');
-is( $yuv->[1],  0.5,  'normalized gray has computed right Pb');
-is( $yuv->[2],  0.5,  'normalized gray has computed right Pr');
+is_tuple( $yuv, [.5, .5, .5], [qw/Y U V/], 'denormalize grey in YUV');
 
 $rgb = $space->convert_to( 'RGB', [.5, .5, .5]);
-is( int @$rgb,  3,    'converted white has three rgb values');
-is( $rgb->[0], .5,    'converted white has right red value');
-is( $rgb->[1], .5,    'converted white has right green value');
-is( $rgb->[2], .5,    'converted white has right blue value');
-
+is_tuple( $rgb, [.5, .5, .5], [qw/red green blue/], 'convert grey to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 0.11, 0, 1]);
-is( int @$yuv,  3,                        'converted nice blue from RGB to YUV');
-is( round_decimals( $yuv->[0],5), 0.14689,    'reconverted nice blue has computed right luma value');
-is( round_decimals( $yuv->[1],5), 0.48144+0.5,  'reconverted nice blue has computed right Pb');
-is( round_decimals( $yuv->[2],5), -0.02631+0.5,  'reconverted nice blue has computed right Pr');
+is_tuple( $space->round($yuv, 5), [0.14689, 0.48144+0.5, -0.02631+0.5], [qw/Y U V/], 'convert nice blue from RGB');
 
 $rgb = $space->convert_to( 'RGB', [0.14689, 0.48143904+0.5, -0.026312+0.5]);
-is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
-is( round_decimals( $rgb->[0],5), .11,   'converted nice blue color, has right red value');
-is( round_decimals( $rgb->[1],5),  0,    'converted nice blue color, has right green value');
-is( round_decimals( $rgb->[2],5),  1,    'converted nice blue color, has right blue value');
+is_tuple( $space->round($rgb, 5), [0.11, 0, 1], [qw/red green blue/], 'convert nice blue to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 0.8156, 0.0470588, 0.137254]);
-is( int @$yuv,  3,                'reconverted nice red has three YUV values');
-is( round_decimals( $yuv->[0],5),  0.28713,    'reconverted nice red has computed right luma value');
-is( round_decimals( $yuv->[1],5), -0.08458+0.5,  'reconverted nice red has computed right Pb');
-is( round_decimals( $yuv->[2],5),  0.37694+0.5,  'reconverted nice red has computed right Pr');
+is_tuple( $space->round($yuv, 5), [0.28713, -0.08458+0.5, 0.37694+0.5], [qw/Y U V/], 'convert nice red from RGB');
 
 $rgb = $space->convert_to( 'RGB', [0.2871348716, -0.0845829679232+0.5, 0.3769366478976+0.5]);
-is( int @$rgb,  3,    'converted nice blue color, has three rgb values');
-is( round_decimals( $rgb->[0],5), 0.8156,    'converted red blue color, has right red value');
-is( round_decimals( $rgb->[1],5), 0.04706,    'converted red blue color, has right green value');
-is( round_decimals( $rgb->[2],5), 0.13725,    'converted red blue color, has right blue value');
+is_tuple( $space->round($rgb, 5), [0.8156, 0.04706, 0.13725], [qw/red green blue/], 'convert nice red to RGB');
 
 exit 0;

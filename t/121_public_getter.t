@@ -138,7 +138,7 @@ is( $values->{'h'},           240, '"hue" value is correct');
 is( $values->{'s'},           100, '"saturation" value is correct');
 is( $values->{'l'},            50, '"lightness" value is correct');
 
-my $too_blue = Graphics::Toolkit::Color->new( -1, 10, 256);
+my $too_blue = Graphics::Toolkit::Color->new( color => [-1, 10, 256], raw => 1);
 my @rgb = $too_blue->values(range => 1, precision => 3);
 is( @rgb,                      3, '3 RGB values converted into special range');
 is( $rgb[0],                   0, 'red is 0, clamped up');
@@ -147,9 +147,9 @@ is( $rgb[2],                   1, 'blue is 1, got clamped down');
 
 @rgb = $too_blue->values(raw => 1);
 is( @rgb,                      3, '3 RGB values in raw mode');
-is( $rgb[0],                  -1, 'red is -1, unclamped');
-is( $rgb[1],                  10, 'green is 10');
-is( $rgb[2],                 256, 'blue is 256, unclamped');
+is( $rgb[0],                  -1, 'red value is -1, unclamped');
+is( $rgb[1],                  10, 'green value is 10');
+is( $rgb[2],                 256, 'blue value is 256, unclamped');
 
 @rgb = Graphics::Toolkit::Color->new( color => [4,5,6], range => 10)->values(range => 'normal');
 is( @rgb,                      3, '3 RGB values read with special range');

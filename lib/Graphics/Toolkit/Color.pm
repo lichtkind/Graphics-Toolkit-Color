@@ -29,20 +29,22 @@ sub new {
      6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
      7. HASH or HASH ref with values from RGB or any other space:
         new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
+     8. or use the key 'color' with any SCALAR color definition in order to add
+        the option 'raw' and/or 'range'
 EOH
-    my ($color_def, $range_def) = _compact_color_def_into_scalar( @args );
+    my ($color_def, $range_def, $raw) = _compact_color_def_into_scalar( @args );
     return $help unless defined $color_def;
-    my $self = _new_from_scalar_def( $color_def, $range_def );
+    my $self = _new_from_scalar_def( $color_def, $range_def, $raw );
     return (ref $self) ? $self : $help;
 }
 sub _compact_color_def_into_scalar {
     my (@args) = @_;
     return unless @args;
-    if (lc $args[0] eq 'range' or lc $args[0] eq 'color'){
-		if (@args == 2 and lc $args[0] eq 'color'){ shift @args } # ->new (color => ...) is allowed
-		elsif (@args == 4) {
-			return ($args[1], $args[3]) if lc $args[0] eq 'color' and lc $args[2] eq 'range';
-			return ($args[3], $args[1]) if lc $args[2] eq 'color' and lc $args[0] eq 'range';
+    if (not(@args % 2) and ($args[0] eq 'range' or $args[0] eq 'color' or $args[0] eq 'raw')){
+		if (@args == 2 and $args[0] eq 'color'){ shift @args } # ->new (color => ...) is allowed
+		elsif (@args > 2) {
+			my %h = @args;
+			return (delete( $h{'color'} ), delete( $h{'range'} ), delete( $h{'raw'} )) if @args == %h * 2; # prevent double key use
 	    }
 	    else { return }
 	}
@@ -53,9 +55,9 @@ sub _compact_color_def_into_scalar {
     return (@args == 1) ? $args[0] : undef;
 }
 sub _new_from_scalar_def { # color defs of method arguments
-    my ($color_def, $range_def) = @_;
+    my ($color_def, $range_def, $raw) = @_;
     return $color_def if ref $color_def eq __PACKAGE__;
-    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def ) );
+    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def, $raw ) );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
@@ -216,10 +218,23 @@ sub apply {
         gamma => 2.2,          # reverse is with 1 / 2.2
         in => 'OKlab',         # compute in oklab space
 EOH
-    return $arg.$help unless ref $arg;# 'ARRAY' length == axis
+    return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::apply_gamma( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
+}
+
+sub clamp {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'in', [], {in => undef, range => undef} ); 
+    my $help = <<EOH;
+    GTC method 'apply' accepts one named argument with a numeric value:
+    clamp ( ...
+        in => 'OKlab',         # clamp in oklab space to default ranges
+        range => 100,          # clamp to 0 .. 100 ranges
+EOH
+    return $arg.$help unless ref $arg;
+    #_new_from_value_obj( Graphics::Toolkit::Color::Calculator::clamp( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
 }
 
 sub set_value {
@@ -565,12 +580,12 @@ The color name will be normalized as described above.
     my @schemes = Graphics::ColorNames::all_schemes();    # look up the installed
 
 
-=head2 new( color => .., range => ..)
+=head2 new( color => .., range => .., raw => ..)
 
 In the rare occasion you are given a color definition with values in a 
 none standard range, you will need a mechanism to tell GTC what ranges
 to use when reading the color definition. This is also imortant in 
-combination with wide gamut spaces such as I<AppleRGB> that use either
+combination with wider gamut spaces such as I<ProPhotoRGB> that use either
 normalized values or several huge none standard ranges, in order to get
 a similar resolution for the normal colors as stadard RGB.
 
@@ -579,6 +594,16 @@ as described above. The second argument that can be L</range>.
 
     my $color = Graphics::Toolkit::Color->new( 
                  color => [AppleRGB => [1438, 374, 8285]], range => 2**32
+    );
+    
+The second reason to use the B<color> argument is to combine it with B<raw>.
+Then the values will be not be clamped into range, taken as is.
+You might want to use the argument I<raw> also on the method I<values>.
+This is the only way to calculate with imaginary colors.
+But please note this might cause some functions not to work as inteded.
+
+    my $color = Graphics::Toolkit::Color->new( 
+                 color => {r => 0, g => 0, b => 256}, raw => 1
     );
 
 
@@ -813,6 +838,9 @@ The argument L</in> determines in which space the carlculation takes place:
 
 Applying a gamma value mages only sense in euclidean spaces with the origin
 in one corner of the space like I<RGB> or I<CIEXYZ>.
+
+
+=head2 clamp
 
 
 =head2 set_value

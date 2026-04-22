@@ -11,7 +11,7 @@ my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 #### constructor #######################################################
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
-    my ($pkg, $color_def, $range_def) = @_;
+    my ($pkg, $color_def, $range_def, $raw) = @_;
     return "Can not create color value object without color definition!" unless defined $color_def;
     if (not ref $color_def) { # try to resolve color name
         my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
@@ -22,15 +22,16 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
     }
     my ($tuple, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
     return "could not recognize color value format or color name: $color_def" unless ref $tuple;
-    new_from_tuple( '', $tuple, $space_name, $range_def);
+    new_from_tuple( '', $tuple, $space_name, $range_def, $raw);
 }
 sub new_from_tuple { #
-    my ($pkg, $tuple, $space_name, $range_def) = @_;
+    my ($pkg, $tuple, $space_name, $range_def, $raw) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return $color_space unless ref $color_space;
     return "Need ARRAY of ".$color_space->axis_count." ".$color_space->name." values as first argument!"
         unless $color_space->is_value_tuple( $tuple );
     $tuple = $color_space->normalize( $tuple, $range_def );
+    $tuple = $color_space->clamp( $tuple, 'normal' ) unless defined $raw and $raw;
 
     # convert into RGB if needed
     my $source_tuple = '';

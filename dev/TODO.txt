@@ -2,8 +2,7 @@ TODO:
 ------
    
  = 2.2:
-   + complement can select space
-     Jzazbz / JzCzhz, HSLuv / HPLuv
+   + Jzazbz / JzCzhz, HSLuv / HPLuv
      OKHSL, OKHSV, OKHWB, HSI, Yxy
    + cammut mapping
    + complemement in selectable cylidrical space

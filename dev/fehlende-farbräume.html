@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fehlende Farbräume</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --surface2: #edeae4;
+    --border: #d8d4cc;
+    --text: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-dim: #7a7a7a;
+    --accent-red: #c0392b;
+    --accent-green: #1a8a5c;
+    --accent-blue: #2563a8;
+    --accent-yellow: #b58a0a;
+    --accent-cyan: #0e7c8c;
+    --accent-purple: #6a3ea1;
+    --accent-orange: #c06020;
+    --accent-pink: #a03070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.65;
+  }
+
+  .hero {
+    padding: 60px 40px 40px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1rem;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .legend-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .p-high { background: #c0392b18; color: var(--accent-red); border: 1px solid #c0392b30; }
+  .p-mid { background: #b58a0a14; color: var(--accent-yellow); border: 1px solid #b58a0a28; }
+  .p-low { background: #7a7a7a12; color: var(--text-dim); border: 1px solid #7a7a7a22; }
+
+  .category { margin-bottom: 48px; }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .category-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .category-header h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 1.3rem;
+    color: var(--text);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 10px;
+    transition: box-shadow 0.2s;
+  }
+
+  .card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .card h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .card .priority {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .card .axes {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-cyan);
+    margin-bottom: 8px;
+  }
+
+  .card .desc {
+    font-size: 0.88rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .card .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .card .meta-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .card .meta-tag.conv { color: var(--accent-blue); background: #2563a80a; border-color: #2563a820; }
+  .card .meta-tag.year { color: var(--accent-purple); background: #6a3ea10a; border-color: #6a3ea120; }
+  .card .meta-tag.use { color: var(--accent-green); background: #1a8a5c0a; border-color: #1a8a5c20; }
+  .card .meta-tag.spec { color: var(--accent-orange); background: #c060200a; border-color: #c0602020; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 30px; }
+    .container { padding: 0 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Noch fehlende Farbräume</h1>
+  <p>Nach Abzug aller bereits implementierten &amp; proprietären</p>
+</div>
+
+<div class="container">
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-tag p-high">Hoch</span> CSS / allgegenwärtig</div>
+  <div class="legend-item"><span class="legend-tag p-mid">Mittel</span> Domänenspezifisch wichtig</div>
+  <div class="legend-item"><span class="legend-tag p-low">Nische</span> Spezialisiert</div>
+</div>
+
+<!-- ═══════════════════ CIE ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-blue)"></div>
+    <h2>CIE-Referenz</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>CIE xyY</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">x · y (Chromatizität) · Y (Luminanz)</div>
+    <div class="desc">Die normierte Projektion von XYZ, die das berühmte CIE-Hufeisendiagramm erzeugt. Trennt Farbe (x, y) vollständig von Helligkeit (Y). Unverzichtbar für Gamut-Visualisierungen, Farbtemperatur-Berechnungen und die Definition von Weißpunkten (D50, D65 etc.). Jeder Monitor-Datenblatt zeigt den Gamut als xy-Polygon. Da du XYZ bereits hast, ist die Konvertierung trivial: nur eine Division.</div>
+    <div class="meta">
+      <span class="meta-tag year">1931</span>
+      <span class="meta-tag conv">x=X/(X+Y+Z)</span>
+      <span class="meta-tag use">Gamut-Diagramme</span>
+      <span class="meta-tag use">Weißpunkte</span>
+      <span class="meta-tag use">Farbtemperatur</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>CIE 1960 UCS</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">u · v · Y</div>
+    <div class="desc">Versuch der CIE, eine gleichmäßigere Chromatizitätsdarstellung als xy zu schaffen. Die u,v-Ebene hat weniger Verzerrung als die x,y-Ebene, besonders im Grünbereich. Hauptanwendung heute: Berechnung der korrelierten Farbtemperatur (CCT) und des Duv-Werts (Abstand zur Planckschen Kurve). Wurde 1976 durch u',v' (CIE 1976 UCS) ersetzt, aber die 1960-Version bleibt für CCT der Standard.</div>
+    <div class="meta">
+      <span class="meta-tag year">1960</span>
+      <span class="meta-tag conv">u=4X/(X+15Y+3Z)</span>
+      <span class="meta-tag use">CCT-Berechnung</span>
+      <span class="meta-tag use">Duv-Werte</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Zylindrisch ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-green)"></div>
+    <h2>Zylindrische Farbräume</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>HSI</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">Hue · Saturation · Intensity</div>
+    <div class="desc">Die dritte Variante der HSx-Familie neben HSV und HSL. Intensity ist der arithmetische Mittelwert der RGB-Kanäle: I=(R+G+B)/3. Dies macht HSI besonders nützlich in der Bildverarbeitung und Computer Vision, weil der I-Kanal eine physikalisch sinnvolle Helligkeitsgröße darstellt. Farbsegmentierung, Histogrammausgleich auf dem I-Kanal, Beleuchtungskompensation — überall dort, wo man Farbe und Helligkeit sauber trennen will. Die Hue-Berechnung nutzt eine Arccos-Formel statt der stückweisen Lineartransformation von HSV/HSL.</div>
+    <div class="meta">
+      <span class="meta-tag conv">Arccos-Formel für H</span>
+      <span class="meta-tag conv">I=(R+G+B)/3</span>
+      <span class="meta-tag use">Computer Vision</span>
+      <span class="meta-tag use">Bildverarbeitung</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>HSLuv</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">H · S (0–100%) · L</div>
+    <div class="desc">Löst das größte Problem von HSL: gleiche Sättigungs- und Helligkeitswerte sehen bei verschiedenen Hues völlig unterschiedlich aus. HSLuv basiert auf CIELCh(uv), streckt aber das Chroma so, dass jeder Hue denselben Sättigungsbereich (0–100%) hat. Das Ergebnis: Farben mit gleichem S und L sehen auch gleich gesättigt und hell aus. Ideal für algorithmische Palettengenerierung. Open-Source-Referenzimplementierungen existieren in vielen Sprachen. Du brauchst CIELUV als Voraussetzung (hast du).</div>
+    <div class="meta">
+      <span class="meta-tag year">2012</span>
+      <span class="meta-tag conv">CIELCh(uv) + Gamut-Stretching</span>
+      <span class="meta-tag use">Palettengenerierung</span>
+      <span class="meta-tag use">UI-Design</span>
+      <span class="meta-tag spec">Open Source (MIT)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Wahrnehmungsbasiert ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-purple)"></div>
+    <h2>Moderne wahrnehmungsbasierte Räume</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>OKLCh</h3><span class="priority p-high">Hoch</span></div>
+    <div class="axes">L (Lightness) · C (Chroma) · h (Hue °)</div>
+    <div class="desc">Die zylindrische (polare) Form von OKLab — und der Farbraum, der HSL im Web ablösen wird. Seit CSS Color Level 4 in allen großen Browsern unterstützt via oklch(). L, C und h sind intuitiv verständlich und wahrnehmungsgleichmäßig: gleiche L-Werte sehen gleich hell aus (anders als bei HSL). Wird bereits in Figma-Plugins, Tailwind CSS v4, und Palette-Tools wie Huetone eingesetzt. Da du OKLab hast, ist die Konvertierung nur C=√(a²+b²), h=atan2(b,a).</div>
+    <div class="meta">
+      <span class="meta-tag year">2020</span>
+      <span class="meta-tag conv">Polar von OKLab</span>
+      <span class="meta-tag use">CSS oklch()</span>
+      <span class="meta-tag use">Design-Systeme</span>
+      <span class="meta-tag use">Gradients</span>
+      <span class="meta-tag spec">CSS Color 4</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>JzAzBz</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">Jz (Lightness) · Az (Rot↔Grün) · Bz (Gelb↔Blau)</div>
+    <div class="desc">Ein wahrnehmungsgleichmäßiger Farbraum, der auch High Dynamic Range (HDR) abdeckt — CIELAB kann das nicht. Nutzt die Dolby Perceptual Quantizer (PQ) Transferfunktion aus Rec.2100, um Leuchtdichten bis 10.000 cd/m² zu kodieren. Veröffentlicht von Safdar, Cui, Kim & Luo (2017). Die Farbdifferenz wird als einfache euklidische Distanz berechnet, was ihn für HDR-Colorimetrie und Bildqualitätsbewertung praktisch macht. Komplexer als OKLab, aber für HDR-Workflows unverzichtbar.</div>
+    <div class="meta">
+      <span class="meta-tag year">2017</span>
+      <span class="meta-tag conv">XYZ → LMS (mod.) → PQ EOTF → Matrix</span>
+      <span class="meta-tag use">HDR-Colorimetrie</span>
+      <span class="meta-tag use">Bildqualität (SSIM)</span>
+      <span class="meta-tag spec">Open / Opt. Express</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>JzCzHz</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">Jz · Cz (Chroma) · Hz (Hue °)</div>
+    <div class="desc">Die zylindrische Form von JzAzBz, analog zum Verhältnis OKLCh→OKLab oder CIELCh→CIELAB. Gleiche Konvertierung: Cz=√(Az²+Bz²), Hz=atan2(Bz,Az). Nützlich wenn du in HDR-Workflows Hue und Chroma separat manipulieren willst. Fällt praktisch kostenlos ab wenn du JzAzBz hast.</div>
+    <div class="meta">
+      <span class="meta-tag year">2017</span>
+      <span class="meta-tag conv">Polar von JzAzBz — trivial</span>
+      <span class="meta-tag use">HDR-Farbdifferenz</span>
+      <span class="meta-tag use">Hue-Manipulation</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>ICtCp</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">I (Intensität) · Ct (Tritan-Achse) · Cp (Protan-Achse)</div>
+    <div class="desc">Von Dolby entwickelt und in ITU-R BT.2100 standardisiert. Ähnliches Ziel wie JzAzBz — wahrnehmungsgleichmäßig für HDR — aber direkt in den Broadcast-Standard integriert. Die Achsen sind nach den Zapfentypen des Auges benannt (Protan/Tritan). Bietet bessere Chroma-Gleichmäßigkeit als YCbCr und ist der empfohlene Ersatz für Farbdifferenz-Berechnungen in HDR-Video. Teilt sich die PQ-Transferfunktion mit JzAzBz.</div>
+    <div class="meta">
+      <span class="meta-tag year">2016</span>
+      <span class="meta-tag conv">XYZ → LMS → PQ → 3×3 Matrix</span>
+      <span class="meta-tag use">HDR-Video (BT.2100)</span>
+      <span class="meta-tag use">Dolby Vision</span>
+      <span class="meta-tag spec">ITU-R BT.2100</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>IPT</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">I (Lightness) · P (Protan, Rot↔Grün) · T (Tritan, Gelb↔Blau)</div>
+    <div class="desc">Der Vorläufer, auf dem OKLab aufbaut. Ebner & Fairchild (1998) optimierten die LMS-zu-IPT-Matrix speziell für Hue-Linearität — d.h. Linien gleichen Farbtons im IPT-Raum sind tatsächlich gerade. OKLab übernahm diese Struktur und verbesserte Lightness und Chroma. IPT zu implementieren ist trotzdem sinnvoll als historische Referenz und weil es in einigen älteren Pipelines noch genutzt wird.</div>
+    <div class="meta">
+      <span class="meta-tag year">1998</span>
+      <span class="meta-tag conv">XYZ → LMS (Hunt-Pointer-Estévez) → x^0.43 → Matrix</span>
+      <span class="meta-tag use">Hue-Linearität</span>
+      <span class="meta-tag use">OKLab-Vorläufer</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CAMs ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-orange)"></div>
+    <h2>Color Appearance Models</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>CIECAM02</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">J (Lightness) · C (Chroma) · h (Hue) + M, s, Q, H</div>
+    <div class="desc">Das offizielle Color Appearance Model der CIE. Berücksichtigt Betrachtungsbedingungen wie Umgebungshelligkeit, adaptierenden Weißpunkt und Surround-Typ (dunkel/mittel/hell). Berechnet nicht nur Farbe, sondern wie eine Farbe unter bestimmten Bedingungen wahrgenommen wird. Deutlich komplexer als CIELAB — man muss Viewing Conditions als Parameter übergeben. Wichtig für Cross-Media-Farbabgleich (z.B. Monitor vs. Druck unter verschiedenen Beleuchtungen). Wurde 2016 von CAM16 abgelöst, bleibt aber relevant.</div>
+    <div class="meta">
+      <span class="meta-tag year">2002</span>
+      <span class="meta-tag conv">XYZ → Chromatic Adaptation (CAT02) → Response Compression</span>
+      <span class="meta-tag use">Cross-Media-Matching</span>
+      <span class="meta-tag use">ICC-Profile</span>
+      <span class="meta-tag spec">CIE 159:2004</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>CAM16</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">J · C · h (+ M, s, Q, H)</div>
+    <div class="desc">Der verbesserte Nachfolger von CIECAM02. Li, Li, Wang, Zu, Luo & Cui (2017) behielten die Grundstruktur bei, eliminierten aber mathematische Singularitäten und verbesserten die chromatische Adaptation. Die CAT16-Matrix ersetzt CAT02. CAM16 ist außerdem die Basis für Googles HCT-Farbraum in Material Design 3. Wenn du HCT implementieren willst, brauchst du zuerst CAM16.</div>
+    <div class="meta">
+      <span class="meta-tag year">2017</span>
+      <span class="meta-tag conv">XYZ → CAT16 → Response Compression → Perceptual Attributes</span>
+      <span class="meta-tag use">Basis für HCT</span>
+      <span class="meta-tag use">Farberscheinung</span>
+      <span class="meta-tag spec">Color Res. & Appl. 42(6)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>CAM16-UCS</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">J' · a' · b'</div>
+    <div class="desc">Ein Uniform Color Space, der aus CAM16 abgeleitet wird. Wendet eine logarithmische Kompression auf J und M an und transformiert dann M und h in kartesische a'/b'-Koordinaten. Ziel: euklidische Distanzen in diesem Raum entsprechen wahrgenommenen Farbunterschieden. Drei Varianten existieren (LCD, SCD, UCS) für verschiedene Farbdifferenz-Skalen. Nützlich für Gamut-Mapping-Algorithmen.</div>
+    <div class="meta">
+      <span class="meta-tag year">2017</span>
+      <span class="meta-tag conv">CAM16 J,M,h → log. Kompression → Kartesisch</span>
+      <span class="meta-tag use">Farbdifferenz (ΔE)</span>
+      <span class="meta-tag use">Gamut-Mapping</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>HCT</h3><span class="priority p-high">Hoch</span></div>
+    <div class="axes">H (Hue 0°–360°) · C (Chroma 0–~120) · T (Tone 0–100)</div>
+    <div class="desc">Googles Farbraum für Material Design 3 (Material You). Ein Hybrid: Hue und Chroma kommen aus CAM16, Tone entspricht CIELAB L*. Der Clou: bei gleichem Tone-Wert haben Farben den gleichen wahrgenommenen Kontrast zu Weiß/Schwarz — essentiell für Barrierefreiheit. Google nutzt HCT für die automatische Palettengenerierung aus einem Seed-Color. Weit verbreitet in Android-Apps. Die Konvertierung ist invertierbar aber iterativ (Bisection auf L* um das gewünschte Tone zu treffen).</div>
+    <div class="meta">
+      <span class="meta-tag year">2021</span>
+      <span class="meta-tag conv">Benötigt CAM16 + CIELAB</span>
+      <span class="meta-tag conv">Inverse: iterativ (Bisection)</span>
+      <span class="meta-tag use">Material Design 3</span>
+      <span class="meta-tag use">Android Theming</span>
+      <span class="meta-tag use">A11y-Kontrast</span>
+      <span class="meta-tag spec">Open Source (Apache 2.0)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Video ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-yellow)"></div>
+    <h2>Video &amp; Codec</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>YCbCr</h3><span class="priority p-high">Hoch</span></div>
+    <div class="axes">Y (Luma) · Cb (Blau-Differenz) · Cr (Rot-Differenz)</div>
+    <div class="desc">Der De-facto-Standard für digitales Video und Bildkompression. JPEG, MPEG-2, H.264, H.265, VP9, AV1 — alle nutzen YCbCr. Die Trennung in Luminanz (Y) und Chrominanz (Cb, Cr) ermöglicht Chroma-Subsampling (4:2:0, 4:2:2), was die Datenmenge drastisch reduziert, weil das Auge für Farbdetails weniger empfindlich ist. Achtung: die Koeffizienten variieren je nach Standard — BT.601 (SD), BT.709 (HD), BT.2020 (UHD) verwenden unterschiedliche Gewichtungen. Alle sind lineare Matrixtransformationen.</div>
+    <div class="meta">
+      <span class="meta-tag conv">Lineare Matrix, 3 Varianten (601/709/2020)</span>
+      <span class="meta-tag use">JPEG</span>
+      <span class="meta-tag use">H.264/265</span>
+      <span class="meta-tag use">Chroma-Subsampling</span>
+      <span class="meta-tag spec">ITU-R BT.601/709/2020</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>YDbDr</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">Y · Db · Dr</div>
+    <div class="desc">Die Farbdifferenz-Kodierung des französischen SECAM-Fernsehsystems. Mathematisch eine skalierte und rotierte Version von YUV. Db und Dr werden mit den Faktoren 3.059 bzw. −2.169 aus U und V berechnet. Heute nur noch relevant wenn du Legacy-SECAM-Videomaterial verarbeiten musst oder eine vollständige Sammlung analoger TV-Farbräume anstrebst.</div>
+    <div class="meta">
+      <span class="meta-tag year">1967</span>
+      <span class="meta-tag conv">Skalierte YUV-Transformation</span>
+      <span class="meta-tag use">SECAM-TV</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>XYB</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">X · Y · B</div>
+    <div class="desc">Der interne Farbraum von JPEG XL (ISO 18181). Inspiriert vom menschlichen Sehsystem (LMS-Zapfen), verwendet eine Gamma-3-Transferfunktion für effiziente Dekodierung. Die Besonderheit: der Y-Kanal wird von B subtrahiert (Chroma-from-Luma), sodass achromantische Farben bei X=0, B=0 liegen. Dies ermöglicht wahrnehmungsorientierte Quantisierung — ähnliche Farben bekommen ähnliche Codes. Wird zunehmend relevant da JPEG XL Browser-Support gewinnt.</div>
+    <div class="meta">
+      <span class="meta-tag year">2020</span>
+      <span class="meta-tag conv">Linear sRGB → LMS-ähnlich → Gamma 3 → Chroma-from-Luma</span>
+      <span class="meta-tag use">JPEG XL</span>
+      <span class="meta-tag use">Bildkompression</span>
+      <span class="meta-tag spec">ISO 18181</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>Rec. 2100 PQ</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">R · G · B (Perceptual Quantizer TRC)</div>
+    <div class="desc">Der HDR-Standard mit Dolbys Perceptual Quantizer Transferfunktion (SMPTE ST 2084). Kodiert absolute Leuchtdichte bis 10.000 cd/m² — im Gegensatz zu SDR, das relative Werte nutzt. Die PQ-Kurve ist an die Wahrnehmungsschwelle des Auges angepasst: gleiche Codeword-Differenzen ≈ gleiche wahrgenommene Helligkeitsunterschiede. Nutzt Rec.2020-Primärfarben. Standard für HDR10 und Dolby Vision.</div>
+    <div class="meta">
+      <span class="meta-tag year">2016</span>
+      <span class="meta-tag conv">PQ EOTF (ST 2084) + Rec.2020-Matrix</span>
+      <span class="meta-tag use">HDR10</span>
+      <span class="meta-tag use">Dolby Vision</span>
+      <span class="meta-tag spec">ITU-R BT.2100</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>Rec. 2100 HLG</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">R · G · B (Hybrid Log-Gamma TRC)</div>
+    <div class="desc">Der alternative HDR-Standard, entwickelt von BBC und NHK. Anders als PQ ist HLG szenenrelativ (nicht display-relativ) und abwärtskompatibel mit SDR-Displays — ein HLG-Signal sieht auf einem SDR-Fernseher noch vernünftig aus, nur ohne HDR-Effekt. Die Transferfunktion ist ein Hybrid: linear im unteren Bereich, logarithmisch im oberen. Gleiche Rec.2020-Primärfarben wie PQ. Standard für HDR-Broadcast in Europa und Japan.</div>
+    <div class="meta">
+      <span class="meta-tag year">2015</span>
+      <span class="meta-tag conv">HLG OETF (linear+log hybrid) + Rec.2020-Matrix</span>
+      <span class="meta-tag use">HDR-Broadcast</span>
+      <span class="meta-tag use">BBC/NHK</span>
+      <span class="meta-tag use">SDR-kompatibel</span>
+      <span class="meta-tag spec">ITU-R BT.2100</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Subtraktiv ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-pink)"></div>
+    <h2>Subtraktive Mischung</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>RYB</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">Red · Yellow · Blue</div>
+    <div class="desc">Das traditionelle Künstler-Farbmodell mit Rot, Gelb und Blau als Primärfarben. Keine physikalisch oder mathematisch strenge Definition — es basiert auf Pigmentmisch-Intuition, nicht auf Spektralphysik. Die gängigste Konvertierungsmethode stammt von Gosset & Chen (2004): man definiert 8 Ankerpunkte (die RGB-Würfelecken mapped auf RYB-Werte) und interpoliert trilinear dazwischen. Die Transformation ist nicht perfekt invertierbar. Nützlich für „künstlerische" Farbrad-Tools.</div>
+    <div class="meta">
+      <span class="meta-tag conv">Kubische Interpolation (8 Ankerpunkte)</span>
+      <span class="meta-tag conv">Nicht perfekt invertierbar</span>
+      <span class="meta-tag use">Künstler-Farbrad</span>
+      <span class="meta-tag use">Komplementärfarben</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ACES ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--accent-cyan)"></div>
+    <h2>Film &amp; VFX (ACES)</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>ACES 2065-1</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">R · G · B (AP0 Primaries, linear, D60)</div>
+    <div class="desc">Das Archivformat des Academy Color Encoding System. Die AP0-Primärfarben umschließen den gesamten sichtbaren Gamut der CIE-Hufeisen — bewusst größer als nötig, damit keine Farbe bei der Archivierung verloren geht. Linear kodiert (kein Gamma), D60-Weißpunkt (ein Kompromiss zwischen D50/Druck und D65/Video). Wird als Austauschformat zwischen Kameras, VFX und Postproduktion genutzt. Die Konvertierung ist eine 3×3-Matrix über XYZ mit chromatischer Adaptation D65↔D60.</div>
+    <div class="meta">
+      <span class="meta-tag year">2014</span>
+      <span class="meta-tag conv">3×3 Matrix zu XYZ (D60), Bradford-Adaptation</span>
+      <span class="meta-tag use">Film-Archivierung</span>
+      <span class="meta-tag use">Austauschformat</span>
+      <span class="meta-tag spec">SMPTE ST 2065-1</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>ACEScg</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">R · G · B (AP1 Primaries, linear, D60)</div>
+    <div class="desc">Der Arbeitsfarbraum für Computer Graphics und VFX innerhalb der ACES-Pipeline. AP1-Primärfarben sind kleiner als AP0 und erzeugen keine imaginären Farben — wichtig für physikalisch basiertes Rendering, wo negative Werte Probleme verursachen. Linear kodiert für korrekte Beleuchtungsberechnungen. Standard in Unreal Engine, Unity, Blender (mit ACES-Config), Nuke, Maya. Gleicher D60-Weißpunkt wie ACES 2065-1.</div>
+    <div class="meta">
+      <span class="meta-tag year">2014</span>
+      <span class="meta-tag conv">3×3 Matrix zu XYZ (D60)</span>
+      <span class="meta-tag use">3D-Rendering</span>
+      <span class="meta-tag use">VFX-Compositing</span>
+      <span class="meta-tag spec">SMPTE ST 2065-1 (AP1)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>ACEScc</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">R · G · B (logarithmisch kodiert)</div>
+    <div class="desc">ACEScg mit einer logarithmischen Transferfunktion. Entwickelt für Color Grading, weil Coloristen an Log-kodierte Bilder gewöhnt sind (wie Cineon/DPX). Die Log-Kurve komprimiert den Dynamikumfang so, dass Grading-Regler sich „natürlich" anfühlen. Achtung: ACEScc hat keinen linearen Bereich nahe Schwarz, was bei manchen Grading-Operationen zu Artefakten führen kann — dafür gibt es ACEScct.</div>
+    <div class="meta">
+      <span class="meta-tag year">2014</span>
+      <span class="meta-tag conv">log₂-basierte Funktion auf ACEScg</span>
+      <span class="meta-tag use">Color Grading</span>
+      <span class="meta-tag spec">ACES TB-2014-004</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>ACEScct</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">R · G · B (log + linearer Toe)</div>
+    <div class="desc">Die verbesserte Version von ACEScc, mit einem linearen Toe-Segment nahe Schwarz (unter 0.0078125). Dies verhindert die „unendliche Dunkelheit" von ACEScc bei Werten nahe Null und fühlt sich für Coloristen vertrauter an, weil es sich ähnlich wie Cineon/LogC verhält. In der Praxis bevorzugen die meisten Coloristen ACEScct über ACEScc. Die Umschaltung zwischen beiden ist minimal — nur die Transferfunktion im unteren Bereich unterscheidet sich.</div>
+    <div class="meta">
+      <span class="meta-tag year">2016</span>
+      <span class="meta-tag conv">Modifizierte log₂-Funktion mit linearem Segment</span>
+      <span class="meta-tag use">Color Grading (bevorzugt)</span>
+      <span class="meta-tag spec">ACES TB-2014-004.2</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Spezial ═══════════════════ -->
+<div class="category">
+  <div class="category-header">
+    <div class="category-dot" style="background: var(--text-dim)"></div>
+    <h2>Spezial</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>LMS</h3><span class="priority p-mid">Mittel</span></div>
+    <div class="axes">L (Long ~564nm) · M (Medium ~534nm) · S (Short ~420nm)</div>
+    <div class="desc">Beschreibt Farben als Stimulation der drei Zapfentypen des menschlichen Auges. Kein einzelner definierter Farbraum, sondern eine Familie — verschiedene Matrizen existieren für die XYZ→LMS-Transformation: Hunt-Pointer-Estévez (HPE), Bradford, CAT02, CAT16, die Sharp-Matrix, etc. LMS ist die Basis für chromatische Adaptationsmodelle (von-Kries-Adaptation: Skalierung der L/M/S-Kanäle) und damit für alle CAMs. Auch wichtig für Farbenblindheits-Simulation: Protanopie = L-Zapfen defekt, etc.</div>
+    <div class="meta">
+      <span class="meta-tag conv">3×3 Matrix von XYZ (verschiedene Varianten)</span>
+      <span class="meta-tag use">Chromatische Adaptation</span>
+      <span class="meta-tag use">Farbenblindheits-Simulation</span>
+      <span class="meta-tag use">Basis für CAMs</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-top"><h3>DIN99o</h3><span class="priority p-low">Nische</span></div>
+    <div class="axes">L99 · a99 · b99</div>
+    <div class="desc">Vom Deutschen Institut für Normung (DIN 6176) als optimierte Version von CIELAB entwickelt. Ziel: die Farbdifferenzformel ΔE so zu verbessern, dass euklidische Distanzen besser mit der menschlichen Wahrnehmung übereinstimmen — ohne den Overhead eines vollen CAMs. Die „o"-Variante (optimiert) ist die aktuelle Version. Wird in der deutschen Industrie für Qualitätskontrolle eingesetzt (Lack, Textil, Kunststoff). Die Transformation von CIELAB ist nichtlinear aber geschlossen (keine Iteration).</div>
+    <div class="meta">
+      <span class="meta-tag year">2003 (rev.)</span>
+      <span class="meta-tag conv">Nichtlineare Transformation von CIELAB L*, a*, b*</span>
+      <span class="meta-tag use">Industrielle QS</span>
+      <span class="meta-tag use">Farbdifferenz (DIN ΔE)</span>
+      <span class="meta-tag spec">DIN 6176</span>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

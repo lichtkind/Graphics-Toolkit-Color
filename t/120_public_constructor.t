@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 80;
+use Test::More tests => 82;
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color';
@@ -78,6 +78,8 @@ is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $modu
 is( ref Graphics::Toolkit::Color->new( X => 0, Y => 0, Z => 0),            $module, 'XYZ short hash (has no long names)');
 is( ref Graphics::Toolkit::Color->new( color => [4,5,6], range => 10),     $module, 'use color/range arguments for cutom ranged color');
 is( ref Graphics::Toolkit::Color->new( range => 10, color => [4,5,6] ),    $module, 'args work in reverse order too');
+is( ref Graphics::Toolkit::Color->new( raw => 10, color => [4,5,6] ),      $module, 'do not clamp values');
+is( ref Graphics::Toolkit::Color->new( raw => 10, range => [4,5,6] ),           '', 'there has to be a color');
 is( ref Graphics::Toolkit::Color->new( color => 'green', color => [4,5,6] ),    '', 'use arg color only once');
 
 is( ref color( Y => 0, U => 0, V => 100),          $module, 'short named constructor method');

@@ -6,7 +6,6 @@ use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
 use Test::More tests => 73;
 
-my $rgb_axis   = [qw/red green blue/];
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
@@ -68,30 +67,30 @@ is( uc $space->format([ 10, 20, 30],'hex_strinG'), '#0A141E',     'converted ran
 
 ($rgb, my $name) = $space->deformat('#332200');
 is( $name,  'hex_string', 'recognized long hex string format');
-is_tuple( $rgb, [51, 34, 0], $rgb_axis, 'got right values from long hex_string');
+is_tuple( $rgb, [51, 34, 0], [qw/red green blue/], 'got right values from long hex_string');
 
 ($rgb, $name) = $space->deformat('#DEF');
 is( $name,  'hex_string', 'recognized short hex_string format');
-is_tuple( $rgb, [221, 238, 255], $rgb_axis, 'got right values from short hex_string');
+is_tuple( $rgb, [221, 238, 255], [qw/red green blue/], 'got right values from short hex_string');
 
 ($rgb, $name) = $space->deformat([33, 44, 55]);
 is( $name,     'array', 'could deformat ARRAY ref (RGB special)');
-is_tuple( $rgb, [33, 44, 55], $rgb_axis, 'got right values from ARRAY');
+is_tuple( $rgb, [33, 44, 55], [qw/red green blue/], 'got right values from ARRAY');
 
 ($rgb, $name) = $space->deformat([rgb => 11, 22, 256]);
 is( $name,     'named_array', 'recognized named_string format with in values');
-is_tuple( $rgb, [11, 22, 256], $rgb_axis, 'got right values from named_string');
+is_tuple( $rgb, [11, 22, 256], [qw/red green blue/], 'got right values from named_string');
 
 $rgb = $space->deformat(['CMY', 11, 22, 33]);
 is( $rgb->[0],  undef,  'OO deformat reacts only to right name');
 
 ($rgb, $name) = $space->deformat('RGB: -1, 256, 3.3 ');
 is( $name,  'named_string', 'recognized named_string format');
-is_tuple( $rgb, [-1, 256, 3.3], $rgb_axis, 'got right values from named_string');
+is_tuple( $rgb, [-1, 256, 3.3], [qw/red green blue/], 'got right values from named_string');
 
 ($rgb, $name) = $space->deformat('rgb:0,1,2');
 is( $name,  'named_string', 'recognized named_string format without spaces between comma');
-is_tuple( $rgb, [0, 1, 2], $rgb_axis, 'got right values from named_string');
+is_tuple( $rgb, [0, 1, 2], [qw/red green blue/], 'got right values from named_string');
 
 $rgb = $space->deformat('cmy: 1,2,3.3');
 is( $rgb->[0],  undef,  'deformat STRING reacts only to right space name');
@@ -99,7 +98,7 @@ is( $space->format([0,256,3.3], 'named_string'), 'rgb: 0, 256, 3.3', 'formated r
 
 ($rgb, $name) = $space->deformat('rgb( -1 , 2.3, 4444)');
 is( $name,    'css_string', 'recognized css_string format');
-is_tuple( $rgb, [-1, 2.3, 4444], $rgb_axis, 'got right values from CSS_string');
+is_tuple( $rgb, [-1, 2.3, 4444], [qw/red green blue/], 'got right values from CSS_string');
 
 is( $space->format([-1,2.3,4444], 'css_string'), 'rgb(-1, 2.3, 4444)', 'formated rgb triplet into css string');
 
@@ -114,9 +113,9 @@ is( $rgb->[3],    3.3,   'blue still has decimal');
 is( $space->format([10,20,30], 'hex_string'), '#0A141E', 'formated rgb triplet into hex string');
 
 my $d = $space->delta( [0,44,256], [256,88,0] );
-is_tuple( $d, [256, 44, -256], $rgb_axis, 'computes in standard range distance');
+is_tuple( $d, [256, 44, -256], [qw/red green blue/], 'computes in standard range distance');
 
 $rgb = $space->denormalize( [0.3, 0.4, 0.5], 255, 0 );
-is_tuple( $rgb, [76.5, 102, 127.5], $rgb_axis, 'denormalized tuple');
+is_tuple( $rgb, [76.5, 102, 127.5], [qw/red green blue/], 'denormalized tuple');
 
 exit 0;

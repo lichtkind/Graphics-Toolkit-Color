@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 65;
+use Test::More tests => 74;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSL';
 my $space = eval "require $module";
@@ -16,8 +16,18 @@ is( $space->name,                           'HSL', 'space has name from axis ini
 is( $space->name('alias'),                     '', 'color space has no alias name');
 is( $space->is_name('Hsl'),                     1, 'recognized name');
 is( $space->is_name('HSV'),                     0, 'ignored wrong name');
+is( $space->is_axis_name('hsl'),                0,  'space name is not axis name');
+is( $space->is_axis_name('hue'),                1,  'hue is an axis name');
+is( $space->is_axis_name('saturation'),         1,  'saturation is an axis name');
+is( $space->is_axis_name('lightness'),          1,  'lightness is an axis name');
+is( $space->is_axis_name('h'),                  1,  'h is an axis name');
+is( $space->is_axis_name('s'),                  1,  's is an axis name');
+is( $space->is_axis_name('l'),                  1,  'l is an axis name');
+is( $space->is_axis_name('hu'),                 0,  'can not miss  lettter of axis name');
+is( $space->pos_from_axis_name('s'),            1,  'a is the second axis');
+
 is( $space->axis_count,                         3, 'color space has 3 axis');
-is( $space->is_euclidean,                          0, 'HSL is not euclidean');
+is( $space->is_euclidean,                       0, 'HSL is not euclidean');
 is( $space->is_cylindrical,                     1, 'HSL is cylindrical');
 
 is( ref $space->check_value_shape( [0, 0, 0]),     'ARRAY',   'check HSL values works on lower bound values');

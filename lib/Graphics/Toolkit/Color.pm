@@ -1035,9 +1035,13 @@ the named args in curly braces (HASH ref).
 The named argument I<in> expects the name of a color space as
 L<listed here|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
 The default color space in this module is I<RGB>. Depending on the chosen
-space, the results of all methods can be very different, since colors
-are arranged there very differently and have different distances to each
-other. Some colors might not even exist in some spaces.
+space, the results of methods can be very different, since colors are
+arranged very differently and have different distances to each other.
+Some colors might not even exist in some spaces (they are out of gamut).
+
+The following methods accept this argument: L</values>,  L</is_in_gamut>,
+L</distance>, L</apply>, L</set_value>, L</add_value>, L</mix>, L</invert>, 
+L</gradient>, L</cluster>.
 
 
 =head2 range
@@ -1057,6 +1061,8 @@ refs even inside that. For instance in C<HSL> the C<hue> is normally
 to -100 .. 100 but keep the other two untouched you would have to insert:
 C<< range => [[-100,100],100,100] >>.
 
+The following methods accept this argument: L<new|/CONSTRUCTOR>, L</values>, L</distance>.
+
 
 =head2 to
 
@@ -1064,6 +1070,19 @@ This argument receives a second or target color. It may come in form of
 another GTC object or a color definition that is acceptable to the
 constructor. But it has to be a scalar (string or (HASH) reference),
 not a value list or hash.
+
+The following methods accept this argument:  L</distance>, L</mix>, L</gradient>.
+
+
+=head2 raw
+
+This argument sa perlish pseudo boolean (0 or 1). But since it
+defaults to 0, you use it only with 1 or a fitting word string.
+It signifies that the color values will not be clamped into gamut
+and maybe not even rounded.
+
+The following methods accept this argument: L<new|/CONSTRUCTOR>, L</values>.
+
 
 =head1 SEE ALSO
 

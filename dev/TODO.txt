@@ -3,7 +3,7 @@ TODO:
    
  = 2.2:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
-     OKHSL, OKHSV, OKHWB, HSI, Yxy
+     OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
    + cammut mapping
    + complemement in selectable cylidrical space
  

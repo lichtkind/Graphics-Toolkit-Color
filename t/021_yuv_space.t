@@ -17,7 +17,7 @@ is( $space->is_name('YPbPr'),                   1,  'color space name YCbCr is c
 is( $space->is_name('YUV'),                     1,  'color space name YUV is correct');
 is( $space->is_axis_name('YUV'),                0,  'space name is not axis name');
 is( $space->is_axis_name('luma'),               1,  'luma is an axis name');
-is( $space->is_axis_name('pb'),                 1,  'Pb_phase is an axis name');
+is( $space->is_axis_name('pb'),                 1,  'Pb is an axis name');
 is( $space->is_axis_name('Pr'),                 1,  'Pr is an axis name');
 is( $space->is_axis_name('y'),                  1,  'y is an axis name');
 is( $space->is_axis_name('u'),                  1,  'u is an axis name');

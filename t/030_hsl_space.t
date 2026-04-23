@@ -2,7 +2,8 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
 use Test::More tests => 65;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSL';
@@ -51,8 +52,6 @@ is( int @$hsl,     3,   'clamp removed superfluous value');
 is( $hsl->[0],   359,   'rotated up (H) value');
 is( $hsl->[1],     0,   'clamped up (S) value');
 is( $hsl->[2],   100,   'clamped down(L) value');;
-
-
 
 $hsl = $space->convert_from( 'RGB', [0, 0, 0]);
 is( ref $hsl,               'ARRAY', 'convert black from RGB to HSL');

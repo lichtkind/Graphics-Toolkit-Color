@@ -26,5 +26,5 @@ Graphics::Toolkit::Color::Space->new(
        alias => 'Linear Display P3',
         axis => [qw/red green blue/],
    precision => 6,
-     convert => {CIEXYZ => [\&to_xyz, \&from_xyz]},
+     convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );

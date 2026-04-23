@@ -840,9 +840,6 @@ Applying a gamma value mages only sense in euclidean spaces with the origin
 in one corner of the space like I<RGB> or I<CIEXYZ>.
 
 
-=head2 clamp
-
-
 =head2 set_value
 
 Creates a new GTC color object that shares some values with the current one,

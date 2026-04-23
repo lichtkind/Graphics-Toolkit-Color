@@ -1027,7 +1027,7 @@ minimal distance.
 
 Some named arguments of the above listed methods reappear in several methods.
 Thus they are explained here once. Please note that you must NOT wrap
-the named args in curly braces (HASH ref).
+the named args in curly braces (HASH ref) but you may if you prefer todo so.
 
 
 =head2 in
@@ -1039,7 +1039,7 @@ space, the results of methods can be very different, since colors are
 arranged very differently and have different distances to each other.
 Some colors might not even exist in some spaces (they are out of gamut).
 
-The following methods accept this argument: L</values>,  L</is_in_gamut>,
+The following methods accept the I<in> argument: L</values>,  L</is_in_gamut>,
 L</distance>, L</apply>, L</set_value>, L</add_value>, L</mix>, L</invert>, 
 L</gradient>, L</cluster>.
 
@@ -1061,7 +1061,8 @@ refs even inside that. For instance in C<HSL> the C<hue> is normally
 to -100 .. 100 but keep the other two untouched you would have to insert:
 C<< range => [[-100,100],100,100] >>.
 
-The following methods accept this argument: L<new|/CONSTRUCTOR>, L</values>, L</distance>.
+The following methods accept the I<range> argument: 
+L<new|/CONSTRUCTOR>, L</values>, L</distance>.
 
 
 =head2 to
@@ -1071,7 +1072,7 @@ another GTC object or a color definition that is acceptable to the
 constructor. But it has to be a scalar (string or (HASH) reference),
 not a value list or hash.
 
-The following methods accept this argument:  L</distance>, L</mix>, L</gradient>.
+The following methods accept the I<to> argument:  L</distance>, L</mix>, L</gradient>.
 
 
 =head2 raw
@@ -1081,7 +1082,7 @@ defaults to 0, you use it only with 1 or a fitting word string.
 It signifies that the color values will not be clamped into gamut
 and maybe not even rounded.
 
-The following methods accept this argument: L<new|/CONSTRUCTOR>, L</values>.
+The following methods accept the I<raw> argument: L<new|/CONSTRUCTOR>, L</values>.
 
 
 =head1 SEE ALSO

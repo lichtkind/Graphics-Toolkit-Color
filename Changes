@@ -11,6 +11,7 @@
     * ~ CIEXYZ converts now from and to linearRGB
     * ? document the 'only' argument of 'invert'
     * & compact test suite with custom color tuple test function
+    * ! HSB space got same constraints as HSV
 
 2.02    2026-03-30   lichtkind
 -------

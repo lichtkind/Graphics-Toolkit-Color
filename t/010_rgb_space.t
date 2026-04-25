@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 76;
+use Test::More tests => 78;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
@@ -23,9 +23,23 @@ is( $space->is_axis_name('R'),                  1, '"r" is an axis name');
 is( $space->is_axis_name('g'),                  1, '"g" is an axis name');
 is( $space->is_axis_name('b'),                  1, '"b" is an axis name');
 is( $space->is_axis_name('ed'),                 0, 'can not miss a lettter of axis name');
+is( $space->pos_from_axis_name('red'),          0, '"red" is name of first axis');
+is( $space->pos_from_axis_name('green'),        1, '"green" is name of second axis');
+is( $space->pos_from_axis_name('blue'),         2, '"blue" is name of third axis');
+is( $space->pos_from_axis_name('r'),            0, '"r" is name of first axis');
+is( $space->pos_from_axis_name('g'),            1, '"g" is name of second axis');
+is( $space->pos_from_axis_name('b'),            2, '"b" is name of third axis');
+is( $space->pos_from_axis_name('a'),        undef, '"a" is not an axis name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'RGB is is_euclidean');
 is( $space->is_cylindrical,                     0, 'RGB is not cylindrical');
+is( $space->can_convert('RGB'),                 0, 'can not convert to itself');
+
+is( $space->is_value_tuple(['r','g','b']),     1,  'RGB tuple has to have three values');
+is( $space->is_number_tuple([1, 2, 3]),        1,  'RGB number tuple has to have three numbers');
+is( $space->is_partial_hash({r => 1, b => 0, g => 0}), 1,  'found hash with some short axis names as keys');
+is( $space->is_partial_hash({green => 1, blue => 0}),  1,  'found hash with some other long axis names as keys');
+is( $space->is_partial_hash({green => 1, cyan => 0}),  0,  'some axis name match some do not');
 
 is( ref $space->check_value_shape( [0,0,0]),       'ARRAY', 'check RGB values works on lower bound values');
 is( ref $space->check_value_shape( [255,255,255]), 'ARRAY', 'check RGB values works on upper bound values');
@@ -42,27 +56,13 @@ is( ref $space->check_value_shape( [0, 0, 0.5] ),       '', "blue value is not i
 is( ref $space->check_value_shape( [0, 0, 256] ),       '', "blue value is too big");
 
 my $rgb = $space->clamp([]);
-is( int @$rgb,  3,     'clamp resets missing color to black');
-is( $rgb->[0],   0,     'default color is black (R)');
-is( $rgb->[1],   0,     'default color is black (G)');
-is( $rgb->[2],   0,     'default color is black (B)');
-
+is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamping an empty tuple create the default color black');
 $rgb = $space->clamp([1,2]);
-is( $rgb->[0],   1,     'carry over first arg');
-is( $rgb->[1],   2,     'carry over second arg');
-is( $rgb->[2],   0,     'set missing color value to zero');
-
+is_tuple( $rgb, [1, 2, 0], [qw/red green blue/], 'clamp inserted zero for mssing blue value');
 $rgb = $space->clamp([1.1, 2, 3, 4]);
-is( int @$rgb,   3,     'left out the needless argument');
-is( $rgb->[0],  1.1,    'not clamped badly rounded value (job of round)');
-is( $rgb->[1],   2,     'kept second value');
-is( $rgb->[2],   3,     'kept third value');
-
-$rgb = $space->clamp([-1,10,256]);
-is( int @$rgb,   3,     'clamp does not change number of negative values');
-is( $rgb->[0],   0,     'too low red value is clamp up');
-is( $rgb->[1],  10,     'in range green value is not touched');
-is( $rgb->[2], 255,     'too large blue value is clamp down');
+is_tuple( $rgb, [1.1, 2, 3], [qw/red green blue/], 'clamp removed superfluous value');
+$rgb = $space->clamp([-1, 10, 256]);
+is_tuple( $rgb, [ 0, 10, 255], [qw/red green blue/], 'clamp move all values into range');
 
 is(    $space->format([0,0,0],      'hex_string'), '#000000',     'converted black from rgb to hex');
 is( uc $space->format([255,255,255],'HEX_string'), '#FFFFFF',     'converted white from rgb to hex');

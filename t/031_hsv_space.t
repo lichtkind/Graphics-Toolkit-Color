@@ -45,7 +45,7 @@ my $hsv = $space->clamp([]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamping empty tuple ceates default color: black');
 
 $hsv = $space->clamp([0, 0]);
-is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamp inserted zero for missing value and constrinats');
+is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamp inserted zero for missing value ');
 
 $hsv = $space->clamp([0, 0, 0, 10]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamp removed superfluous value');

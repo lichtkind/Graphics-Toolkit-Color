@@ -1,5 +1,5 @@
 
-# self made test functions
+# GTC custom test functions
 
 package Test::Color;
 use v5.12;
@@ -7,7 +7,6 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(is_tuple);
-
 use Test::Builder;
 my $tb = Test::Builder->new;
 

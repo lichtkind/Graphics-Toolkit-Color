@@ -44,9 +44,9 @@ is( ref $space->check_value_shape( [0, 0, 101] ),       '',  "lightness value is
 
 
 my $hsl = $space->clamp([]);
-is_tuple( $hsl, [0, 0, 0], [qw/hue saturation lightness/], 'clamping empty tuple ceates default color: red');
+is_tuple( $hsl, [0, 0, 0], [qw/hue saturation lightness/], 'clamping empty tuple ceates default color: black');
 
-$hsl = $space->clamp([0,100]);
+$hsl = $space->clamp([0, 100]);
 is_tuple( $hsl, [0, 100, 0], [qw/hue saturation lightness/], 'clamp inserted zero for missing value');
 
 $hsl = $space->clamp( [-1, -1, 101, 4]);

@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 78;
+use Test::More tests => 79;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
@@ -33,6 +33,7 @@ is( $space->pos_from_axis_name('a'),        undef, '"a" is not an axis name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'RGB is is_euclidean');
 is( $space->is_cylindrical,                     0, 'RGB is not cylindrical');
+is( $space->shape->has_constraints,             0, 'RGB is a cube wiht all the edges, no constraints');
 is( $space->can_convert('RGB'),                 0, 'can not convert to itself');
 
 is( $space->is_value_tuple(['r','g','b']),     1,  'RGB tuple has to have three values');
@@ -55,20 +56,11 @@ is( ref $space->check_value_shape( [0, 0, -1 ] ),       '', "blue value is too s
 is( ref $space->check_value_shape( [0, 0, 0.5] ),       '', "blue value is not integer");
 is( ref $space->check_value_shape( [0, 0, 256] ),       '', "blue value is too big");
 
-my $rgb = $space->clamp([]);
-is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamping an empty tuple create the default color black');
-$rgb = $space->clamp([1,2]);
-is_tuple( $rgb, [1, 2, 0], [qw/red green blue/], 'clamp inserted zero for mssing blue value');
-$rgb = $space->clamp([1.1, 2, 3, 4]);
-is_tuple( $rgb, [1.1, 2, 3], [qw/red green blue/], 'clamp removed superfluous value');
-$rgb = $space->clamp([-1, 10, 256]);
-is_tuple( $rgb, [ 0, 10, 255], [qw/red green blue/], 'clamp move all values into range');
-
 is(    $space->format([0,0,0],      'hex_string'), '#000000',     'converted black from rgb to hex');
 is( uc $space->format([255,255,255],'HEX_string'), '#FFFFFF',     'converted white from rgb to hex');
 is( uc $space->format([ 10, 20, 30],'hex_strinG'), '#0A141E',     'converted random color from rgb to hex');
 
-($rgb, my $name) = $space->deformat('#332200');
+my ($rgb, $name) = $space->deformat('#332200');
 is( $name,  'hex_string', 'recognized long hex string format');
 is_tuple( $rgb, [51, 34, 0], [qw/red green blue/], 'got right values from long hex_string');
 
@@ -114,6 +106,16 @@ is( $rgb->[2],    256,   'green is too large');
 is( $rgb->[3],    3.3,   'blue still has decimal');
 
 is( $space->format([10,20,30], 'hex_string'), '#0A141E', 'formated rgb triplet into hex string');
+
+########################################################################
+$rgb = $space->clamp([]);
+is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamping an empty tuple create the default color black');
+$rgb = $space->clamp([1,2]);
+is_tuple( $rgb, [1, 2, 0], [qw/red green blue/], 'clamp inserted zero for mssing blue value');
+$rgb = $space->clamp([1.1, 2, 3, 4]);
+is_tuple( $rgb, [1.1, 2, 3], [qw/red green blue/], 'clamp removed superfluous value');
+$rgb = $space->clamp([-1, 10, 256]);
+is_tuple( $rgb, [ 0, 10, 255], [qw/red green blue/], 'clamp move all values into range');
 
 my $d = $space->delta( [0,44,256], [256,88,0] );
 is_tuple( $d, [256, 44, -256], [qw/red green blue/], 'computes in standard range distance');

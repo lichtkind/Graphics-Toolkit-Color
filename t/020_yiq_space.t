@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 50;
+use Test::More tests => 51;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::YIQ';
 my $space = eval "require $module";
@@ -27,6 +27,7 @@ is( $space->pos_from_axis_name('q'),            2, 'quadrature is the third axis
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'YIQ is euclidean');
 is( $space->is_cylindrical,                     0, 'YIQ is not cylindrical');
+is( $space->shape->has_constraints,             0, 'YIQ is a cube wiht all the edges, no constraints');
 is( $space->can_convert('rgb'),                 1, 'do only convert from and to rgb');
 is( $space->can_convert('yiq'),                 0, 'can not convert to itself');
 

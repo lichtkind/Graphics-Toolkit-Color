@@ -53,7 +53,7 @@ sub gamma_correct { # spow: sign preserving power function
     return -((-$base) ** $exponent);
 }
 
-sub is_nr { $_[0] =~ /^\-?\d+(?:\.\d+)?(?:e-?\d\d)?$/ }
+sub is_nr { $_[0] =~ /^\-?\d+(?:\.\d+)?(?:e-?\d+)?$/ }
 
 #### color computation #################################################
 sub mult_matrix_vector_3 {

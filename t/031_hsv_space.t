@@ -43,46 +43,37 @@ is( ref $space->check_value_shape([0, 0, 101] ),       '',   "value value is too
 
 my $hsv = $space->clamp([]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamping empty tuple ceates default color: black');
-
 $hsv = $space->clamp([0, 0]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamp inserted zero for missing value ');
-
 $hsv = $space->clamp([0, 0, 0, 10]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'clamp removed superfluous value');
-
 $hsv = $space->clamp([0, 100, 0]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'contraints clamped saturation down');
-
 $hsv = $space->clamp([-1.1, -1, 101]);
 is_tuple( $hsv, [358.9, 0, 100], [qw/hue saturation value/], 'clamping of values works');
 
 $hsv = $space->convert_from( 'RGB', [0.5, 0.5, 0.5]);
 is_tuple( $hsv, [0, 0, 0.5], [qw/hue saturation value/], 'convert grey from RGB');
-
 my $rgb = $space->convert_to( 'RGB', [0, 0, 0.5]);
 is_tuple( $rgb, [0.5, 0.5, 0.5], [qw/red green blue/], 'convert grey back to RGB');
 
 $hsv = $space->convert_from( 'RGB', [0, 0, 0]);
 is_tuple( $hsv, [0, 0, 0], [qw/hue saturation value/], 'convert black from RGB');
-
  $rgb = $space->convert_to( 'RGB', [0, 0, 0]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'convert black back to RGB');
 
 $hsv = $space->convert_from( 'RGB', [1, 1, 1]);
 is_tuple( $hsv, [0, 0, 1], [qw/hue saturation value/], 'convert white from RGB');
-
  $rgb = $space->convert_to( 'RGB', [0, 0, 1]);
 is_tuple( $rgb, [1, 1, 1], [qw/red green blue/], 'convert white back to RGB');
 
 $hsv = $space->convert_from( 'RGB', [0.78, 0.078, 0.195000000023]);
 is_tuple( $space->round( $hsv, 5), [0.97222, 0.9, 0.78], [qw/hue saturation value/], 'convert nice red from RGB');
-
 $rgb = $space->convert_to( 'RGB', [0.972222222, 0.9, 0.78]);
 is_tuple( $space->round( $rgb, 5), [0.78, 0.078, 0.195], [qw/red green blue/], 'convert nice red back to RGB');
 
 $hsv = $space->convert_from( 'RGB', [0.160312032, 0.0408, .24]);
 is_tuple( $space->round( $hsv, 5), [0.76666, 0.83, 0.24], [qw/hue saturation value/], 'convert dark viole from RGB');
-
 $rgb = $space->convert_to( 'RGB', [0.76666, .83, .24]);
 is_tuple( $space->round( $rgb, 5), [0.16031, 0.0408, 0.24], [qw/red green blue/], 'convert dark viole back to RGB');
 

@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 45;
+use Test::More tests => 56;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGBLinear';
 my $space = eval "require $module";
@@ -27,8 +27,11 @@ is( $space->is_axis_name('b'),                  1, '"b" is an axis name');
 is( $space->axis_count,                         3, 'lin RGB color space has 3 axis');
 is( $space->is_euclidean,                       1, 'lin RGB is euclidean');
 is( $space->is_cylindrical,                     0, 'lin RGB is not cylindrical');
+is( $space->can_convert('rgb'),                 1, 'do only convert from and to rgb');
+is( $space->can_convert('LinearRGB'),           0, 'do not convert from and to itself');
 
-is( $space->is_value_tuple([0,0,0]),                   1,  'vector has 3 elements');
+is( $space->is_value_tuple([0,0,0]),                   1,  'RGB tuple has 3 elements');
+is( $space->is_number_tuple([-1, 2.3, 5.1e-04]),       1,  'RGB tuple has 3 numbers');
 is( $space->can_convert('rgb'),                        1,  'do only convert from and to rgb');
 is( $space->can_convert('RGB'),                        1,  'color space name can be written upper case');
 is( $space->can_convert('A98RGB'),                     0,  'does not convert directly to Adobe RGB');
@@ -47,31 +50,46 @@ is( ref $space->check_value_shape( [0, 1.1, 0]),     '', "green value is too big
 is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too small");
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
 
-my $rgb = $space->clamp([]);
-is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamped empty tuple into default color (black)');
-
-$rgb = $space->clamp([0, 1]);
-is_tuple( $rgb, [0, 1, 0], [qw/red green blue/], 'clamp inserted zero for missing value');
-
-$rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
-is_tuple( $rgb, [0, 1, 0.5], [qw/red green blue/], 'clamp changes values to min, max and removes superfluous values');
-
-$rgb = $space->deformat( 'lin_rgb(0, 0.1, 1)');
+my $rgb = $space->deformat( 'lin_rgb(0, 0.1, 1)');
 is_tuple( $rgb, [0, 0.1, 1, ], [qw/red green blue/], 'deformat CSS_string');
-
-$rgb = $space->convert_from( 'RGB', [0, 0.01, 1]);
-is_tuple( $space->round( $rgb, 9), [0, 0.000773994, 1], [qw/red green blue/], 'convert unclean blue to linear RGB (this space)');
-
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,   undef,     'array format is RGB only');
 
-$rgb = $space->convert_to( 'RGB', [1, 0.9, 0 ]);
-is_tuple( $space->round( $rgb, 9), [1, 0.954687172, 0], [qw/red green blue/], 'convert unclean red to SRGB');
+$rgb = $space->clamp([]);
+is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamped empty tuple into default color black');
+$rgb = $space->clamp([0, 1]);
+is_tuple( $rgb, [0, 1, 0], [qw/red green blue/], 'clamp inserted zero for missing value blue');
+$rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
+is_tuple( $rgb, [0, 1, 0.5], [qw/red green blue/], 'clamp changes values to min, max and removes superfluous values');
 
 my $d = $space->delta([.1,.2,.3],[.1,.2,.3]);
 is_tuple( $d, [0, 0, 0], [qw/red green blue/], 'delta vector between tuple and itself is zero');
-
 $d = $space->delta([0.1,0.2,0.4],[0, 0.5, 1]);
 is_tuple( $d, [-0.1, 0.3, 0.6], [qw/red green blue/], 'delta vector between two very different tuple');
+
+my $lrgb = $space->convert_from( 'RGB', [1, 1, 1]);
+is_tuple( $space->round( $lrgb, 9), [1, 1, 1], [qw/red green blue/], 'convert white from RGB');
+$rgb = $space->convert_to( 'RGB', [1, 1, 1]);
+is_tuple( $space->round( $lrgb, 9), [1, 1, 1], [qw/red green blue/], 'convert white back to RGB');
+
+$lrgb = $space->convert_from( 'RGB', [0, 0, 0]);
+is_tuple( $space->round( $lrgb, 9), [0, 0, 0], [qw/red green blue/], 'convert black from RGB');
+$rgb = $space->convert_to( 'RGB', [0, 0, 0]);
+is_tuple( $space->round( $lrgb, 9), [0, 0, 0], [qw/red green blue/], 'convert black back to RGB');
+
+$lrgb = $space->convert_from( 'RGB', [0.5, 0.5, 0.5]);
+is_tuple( $space->round( $lrgb, 9), [0.21404114, 0.21404114, 0.21404114], [qw/red green blue/], 'convert gray from RGB');
+$rgb = $space->convert_to( 'RGB', [0.21404114, 0.21404114, 0.21404114]);
+is_tuple( $space->round( $rgb, 8), [0.5, 0.5, 0.5], [qw/red green blue/], 'convert grey back to RGB');
+
+$rgb = $space->convert_from( 'RGB', [0, 0.01, 1]);
+is_tuple( $space->round( $rgb, 9), [0, 0.000773994, 1], [qw/red green blue/], 'convert unclean blue to linear RGB (this space)');
+$rgb = $space->convert_to( 'RGB', [0, 0.000773994, 1]);
+is_tuple( $space->round( $rgb, 8), [0, 0.01, 1], [qw/red green blue/], 'convertunclean blue back to RGB');
+
+$rgb = $space->convert_from( 'RGB', [1, 0.954687172, 0]);
+is_tuple( $space->round( $rgb, 9), [1, 0.9, 0], [qw/red green blue/], 'convert unclean red to linear RGB (this space)');
+$rgb = $space->convert_to( 'RGB', [1, 0.9, 0]);
+is_tuple( $space->round( $rgb, 9), [1, 0.954687172, 0], [qw/red green blue/], 'convert unclean red to SRGB');
 
 exit 0;

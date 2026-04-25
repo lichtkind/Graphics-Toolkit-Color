@@ -21,7 +21,7 @@ is( $space->is_axis_name('value'),                1, '"values" is an axis name')
 is( $space->is_axis_name('h'),                    1, '"h" is an axis name');
 is( $space->is_axis_name('s'),                    1, '"s" is an axis name');
 is( $space->is_axis_name('v'),                    1, '"v" is an axis name');
-is( $space->is_axis_name('hu'),                   0, 'can not miss  lettter of axis name');
+is( $space->is_axis_name('hu'),                   0, 'can not miss a lettter of axis name');
 is( $space->axis_count,                           3, 'color space has 3 axis');
 is( $space->is_euclidean,                         0, '"HSV" is not euclidean');
 is( $space->is_cylindrical,                       1, '"HSV" is cylindrical');

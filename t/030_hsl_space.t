@@ -22,7 +22,7 @@ is( $space->is_axis_name('lightness'),          1,  'lightness is an axis name')
 is( $space->is_axis_name('h'),                  1,  'h is an axis name');
 is( $space->is_axis_name('s'),                  1,  's is an axis name');
 is( $space->is_axis_name('l'),                  1,  'l is an axis name');
-is( $space->is_axis_name('hu'),                 0,  'can not miss  lettter of axis name');
+is( $space->is_axis_name('hu'),                 0,  'can not miss a lettter of axis name');
 is( $space->pos_from_axis_name('s'),            1,  'a is the second axis');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       0, 'HSL is not euclidean');

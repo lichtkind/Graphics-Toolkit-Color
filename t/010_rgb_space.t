@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 73;
+use Test::More tests => 76;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
@@ -16,10 +16,13 @@ is( $space->is_name('rgb'),                     1, 'asked for right space name')
 is( $space->is_name('srgb'),                    1, 'asked for right space name alias');
 is( $space->is_name('lrgb'),                    0, 'asked for wrong space name');
 is( $space->is_axis_name('RGB'),                0, 'space name is not axis name');
-is( $space->is_axis_name('Red'),                1, 'red is an axis name');
-is( $space->is_axis_name('gREEN'),              1, 'green is an axis name');
-is( $space->is_axis_name('blue'),               1, 'blue is an axis name');
-is( $space->is_axis_name('ed'),                 0, 'can not miss  lettter of axis name');
+is( $space->is_axis_name('Red'),                1, '"red" is an axis name');
+is( $space->is_axis_name('gREEN'),              1, '"green" is an axis name');
+is( $space->is_axis_name('blue'),               1, '"blue" is an axis name');
+is( $space->is_axis_name('R'),                  1, '"r" is an axis name');
+is( $space->is_axis_name('g'),                  1, '"g" is an axis name');
+is( $space->is_axis_name('b'),                  1, '"b" is an axis name');
+is( $space->is_axis_name('ed'),                 0, 'can not miss a lettter of axis name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'RGB is is_euclidean');
 is( $space->is_cylindrical,                     0, 'RGB is not cylindrical');

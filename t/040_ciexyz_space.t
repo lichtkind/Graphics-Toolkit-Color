@@ -2,11 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
 use Test::More tests => 73;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
-
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIEXYZ';
 my $space = eval "require $module";

@@ -3,16 +3,16 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 81;
+use Test::More tests => 86;
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
 my @space_names = (qw/RGB LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                    qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                    qw/AdobeRGB AppleRGB ProPhotoRGB WideGamutRGB/,
-                   qw/DisplayP3Linear DisplayP3/,
+                   qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3/,
                    qw/OKLAB OKLCH/);
-my $space_name_aliases = 11;
+my $space_name_aliases = 12;
 my $space_names = @space_names + $space_name_aliases;
 eval "use $module";
 is( not($@), 1, 'could load the module'); # say $@;
@@ -21,7 +21,7 @@ is( ref Graphics::Toolkit::Color::Space::Hub::get_space('RGB'),  $space_ref, 'RG
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),   1, "found $_ color space") for @space_names;
 
 my @names = Graphics::Toolkit::Color::Space::Hub::all_space_names();
-is( int @names,  $space_names, 'intalled 21 space names');
+is( int @names,  $space_names, 'intalled 27 space names');
 is( Graphics::Toolkit::Color::Space::Hub::is_space_name($_),      1, "$_ is a space name") for @names;
 
 my $Tspace = Graphics::Toolkit::Color::Space->new( axis => [qw/one two three/], range => 10 );

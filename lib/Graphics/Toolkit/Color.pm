@@ -150,7 +150,7 @@ sub closest_name {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
     my $help = <<EOH;
-    GTC method 'name' accepts three optional, named arguments:
+    GTC method 'closest_name' accepts three optional, named arguments:
     closest_name ( ...
         'CSS'                 # color naming scheme works as only positional argument
         from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
@@ -224,19 +224,6 @@ EOH
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::apply_gamma( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
 }
 
-sub clamp {
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'in', [], {in => undef, range => undef} ); 
-    my $help = <<EOH;
-    GTC method 'apply' accepts one named argument with a numeric value:
-    clamp ( ...
-        in => 'OKlab',         # clamp in oklab space to default ranges
-        range => 100,          # clamp to 0 .. 100 ranges
-EOH
-    return $arg.$help unless ref $arg;
-    #_new_from_value_obj( Graphics::Toolkit::Color::Calculator::clamp( $self->{'values'}, $arg->{'gamma'}, $color_space ) );
-}
-
 sub set_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
@@ -290,7 +277,7 @@ EOH
     return "$color_space\n".$help unless ref $color_space;
     my $recipe = _new_from_scalar_def( $arg->{'to'} );
     if (ref $recipe){
-        return "argument 'amount' has to be a sacalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
+        return "argument 'amount' has to be a scalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
         $arg->{'amount'} = 50 if $arg->{'amount'} < 0;
         $arg->{'amount'} = 100 if $arg->{'amount'} > 100;
         $recipe = [{color => $recipe->{'values'}, percent => $arg->{'amount'}}];
@@ -298,7 +285,7 @@ EOH
 
     } else {
         if (ref $arg->{'to'} ne 'ARRAY'){
-            return "target color definition (argument 'to'): '$arg->{to}' is ill formed. It has to be one color definition or an ARRAY of the.";
+            return "target color definition (argument 'to'): '$arg->{to}' is ill formed. It has to be one color definition or an ARRAY of them.";
         } else {
             return "Argument 'amount' has to be an ARRAY of same length as argument 'to' (color definitions)!\n".$help
                 if ref $arg->{'to'} eq 'ARRAY' and ref $arg->{'amount'} eq 'ARRAY' and @{$arg->{'amount'}} != @{$arg->{'to'}};
@@ -420,7 +407,7 @@ EOH
     return "$color_space\n".$help unless ref $color_space;
     return "Argument 'radius' has to be a number or an ARRAY of numbers".$help
         unless is_nr($arg->{'radius'}) or $color_space->is_number_tuple( $arg->{'radius'} );
-    return "Argument 'distance' has to be a number greater zero !\n".$help
+    return "Argument 'minimal_distance' (or 'min_d') has to be a number greater zero !\n".$help
         unless is_nr($arg->{'minimal_distance'}) and $arg->{'minimal_distance'} > 0;
     return "Ball shaped cluster works only in spaces with three dimensions !\n".$help
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};

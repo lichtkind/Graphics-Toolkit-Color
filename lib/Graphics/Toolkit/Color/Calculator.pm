@@ -80,7 +80,7 @@ sub invert {
     if (defined $only) {
 	    for my $axis_name (@$only){
 		    my $pos = $color_space->pos_from_axis_name( $axis_name );
-			return "axis name '$axis_name' is not part of clor space '".$color_space->name.
+			return "axis name '$axis_name' is not part of color space '".$color_space->name.
 			       "', please try: ".(join(' ', $color_space->long_axis_names)).
 			       ' or '.(join(' ', $color_space->short_axis_names)).' !' unless defined $pos;
 			return "axis '$axis_name' is already selected for inversion" if exists $selected_axis->[$pos];

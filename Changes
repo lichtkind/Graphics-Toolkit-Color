@@ -1,8 +1,8 @@
-2.1    2026-04-27   lichtkind
+2.1    2026-04-28   lichtkind
 -------
     * = big feature release: +12 spaces, +1 method, +6 args
-    * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB, 
-                          ProPhoto RGB, Wide Gamut RGB,      Rec.709, Rec.2020, 
+    * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB,
+                          ProPhoto RGB, Wide Gamut RGB,      Rec.709, Rec.2020,
                           Linear Display P3, Display P3, Linear DCI P3, DCI P3
     * + add 'is_in_gamut' argument 'color' and 'in' (check if color is in gamut of some space)
     * + add constructor argument 'color', 'range' and 'raw' to input custom ranged values
@@ -24,8 +24,8 @@
     * = minor bug fix release: 3 fixes
     * ? removed deprecation warning in POD
     * ? rewrote GT::Color::Space POD
-    * ! tried to fix eval in scalar kontext hash error with < 5.26 Perl versions
-    
+    * ! tried to fix eval in scalar context hash error with < 5.26 Perl versions
+
 2.00    2026-03-23    lichtkind
 -------
     * = API update release
@@ -39,7 +39,7 @@
 -------
     * = small feature release: 3 small features
     * + method 'is_in_gamut' checks if values are valid
-    * + exortable symbol 'is_in_gamut'
+    * + exportable symbol 'is_in_gamut'
     * + cone shaped space constraints for HSV
     * + added 'sRGB' as alias name of RGB space
     * \ final test release before 2.0
@@ -47,13 +47,13 @@
 1.98    2026-03-19    lichtkind
 -------
     * = small fix release: 2 fixes
-    * ~ when mixing more than 2 color wihtout amounts it will be mixed equally too
+    * ~ satisfy default proportion of 1:1 when mixing more than 2 colors without amount values
     * ? POD fixed / rewrote for methods "mix"
     * ? POD fixed in main example
     * ? document new color space syntax
     * \ test release before 2.0
 
-1.972    2025-09-31    lichtkind
+1.972    2025-09-30    lichtkind
 -------
     * = small fix release: 2 fixes
     * ? POD fixed / rewrote for methods "values", "name", "closest_name", "distance"
@@ -75,7 +75,7 @@
     * ~ cluster argument "minimal_distance" got alias: "min_d"
     * ~ cluster argument "radius" got alias: "r"
     * ? removed bad chars from POD
-    * ? organize POD for color names better
+    * ? reorganized POD for color names
 
 1.961    2025-08-29    lichtkind
 -------
@@ -96,7 +96,7 @@
     * ? POD example code fixes
     * ? fix POD links in GTC::Space::Hub lib
     * ! fixed too tight set calc tests: Issue Pause:169094 found by SlavenRezic++
-    * ! remove unused "use Benchmark;" fixed by ppisar++
+    * ! removed unused "use Benchmark;" - fixed by ppisar++
 
 1.92    2025-08-20    lichtkind
 -------
@@ -131,7 +131,7 @@
     * & removed Carp and Test::Warn as dependencies
     * & moved color and color set calculators into own packages
     * ~ reworked all calculator methods
-    * ~ renamed single color calculator method "blend" method to "mix"
+    * ~ renamed single color calculator method "blend" to "mix"
     * ~ renamed method "add" and "set" to "add_value" and "set_value"
     * ~ renamed method "mix" argument "with" to "to"
     * ~ renamed method "gradient" argument "dynamic" to "tilt"
@@ -141,7 +141,7 @@
 1.71     2023-09-21    lichtkind
 -------
     * = doc fixes
-    * ? typos mispellings, broken sentences
+    * ? typos, misspellings, broken sentences
     * ? added range def explanation
     * ? simplified HEADINGS
     * ? removed doc of deprecated methods
@@ -150,7 +150,7 @@
 -------
     * = mid level improvements, completed API change
     * + changed method complement to named arguments
-    * + none linear complement circles by setting delta hue value
+    * + option for nonlinear complement circles by setting delta hue value
     * + select saturation and lightness change axis in complement
     * ~ renamed distance argument : metric => select
     * ? rewrote some main module documentation
@@ -164,7 +164,7 @@
 1.60     2023-09-11    lichtkind
 -------
     * = API development
-    * * added color spaces HSB HSW YIQ
+    * * added color spaces: HSB HWB YIQ
     * + output format array: ['rgb',1,2,3]
     * + input and output format string: 'rgb: 1,2,3'
     * + input and output format css_string: 'rgb(1,2,3)'
@@ -175,12 +175,12 @@
     * = API development
     * + added named ARRAY syntax for constructor like [CMYK => 0,0,1,1]
     * - removed option to get single values from values method
-    * & splittet GTC::Constant package into ::Name and ::Name::Constant
+    * & split GTC::Constant package into ::Name and ::Name::Constant
     * ? rewrote lot of documentation
 
 1.53     2023-08-11    lichtkind
 -------
-    * = maintenance
+    * = maintenance release
     * ? more doc fixes to new API
     * ! fix rounding error under -Duselongdouble
 
@@ -193,17 +193,17 @@
 
 1.51    2023-08-10    lichtkind
 -------
-    * = a few documentation fixes
+    * = a few POD documentation fixes
 
 1.50    2023-08-09    lichtkind
 -------
-    * = first + second phase of of 2.0 rewrite
+    * = first + second phase of 2.0 rewrite
     * + add CMY, CMYK and HSV support
     * + new universal getter method: values
     * + new modifier method: set, blend
-    * ~ enhanced and strictened modifier method: add
+    * ~ enhanced and made stricter: add
     * \ deprecate all other numeric getter: rgb, red, green, blue, rgb_hex,
-                         rgb_hash, hsl, hue, saturation, lightnss, hsl_hash, string
+                         rgb_hash, hsl, hue, saturation, lightness, hsl_hash, string
     * \ till 2.0 will be also deprecated: rgb_gradient_to, hsl_gradient_to,
                                           gradient_to, distance_to, blend_with
     * & new getter API
@@ -231,7 +231,6 @@
     * = POD fixes
 
 1.06    2023-01-20    lichtkind
-
 -------
     * = maintenance release
     * + simplified string serialisation method (->new(eval $string) => ->new($string))
@@ -246,7 +245,7 @@
 
 1.04    2022-11-04  lichtkind
 -------
-    * = small fixes
+    * = small fix release
     * & fixing meta files
     * ? typos
 

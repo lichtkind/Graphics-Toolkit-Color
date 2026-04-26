@@ -11,7 +11,7 @@ my @load_order = ($default_space_name,
                   qw/RGBLinear CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                   qw/AppleRGB AdobeRGB ProPhotoRGB WideGamutRGB/,
-                  qw/DisplayP3Linear DisplayP3/,
+                  qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3/,
                   qw/OKLAB OKLCH/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
 my @search_order;
@@ -180,7 +180,7 @@ sub deformat { # formatted color def --> normalized values
             last;
         }
     }
-    return 'could not deformat color definition: "$color_def"' unless ref $original_space;
+    return "could not deformat color definition: '$color_def'" unless ref $original_space;
     return $tuple, $original_space->name, $format_name;
 }
 sub deformat_partial_hash { # convert partial hash into

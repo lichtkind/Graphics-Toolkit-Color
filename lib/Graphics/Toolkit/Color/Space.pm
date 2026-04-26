@@ -87,12 +87,7 @@ sub format             { shift->form->format(@_) }            # @+values, ~forma
 sub deformat           { shift->form->deformat(@_) }          # $*color                -- @~suffix --> @+values, ~format_name
 
 #### conversion ########################################################
-sub converter_names      { keys %{  $_[0]{'convert'} } }
-sub alias_converter_name {
-    my ($self, $parent_space) = @_;
-    return unless $parent_space->name('alias');
-    $self->{'convert'}{ $parent_space->name('alias') } = $self->{'convert'}{ $parent_space->name };
-}
+sub conversion_tree_parent { (keys %{  $_[0]{'convert'} })[0] }
 sub can_convert          { (defined $_[1] and exists $_[0]{'convert'}{ $_[0]->normalize_name($_[1]) }) ? 1 : 0 }
 sub add_converter {
     my ($self, $space_name, $to_code, $from_code, $normal) = @_;

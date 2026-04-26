@@ -180,17 +180,17 @@ $fval = $space->deformat({aaa => 1, bbb => 2, ccc => 3, dd => 4});
 is( $fval,  undef, 'char hash with bad key got ignored');
 
 #### convert ###########################################################
-my @converter = $space->converter_names;
+my @space_names = $space->conversion_tree_parent;
 is( $space->can_convert('RGB'),   0, 'converter not yet inserted');
-is( int @converter,               0, 'no converter names known');
+is( int @space_names,             0, 'no converter names known');
 my $h = $space->add_converter('RGB', sub { [$_[0][0]+.1, $_[0][1]-.1, $_[0][2]+.1, $_[0][3]-.1 ]},
                                      sub { [$_[0][0]-.1, $_[0][1]+.1, $_[0][2]-.1, $_[0][3]+.1 ]} );
 is( ref $h, 'HASH', 'converter code accepted');
 is( $space->can_convert('RGB'),    1, 'converter inserted');
 is( $space->can_convert('R_G B-'), 1, 'convert ignores filler char in space names');
-@converter = $space->converter_names;
-is( int @converter,               1, 'one converter name is known');
-is( $converter[0],            'RGB', 'correct converter name is known');
+@space_names = $space->conversion_tree_parent;
+is( int @space_names,              1, 'one converter name is known');
+is( $space_names[0],          'RGB', 'correct converter name is known');
 
 $val = $space->convert_to( 'RGB', [0,0.1,0.2,0.3]);
 is( ref $val, 'ARRAY', 'could convert to RGB');

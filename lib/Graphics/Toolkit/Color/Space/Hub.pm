@@ -14,23 +14,23 @@ my @load_order = ($default_space_name,
                   qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3/,
                   qw/OKLAB OKLCH/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
-my @search_order;
-my %space_obj;
+my ($default_space, @search_order, %space_obj, %next_conversion_node);
 
 #### space API #########################################################
-sub is_space_name      { (ref get_space( default_space()->normalize_name( $_[0] ))) ? 1 : 0 }
+sub is_space_name      { 
+	(ref get_space( $default_space->normalize_name( $_[0] ))) ? 1 : 0 }
 sub all_space_names    { sort keys %space_obj }
 sub default_space_name { $default_space_name }
-sub default_space      { get_space( $default_space_name ) }
+sub default_space      { $default_space }
 sub get_space          { # takes only normal names or alias names
     my $name = shift;
     return unless defined $name;
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
-sub try_get_space      { # takes any name vaiant and defaults to  $default_space_name
+sub try_get_space      { # takes any name vaiant and defaults to $default_space_name
     my $name = shift || $default_space_name;
     return $name if ref $name eq 'Graphics::Toolkit::Color::Space' and is_space_name( $name->name );
-    $name = default_space->normalize_name( $name );
+    $name = default_space()->normalize_name( $name );
     my $space = get_space( $name );
     return (ref $space) ? $space
                         : "$name is an unknown color space, try one of: ".(join ', ', all_space_names());
@@ -38,18 +38,28 @@ sub try_get_space      { # takes any name vaiant and defaults to  $default_space
 
 sub add_space {
     my $space = shift;
-    return 'got no Graphics::Toolkit::Color::Space object' if ref $space ne 'Graphics::Toolkit::Color::Space';
+    return 'add_space got no Graphics::Toolkit::Color::Space object as argument' if ref $space ne 'Graphics::Toolkit::Color::Space';
     my $name = $space->name;
     my $alias = $space->name('alias');
     return "can not add color space object without a name" unless $name;
     return "color space name $name is already taken" if ref get_space( $name );
-    my @converter_target = $space->converter_names;
-    return "can not add color space $name, it has no converter" unless @converter_target or $name eq $default_space_name;
-     for my $converter_parent (@converter_target){
-        $converter_parent = $space->normalize_name( $converter_parent ) ;
-        my $parent_space = get_space( $converter_parent );
-        return "color space object $name does only convert into '$converter_parent', which is no known color space" unless $parent_space;
-        $space->alias_converter_name( $parent_space );
+    if ($name eq $default_space_name) { # there is no parent
+		$default_space = $space;
+    } else {
+		my $conversion_parent = $space->conversion_tree_parent;
+		return "can not add color space $name, it has no converter" unless defined $conversion_parent and $conversion_parent;
+		$conversion_parent = $space->normalize_name( $conversion_parent );
+        my $parent_space = get_space( $conversion_parent );
+        return "color space $name does only convert into '$conversion_parent', which is no known color space" unless ref $parent_space;
+        my $parent_name = $parent_space->name;
+        $next_conversion_node{ $parent_name }{ $name } = $name;
+        unless ($parent_name eq $default_space_name){
+			my $upper_space_name = $default_space_name;
+			while ($upper_space_name ne $parent_name){
+				$upper_space_name = $next_conversion_node{ $upper_space_name }{ $name } 
+				                  = $next_conversion_node{ $upper_space_name }{ $parent_name };
+			}
+		}
     }
     push @search_order, $name;
     $space_obj{ $name } = $space;
@@ -61,62 +71,58 @@ sub remove_space {
     return "need name of color space as argument in order to remove the space" unless defined $name and $name;
     my $space = try_get_space( $name );
     return "can not remove unknown color space: $name" if not ref $space;
-    return "can not remove default color space: $name" if default_space() eq $space;
+    return "can not remove default color space: $name" if $space->name eq $default_space_name;
+
+    $name = $space->name;
+	my $upper_space_name = $default_space_name;
+	while ($upper_space_name ne $name){
+		$upper_space_name = delete $next_conversion_node{ $upper_space_name }{ $name };
+	}
     delete $space_obj{ $space->name('alias') } if $space->name('alias');
-    delete $space_obj{ $space->name };
+    delete $space_obj{ $name };
 }
 
 #### value API #########################################################
 sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wanted space
     my ($tuple, $target_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
+    return "need an ARRAY ref with 3 normalized RGB values as first argument in order to convert them" 
+		unless $default_space->is_number_tuple( $tuple );
+    return "need an target color space name as second argument in order to convert to it" unless defined $target_space_name;
     my $target_space = try_get_space( $target_space_name );
-    my $source_space = try_get_space( $source_space_name );
-    $want_result_normalized //= 0;
-    return "need an ARRAY ref with 3 RGB values as first argument in order to convert them"
-        unless default_space()->is_value_tuple( $tuple );
-    return $target_space unless ref $target_space;
-    return $source_space if not ref $source_space and defined $source_space_name;
-    return "arguments source_space_name and source_values have to be provided both or none."
+    return "did not found target color space !'$target_space_name'" unless ref $target_space;
+    return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none or them"
         if defined $source_space_name xor defined $source_tuple;
-    return "argument source_values has to be a tuple, if provided"
-        if $source_tuple and not $source_space->is_value_tuple( $source_tuple );
 
-	$tuple = [@$tuple];
-    # none conversion cases
-    $tuple = [@$source_tuple] if ref $source_tuple and $source_space eq $target_space;
-    if ($target_space->name eq default_space()->name or $source_space eq $target_space) {
-        return ($want_result_normalized) ? $tuple : $target_space->round( $target_space->denormalize( $tuple ) );
-    }
-    # find conversion chain
-    my $current_space = $target_space;
-    my @convert_chain = ($target_space->name);
-    while ($current_space->name ne $default_space_name ){
-        my ($next_space_name, @next_options) = $current_space->converter_names;
-        $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-        unshift @convert_chain, $next_space_name if $next_space_name ne $default_space_name;
-        $current_space = get_space( $next_space_name );
-    }
-    # actual conversion
+    my $source_space = try_get_space( $source_space_name );
+    return "got unknown source color space $source_space_name, it has to be know and not RGB !" if not ref $source_space 
+                                                                                                or $source_space->name eq $default_space->name;
+    return "argument source_values has to be a tuple, if provided"
+        if $source_space and not $source_space->is_number_tuple( $source_tuple );
+    $tuple = [@$tuple];                       # unwrap ref to avoid spooky action
+    my $current_space_name = $default_space_name; # we start in RGB
+    $target_space_name = $target_space->name; # use only normalized name
+    $want_result_normalized //= 0;            # normal flags to start state
     my $tuple_is_normal = 1;
-    my $space_name_before = default_space_name();
-    for my $space_name (@convert_chain){
-        my $current_space = get_space( $space_name );
-        if ($current_space eq $source_space){  # replace tuple with values from constructor if possible
+
+    while ($current_space_name ne $target_space_name){
+		my $next_space_name = $next_conversion_node{ $current_space_name }{ $target_space_name };
+		if ($next_space_name eq $source_space_name){  # replace tuple with values from constructor if possible
             $tuple = [@$source_tuple];
             $tuple_is_normal = 1;
         } else {
-            my @normal_in_out = $current_space->converter_normal_states( 'from', $space_name_before );
-            $tuple = $current_space->normalize( $tuple ) if not $tuple_is_normal and $normal_in_out[0];
-            $tuple = $current_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
-            $tuple = $current_space->convert_from( $space_name_before, $tuple );
+			my $next_space = get_space( $next_space_name );
+            my @normal_in_out = $next_space->converter_normal_states( 'from', $current_space_name );
+            $tuple = $next_space->normalize( $tuple ) if not $tuple_is_normal and $normal_in_out[0];
+            $tuple = $next_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
+            $tuple = $next_space->convert_from( $current_space_name, $tuple );
             $tuple_is_normal = $normal_in_out[1];
-            if (not $tuple_is_normal and $current_space ne $target_space){
+            if (not $tuple_is_normal and $next_space_name ne $target_space_name){
 				$tuple_is_normal = 1;
-				$tuple = $current_space->normalize( $tuple );
+				$tuple = $next_space->normalize( $tuple );
 			}
         }
-        $space_name_before = $current_space->name;
-    }
+		$current_space_name = $next_space_name;		
+	}
     $tuple = $target_space->normalize( $tuple )   if not $tuple_is_normal and $want_result_normalized;
     $tuple = $target_space->denormalize( $tuple ) if $tuple_is_normal and not $want_result_normalized;
     return $tuple;
@@ -145,7 +151,7 @@ sub deconvert { # normalizd value tuple --> RGB tuple
     my $tuple_is_normal = 1;
     # actual conversion
     while ($current_space->name ne $default_space_name){
-        my ($next_space_name, @next_options) = $current_space->converter_names;
+        my ($next_space_name, @next_options) = $current_space->conversion_tree_parent;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         if ($next_space_name eq $source_space){ # replace tuple with values from constructor if possible
             $tuple = [@$source_tuple];

@@ -17,14 +17,14 @@ my $cmy_axis   = [qw/yellow cyan magenta/];
 my $xyz_axis   = [qw/X Y Z/];
 my $lab_axis   = [qw/L* a* b*/];
 my $lch_axis   = [qw/luminance chroma hue/];
-my $black      = [0,0,0];
+my $black      = [0, 0, 0];
 my $white      = [1, 1, 1];
 
 ##### arg type checks ##################################################
 is( ref $convert->(),                       '', 'convert needs at least one argument');
 is( ref $convert->({r => 1,g => 1,b => 1}), '', 'convert only value ARRAY no HASH');
 is( ref $convert->([0,0]),                  '', 'tuple has not enough values');
-is( ref $convert->($black, 'Jou'),         '', 'convert needs a valid target name space');
+is( ref $convert->($black, 'Jou'),          '', 'convert needs a valid target name space');
 
 is( ref $deconvert->(),                     '', 'deconvert needs at least one argument');
 is( ref $deconvert->('JAP'),                '', 'deconvert needs a valid source space name name');

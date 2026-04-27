@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 44;
+use Test::More tests => 36;
 
 my $module = 'Graphics::Toolkit::Color::Values';
 eval "use $module";
@@ -23,19 +23,11 @@ is( $fuchsia_rgb->name,           'magenta',  'color has name "magenta"');
 is_tuple( $RGB->round($fuchsia_rgb->{'rgb_tuple'}, 7), [1, 0, 1], [qw/red green blue/], 'fuchsia got right core rgb values');
 
 $values = $fuchsia_rgb->normalized();
-is( ref $values,                 'ARRAY',  'normalized value tuple is an ARRAY');
-is( @$values,                          3,  'and has three values');
-is( $values->[0],                      1,  'red value is as expected');
-is( $values->[1],                      0,  'green value is as expected');
-is( $values->[2],                      1,  'blue value is as expected');
+is_tuple( $values, [1, 0, 1], [qw/red green blue/], 'normalized values default to RGB');
 is( $fuchsia_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named RGB string');
 is( $fuchsia_rgb->formatted('CMY', 'CSS_string', undef, 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
 $values = $fuchsia_rgb->formatted( '', 'ARRAY', undef, [20,30,40]);
-is( ref $values,                 'ARRAY',  'RGB value ARRAY');
-is( @$values,                          3,  'has three values');
-is( $values->[0],                     20,  'red value is in hand crafted range');
-is( $values->[1],                      0,  'green value is as expected');
-is( $values->[2],                     40,  'blue value is in hand crafted range');
+is_tuple( $values, [20, 0, 40], [qw/red green blue/], 'got values formatted into an ARRAY (custom ranges)');
 $values = $fuchsia_rgb->formatted( 'CMY', 'ARRAY', [20,30,40]);
 is( ref $values,                   '',  'ARRAY format is only for RGB');
 

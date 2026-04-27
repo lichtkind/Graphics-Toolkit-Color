@@ -87,17 +87,17 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
     my ($tuple, $target_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
     return "need an ARRAY ref with 3 normalized RGB values as first argument in order to convert them" 
 		unless $default_space->is_number_tuple( $tuple );
-    return "need an target color space name as second argument in order to convert to it" unless defined $target_space_name;
     my $target_space = try_get_space( $target_space_name );
-    return "did not found target color space !'$target_space_name'" unless ref $target_space;
-    return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none or them"
-        if defined $source_space_name xor defined $source_tuple;
-
+    return "got unknown space name: '$target_space_name' as second argument, can not convert " unless ref $target_space;
     my $source_space = try_get_space( $source_space_name );
-    return "got unknown source color space $source_space_name, it has to be know and not RGB !" if not ref $source_space 
-                                                                                                or $source_space->name eq $default_space->name;
-    return "argument source_values has to be a tuple, if provided"
-        if $source_space and not $source_space->is_number_tuple( $source_tuple );
+    return "did not found target color space !'$target_space_name'" unless ref $target_space;
+    if ($source_space_name xor $source_tuple){
+		return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none or them";
+	} elsif ($source_space_name and $source_tuple) {
+		return "got unknown source color space $source_space_name" if not ref $source_space;
+		return "argument source_values has to be a tuple, if provided" unless $source_space->is_number_tuple( $source_tuple );
+	}
+
     $tuple = [@$tuple];                       # unwrap ref to avoid spooky action
     my $current_space_name = $default_space_name; # we start in RGB
     $target_space_name = $target_space->name; # use only normalized name
@@ -106,7 +106,8 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
 
     while ($current_space_name ne $target_space_name){
 		my $next_space_name = $next_conversion_node{ $current_space_name }{ $target_space_name };
-		if ($next_space_name eq $source_space_name){  # replace tuple with values from constructor if possible
+		# replace tuple with values from constructor if possible
+		if (defined $source_space_name and $next_space_name eq $source_space_name){
             $tuple = [@$source_tuple];
             $tuple_is_normal = 1;
         } else {

@@ -2,8 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 154;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 93;
 
 my $module = 'Graphics::Toolkit::Color::SetCalculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
@@ -51,70 +52,40 @@ is( $colors[1]->name,            'yellow',   'second color is yellow');
 is( $colors[2]->name,                  '',   'third color has no name');
 is( $colors[3],                     $blue,   'got invocant back as last color');
 $values = $colors[0]->shaped('HSL');
-is( ref $values,                   'ARRAY',   'RGB values of color 2');
-is( int @$values,                        3,   'are 3 values');
-is( $values->[0],                      330,   'hue is 90');
-is( $values->[1],                      100,   'saturation is 100');
-is( $values->[2],                       50,   'lightness is half');
+is_tuple( $values, [330, 100, 50], [qw/hue saturation lightness/], 'first complement is pink');
 $values = $colors[1]->shaped('HSL');
-is( $values->[0],                       60,   'hue of second color is 60');
+is_tuple( $values, [ 60, 100, 50], [qw/hue saturation lightness/], 'second complement is yellow');
 $values = $colors[2]->shaped('HSL');
-is( $values->[0],                      150,   'hue of third color is 150');
+is_tuple( $values, [150, 100, 50], [qw/hue saturation lightness/], 'third complement is teal');
 $values = $colors[3]->shaped('HSL');
-is( $values->[0],                      240,   'hue of fourth color is 240');
+is_tuple( $values, [240, 100, 50], [qw/hue saturation lightness/], 'forth complement is blue (original color)');
 
 @colors = $complement->($midblue, 5, 0, []);
 is( int @colors,                        5,    '4 complements from custom color');
 is( $colors[4],                  $midblue,    'got invocant back as last color');
-$values = $colors[0]->shaped('HSL');
-is( ref $colors[0],            $value_ref,    'first color is a value object');
-is( $values->[0],                      309,   'hue value from first color is 309');
-is( $values->[1],                       88,   'saturation is 88');
-is( $values->[2],                       56,   'lightness is 56 as start');
-$values = $colors[1]->shaped('HSL');
-is( $values->[0],                       21,   'hue value from second color is 21');
-is( $values->[1],                       88,   'saturation is 88');
-$values = $colors[2]->shaped('HSL');
-is( $values->[0],                       93,  'hue value from third color is 93');
-is( $values->[2],                       56,   'lightness is 56');
+is_tuple( $colors[0]->shaped('HSL'), [ 309, 88, 56], [qw/hue saturation lightness/], 'first complement is lila');
+is_tuple( $colors[1]->shaped('HSL'), [  21, 88, 56], [qw/hue saturation lightness/], 'second complement is redish orange');
+is_tuple( $colors[2]->shaped('HSL'), [  93, 88, 56], [qw/hue saturation lightness/], 'third complement is green');
 	
 @colors = $complement->($blue, 3, 2, []);
-is( int @colors,                        3,    '3 complements with tilt');
-$values = $colors[0]->shaped('HSL');
-is( $values->[0],                        7,   'hue is 7 = 240 + ((1-(2/3**3)) * 180)');
-is( $values->[1],                      100,   'full saturation');
-is( $values->[2],                       50,   'half lightness');
-$values = $colors[1]->shaped('HSL');
-is( $values->[0],                      113,   'hue of second color is 113');
+is( int @colors,                        3,    '3 complements of blue with tilt');
+is_tuple( $colors[0]->shaped('HSL'), [ 7, 100, 50], [qw/hue saturation lightness/], 'first complement is red');
+is_tuple( $colors[1]->shaped('HSL'), [113, 100, 50], [qw/hue saturation lightness/], 'second complement is green');
+is_tuple( $colors[2]->shaped('HSL'), [240, 100, 50], [qw/hue saturation lightness/], 'third complement is blue');
 
 @colors = $complement->($blue, 4, 1.5, [10,-20,30]);
-is( int @colors,                        4,    '4 complements with tilt and moved target');
-$values = $colors[0]->shaped('HSL');
-is( $values->[0],                       36,   'hue of first color is 36 = 240 + 0,823*190');
-is( $values->[1],                       84,   'saturation of first color is 84');
-is( $values->[2],                       75,   'lightness of first color is ');
-$values = $colors[1]->shaped('HSL');
-is( $values->[0],                       70,   'hue of target is right');
-is( $values->[1],                       80,   'saturation of target is right');
-is( $values->[2],                       80,   'lightness of target is right');
-$values = $colors[2]->shaped('HSL');
-is( $values->[0],                      100,   'hue of third color is 100');
-is( $values->[1],                       84,   'saturation of third color is 84');
-is( $values->[2],                       75,   'lightness of third color is 75');
+is( int @colors,                        4,    '4 complements of blue with less tilt and moved target');
+is_tuple( $colors[0]->shaped('HSL'), [ 36, 84, 75], [qw/hue saturation lightness/], 'first complement is orange');
+is_tuple( $colors[1]->shaped('HSL'), [ 70, 80, 80], [qw/hue saturation lightness/], 'second complement is yellow');
+is_tuple( $colors[2]->shaped('HSL'), [100, 84, 75], [qw/hue saturation lightness/], 'third complement is green');
 
 #### gradient ##########################################################
 # @:colors, +steps, +tilt, :space --> @:values
 my $gradient = \&Graphics::Toolkit::Color::SetCalculator::gradient;
 @colors = $gradient->([$black, $white], 2, 0, $RGB);
-is( int @colors,                       2,  'minimal gradient has same colors as input');
-$values = $colors[0]->normalized();
-is( $values->[0],                      0,  'so first color has to be black (red normalzed)');
-is( $values->[1],                      0,  'so first color has to be black (green normalzed)');
-is( $values->[2],                      0,  'so first color has to be black (blue normalzed)');
-$values = $colors[1]->normalized();
-is( $values->[0],                      1,  'ssecond color has to be white (red normalzed)');
-is( $values->[1],                      1,  'ssecond color has to be white (green normalzed)');
-is( $values->[2],                      1,  'ssecond color has to be white (blue normalzed)');
+is( int @colors,                       2,  'minimal gradient between black and white');
+is_tuple( $colors[0]->normalized(), [ 0, 0, 0], [qw/red green blue/], 'first color has to be black, normalized');
+is_tuple( $colors[1]->normalized(), [ 1, 1, 1], [qw/red green blue/], 'first color has to be white, normalized');
 
 @colors = $gradient->([$black, $white], 3, 0, $RGB);
 is( int @colors,                        3,  'gradient has length of three');
@@ -133,41 +104,25 @@ is( ref $colors[2],           $value_ref,   'third color is value obj');
 is( ref $colors[3],           $value_ref,   'fourth color is a value obj');
 is( $colors[0]->name,             'blue',   'number 1 is blue');
 is( $colors[3]->name,            'white',   'number 4 is white');
-
-$values = $colors[1]->shaped();
-is( ref $values,                   'ARRAY',   'RGB values of color 2');
-is( int @$values,                        3,   'are 3 values');
-is( $values->[0],                       85,   'red value is right');
-is( $values->[1],                       85,   'green value is right');
-is( $values->[2],                      255,   'blue value is right');
-$values = $colors[2]->shaped();
-is( $values->[0],                      170,   'red value of third color is right');
+is_tuple( $colors[1]->shaped(), [ 85, 85, 255], [qw/red green blue/], 'second color is light blue');
+is_tuple( $colors[2]->shaped(), [170, 170, 255], [qw/red green blue/], 'third color is lighter blue');
 
 @colors = $gradient->([$red, $white], 3, 0, $HSL);
 is( int @colors,                         3,    'got 3 color gradient in HSL');
 $values = $colors[0]->shaped('HSL');
-is( $values->[0],                        0,    'hue of red is zero');
-is( $values->[1],                      100,    'full saturation of red in HSL');
-is( $values->[2],                       50,    'half lightness of red in HSL');
+is_tuple( $values, [0, 100, 50], [qw/hue saturation lightness/], 'first color in straight gradient between red and white is red');
 $values = $colors[1]->shaped('HSL');
-is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       50,    'full saturation of red in HSL');
-is( $values->[2],                       75,    '3/4 lightness of red in HSL');
+is_tuple( $values, [0, 50, 75], [qw/hue saturation lightness/], 'second color is light red');
 $values = $colors[2]->shaped('HSL');
-is( $values->[0],                        0,    'hue of white is zero');
-is( $values->[1],                        0,    'no saturation of white in HSL');
-is( $values->[2],                      100,    'full lightness of white in HSL');
+is_tuple( $values, [0, 0, 100], [qw/hue saturation lightness/], 'third color is white');
 
 @colors = $gradient->([$red, $white], 3, 1, $HSL);
 $values = $colors[1]->shaped('HSL');
-is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       75,    'due tilt middle color saturation is 3/4 red');
-is( $values->[2],                       63,    'due tilt middle color lightness is 3/4 red');
+is_tuple( $values, [0, 75, 63], [qw/hue saturation lightness/], 'second gradient color between red and white is bright red');
+
 @colors = $gradient->([$red, $white], 3, -1, $HSL);
 $values = $colors[1]->shaped('HSL');
-is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       25,    'due reverse tilt middle color saturation is 1/4 red');
-is( $values->[2],                       88,    'due reverse tilt middle color lightness is 1/4 red');
+is_tuple( $values, [0, 25, 88], [qw/hue saturation lightness/], 'second gradient color between red and white is rose');
 
 @colors = $gradient->([$red, $white, $blue], 9, 0, $RGB);
 is( int @colors,                         9,    'got 9 color gradient in RGB');
@@ -175,24 +130,16 @@ is( $colors[0]->name,                'red',    'starting with red');
 is( $colors[4]->name,              'white',    'white is in the middle');
 is( $colors[8]->name,               'blue',    'blue is at the end');
 $values = $colors[5]->shaped('RGB');
-is( ref $values,                  'ARRAY',      'get RGB values inside multi segment gradient');
-is( $values->[0],                     191,      'red value is right');
-is( $values->[1],                     191,      'green value is right');
-is( $values->[2],                     255,      'blue value is right');
+is_tuple( $values, [191, 191, 255], [qw/red green blue/], 'fifth color in gradient is light blue');
 
 @colors = $gradient->([$red, $white, $blue], 5, 2, $HSL);
 $values = $colors[1]->shaped('HSL');
 is( int @colors,                         5,    'got 5 colors in complex and tiltet gradient in HSL');
 is( $colors[4],                      $blue,    'last color is blue');
 $values = $colors[1]->shaped('HSL');
-is( $values->[0],                        0,    'hue of rose is zero');
-is( $values->[1],                       97,    'saturation is 97 = (1-0.03125)*100');
-is( $values->[2],                       52,    'lightness is 52 = (1-0.03125)*50)+(0.03125*100)');
+is_tuple( $values, [0, 97, 52], [qw/hue saturation lightness/], 'second gradient color is rose');
 $values = $colors[3]->shaped('HSL');
-is( $values->[0],                        0,    'fourth color is still rose due strong tilt');
-is( $values->[1],                       16,    'saturation is 16 = (1 - ((3/4)**3)) * 100');
-is( $values->[2],                       92,    'lightness is 71 = ((1-((3/4)**3)) * 50) + ((3/4)**3 * 100)');
-
+is_tuple( $values, [0, 16, 92], [qw/hue saturation lightness/], 'fourth color is still kind of rose due strong tilt');
 
 #### cluster ###########################################################
 # :values, +radius @+|+distance, :space --> @:values
@@ -201,70 +148,48 @@ my $cluster = \&Graphics::Toolkit::Color::SetCalculator::cluster;
 @colors = $cluster->($midblue, [0,0,0], 1, $RGB);
 is( int @colors,                        1,    'computed minimal cuboid cluster with 1 color');
 $values = $colors[0]->shaped('RGB');
-is( ref $values,                  'ARRAY',    'got the mid blue values');
-is( $values->[0],                      43,    'red value is right');
-is( $values->[1],                      52,    'green value is right');
-is( $values->[2],                     242,    'blue value is right');
+is_tuple( $values, [43, 52, 242], [qw/red green blue/], 'color nr 1 is the given');
 
 @colors = $cluster->($midblue, [0,1,0], 1, $RGB);
 is( int @colors,                        3,    'computed tiny line shaped cluster with 3 colors');
 $values = $colors[0]->shaped('RGB');
-is( $values->[0],                      43,    'red value of first color is right');
-is( $values->[1],                      51,    'green value of first color is right');
+is_tuple( $values, [43, 51, 242], [qw/red green blue/], 'color nr 1 has less green');
 $values = $colors[1]->shaped('RGB');
-is( $values->[1],                      52,    'green value of second color is right');
-is( $values->[2],                     242,    'blue value of second color is right');
-is( $colors[2]->shaped('RGB')->[1],    53,    'green value of third color is right');
-
+is_tuple( $values, [43, 52, 242], [qw/red green blue/], 'color nr 2 is the given');
+$values = $colors[2]->shaped('RGB');
+is_tuple( $values, [43, 53, 242], [qw/red green blue/], 'color nr 3 has more green');
 
 @colors = $cluster->($midblue, [1,1,1], 1, $RGB);
 is( int @colors,                       27,    'computed tiny cuboid cluster with 27 colors');
 $values = $colors[0]->shaped('RGB');
-is( ref $values,                  'ARRAY',    'got first color in min corner');
-is( $values->[0],                      42,    'red value is right');
-is( $values->[1],                      51,    'green value is right');
-is( $values->[2],                     241,    'blue value is right');
+is_tuple( $values, [42, 51, 241], [qw/red green blue/], 'got first color in min corner');
 $values = $colors[26]->shaped('RGB');
-is( ref $values,                  'ARRAY',    'got last color in max corner');
-is( $values->[0],                      44,    'red value is right');
-is( $values->[1],                      53,    'green value is right');
-is( $values->[2],                     243,    'blue value is right');
+is_tuple( $values, [44, 53, 243], [qw/red green blue/], 'got last color in max corner');
 
 @colors = $cluster->($midblue, [1,2,3], 1, $RGB);
 is( int @colors,                      105,    'computed cluster with 105 colors');
 $values = $colors[0]->shaped('RGB');
-is( ref $values,                  'ARRAY',    'got first color in min corner');
-is( $values->[0],                      42,    'red value is right');
-is( $values->[1],                      50,    'green value is right');
-is( $values->[2],                     239,    'blue value is right');
+is_tuple( $values, [42, 50, 239], [qw/red green blue/], 'got first color in min corner');
 
 @colors = $cluster->($white, [1.01,1.01,1.01], 1, $HSL);
 is( int @colors,                       12,    'cluster edging on roof of HSL space');
-
 @colors = $cluster->($midblue, 0, 1, $HSL);
 is( int @colors,                        1,    'computed minmal ball shaped cluster with one color');
 @colors = $cluster->($midblue, 2.01, 2, $RGB);
 is( int @colors,                       13,    'computed smallest ball shaped cluster in RGB');
-$values = $colors[1]->shaped('RGB');
-is( ref $values,                  'ARRAY',    'center color is on pos one');
-is( $values->[0],                      43,    'red value is right');
-is( $values->[1],                      52,    'green value is right');
-is( $values->[2],                     242,    'blue value is right');
 $values = $colors[0]->shaped('RGB');
-is( $values->[0],                      41,    'first color has less red');
-is( $values->[2],                     242,    'blue is same as center');
+is_tuple( $values, [41, 52, 242], [qw/red green blue/], 'values of cluster member nr 1 has more red');
+$values = $colors[1]->shaped('RGB');
+is_tuple( $values, [43, 52, 242], [qw/red green blue/], 'values of cluster member nr 2');
 $values = $colors[2]->shaped('RGB');
 is( $values->[0],                      45,    'third color has more red');
 $values = $colors[12]->shaped('RGB');
-is( $values->[0],                      42,    'red value is right (was rounded up to same)');
-is( $values->[1],                      51,    'green value is right');
-is( $values->[2],                     241,    'blue value is right (1.4 less but rounded up)');
+is_tuple( $values, [42, 51, 241], [qw/red green blue/], 'rounded RGB values of cluster member nr 13');
+
 @colors = $cluster->($midblue, 2.01, 2, $HSL);
 is( int @colors,                       13,    'same cuboctahedral packing in HSL');
-
 @colors = $cluster->($midblue, 2, 1, $RGB);
 is( int @colors,                       47,    'computed smallest ball shaped cluster in RGB');
-
 @colors = $cluster->($white, 1.01, 1, $RGB);
 is( int @colors,                        4,    'cluster edging on corner of RGB space');
 

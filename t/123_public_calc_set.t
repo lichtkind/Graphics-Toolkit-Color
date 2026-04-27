@@ -2,7 +2,8 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
 use Test::More tests => 95;
 use Graphics::Toolkit::Color qw/color/;
 
@@ -40,6 +41,8 @@ is(($colors[2]->values('HSL'))[0],      0,    'red has hue of 0');
 @colors = $red->complement( steps => 3, tilt => 1 );
 is( int @colors,                        3,    'got split complement');
 @values = $colors[0]->values('HSL');
+# is_tuple( \@values, [ 120, 50, 75], [qw/hue saturation lightness/], 'mix white and blue 1:1 in HSL');
+
 is( @values,                            3,    'first color in HSL');
 is( $values[0],                       100,    '0 + 1 - 4/9 of 180 hue degree');
 is( $values[1],                       100,    'full saturation');

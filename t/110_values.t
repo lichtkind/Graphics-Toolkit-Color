@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 36;
+use Test::More tests => 36	;
 
 my $module = 'Graphics::Toolkit::Color::Values';
 eval "use $module";

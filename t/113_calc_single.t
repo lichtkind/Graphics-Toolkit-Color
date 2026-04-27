@@ -5,7 +5,6 @@ use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
 use Test::More tests => 40;
-use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color::Values;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';

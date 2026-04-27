@@ -1,16 +1,17 @@
 2.1    2026-04-28   lichtkind
 -------
-    * = big feature release: +12 spaces, +1 method, +6 args
+    * = big feature release: +12 spaces, +6 args, +2 features
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB,
                           ProPhoto RGB, Wide Gamut RGB,      Rec.709, Rec.2020,
                           Linear Display P3, Display P3, Linear DCI P3, DCI P3
     * + add 'is_in_gamut' argument 'color' and 'in' (check if color is in gamut of some space)
     * + add constructor argument 'color', 'range' and 'raw' to input custom ranged values
     * + add argument 'raw' to method 'values' to return even out of gamut values
+    * + added hash format for range definitions: {r => 100, g => 'normal', b => [-.5,.5]}
     * + can insert ' ', '-', '_' and '.' into color space names
-    * ~ CIEXYZ converts now from and to linearRGB
     * ? document the 'only' argument of 'invert'
     * & compact test suite with custom color tuple test function
+    * ~ CIEXYZ converts now from and to linearRGB
     * ! HSB, HWB and NCol space got same constraints as HSV
 
 2.02    2026-03-30   lichtkind
@@ -55,20 +56,20 @@
 
 1.972    2025-09-30    lichtkind
 -------
-    * = small fix release: 2 fixes
+    * = small fix release: +2 fixes
     * ? POD fixed / rewrote for methods "values", "name", "closest_name", "distance"
     * ! public API cluster method test fix
 
 1.971    2025-08-31    lichtkind
 -------
-    * = small fix release: 3 fixes
+    * = small fix release: +3 fixes
     * ? documented latest input format
     * ? typos in POD
     * ! more cluster method test fixes
 
 1.97    2025-08-30    lichtkind
 -------
-    * = small feature release + 1 fix
+    * = small feature release +1 fix
     * + new input format: space_name => [ ....]
     * + method "name" can now return names from a radius
     * ~ renamed cluster argument: distance => minimal_distance
@@ -89,7 +90,7 @@
 
 1.95    2025-08-29    lichtkind
 -------
-    * = mid sized feature release + 3 fixes
+    * = mid sized feature release: +3 fixes
     * * added support of 3 color spaces: OKLAB, OKLCH, HunterLAB
     * + methods "name" and "closest_name" can now return multiple names and full names
     * ? rewrote some POD
@@ -100,7 +101,7 @@
 
 1.92    2025-08-20    lichtkind
 -------
-    * = mid sized feature release + 1 fix
+    * = mid sized feature release: +1 fix
     * * methods "name" and "closest_name" work on any scheme from Graphics::ColorNames
     * ~ extended "CSS_string" format, commas are now optional
     * ~ no space between axis value and suffix allowed
@@ -117,7 +118,7 @@
 
 1.9     2025-08-12    lichtkind
 -------
-    * = major feature release
+    * = major feature release: +5 spaces, +3 methods, +3 features
     * * added "cluster" and "invert" calculation method
     * * added "closest_name" method
     * * added support of 5 color spaces: NCol YUV CIELUV CIELCHab CIELCHuv,
@@ -140,7 +141,7 @@
 
 1.71     2023-09-21    lichtkind
 -------
-    * = doc fixes
+    * = 4 doc fixes
     * ? typos, misspellings, broken sentences
     * ? added range def explanation
     * ? simplified HEADINGS
@@ -157,7 +158,7 @@
 
 1.61     2023-09-12    lichtkind
 -------
-    * = fix tests
+    * = small fix release
     * ~ renamed complementary method => complement
     * - deprecated complementary, will be removed at 2.0
 
@@ -172,7 +173,7 @@
 
 1.54     2023-08-21    lichtkind
 -------
-    * = API development
+    * = small feature release
     * + added named ARRAY syntax for constructor like [CMYK => 0,0,1,1]
     * - removed option to get single values from values method
     * & split GTC::Constant package into ::Name and ::Name::Constant
@@ -228,7 +229,7 @@
 
 1.07    2023-01-20    lichtkind
 -------
-    * = POD fixes
+    * = several POD fixes
 
 1.06    2023-01-20    lichtkind
 -------

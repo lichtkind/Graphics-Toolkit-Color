@@ -15,19 +15,21 @@ sub is_tuple {
     my $pass = 0;
     my $diag = '';
 
-    if   ( @_ < 4 ) { $diag = "'is_tuple' got not enough arguments" } 
+    if    ( @_ < 4 )          { $diag = "'is_tuple' got not enough arguments" }
+    elsif (not defined $name) { $diag = "got no test name" }
     else {
 		$diag = "failed test: $name -";
-		if    (ref $got ne 'ARRAY')     { $diag .= " got values that are not a tuple (ARRAY ref)" } 
-	    elsif (ref $expected ne 'ARRAY'){ $diag .= " expected values are not a tuple (ARRAY ref)" } 
-	    elsif (ref $axis ne 'ARRAY')    { $diag .= " axis names are not in a tuple (ARRAY ref)" } 
+		if    (not defined $got )       { $diag .= " got no values (need an ARRAY ref)" } 
+	    elsif (not defined $expected)   { $diag .= " got no expected values (need an ARRAY ref)" } 
+	    elsif (not defined $axis )      { $diag .= " got no axis names (need an ARRAY ref)" } 
+		elsif (ref $got ne 'ARRAY')     { $diag .= " got values: '$got' that are not a tuple (ARRAY ref)" } 
+	    elsif (ref $expected ne 'ARRAY'){ $diag .= " expected values: '$expected' are not a tuple (ARRAY ref)" } 
+	    elsif (ref $axis ne 'ARRAY')    { $diag .= " axis names: '$axis' are not in a tuple (ARRAY ref)" } 
 	    else {
 			my $tuple_length = @$axis;
-			if    ( @$got > $tuple_length)     { $diag .= " got more values than axis names ($tuple_length)" }
-			elsif ( @$got < $tuple_length)     { $diag .= " got less values than axis names ($tuple_length)" }
-			elsif ( @$expected > $tuple_length){ $diag .= " expected value tuple has more values than axis names ($tuple_length)" }
-			elsif ( @$expected < $tuple_length){ $diag .= " expected value tuple has less values than axis names ($tuple_length)" }
-			else {
+			if    ( @$got != $tuple_length)     { $diag .= " expected $tuple_length values (axis count) in tuple, but got ".(int @$got) }
+			elsif ( @$expected != $tuple_length){ $diag .= " need $tuple_length values (axis count) to compare with (expect), but got ".(int @$expected) }
+			else  {
 				$pass = 1;
 				for my $axis_number (0 .. $#$axis){
 					my $axis_name = $axis->[$axis_number];

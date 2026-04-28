@@ -21,15 +21,15 @@ sub new {
     my ($pkg, @args) = @_;
     my $help = <<EOH;
      constructor new of Graphics::Toolkit::Color object needs either:
-     1. a color name: new('red') or new('SVG:red')
-     3. RGB hex string new('#FF0000') or new('#f00')
-     4. RGB list or ARRAY ref: new( 255, 0, 0 ) or new( [255, 0, 0] )
-     5. named list or named ARRAY:  new( 'HSL', 255, 0, 0 ) or new( ['HSL', 255, 0, 0 ])
-        which works even nested: new( 'HSL' => [ 255, 0, 0 ])
-     6. named string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
-     7. HASH or HASH ref with values from RGB or any other space:
-        new(r => 255, g => 0, b => 0) or new({ hue => 0, saturation => 100, lightness => 50 })
-     8. or use the key 'color' with any SCALAR color definition in order to add
+     1. a color name: 'red' or 'SVG:red'
+     2. RGB hex string '#FF0000' or '#f00'
+     3. RGB list or ARRAY ref: ( 255, 0, 0 ) or ( [255, 0, 0] )
+     4. named list or named ARRAY:  ( 'HSL', 255, 0, 0 ) or ( ['HSL', 255, 0, 0 ])
+        which works even nested: 'HSL' => [ 255, 0, 0 ] or ['HSL' => [ 255, 0, 0 ]]
+     5. string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
+     6. HASH or HASH ref with values from RGB or any other space:
+        (r => 255, g => 0, b => 0) or { hue => 0, saturation => 100, lightness => 50 }
+     7. or use the key 'color' with any SCALAR color definition in order to add
         the option 'raw' and/or 'range'
 EOH
     my ($color_def, $range_def, $raw) = _compact_color_def_into_scalar( @args );
@@ -122,7 +122,7 @@ sub values       {
         range => 1,           # value range (SCALAR or ARRAY), default set by space def
         precision => 3,       # value precision (SCALAR or ARRAY), default set by space
         suffix => '%',        # value suffix (SCALAR or ARRAY), default set by color space
-        raw => 1,             # no value clamping, rounding and scaling inly by arg request
+        raw => 1,             # no value clamping, rounding and scaling only by arg request
 
 EOH
     return $arg.$help unless ref $arg;
@@ -136,12 +136,12 @@ sub name         {
      my $help = <<EOH;
     GTC method 'name' accepts three optional, named arguments:
     name ( ...
-        'CSS'                 # color naming scheme works as only positional argument
-        from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
-        from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
-        all => 1              # returns list of all names with the object's RGB values (defaults 0)
-        full => 1             # adds color scheme name to the color name. 'SVG:red' (defaults 0)
-        distance => 3         # color names from within distance of 3 (defaults 0)
+        'CSS',                # color naming scheme works as only positional argument
+        from => 'CSS',        # same scheme (defaults to internal: X + CSS + PantoneReport)
+        from => ['SVG', 'X'], # more color naming schemes at once, without duplicates
+        all => 1,             # returns list of all names with the object's RGB values (defaults 0)
+        full => 1,            # adds color scheme name to the color name. 'SVG:red' (defaults 0)
+        distance => 3,        # color names from within distance of 3 (defaults 0)
 EOH
     return Graphics::Toolkit::Color::Name::from_values( $self->{'values'}->shaped, @$arg{qw/from all full distance/});
 }
@@ -152,11 +152,11 @@ sub closest_name {
     my $help = <<EOH;
     GTC method 'closest_name' accepts three optional, named arguments:
     closest_name ( ...
-        'CSS'                 # color naming scheme works as only positional argument
-        from => 'CSS'         # same scheme (defaults to internal: X + CSS + PantoneReport)
-        from => ['SVG', 'X']  # more color naming schemes at once, without duplicates
-        all => 1              # returns list of all names with the object's RGB values (defaults 0)
-        full => 1             # adds color scheme name to the color name. 'SVG:red' (defaults 0)
+        'CSS',                # color naming scheme works as only positional argument
+        from => 'CSS',        # same scheme (defaults to internal: X + CSS + PantoneReport)
+        from => ['SVG', 'X'], # more color naming schemes at once, without duplicates
+        all => 1,             # returns list of all names with the object's RGB values (defaults 0)
+        full => 1,            # adds color scheme name to the color name. 'SVG:red' (defaults 0)
 EOH
     my ($name, $distance) = Graphics::Toolkit::Color::Name::closest_from_values(
                                 $self->{'values'}->shaped, @$arg{qw/from all full/});
@@ -170,10 +170,10 @@ sub distance {
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
     distance ( ...
-        to => 'green'         # color object or color definition (required)
-        in => 'HSL'           # color space name, defaults to "$default_space_name"
-        select => 'red'       # axis name or names (ARRAY ref), default is none
-        range => 2**16        # value range definition, defaults come from color space def
+        to => 'green',        # color object or color definition (required)
+        in => 'HSL',          # color space name, defaults to "$default_space_name"
+        select => 'red',      # axis name or names (ARRAY ref), default is none
+        range => 2**16,       # value range definition, defaults come from color space def
 EOH
     return $arg.$help unless ref $arg;
     my $target_color = _new_from_scalar_def( $arg->{'to'} );
@@ -216,7 +216,8 @@ sub apply {
     GTC method 'apply' accepts one named argument with a numeric value:
     apply ( ...
         gamma => 2.2,          # reverse is with 1 / 2.2
-        in => 'OKlab',         # compute in oklab space
+        gamma => {r=> 1, g=> 2, b=> 1.2},  # custom gamma per axis
+        in => 'OKLAB',         # compute in oklab space
 EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
@@ -266,11 +267,12 @@ sub mix {
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
-        to => ['HSL', 240, 100, 50]    # scalar color definition or ARRAY ref thereof
-        amount => 20                   # percentage value or ARRAY ref thereof, default is 50
-        in => 'HSL'                    # color space name, defaults to "$default_space_name"
-    Please note that either both or none of the first two arguments has to be an ARRAY.
+        to => ['HSL', 240, 100, 50],   # scalar color definition or ARRAY ref thereof
+        amount => 20,                  # percentage value or ARRAY ref thereof, default is 50
+        in => 'HSL',                   # color space name, defaults to "$default_space_name"
+    Please note that ARRAY for amount makes only sense if to got also an ARRAY.
     Both ARRAY have to have the same length. 'amount' refers to the color(s) picked with 'to'.
+    It is possible to give to an ARRAY and amount a SCALAR.
 EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
@@ -336,9 +338,9 @@ sub complement {
     my $help = <<EOH;
     GTC method 'complement' is computed in HSL and has two named, optional arguments:
     complement ( ...
-        steps => 20                                 # count of produced colors, default is 1
-        tilt => 10                                  # default is 0
-        target => {h => 10, s => 20, l => 3}        # sub-keys are independent, default to 0
+        steps => 20,                                # count of produced colors, default is 1
+        tilt => 10,                                 # default is 0
+        target => {h => 10, s => 20, l => 3},       # sub-keys are independent, default to 0
 EOH
     return $arg.$help unless ref $arg;
     return "Optional argument 'steps' has to be a number !\n".$help unless is_nr($arg->{'steps'});
@@ -361,10 +363,10 @@ sub gradient {
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, only the first is required:
     gradient ( ...
-        to => 'blue'              # scalar color definition or ARRAY ref thereof
-        steps =>  20              # count of produced colors, defaults to 10
-        tilt  =>  1               # dynamics of color change, defaults to 0
-        in => 'HSL'               # color space name, defaults to "$default_space_name"
+        to    => 'blue',         # scalar color definition or ARRAY ref thereof
+        steps => 20,             # count of produced colors, defaults to 10
+        tilt  => 1,              # dynamics of color change, defaults to 0
+        in    => 'HSL',          # color space name, defaults to "$default_space_name"
 EOH
     return $arg.$help unless ref $arg;
     my @colors = ($self->{'values'});
@@ -564,19 +566,19 @@ See all scheme names L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
 The color name will be normalized as described above.
 
     my $color = Graphics::Toolkit::Color->new('SVG:green');
-    my @schemes = Graphics::ColorNames::all_schemes();    # look up the installed
+    my @schemes = Graphics::ColorNames::all_schemes();    # list installed schemes
 
 
 =head2 new( color => .., range => .., raw => ..)
 
 In the rare occasion you are given a color definition with values in a 
 none standard range, you will need a mechanism to tell GTC what ranges
-to use when reading the color definition. This is also imortant in 
+to use when reading the color definition. This is also important in 
 combination with wider gamut spaces such as I<ProPhotoRGB> that use either
 normalized values or several huge none standard ranges, in order to get
 a similar resolution for the normal colors as stadard RGB.
 
-Just use the named argumend color and give it a scalar color definition
+Just use the named argument I<color> and give it a scalar color definition
 as described above. The second argument that can be L</range>.
 
     my $color = Graphics::Toolkit::Color->new( 
@@ -587,7 +589,7 @@ The second reason to use the B<color> argument is to combine it with B<raw>.
 Then the values will be not be clamped into range, taken as is.
 You might want to use the argument I<raw> also on the method I<values>.
 This is the only way to calculate with imaginary colors.
-But please note this might cause some functions not to work as inteded.
+But please note this might cause some functions not to work as intended.
 
     my $color = Graphics::Toolkit::Color->new( 
                  color => {r => 0, g => 0, b => 256}, raw => 1
@@ -600,7 +602,7 @@ If writing
 
     Graphics::Toolkit::Color->new( ...);
 
-is too much typing work for you or takes up to much space in the code file,
+is too much typing work for you or takes up too much space in the code file,
 import the subroutine C<color>, which accepts all the same arguments as C<new>.
 
     use Graphics::Toolkit::Color qw/color/;
@@ -627,7 +629,7 @@ and forces them to be in gamut - this method is only needed to ensure
 that there is nothing to clamp and the constructor did not change any value.
 
 If it is too clumsy for you to use an existing color object to check if
-another color is valid: use th importable routine with the same name.
+another color is valid: use the importable routine with the same name.
 
 Please note also that gamuts of color spaces are different. A color which 
 is out of gamut in one space can be in gamut in another space. This method
@@ -635,8 +637,8 @@ will use the color space the color is defined in per default. But you
 can also specify the space as always with the argument L</in>.
 
 
-    $color->is_in_gamut( in => 'okLab');                    # convert current without clamp ?
-    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # can read color without clamp ?
+    $color->is_in_gamut( in => 'okLab');                    # does convert clamp $color?
+    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
     if (is_in_gamut('rgb: 0, 0, 300')){                     # 300 will be clamped to 255
@@ -881,12 +883,12 @@ the mixed in color(s) get, counted in percentage. The remaining percentage
 to 100 is the share of the color, held by the caller object. This would
 be naturally nothing, if the C<amount> is greater than hundret. When mixing
 more than two colors at once, C<amount> accpets also an ARRAY of share values
-that will applied in the same order as the colors of the C<to> argument.
+that will be applied in the same order as the colors of the C<to> argument.
 Their sum can reach easily values greater than 100. In that case again
 the calling object gets no share. If the amount-sum is greater than 100,
 than the amounts will be recalculated, keeping the ratios but leaving
-out the calling color. If you mix mor than two colors, but provide only
-one scalar amout value, then will be applied to all mixed in colors.
+out the calling color. If you mix more than two colors, but provide only
+one scalar amount value, then it will be applied to all mixed in colors.
 
     $blue->mix( $silver );                                         # 50% silver, 50% blue
     $blue->mix( to => 'silver', amount => 60 );                    # 60% silver, 40% blue
@@ -899,9 +901,9 @@ one scalar amout value, then will be applied to all mixed in colors.
 
 =head2 invert
 
-Computes the a new color object, where all or some values are inverted 
+Computes a new color object, where all or some values are inverted 
 according to the ranges of the chosen color space (see L</in>). It takes 
-two optional, positional argument, a space name and axis names.
+two optional, positional arguments, a space name and axis names.
 
     my $black = $white->invert();                   # to state the obvious
     my $gray = $gray->invert();                     # changed nothing
@@ -952,9 +954,8 @@ the central column and C<lightness> (or C<l>) move it up and down.
 
     my @colors = $c->complement( 4 );                       # 'tetradic' colors
     my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
-    my @colors = $c->complement( steps => 3, tilt => { move => 2, target => {l => -10}} );
-    my @colors = $c->complement( steps => 3, tilt => { move => 2,
-                                                     target => { h => 20, s=> -5, l => -10 } });
+    my @colors = $c->complement( steps => 3, tilt => 2, target => { l => -10 } );
+    my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });
 
 
 =head2 gradient
@@ -990,8 +991,8 @@ Tip: use C<oklab> and C<cieluv> spaces for visually smooth gradients.
 =head2 cluster
 
 Computes a set of colors that are all similar but not the same.
-The method accepts three named arguments: C<radius>, C<distance> and L</in>,
-of which the first two are required.
+The method accepts three named arguments: C<radius>, C<minimal_distance>
+and L</in>, of which the first two are required.
 
 The produced colors form a ball or cuboid in a color space around the given
 color, depending on what the argument C<radius> got. If it is a single
@@ -1000,8 +1001,8 @@ values you get the a cuboid with the given dimensions.
 
 The minimal distance between any two colors of a cluster is set by the
 C<minimal_distance> argument, which is computed the same way as the method
-L</distance>, in has a short alias C<min_d>. In a cuboid shaped cluster-
-the colors will form a cubic grid - inside the ball shaped cluster they
+C<minimal_distance>, it has a short alias C<min_d>. In a cuboid shaped cluster,
+colors will form a cubic grid - inside the ball shaped cluster they
 form a cuboctahedral grid, which is packed tighter, but still obeys the
 minimal distance.
 
@@ -1014,7 +1015,7 @@ minimal distance.
 
 Some named arguments of the above listed methods reappear in several methods.
 Thus they are explained here once. Please note that you must NOT wrap
-the named args in curly braces (HASH ref) but you may if you prefer todo so.
+the named args in curly braces (HASH ref) but you may if you prefer to do so.
 
 
 =head2 in
@@ -1036,7 +1037,7 @@ L</gradient>, L</cluster>.
 Every color space comes with range definitions for its values.
 For instance I<red>, I<green> and I<blue> in I<RGB> go usually from zero
 to 255 (0..255). In order to change that, many methods accept the named
-argument C<range>. When only one interger value provided, it changes the
+argument C<range>. When only one integer value is provided, it changes the
 upper bound on all three axis and as lower bound is assumed zero.
 Let's say you need I<RGB16> values with a range of 0 .. 65536,
 then you type C<< range => 65536 >> or C<< range => 2**16 >>.
@@ -1064,7 +1065,7 @@ The following methods accept the I<to> argument:  L</distance>, L</mix>, L</grad
 
 =head2 raw
 
-This argument sa perlish pseudo boolean (0 or 1). But since it
+This argument is a perlish pseudo boolean (0 or 1). But since it
 defaults to 0, you use it only with 1 or a fitting word string.
 It signifies that the color values will not be clamped into gamut
 and maybe not even rounded.

@@ -1,5 +1,5 @@
 
-# store all clolor space objects, to convert check, convert and measure color values
+# store all color space objects, to convert check, convert and measure color values
 
 package Graphics::Toolkit::Color::Space::Hub;
 use v5.12;
@@ -11,7 +11,7 @@ my @load_order = ($default_space_name,
                   qw/RGBLinear CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                   qw/AppleRGB AdobeRGB ProPhotoRGB WideGamutRGB/,
-                  qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3/,
+                  qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3 Rec709 Rec2020/,
                   qw/OKLAB OKLCH/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
 my ($default_space, @search_order, %space_obj, %next_conversion_node);
@@ -27,7 +27,7 @@ sub get_space          { # takes only normal names or alias names
     return unless defined $name;
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
-sub try_get_space      { # takes any name vaiant and defaults to $default_space_name
+sub try_get_space      { # takes any name variant and defaults to $default_space_name
     my $name = shift || $default_space_name;
     return $name if ref $name eq 'Graphics::Toolkit::Color::Space' and is_space_name( $name->name );
     $name = default_space()->normalize_name( $name );
@@ -92,7 +92,7 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
     my $source_space = try_get_space( $source_space_name );
     return "did not found target color space !'$target_space_name'" unless ref $target_space;
     if ($source_space_name xor $source_tuple){
-		return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none or them";
+		return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none of them";
 	} elsif ($source_space_name and $source_tuple) {
 		return "got unknown source color space $source_space_name" if not ref $source_space;
 		return "argument source_values has to be a tuple, if provided" unless $source_space->is_number_tuple( $source_tuple );
@@ -128,22 +128,23 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
     $tuple = $target_space->denormalize( $tuple ) if $tuple_is_normal and not $want_result_normalized;
     return $tuple;
 }
-sub deconvert { # normalizd value tuple --> RGB tuple
-    my ($tuple, $space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
-    my $original_space = try_get_space( $space_name );
+sub deconvert { # normalized value tuple --> RGB tuple
+    my ($tuple, $original_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
+    my $original_space = try_get_space( $original_space_name );
     my $source_space = try_get_space( $source_space_name );
     $want_result_normalized //= 0;
-    return $original_space unless ref $original_space;
-    return $source_space if not ref $source_space and defined $source_space_name;
+    return "need a space name to convert from as second argument" unless defined $original_space_name;
+    return "got unknown color space name as second argument" unless ref $original_space;
+    return "need as first argument an ARRAY with valid number of normalized values from the color space ". $original_space->name
+		unless $original_space->is_number_tuple( $tuple );
+   
+    if ($source_space_name xor $source_tuple){
+		return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none of them";
+	} elsif ($source_space_name and $source_tuple) {
+		return "got unknown source color space $source_space_name" if not ref $source_space;
+		return "argument source_values has to be a tuple, if provided" unless $source_space->is_number_tuple( $source_tuple );
+	}
     
-    return "need a space name to convert from as first argument" unless defined $space_name;
-    return 'need an ARRAY ref with '.$original_space->axis_count.' '.$original_space->axis_count.
-           ' values as first argument in order to deconvert them into RGB' unless $original_space->is_value_tuple( $tuple );
-    return "arguments source_space_name and source_values have to be provided both or none."
-        if defined $source_space_name xor defined $source_tuple;
-    return "argument source_values has to be a tuple, if provided"
-        if $source_tuple and not $source_space->is_value_tuple( $source_tuple );
-
     # none conversion cases        
     if ($original_space->name eq $default_space_name) { # nothing to convert
         return ($want_result_normalized) ? $tuple : $original_space->denormalize( $tuple );
@@ -154,7 +155,8 @@ sub deconvert { # normalizd value tuple --> RGB tuple
     while ($current_space->name ne $default_space_name){
         my ($next_space_name, @next_options) = $current_space->conversion_tree_parent;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
-        if ($next_space_name eq $source_space){ # replace tuple with values from constructor if possible
+        # replace tuple with values from constructor if possible
+        if ($source_space_name and $next_space_name eq $source_space->name){
             $tuple = [@$source_tuple];
             $tuple_is_normal = 1;
         } else {
@@ -163,7 +165,7 @@ sub deconvert { # normalizd value tuple --> RGB tuple
             $tuple = $current_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
             $tuple = $current_space->convert_to( $next_space_name, $tuple);
             $tuple_is_normal = $normal_in_out[1];
-            if (not $tuple_is_normal and $current_space ne $default_space_name){
+            if (not $tuple_is_normal and $current_space->name ne $default_space_name){
 				$tuple_is_normal = 1;
 				$tuple = $current_space->normalize( $tuple );
 			}
@@ -242,17 +244,17 @@ information and algorithms. Home to all methods that have to iterate over
 all color spaces.
 
     use Graphics::Toolkit::Color::Space::Hub;
-    my $true = Graphics::Toolkit::Color::Space::Hub::is_space( 'HSL' );
+    my $true = Graphics::Toolkit::Color::Space::Hub::is_space_name( 'HSL' );
     my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space( 'HSL');
     my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
-    Graphics::Toolkit::Color::Space::Hub::space_names();     # all space names and aliases
+    Graphics::Toolkit::Color::Space::Hub::all_space_names();   # all space names and aliases
 
-    $HSL->normalize([240,100, 0]);         # 2/3, 1, 0
-    $HSL->convert([240, 100, 0], 'RGB');   #   0, 0, 1
-    $HSL->deconvert([0, 0, 1], 'RGB');     # 2/3, 1, 0
-    $RGB->denormalize([0, 0, 1]);          #   0, 0, 255
-    $RGB->format([0, 0, 255], 'hex');      #   '#0000ff'
+    $HSL->normalize([240,100, 0]);           # 2/3, 1, 0
+    $HSL->convert([240, 100, 0], 'RGB');     #   0, 0, 1
+    $HSL->deconvert([0, 0, 1], 'RGB');       # 2/3, 1, 0
+    $RGB->denormalize([0, 0, 1]);            #   0, 0, 255
+    $RGB->format([0, 0, 255], 'hex_string'); # '#0000ff'
 
     # [0, 0, 255] , 'RGB'
     my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( '#0000ff' );
@@ -275,25 +277,25 @@ axis that express different properties. The closer two
 colors are along an axis the more similar are they in that property.
 All color spaces are finite and only certain value ranges along an
 axis are acceptable. Most spaces have 3 dimensions (axis) and are
-completely lineary like in Euclidean (everyday) geometry.
+completely linear like in Euclidean (everyday) geometry.
 A few spaces have more axis and some spaces are cylindrical. That
 means that some axis are not lines but circles and the associated value
-descibes an angle.
+describes an angle.
 
 Color definitions contain either the name of a space or the names
 of its axis (long or short). If the space name or its long alias is used,
 the values have to be provided in the same order as the axis described here.
 
 Color space or axis names may be written in any combination of upper and
-lower case characters, but I recommended to use the spelling presented here.
+lower case characters, but I recommend using the spelling presented here.
 Each axis has also two specific names, one long and one short, which are
-in rare cases equal. To define a color according a space you need
+in rare cases equal. To define a color according to a space you need
 to provide for each axis one value, that is inside the required value
-range and of a specificed type (int or real with amount of decimals).
+range and of a specified type (int or real with amount of decimals).
 
 While I acknowledge that some of the spaces below should be called systems
 to be technically correct, they still will be called spaces here, because
-the main goal of this software is seamless interoperabilitiy between them.
+the main goal of this software is seamless interoperability between them.
 
 
 =head2 RGB
@@ -302,7 +304,7 @@ the main goal of this software is seamless interoperabilitiy between them.
 CPAN module. It is used by most computer hardware like monitors and follows
 the logic of additive color mixing as produced by an overlay of three 
 colored light beams. The sum of all colors will be white, as in opposite
-to subtractive mixing. Its is a completely Cartesian (Euclidean) 3D space
+to subtractive mixing. It is a completely Cartesian (Euclidean) 3D space
 and thus a RGB tuple consists of three integer values:
 
 B<red> (short B<r>) range: 0 .. 255, B<green> (short B<g>) range: 0 .. 255
@@ -336,7 +338,7 @@ B<yellow> (short B<y>) is inverse of I<blue>.
 is an extension of L</CMY> with a fourth value named B<key> (short B<k>),
 which is the amount of black ink mixed into the CMY color.
 It also has an normalized range of 0 .. 1. This should not bother you
-since you are free to change the range at you preference.
+since you are free to change the range at your preference.
 
 =head2 HSL
 
@@ -345,8 +347,8 @@ The first dimension is the angular one and it rotates in 360 degrees around
 the rainbow of fully saturated colors: 0 = red, 15 approximates orange,
 60 - yellow 120 - green, 180 - cyan, 240 - blue, 270 - violet,
 300 - magenta, 330 - pink. 0 and 360 points to the same coordinate.
-This module only outputs 0, even if accepting 360 as input. Thes second,
-linear dimension (axis) measures the distance between a point the the center
+This module only outputs 0, even if accepting 360 as input. The second,
+linear dimension (axis) measures the distance between a point the center
 column of the cylinder at the same height, no matter in which direction.
 The center column has the value 0 (white .. gray .. black) and the outer
 mantle of the cylinder contains the most saturated, purest colors.
@@ -362,7 +364,7 @@ Similar to HSL we have B<hue> and B<saturation>, but the third axis is
 named B<value> (short B<v>). In L<HSL> we always get white, when I<lightness>
 is 100. In HSV additionally I<saturation> has to be zero to get white.
 When I<saturation> is 100 and I<value> is 100 we have the purest, most
-sturated color of whatever I<hue> sets. So unlike in C<HSL>, here every
+saturated color of whatever I<hue> sets. So unlike in C<HSL>, here every
 color has its unique coordinates.
 
 =head2 HSB
@@ -373,10 +375,10 @@ Is an alias to L</HSV>, just the I<value> axis is renamed with B<brightness> (B<
 
 An inverted L</HSV>, where the saturated, pure colors are on the center
 column of the cylinder. It still has the same circular B<hue> dimension
-with  an integer range of 0 .. 360. The other two, linear dimensions
-(also 0 .. 100 inter range with optional suffix '%') are B<whiteness>
-(B<w>) and B<blackness> (B<b>). They desribe how much white or black
-are mixed into the pure hue. If both are zero, than we have a pure color.
+with an integer range of 0 .. 360. The other two, linear dimensions
+(also 0 .. 100 integer range with optional suffix '%') are B<whiteness>
+(B<w>) and B<blackness> (B<b>). They describe how much white or black
+are mixed into the pure hue. If both are zero, you get a pure color.
 I<whiteness> of 100 always leads to white and I<blackness> of 100 always
 leads to black. The space is truncated as a cone so the sum of I<whiteness>
 and I<blackness> can never be greater than 100.
@@ -410,10 +412,10 @@ We use a variant called B<YPbPr>, which can also be used as space name.
 It has computation friendly value ranges and is still relevant in video
 and image formats and compression algorithms, but under the name I<YCbCr>.
 The only difference is that I<YCbCr> works with digital values but
-this module computes with real (analogue)  value to enable any precision
+this module computes with real (analogue) values to enable any precision
 the user might prefer. To make this clear, this space holds the name B<YPbPr>.
 It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
-range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. C<Pr>
+range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. B<Pr>
 (short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
 
 =head2 HunterLAB
@@ -439,10 +441,10 @@ I<D65> is standard for all CIE spaces except I<CIERGB>.
 
 =head2 CIELAB
 
-(alias B<LAB>) is a derivate of L</CIEXYZ> that reorderes the colors along
+(alias B<LAB>) is a derivate of L</CIEXYZ> that reorders the colors along
 axis that reflect how the brain processes them. It uses three information
 channels. One named B<L> (lightness) with a real value range of (0 .. 100).
-Second is channel (B<a>, that reaches from red to green (-500 .. 500) and
+Second is channel B<a>, that reaches from red to green (-500 .. 500) and
 thirdly B<b> from yellow to blue (-200 .. 200). Values will be displayed
 with three decimals. The long names of the axis names contain a '*'
 and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect the
@@ -454,7 +456,7 @@ opponent color theory.
 the axis I<a> and I<b> got renamed to I<u> and I<v> (see L</YUV>) but
 did not change their meaning. It has also three Cartesian dimension named
 B<L*>, B<u*> and B<v*>, (short names have only the first letter of these names).
-Their have real valued ranges, which are 0 .. 100, -134 .. 220 and
+They have real valued ranges, which are 0 .. 100, -134 .. 220 and
 -140 .. 122.
 
 =head2 CIELCHab
@@ -465,7 +467,7 @@ The real valued ranges are from zero to 100, 539 and 360 respectively.
 Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
 values are meant as degrees in a circle. For gray colors in the middle
 column the value I<chroma> has no importance and will be in this
-implementation implementation alsway be zero.
+implementation always be zero.
 
 =head2 CIELCHuv
 
@@ -475,23 +477,23 @@ similar to L<CIELCHab> except the real valued range of B<chroma> is
 
 =head2 CIERGB
 
-1931 standardized, normal valued (0 .. 1) space with same axis as L<\RGB>:
+1931 standardized, normal valued (0 .. 1) space with same axis as L</RGB>:
 I<red> (I<r>), I<green> (I<g>) and I<blue> (I<b>). 
 It has the illuminant E and no gamma (linear RGB).
 
 =head2 AdobeRGB
 
-(alias name B<opRGB>) is an normalized L<\RGB> variant with the 
+(alias name B<opRGB>) is a normalized L</RGB> variant with the 
 CIE white point D65 a gamma of about 2.2.
 
 =head2 AppleRGB
 
-normal L<\RGB> variant with white point of D65 and gamma is 1.8.
-It is the legace color space Apple use in the 90ies.
+normal L</RGB> variant with white point of D65 and gamma is 1.8.
+It is the legacy color space Apple used in the 90ies.
 
 =head2 ProPhotoRGB
 
-(alias name B<ROMMRGB>) normal L<\RGB> variant with a white point of
+(alias name B<ROMMRGB>) normal L</RGB> variant with a white point of
 D50, gamma = 1.8 and a wide gamut.
 
 =head2 WideGamutRGB
@@ -500,7 +502,7 @@ Even greater gamut then previous spaces with white point D50 and gamma of ~2.2.
 
 =head2 Display P3
 
-wide gamut RGB variant with same gamma function as L<\RGB>
+wide gamut RGB variant with same gamma function as L</RGB>
 
 =head2 Display P3 Linear
 
@@ -523,7 +525,7 @@ just add C<< range => [100, [-120,120], [-120,120]], suffix => '%' >>.
 is the cylindrical variant of L</OKLAB> just parallels L</CIELCHab>.
 The axis names are again: B<luminance>, B<chroma> and B<hue> - in short:
 B<l>,  B<c> and B<h>. Value ranges are similar as in C<OKLAB>:
-I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 I and <hue> are angles
+I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
 
@@ -538,7 +540,7 @@ use C<< range => [100, 120, 360] >> and a preferred suffix.
 
 As pointed out in the previous paragraph, each dimension of color space has
 its default range. However, one can demand custom value ranges, if the method
-accepts a range decriptor as argument. If so, the following values are accepted:
+accepts a range descriptor as argument. If so, the following values are accepted:
 
     'normal'          real value range from 0 ..   1 (default)
     'percent'         real value range from 0 .. 100
@@ -582,7 +584,7 @@ Same inside a quotes.
 =head2 css_string
 
 Strings for usage in CSS, SVG files and alike. Here are commas optional.
-There are to spots where space is not allowed: 1. Between the the space
+There are two spots where space is not allowed: 1. Between the space
 name and opening bracket and between axis value and value suffix (here '%').
 
     'rgb(10, 20, 30)'
@@ -610,29 +612,30 @@ Hash reference with short axis names.
 
 =head1 ROUTINES
 
-This package provides two sets of routines. Thes first is just a lookup
-of what color space objects are available, what the names are and to
-retrieve a color space object.  The second set consists of 4 routines
-that can handle a lot of unknowns. The are:
+This package provides two sets of routines. The first is just a lookup
+of what color space objects are available. What are their names to
+retrieve them? The second set consists of 5 routines that can handle a 
+lot of unknowns. The are:
 
     1. convert               (RGB -> any)
     2. deconvert             (any -> RGB)
     3. deformat              (extract values)
-    3. deformat_partial_hash (deformat hashes with missing axis)
+    4. deformat_partial_hash (deformat hashes with missing axis)
+    5. distance              (distance between 2 colors in any space)
 
-=head2 space_names
+=head2 all_space_names
 
 Returns a list of string values, which are the names of all available
 color space. See L</COLOR-SPACES>.
 
-=head2 is_space
+=head2 is_space_name
 
-Needs one argument, that supposed to be a color space name.
+Needs one argument, that is supposed to be a color space name.
 If it is, the result is an 1, otherwise 0 (perlish pseudo boolean).
 
 =head2 get_space
 
-Needs one argument, that supposed to be a color space name.
+Needs one argument, that is supposed to be a color space name.
 If it is, the result is the according color space object, otherwise undef.
 
 =head2 try_get_space
@@ -648,15 +651,16 @@ converters from and to RGB, but the RGB itself has no converter.
 
 =head2 convert
 
-Converts a value vector (first argument) from base space (RGB) into any
+Converts a value tuple (first argument) from base space (RGB) into any
 space mentioned space (second argument - see L</COLOR-SPACES>).
 The values have to be normalized (inside 0..1). If there are outside
 the acceptable range, there will be clamped, so that the result will
-also normal. It the third argument is positive the output will also be
-normal. Arguments four and five are for internal use to omit rounding errors.
-Its the original values and their color space. So when during the conversion,
-the method tries to convert into the space of the original, it replaces
-the values with them.
+also normal. If the third argument is positive (pseudo boolean true),
+the output will also be normal. 
+Arguments four and five are for internal use to omit rounding errors.
+They are the original, normalized values and their color space.
+When during the conversion, the method tries to convert into the space 
+of origin, it replaces the current values with the source values.
 
     # convert from RGB to  HSL
     my @hsl = Graphics::Toolkit::Color::Space::Hub::convert( [0.1, 0.5, .7], 'HSL' );
@@ -675,20 +679,22 @@ That's why it takes only one argument, a scalar that can be a string,
 ARRAY ref or HASH ref. The result will be three values.
 The first is a ARRAY (tuple) with all the unaltered, not clamped and not
 rounded and not normalized values. The second is the name of the recognized
-color name space. Thirs is the format name.
+color name space. Third is the format name.
 
     my ($values, $space) =  Graphics::Toolkit::Color::Space::Hub::deformat( 'ff00a0' );
-    # [255, 10 , 0], 'RGB'
+    # [255, 10, 0], 'RGB'
     ($values, $space) =  Graphics::Toolkit::Color::Space::Hub::deformat( [255, 10 , 0] ); # same result
 
 =head2 deformat_partial_hash
 
 This is a special case of the I<deformat> routine for the I<hash> and
-I<char_hash> format (see I</FORMATS>). It can tolerate missing values.
+I<char_hash> format (see L</FORMATS>). It can tolerate missing values.
 The result will also be a tuple (ARRAY) with missing values being undef.
 Since there is a given search order, a hash with only a I<hue> value will
 always assume a I<HSL> space. To change that you can provide the space
 name as a second, optional argument.
+
+=head2 distance
 
 
 =head1 SEE ALSO
@@ -703,10 +709,10 @@ L<Convert::Color>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2023-25 Herbert Breunung.
+Copyright 2023-26 Herbert Breunung.
 
 This program is free software; you can redistribute it and/or modify it
-under same terms as Perl itself.
+under the same terms as Perl itself.
 
 =head1 AUTHOR
 

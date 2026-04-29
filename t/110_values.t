@@ -28,8 +28,8 @@ is( $fuchsia_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got colo
 is( $fuchsia_rgb->formatted('CMY', 'CSS_string', undef, 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
 $values = $fuchsia_rgb->formatted( '', 'ARRAY', undef, [20,30,40]);
 is_tuple( $values, [20, 0, 40], [qw/red green blue/], 'got values formatted into an ARRAY (custom ranges)');
-$values = $fuchsia_rgb->formatted( 'CMY', 'ARRAY', [20,30,40]);
-is( ref $values,                   '',  'ARRAY format is only for RGB');
+$values = $fuchsia_rgb->formatted( 'CMY', 'ARRAY');
+is_tuple( $values, [0, 1, 0], [qw/cyan magenta yellow/], 'ARRAY format can output for  any space');
 
 my $fuchsia_cmy = Graphics::Toolkit::Color::Values->new_from_tuple([0,1,0], 'CMY');
 is( ref $fuchsia_cmy,                    $module,  'value object from CMY values');

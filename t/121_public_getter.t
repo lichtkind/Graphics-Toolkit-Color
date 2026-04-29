@@ -94,7 +94,7 @@ is( $values[0][0],           'RGB', 'color space name is first');
 is( $values[0][1],               0, 'red value is correct');
 is( $values[0][2],               0, 'green value is correct');
 is( $values[0][3],             255, 'blue value is correct');
-is( ref $blue->values( in => 'LAB', as => 'array'),       '', 'ARRAY ref format  is RGB only');
+is( ref $blue->values( in => 'LAB', as => 'array'),       'ARRAY', 'ARRAY ref format is now for every space');
 is( ref $blue->values( in => 'LAB', as => 'hex_string'),  '', 'hex_string format is RGB only');
 is( ref $blue->values( in => 'LAB', was => 'array'),      '', 'reject fantasy arguments');
 is( ref $blue->values( in => 'LAB', suffix => {}),        '', 'bad ref type for suffix def');

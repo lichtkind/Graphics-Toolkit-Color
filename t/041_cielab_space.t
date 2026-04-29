@@ -7,7 +7,6 @@ use Test::Color;
 use Test::More tests => 105;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
-
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELAB';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');

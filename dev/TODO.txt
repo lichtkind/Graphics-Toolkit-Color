@@ -6,18 +6,18 @@ TODO:
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
    + cammut mapping
    + complemement in selectable cylidrical space
-   + Carp
+   + Color:: CookBook, Manual
  
 
  = 2.3:
    + cubehelix method
    + delta_e method
+   + reestablish optional Carp
 
  = 2.4 
    + LMS support
    
  = 2.5:
-   + Color:: CookBook, Manual
    + easier API: lighten, / darken, saturate, desaturate, 
                  triadic, tetradic, square, analogous, compound, monochromatic
 

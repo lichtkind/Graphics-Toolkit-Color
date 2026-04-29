@@ -36,7 +36,7 @@ is( $fuchsia->formatted('CMY', 'css_string', '+'), 'cmy(0+, 1+, 0+)',     'and v
 is( $fuchsia->formatted('CMY', 'css_string', '+', [[-2,10]]), 'cmy(-2+, 10+, -2+)','and ranges');
 is( $fuchsia->formatted('XYZ', 'css_string', undef, undef, [2,1,0]), 'xyz(59.29, 28.5, 97)','and precision');
 is( $blue_hsl->formatted('HSL', 'css_string', '', 1, [2,0,1]), 'hsl(0.67, 1, 0.5)' ,'all arguments at once');
-is( ref $fuchsia->formatted('CMY', 'array'),      '',  'array format is RGB only');
+is( ref $fuchsia->formatted('CMY', 'array'), 'ARRAY',  'array format is for any space');
 is( ref $fuchsia->formatted('CMY', 'hex_string'), '',  'hex_string formatis RGB only');
 is( $fuchsia->formatted('RGB', 'hex_string'), '#FF00FF', 'but works under RGB');
 $values = $fuchsia->formatted('RGB', 'array');

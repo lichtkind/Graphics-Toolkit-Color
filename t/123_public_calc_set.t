@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 95;
+use Test::More tests => 69;
 use Graphics::Toolkit::Color qw/color/;
 
 my $module  = 'Graphics::Toolkit::Color';
@@ -41,33 +41,20 @@ is(($colors[2]->values('HSL'))[0],      0,    'red has hue of 0');
 @colors = $red->complement( steps => 3, tilt => 1 );
 is( int @colors,                        3,    'got split complement');
 @values = $colors[0]->values('HSL');
-# is_tuple( \@values, [ 120, 50, 75], [qw/hue saturation lightness/], 'mix white and blue 1:1 in HSL');
-
-is( @values,                            3,    'first color in HSL');
-is( $values[0],                       100,    '0 + 1 - 4/9 of 180 hue degree');
-is( $values[1],                       100,    'full saturation');
-is( $values[2],                        50,    'half lightness');
+is_tuple( \@values, [ 100, 100, 50], [qw/hue saturation lightness/], 'first complement of red with tilt is green');
 @values = $colors[1]->values('HSL');
-is( $values[0],                       260,    '0 + 1 - 4/9 of 180 hue degree');
+is_tuple( \@values, [ 260, 100, 50], [qw/hue saturation lightness/], 'second complement of red with tilt is blue');
 
 @colors = $red->complement( steps => 4, tilt => 1.585, target => {h => -10, s => 20, l => 30} );
 is( @colors,                            4,    'computed 4 complements with a moved target and split comp tilt');
-@values = $colors[3]->values('HSL');
-is( $values[0],                         0,    'fourth color is invocant, normal red');
-is( $values[1],                       100,    'full saturation');
-is( $values[2],                        50,    'half lightness');
-@values = $colors[1]->values('HSL');
-is( $values[0],                       170,    'complement taret has user set values');
-is( $values[1],                       100,    'full saturation, was clamped');
-is( $values[2],                        80,    'half lightness, was added');
 @values = $colors[0]->values('HSL');
-is( $values[0],                       142,    'hue of first color seem right');
-is( $values[1],                       100,    'saturation is constant');
-is( $values[2],                        75,    'lightness, in between on tilted circle');
+is_tuple( \@values, [ 142, 100, 75], [qw/hue saturation lightness/], 'first complement of red tilt and with complex target');
+@values = $colors[1]->values('HSL');
+is_tuple( \@values, [ 170, 100, 80], [qw/hue saturation lightness/], 'second complement of red tilt and with complex target');
 @values = $colors[2]->values('HSL');
-is( $values[0],                       202,    'hue of third color seem right');
-is( $values[1],                       100,    'saturation is constant');
-is( $values[2],                        75,    'lightness, same as first');
+is_tuple( \@values, [ 202, 100, 75], [qw/hue saturation lightness/], 'third complement of red tilt and with complex target');
+@values = $colors[3]->values('HSL');
+is_tuple( \@values, [   0, 100, 50], [qw/hue saturation lightness/], 'fourth complement of red tilt and with complex target');
 
 #### gradient ##########################################################
 like( $white->gradient(),                                       qr/GTC method/,  'gradient method needs arguments');
@@ -95,10 +82,7 @@ is( $colors[1]->name,            'purple',    'got mixed color in the middle');
 is( $colors[5]->name,            'purple',    'got mixed inside cmlex rainbow');
 @colors = $blue->gradient( to => 'red', steps => 3, tilt => 1 );
 @values = $colors[1]->values();
-is( @values,                            3,    'center color in tilted gradient');
-is( $values[0],                        64,    'red value is right');
-is( $values[1],                         0,    'green value is right');
-is( $values[2],                       191,    'blue value is right');
+is_tuple( \@values, [   64, 0, 191], [qw/red green blue/], 'center color in tilted gradient');
 
 #### cluster ###########################################################
 like( $white->cluster(),                                            qr/GTC method/, 'cluster method needs arguments');
@@ -119,33 +103,21 @@ like( $white->cluster(radius => 1, minimal_distance => 1, 'ar'),    qr/GTC metho
 
 @colors = $midblue->cluster( radius => 2.01, minimal_distance => 2 );
 is( int @colors,                       13,    'computed smallest ball shaped cluster in RGB');
-@values = $colors[1]->values();
-is( @values,                            3,    'center color is on pos one');
-is( $values[0],                        43,    'red value is right');
-is( $values[1],                        52,    'green value is right');
-is( $values[2],                       242,    'blue value is right');
 @values = $colors[0]->values();
-is( $values[0],                        41,    'first color has less red');
-is( $values[2],                       242,    'blue is same as center');
+is_tuple( \@values, [ 41, 52, 242], [qw/red green blue/], 'first color of cluster around mid blue');
+@values = $colors[1]->values();
+is_tuple( \@values, [   43, 52, 242], [qw/red green blue/], 'center color is on position two');
 @values = $colors[2]->values();
 is( $values[0],                        45,    'third color has more red');
 @values = $colors[12]->values();
-is( $values[0],                        42,    'red value is right (was rounded up to same)');
-is( $values[1],                        51,    'green value is right');
-is( $values[2],                       241,    'blue value is right (1.4 less but rounded up)');
+is_tuple( \@values, [   42, 51, 241], [qw/red green blue/], 'last color of cluster');
 
 @colors = $midblue->cluster( r => [1.01,1.01,1.01], minimal_distance => 1, in => 'RGB');
 is( int @colors,                       27,    'computed tiny cuboid cluster with 27 colors');
 @values = $colors[0]->values();
-is( int @values,                        3,    'got first color in min corner');
-is( $values[0],                        42,    'red value is right');
-is( $values[1],                        51,    'green value is right');
-is( $values[2],                       241,    'blue value is right');
+is_tuple( \@values, [   42, 51, 241], [qw/red green blue/], 'first color of denser packed cluster');
 @values = $colors[26]->values();
-is( int @values,                        3,    'got last color in max corner');
-is( $values[0],                        44,    'red value is right');
-is( $values[1],                        53,    'green value is right');
-is( $values[2],                       243,    'blue value is right');
+is_tuple( \@values, [   44, 53, 243], [qw/red green blue/], 'last color of denser packed cluster');
 
 @colors = $white->cluster( r => [1.01,1.01,1.01], min_d => 1, in => 'HSL' );
 is( int @colors,                       12,    'cluster edging on roof of HSL space');

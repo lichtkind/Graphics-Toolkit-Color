@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space qw/gamma_correct/;
 
 my $alpha = 1.09929682680944;
 my $beta  = 0.018; # 0.018053968510807;
-my $lin_factor = 4.5
+my $lin_factor = 4.5;
 my $beta_inv  = $lin_factor * $beta;
 my $gamma = 0.45;
 

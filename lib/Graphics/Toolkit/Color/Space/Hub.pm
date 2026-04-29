@@ -7,7 +7,7 @@ use warnings;
 
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
-my @load_order = ($default_space_name,
+our @load_order = ($default_space_name,
                   qw/RGBLinear CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                   qw/AppleRGB AdobeRGB ProPhotoRGB WideGamutRGB/,
@@ -244,21 +244,15 @@ information and algorithms. Home to all methods that have to iterate over
 all color spaces.
 
     use Graphics::Toolkit::Color::Space::Hub;
-    my $true = Graphics::Toolkit::Color::Space::Hub::is_space_name( 'HSL' );
-    my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space( 'HSL');
+    my $true = ...::Space::Hub::is_space_name( 'HSL' );
+    my $HSL = ..Space::Hub::get_space( 'HSL');
     my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
+    ...Space::Hub::all_space_names();                        # all space names and aliases
 
-    Graphics::Toolkit::Color::Space::Hub::all_space_names();   # all space names and aliases
-
-    $HSL->normalize([240,100, 0]);           # 2/3, 1, 0
-    $HSL->convert([240, 100, 0], 'RGB');     #   0, 0, 1
-    $HSL->deconvert([0, 0, 1], 'RGB');       # 2/3, 1, 0
-    $RGB->denormalize([0, 0, 1]);            #   0, 0, 255
-    $RGB->format([0, 0, 255], 'hex_string'); # '#0000ff'
-
-    # [0, 0, 255] , 'RGB'
-    my ($values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( '#0000ff' );
-
+    ...::Space::Hub::convert(   'HSL' [0, 0, 1]);               # [2/3, 1, 0]
+    ...::Space::Hub::deconvert( 'HSL' [2/3, 1, 0]);             # [  0, 0, 1] 
+    ...::Space::Hub::deformat(  '#0000ff' );                    # [  0, 0, 1], 'RGB' , 'hex_string'
+    ...::Space::Hub::distance(  [2/3, 1, 0], [0, 1, 0], 'HSL' );# 1/3
 
 =head1 DESCRIPTION
 

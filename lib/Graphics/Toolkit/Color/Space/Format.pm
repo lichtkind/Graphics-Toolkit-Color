@@ -32,6 +32,7 @@ sub new { # -, $:Basis -- ~|@~val_form, , ~|@~suffix --> :_
     );
     # tuple --> format
     my %formats = (list => sub { @{$_[1]} },                                  #   1, 2, 3
+                  array => sub { [@{$_[1]}] },                                # [ 1, 2, 3 ] 
                    hash => sub { $basis->long_name_hash_from_tuple($_[1]) },  # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->short_name_hash_from_tuple($_[1]) }, # { r =>1, g => 2, b => 3 }
             named_array => sub { [$basis->space_name, @{$_[1]}] },            # ['rgb',1,2,3]

@@ -4,9 +4,8 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 106;
+use Test::More tests => 114;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
-
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HunterLAB';
 my $space = eval "require $module";
@@ -17,6 +16,14 @@ is( $space->name('alias'),                     '', 'no color space alias name');
 is( $space->is_name('HunterLAB'),               1, 'color space name HunterLAB is correct');
 is( $space->is_name('CIElab'),                  0, 'not to be confused with "CIELAB"');
 is( $space->is_name('lab'),                     0, 'axis initials do not equal space name this time');
+is( $space->is_axis_name('*'),                  0, 'can not miss a lettter of axis name');
+is( $space->is_axis_name('l'),                  1, '"l" is an axis name');
+is( $space->is_axis_name('a'),                  1, '"a" is an axis name');
+is( $space->is_axis_name('b'),                  1, '"b" is an axis name');
+is( $space->pos_from_axis_name('l'),            0, '"l" is name of first axis');
+is( $space->pos_from_axis_name('a'),            1, '"a" is name of second axis');
+is( $space->pos_from_axis_name('b'),            2, '"b" is name of third axis');
+is( $space->pos_from_axis_name('*'),        undef, '"*" is not an axis name');
 is( $space->axis_count,                         3, 'HunterLAB has 3 axis');
 is( $space->is_euclidean,                       1, 'HunterLAB is euclidean');
 is( $space->is_cylindrical,                     0, 'HunterLAB is not cylindrical');

@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 57;
+use Test::More tests => 55;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIERGB';
 my $space = eval "require $module";

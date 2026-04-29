@@ -9,7 +9,6 @@ use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELCHab';
 my $space = eval "require $module";
-
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,                           'LCH', 'color space name is LCH');

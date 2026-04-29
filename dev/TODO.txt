@@ -4,43 +4,41 @@ TODO:
  = 2.2:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
-   + cammut mapping
-   + complemement in selectable cylidrical space
-   + Color:: CookBook, Manual
+   + gamut mapping
+   + complement in selectable cylindrical space
  
-
  = 2.3:
    + cubehelix method
-   + delta_e method
    + reestablish optional Carp
+   + GTC::CookBook, GTC::Manual, move POD
 
  = 2.4 
    + LMS support
+   + delta_e method
    
  = 2.5:
-   + easier API: lighten, / darken, saturate, desaturate, 
-                 triadic, tetradic, square, analogous, compound, monochromatic
+   + designer API: lighten, / darken, saturate, desaturate, 
+                   triadic, tetradic, square, analogous, compound, monochromatic
 
- = 2.7 features
+ = 2.6
+   + ramp up precision computing own matrices and abolish converter flags
+   + some more spaces
+
+ = 2.7
    + palette method
 
- = 3.0 features
+ = 3.0
    + color space parameter: illuminant
    + r/g color blind space
-   + ramp up precision by using converter flags
-   + own Exception::Class
+   + own Exception Class hierarchy
+
 
  # Likely:                                      planned version
 
 
-   + Color spaces :
-                                            (2.3)
-
  # Maybe:
 
    + equal method
-   + proper Error handling
-   + strict mode for out of range tuple values
    + value prefixes in formats
 
  # Unlikely:

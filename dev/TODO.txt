@@ -6,23 +6,33 @@ TODO:
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
    + cammut mapping
    + complemement in selectable cylidrical space
+   + Carp
  
 
  = 2.3:
    + cubehelix method
    + delta_e method
 
- = 2.5 features
+ = 2.4 
+   + LMS support
+   
+ = 2.5:
+   + Color:: CookBook, Manual
+   + easier API: lighten, / darken, saturate, desaturate, 
+                 triadic, tetradic, square, analogous, compound, monochromatic
+
+ = 2.7 features
    + palette method
 
  = 3.0 features
    + color space parameter: illuminant
    + r/g color blind space
    + ramp up precision by using converter flags
+   + own Exception::Class
 
  # Likely:                                      planned version
 
-   + easier API for CSS format for oklab    (2.3)
+
    + Color spaces :
                                             (2.3)
 

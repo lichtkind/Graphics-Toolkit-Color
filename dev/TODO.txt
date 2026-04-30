@@ -4,27 +4,30 @@ TODO:
  = 2.2:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+
+ = 2.3:
    + gamut mapping
    + complement in selectable cylindrical space
+   + method analogues
  
- = 2.3:
+ = 2.4:
    + cubehelix method
-   + reestablish optional Carp
-   + GTC::CookBook, GTC::Manual, move POD
+   + reestablish optional Carp error messages
+   + move POD to GTC::CookBook, GTC::Manual
 
- = 2.4 
+ = 2.5 
    + LMS support
    + delta_e method
    
- = 2.5:
+ = 2.6:
    + designer API: lighten, / darken, saturate, desaturate, 
                    triadic, tetradic, square, analogous, compound, monochromatic
 
- = 2.6
+ = 2.7
    + ramp up precision computing own matrices and abolish converter flags
    + some more spaces
 
- = 2.7
+ = 2.8
    + palette method
 
  = 3.0

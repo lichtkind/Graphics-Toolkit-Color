@@ -18,7 +18,7 @@ is( $space->is_name('xyz'),                     0, 'axis initials do not equal s
 is( $space->is_axis_name('lab'),                0, 'space name is not axis name');
 is( $space->is_axis_name('L*'),                 1, '"L*" is an axis name');
 is( $space->is_axis_name('a*'),                 1, '"a*" is an axis name');
-is( $space->is_axis_name('b*'),                 1, '"blue" is an axis name');
+is( $space->is_axis_name('b*'),                 1, '"b*" is an axis name');
 is( $space->is_axis_name('*'),                  0, 'can not miss a lettter of axis name');
 is( $space->is_axis_name('l'),                  1, '"l" is an axis name');
 is( $space->is_axis_name('a'),                  1, '"a" is an axis name');

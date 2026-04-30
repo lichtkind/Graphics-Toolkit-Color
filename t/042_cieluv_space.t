@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 145;
+use Test::More tests => 80;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::CIELUV';
@@ -16,6 +16,21 @@ is( $space->name('alias'),               'CIELUV', 'color space alias is LUV');
 is( $space->is_name('cieLUV'),                  1, 'full space  name recognized');
 is( $space->is_name('Luv'),                     1, 'axis initials do qual space name');
 is( $space->is_name('Lab'),                     0, 'axis initials do not equal space name this time');
+is( $space->is_axis_name('luv'),                0, 'space name is not axis name');
+is( $space->is_axis_name('L*'),                 1, '"L*" is an axis name');
+is( $space->is_axis_name('u*'),                 1, '"u*" is an axis name');
+is( $space->is_axis_name('v*'),                 1, '"v" is an axis name');
+is( $space->is_axis_name('*'),                  0, 'can not miss a lettter of axis name');
+is( $space->is_axis_name('l'),                  1, '"l" is an axis name');
+is( $space->is_axis_name('u'),                  1, '"u" is an axis name');
+is( $space->is_axis_name('v'),                  1, '"v" is an axis name');
+is( $space->pos_from_axis_name('L*'),           0, '"L*" is name of first axis');
+is( $space->pos_from_axis_name('u*'),           1, '"u*" is name of second axis');
+is( $space->pos_from_axis_name('v*'),           2, '"v*" is name of third axis');
+is( $space->pos_from_axis_name('l'),            0, '"l" is name of first axis');
+is( $space->pos_from_axis_name('u'),            1, '"u" is name of second axis');
+is( $space->pos_from_axis_name('v'),            2, '"v" is name of third axis');
+is( $space->pos_from_axis_name('*'),        undef, '"*" is not an axis name');
 is( $space->axis_count,                         3, 'CIELUV has 3 dimensions');
 is( $space->is_euclidean,                       1, 'CIELUV is euclidean');
 is( $space->is_cylindrical,                     0, 'CIELUV is not cylindrical');
@@ -57,161 +72,81 @@ is( $space->format([0,1,0], 'css_string'), 'luv(0, 1, 0)', 'can format css strin
 
 # black
 $val = $space->denormalize( [0, .378531073, .534351145] );
-is( ref $val,                      'ARRAY',  'denormalized black into zeros');
-is( int @$val,                           3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),      0,  'L* value of black good');
-is( round_decimals( $val->[1] , 5),      0,  'u* value of black good');
-is( round_decimals( $val->[2] , 5),      0,  'v* value of black good');
+is_tuple( $space->round( $val, 5), [0, 0, 0], [qw/l u v/], 'denormalized black into zeros');
 
 $val = $space->normalize( [0, 0, 0] );
-is( ref $val,                        'ARRAY',  'normalized tuple of zeros (black)');
-is( int @$val,                             3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),        0,  'L value good');
-is( round_decimals( $val->[1] , 5),  0.37853,  'u* value good');
-is( round_decimals( $val->[2] , 5),  0.53435,  'v* value good');
+is_tuple( $space->round( $val, 5), [0, 0.37853, 0.53435], [qw/l u v/], 'normalized tuple of zeros (black)');
 
 my $luv = $space->convert_from( 'XYZ', [ 0, 0, 0]);
-is( ref $luv,                        'ARRAY',  'deconverted tuple of zeros (black) from XYZ');
-is( int @$luv,                             3,  'right amount of values');
-is( round_decimals( $luv->[0] , 5),        0,  'first value good');
-is( round_decimals( $luv->[1] , 5),  0.37853,  'second value good');
-is( round_decimals( $luv->[2] , 5),  0.53435,  'third value good');
+is_tuple( $space->round( $luv, 5), [0, 0.37853, 0.53435], [qw/l u v/], 'deconverted tuple of zeros (black) from XYZ');
 
 my $xyz = $space->convert_to( 'XYZ', [ 0, .378531073, .534351145 ]);
-is( ref $xyz,                    'ARRAY',  'converted black to XYZ');
-is( int @$xyz,                         3,  'right amount of values');
-is( round_decimals( $xyz->[0] , 5),    0,  'X value good');
-is( round_decimals( $xyz->[1] , 5),    0,  'Y value good');
-is( round_decimals( $xyz->[2] , 5),    0,  'Z value good');
+is_tuple( $space->round( $xyz, 5), [0, 0, 0], [qw/X Y Z/], 'converted black to XYZ');
 
 # white
 $val = $space->denormalize( [1, .378531073, .534351145] );
-is( ref $val,                      'ARRAY',  'denormalized white into zeros');
-is( int @$val,                           3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),    100,  'L* value of white good');
-is( round_decimals( $val->[1] , 5),      0,  'u* value of white good');
-is( round_decimals( $val->[2] , 5),      0,  'v* value of white good');
+is_tuple( $space->round( $val, 5), [100, 0, 0], [qw/l u v/], 'denormalized white into zeros');
 
 $val = $space->normalize( [100, 0, 0] );
-is( ref $val,                       'ARRAY',  'normalized tuple of white');
-is( int @$val,                            3,  'right amount of values');
-is( round_decimals( $val->[0] , 5),       1,  'L value good');
-is( round_decimals( $val->[1] , 5), 0.37853,  'u* value good');
-is( round_decimals( $val->[2] , 5), 0.53435,  'v* value good');
+is_tuple( $space->round( $val, 5), [1, 0.37853, 0.53435], [qw/l u v/], 'normalized tuple of white');
 
 $luv = $space->convert_from( 'XYZ', [ 1, 1, 1]);
-is( ref $luv,                      'ARRAY',  'converted white from XYZ to LUV');
-is( int @$luv,                           3,  'right amount of values');
-is( round_decimals( $luv->[0] , 5),      1,  'first value good');
-is( round_decimals( $luv->[1] , 5), 0.37853,  'second value good');
-is( round_decimals( $luv->[2] , 5), 0.53435,  'third value good');
+is_tuple( $space->round( $luv, 5), [1, 0.37853, 0.53435], [qw/l u v/], 'converted white from XYZ to LUV');
 
 $xyz = $space->convert_to( 'XYZ', [ 1, .378531073, .534351145 ]);
-is( ref $xyz,                    'ARRAY',  'converted white to CIEXYZ');
-is( int @$xyz,                         3,  'right amount of values');
-is( round_decimals( $xyz->[0], 5),      1,  'X value good');
-is( round_decimals( $xyz->[1], 5),      1,  'Y value good');
-is( round_decimals( $xyz->[2], 5),      1,  'Z value good');
-
-# red
-$val = $space->denormalize( [0.53241, .872923729, .678458015] );
-is( int @$val,                            3,  'denormalize red');
-is( round_decimals( $val->[0], 5),  53.241,  'L* value of white good');
-is( round_decimals( $val->[1], 5), 175.015,  'u* value of white good');
-is( round_decimals( $val->[2], 5),  37.756,  'v* value of white good');
-
-$val = $space->normalize( [53.241, 175.015, 37.756] );
-is( int @$val,                          3,  'normalize red');
-is( round_decimals( $val->[0], 5),  0.53241,  'L value good');
-is( round_decimals( $val->[1], 5),  0.87292,  'u* value good');
-is( round_decimals( $val->[2], 5),  0.67846,  'v* value good');
-
-$luv = $space->convert_from( 'XYZ', [ 0.433953728, 0.21267, 0.017753001]);
-is( int @$luv,                          3,  'deconverted red from CIEXYZ');
-is( round_decimals( $luv->[0], 5), 0.5324,  'first value good');
-is( round_decimals( $luv->[1], 4), 0.8729,  'second value good');
-is( round_decimals( $luv->[2], 5), 0.67846,  'third value good');
-
-$xyz = $space->convert_to( 'XYZ', [ 0.53241, .872923729, .678458015 ]);
-is( int @$xyz,                            3,  'converted red to CIEXYZ');
-is( round_decimals( $xyz->[0], 5),  0.43395,  'X value good');
-is( round_decimals( $xyz->[1], 5),  0.21267,  'Y value good');
-is( round_decimals( $xyz->[2], 5),  0.01776,  'Z value good');
-
-# blue
-$val = $space->denormalize( [0.32297, .351963277, .036862595] );
-is( int @$val,                            3,  'denormalize blue');
-is( round_decimals( $val->[0], 5),   32.297,  'L* value of white good');
-is( round_decimals( $val->[1], 5),   -9.405,  'u* value of white good');
-is( round_decimals( $val->[2], 5), -130.342,  'v* value of white good');
-
-$val = $space->normalize( [32.297, -9.405, -130.342] );
-is( int @$val,                              3,  'normalize blue');
-is( round_decimals( $val->[0], 5),    0.32297, 'L value good');
-is( round_decimals( $val->[1], 5),    0.35196, 'u* value good');
-is( round_decimals( $val->[2], 5),    0.03686, 'v* value good');
-
-$luv = $space->convert_from( 'XYZ', [ 0.1898429198, 0.07217, 0.872771690713886]);
-is( int @$luv,                            3,  'deconverted blue from CIEXYZ');
-is( round_decimals( $luv->[0], 5),  0.32296,  'first value good');
-is( round_decimals( $luv->[1], 5),  0.35197,  'second value good');
-is( round_decimals( $luv->[2], 5),  0.03687,  'third value good');
-
-$xyz = $space->convert_to( 'XYZ', [ 0.322958956314709, 0.351970231199232, 0.0368661363328552 ]);
-is( int @$xyz,                            3,  'converted blue to CIEXYZ');
-is( round_decimals( $xyz->[0], 5),  0.18984,  'X value good');
-is( round_decimals( $xyz->[1], 5),  0.07217,  'Y value good');
-is( round_decimals( $xyz->[2], 5),  0.87277,  'Z value good');
+is_tuple( $space->round( $xyz, 5), [1, 1, 1], [qw/X Y Z/], 'converted white to XYZ');
 
 # gray
 $val = $space->denormalize( [0.53389, .378531073, .534351145] );
-is( int @$val,                          3,  'denormalize gray');
-is( round_decimals( $val->[0], 5), 53.389,  'L* value of white good');
-is( round_decimals( $val->[1], 5),      0,  'u* value of white good');
-is( round_decimals( $val->[2], 5),      0,  'v* value of white good');
+is_tuple( $space->round( $val, 5), [53.389, 0, 0], [qw/l u v/], 'denormalize gray');
 
 $val = $space->normalize( [53.389, 0, 0] );
-is( int @$val,                           3, 'normalize gray');
-is( round_decimals( $val->[0], 5), 0.53389, 'L value good');
-is( round_decimals( $val->[1], 5), 0.37853, 'u* value good');
-is( round_decimals( $val->[2], 5), 0.53435, 'v* value good');
+is_tuple( $space->round( $val, 5), [0.53389, 0.37853, 0.53435], [qw/l u v/], 'normalize gray');
 
 $luv = $space->convert_from( 'XYZ', [ .214041474 , .21404, 0.214037086]);
-is( int @$luv,                           3,  'deconverted gray from XYZ');
-is( round_decimals( $luv->[0], 5), 0.53389,  'first value good');
-is( round_decimals( $luv->[1], 5), 0.37853,  'second value good');
-is( round_decimals( $luv->[2], 5), 0.53435,  'third value good');
+is_tuple( $space->round( $luv, 5), [0.53389, 0.37853, 0.53435], [qw/l u v/], 'deconverted gray from XYZ');
 
 $xyz = $space->convert_to( 'XYZ', [ 0.53389, .378531073, .534351145 ]);
-is( int @$xyz,                           3,  'converted gray to CIEXYZ');
-is( round_decimals( $xyz->[0], 5), 0.21404,  'X value good');
-is( round_decimals( $xyz->[1], 5), 0.21404,  'Y value good');
-is( round_decimals( $xyz->[2], 5), 0.21404,  'Z value good');
+is_tuple( $space->round( $xyz, 5), [0.21404, 0.21404, 0.21404], [qw/X Y Z/], 'converted gray to XYZ');
+
+# red
+$val = $space->denormalize( [0.53241, .872923729, .678458015] );
+is_tuple( $space->round( $val, 5), [53.241, 175.015, 37.756], [qw/l u v/], 'denormalize red');
+
+$val = $space->normalize( [53.241, 175.015, 37.756] );
+is_tuple( $space->round( $val, 5), [0.53241, 0.87292, 0.67846], [qw/l u v/], 'normalize red');
+
+$luv = $space->convert_from( 'XYZ', [ 0.433953728, 0.21267, 0.017753001]);
+is_tuple( $space->round( $luv, [5,4,5]), [0.5324, 0.8729, 0.67846], [qw/l u v/], 'deconverted red from XYZ');
+
+$xyz = $space->convert_to( 'XYZ', [ 0.53241, .872923729, .678458015 ]);
+is_tuple( $space->round( $xyz, 5), [0.43395, 0.21267, 0.01776], [qw/X Y Z/], 'converted red to XYZ');
+
+# blue
+$luv = $space->denormalize( [0.32297, .351963277, .036862595] );
+is_tuple( $space->round( $luv, 5), [32.297, -9.405, -130.342], [qw/l u v/], 'denormalize blue');
+
+$luv = $space->normalize( [32.297, -9.405, -130.342] );
+is_tuple( $space->round( $luv, 5), [0.32297, 0.35196, 0.03686], [qw/l u v/], 'normalize blue');
+
+$luv = $space->convert_from( 'XYZ', [ 0.1898429198, 0.07217, 0.872771690713886]);
+is_tuple( $space->round( $luv, 5), [0.32296, 0.35197, 0.03687], [qw/l u v/], 'deconverted blue from XYZ');
+
+$xyz = $space->convert_to( 'XYZ', [ 0.322958956314709, 0.351970231199232, 0.0368661363328552 ]);
+is_tuple( $space->round( $xyz, 5), [0.18984, 0.07217, 0.87277], [qw/X Y Z/], 'converted blue to XYZ');
 
 # nice blue
-$val = $space->denormalize( [0.24082, .352573446, .317049618] );
-is( int @$val,                           3,  'denormalize nice blue');
-is( round_decimals( $val->[0], 5),  24.082,  'L* value of white good');
-is( round_decimals( $val->[1], 5),  -9.189,  'u* value of white good');
-is( round_decimals( $val->[2], 5), -56.933,  'v* value of white good');
+$luv = $space->denormalize( [0.24082, .352573446, .317049618] );
+is_tuple( $space->round( $luv, 5), [24.082, -9.189, -56.933], [qw/l u v/], 'denormalize nice blue');
 
-$val = $space->normalize( [24.082, -9.189, -56.933] );
-is( int @$val,                         3,  'normalize nice blue');
-is( round_decimals( $val->[0], 5), 0.24082,  'L value good');
-is( round_decimals( $val->[1], 5), 0.35257,  'u* value good');
-is( round_decimals( $val->[2], 5), 0.31705,  'v* value good');
+$luv = $space->normalize( [24.082, -9.189, -56.933] );
+is_tuple( $space->round( $luv, 5), [0.24082, 0.35257, 0.31705], [qw/l u v/], 'normalize nice blue');
 
 $luv = $space->convert_from( 'XYZ', [ 0.057434743, .04125, .190608268]);
-is( int @$luv,                         3,  'deconverted nice blue from CIEXYZ');
-is( round_decimals( $luv->[0], 5),  0.2408,  'first value good');
-is( round_decimals( $luv->[1], 5),  0.35258,  'second value good');
-is( round_decimals( $luv->[2], 5),  0.31705,  'third value good');
+is_tuple( $space->round( $luv, 5), [0.2408, 0.35258, 0.31705], [qw/l u v/], 'deconverted nice blue from XYZ');
 
 $xyz = $space->convert_to( 'XYZ', [ 0.240804547340649, 0.352579240249493, 0.317048140883067 ]);
-is( int @$xyz,                         3,  'converted nice blue to CIEXYZ');
-is( round_decimals( $xyz->[0], 5),   0.05743,  'X value good');
-is( round_decimals( $xyz->[1], 5),   0.04125,  'Y value good');
-is( round_decimals( $xyz->[2], 5),   0.19061,  'Z value good');
+is_tuple( $space->round( $xyz, 5), [0.05743, 0.04125, 0.19061], [qw/X Y Z/], 'converted nice blue to XYZ');
 
 exit 0;
 

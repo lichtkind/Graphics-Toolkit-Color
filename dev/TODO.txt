@@ -8,7 +8,7 @@ TODO:
  = 2.3:
    + gamut mapping
    + complement in selectable cylindrical space
-   + method analogues
+   + method analogues with args: to, steps and tilt
  
  = 2.4:
    + cubehelix method
@@ -16,12 +16,17 @@ TODO:
    + move POD to GTC::CookBook, GTC::Manual
 
  = 2.5 
-   + LMS support
+   + LMS support, Mochado/Brettel
    + delta_e method
    
  = 2.6:
-   + designer API: lighten, / darken, saturate, desaturate, 
-                   triadic, tetradic, square, analogous, compound, monochromatic
+   + designer API: 
+   + lighten / darken, 
+   + saturate / desaturate, 
+   + tint (white) / shade (black) / tone (grey)
+   + brightness, contrast, vibrance
+   + triadic, tetradic, square, 
+   + compound, monochromatic ? probably later
 
  = 2.7
    + ramp up precision computing own matrices and abolish converter flags
@@ -29,14 +34,14 @@ TODO:
 
  = 2.8
    + palette method
+   + random color
 
  = 3.0
    + color space parameter: illuminant
-   + r/g color blind space
    + own Exception Class hierarchy
 
 
- # Likely:                                      planned version
+ # Likely:                                     
 
 
  # Maybe:

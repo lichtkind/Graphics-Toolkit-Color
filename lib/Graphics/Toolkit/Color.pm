@@ -929,7 +929,7 @@ provided, THE (one) complementary color will be produced.
 One singular, positional argument defines the number of produced colors,
 same as the named argument C<steps> would have. If you want to get
 'triadic' colors, choose 3 as an argument for C<steps> - 4 would get
-you the 'tetradic' colors, .... and so on. The given color is always
+you the 'quadratic' colors, .... and so on. The given color is always
 the last in the row of produced complementary colors.
 
 If you need split-complementary colors, just use the C<tilt> argument,
@@ -952,7 +952,7 @@ circle in all three directions. C<hue> (or C<h>) values move it
 circularly C<saturation> (or C<s>) move it away or negative values toward
 the central column and C<lightness> (or C<l>) move it up and down.
 
-    my @colors = $c->complement( 4 );                       # 'tetradic' colors
+    my @colors = $c->complement( 4 );                       # 'quadratic' colors
     my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
     my @colors = $c->complement( steps => 3, tilt => 2, target => { l => -10 } );
     my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });

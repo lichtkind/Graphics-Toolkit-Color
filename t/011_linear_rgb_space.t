@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 56;
+use Test::More tests => 63;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGBLinear';
 my $space = eval "require $module";
@@ -24,6 +24,13 @@ is( $space->is_axis_name('ed'),                 0, 'can not miss a lettter of ax
 is( $space->is_axis_name('R'),                  1, '"r" is an axis name');
 is( $space->is_axis_name('g'),                  1, '"g" is an axis name');
 is( $space->is_axis_name('b'),                  1, '"b" is an axis name');
+is( $space->pos_from_axis_name('red'),          0, '"red" is name of first axis');
+is( $space->pos_from_axis_name('green'),        1, '"green" is name of second axis');
+is( $space->pos_from_axis_name('blue'),         2, '"blue" is name of third axis');
+is( $space->pos_from_axis_name('r'),            0, '"r" is name of first axis');
+is( $space->pos_from_axis_name('g'),            1, '"g" is name of second axis');
+is( $space->pos_from_axis_name('b'),            2, '"b" is name of third axis');
+is( $space->pos_from_axis_name('ed'),       undef, '"ed" is not an axis name');
 is( $space->axis_count,                         3, 'lin RGB color space has 3 axis');
 is( $space->is_euclidean,                       1, 'lin RGB is euclidean');
 is( $space->is_cylindrical,                     0, 'lin RGB is not cylindrical');

@@ -64,7 +64,6 @@ my$val = $space->denormalize( [0, 0, 0] );
 is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/luminance chroma hue/], 'denormalize black');
 $val = $space->normalize( [0, 0, 0] );
 is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/luminance chroma hue/], 'normalize black');
-
 $lch = $space->convert_from( 'LUV', [ 0, .378531073, .534351145]);
 is_tuple( $space->round( $lch, 5), [0, 0, 0], [qw/luminance chroma hue/], 'convert black from LUV');
 my $luv = $space->convert_to( 'LUV', [ 0, 0, 0 ] );

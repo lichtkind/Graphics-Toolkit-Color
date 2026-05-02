@@ -82,7 +82,7 @@ sub remove_space {
     delete $space_obj{ $name };
 }
 
-#### value API #########################################################
+#### tuple API ##########################################################
 sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wanted space
     my ($tuple, $target_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
     return "need an ARRAY ref with 3 normalized RGB values as first argument in order to convert them" 
@@ -227,7 +227,6 @@ sub distance { # @c1 @c2 -- ~space ~select @range --> +
 }
 
 1;
-# =head2 Rec.2020  =head2 BT.709 
 
 __END__
 

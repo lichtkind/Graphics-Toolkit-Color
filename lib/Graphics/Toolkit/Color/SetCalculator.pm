@@ -67,7 +67,7 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 ########################################################################
 my $adj_len_at_45_deg = sqrt(2) / 2;
 
-sub cluster { # :values, +radius @+|+distance, :space --> @:values
+sub cluster { # .center, +radius @+|+distance, .space --> @:values
     my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
     my $color_space_name = $color_space->name;
     my $center_tuple = $center_color->shaped( $color_space_name );

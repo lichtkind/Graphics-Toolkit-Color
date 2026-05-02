@@ -52,6 +52,7 @@ sub is_tuple {
 }
 
 
-sub is_nr { $_[0] =~ /^\-?\d+(?:\.\d+)?(?:e-?\d+)?$/ }
+my $number_re = qr/^\-?(?:\d+|(?:\d*\.\d+))(?:e-?\d+)?$/;
+sub is_nr { $_[0] =~ $number_re }
 
 1;

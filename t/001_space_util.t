@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 74;
+use Test::More tests => 75;
 
 my $module = 'Graphics::Toolkit::Color::Space::Util';
 eval "use $module";
@@ -90,6 +90,7 @@ is( $is_nr->(-.59),                      1,   'negative fraction without leading
 is( $is_nr->(4e3),                       1,   '4000 in scientific notation is number');
 is( $is_nr->(0.2e-3),                    1,   'decimal number in scientific notation');
 is( $is_nr->(.2e13),                     1,   'decimal number without leading zero in scientific notation');
+is( $is_nr->('-'),                       0,   'minus sign is nt a number');
 
 my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix_vector_3;
 my @rv = $MM->([[1,2,3],[1,2,3],[1,2,3],], 0,0,0);

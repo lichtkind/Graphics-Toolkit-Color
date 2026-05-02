@@ -158,7 +158,6 @@ sub is_euclidean {     # all axis linear ?
     map { return 0 if $self->{'type'}[$_] != 1 } $self->basis->axis_iterator;
     return 1;
 }
-
 sub is_cylindrical {  # one axis angular, rest linear ?
     my ($self) = @_;
     my $angular_axis = 0;
@@ -166,15 +165,16 @@ sub is_cylindrical {  # one axis angular, rest linear ?
           return 0 if $self->{'type'}[$_] > 1;        } $self->basis->axis_iterator;
     return ($angular_axis == 1) ? 1 : 0;
 }
-
 sub is_int_valued { # all ranges int valued ?
     my ($self) = @_;
     map { return 0 if $self->{'precision'}[$_] != 0 } $self->basis->axis_iterator;
     return 1;
 }
+sub has_constraints {  my ($self) = @_;  return (ref $self->{'constraint'}) ? 1 : 0 } # --> ?
+
 
 #### value checker #####################################################
-sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
+sub check_value_shape {  # @tuple -- $range, $precision --> $@vals | ~!
     my ($self, $tuple, $range, $precision) = @_;
     return 'color value tuple in '.$self->basis->space_name.' space needs to be ARRAY ref with '.$self->basis->axis_count.' elements'
         unless $self->basis->is_value_tuple( $tuple );
@@ -202,7 +202,7 @@ sub check_value_shape {  # $vals -- $range, $precision --> $@vals | ~!
     return $tuple;
 }
 
-sub is_equal {  # @values_a, @values_b -- $precision --> ? 
+sub is_equal {  # @tuple_a, @tuple_b -- $precision --> ? 
     my ($self, $tuple_a, $tuple_b, $precision) = @_;
     return 0 unless $self->basis->is_value_tuple( $tuple_a ) and $self->basis->is_value_tuple( $tuple_b );
     $precision = $self->try_check_precision_definition( $precision );
@@ -213,9 +213,7 @@ sub is_equal {  # @values_a, @values_b -- $precision --> ?
     return 1;
 }
 
-sub has_constraints {  my ($self) = @_;  return (ref $self->{'constraint'}) ? 1 : 0 } # --> ?
-
-sub is_in_constraints {  # @values --> ?  # normalized values only, so it works on any ranges
+sub is_in_constraints {  # @tuple --> ?  # normalized values only, so it works on any ranges
     my ($self, $tuple) = @_;
     return 1 unless $self->has_constraints;
     for my $constraint (values %{$self->{'constraint'}}){
@@ -224,7 +222,7 @@ sub is_in_constraints {  # @values --> ?  # normalized values only, so it works 
     return 1;
 }
 
-sub is_in_bounds {  # :values --> ?
+sub is_in_bounds {  # @tuple --> ?
     my ($self, $tuple, $range) = @_;
     return 0 unless $self->basis->is_number_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
@@ -239,7 +237,7 @@ sub is_in_bounds {  # :values --> ?
     return 1;
 }
 
-sub is_in_linear_bounds {  # :values --> ?
+sub is_in_linear_bounds {  # @tuple --> ?
     my ($self, $tuple, $range) = @_;
     return 0 unless $self->basis->is_number_tuple( $tuple );
     $range = $self->try_check_range_definition( $range );
@@ -290,7 +288,7 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
     return $tuple;
 }
 
-sub round {
+sub round { # $tuple -- $precision --> $tuple
     my ($self, $tuple, $precision) = @_;
     return unless $self->basis->is_value_tuple( $tuple );
     $precision = $self->try_check_precision_definition( $precision );
@@ -327,7 +325,7 @@ sub denormalize_delta {
              :  $delta_values->[$_]                                       } $self->basis->axis_iterator ];
 }
 
-sub delta { # values have to be normalized
+sub delta { # @normal_tuple_a, @normal_tuple_b   --> @delta_tuple
     my ($self, $tuple1, $tuple2) = @_;
     return unless $self->basis->is_value_tuple( $tuple1 ) and $self->basis->is_value_tuple( $tuple2 );
     # ignore none numeric dimensions

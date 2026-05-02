@@ -108,7 +108,7 @@ sub _split_named_args {
     return \%clean_arg;
 }
 
-## getter ##############################################################
+### getter #############################################################
 sub values       {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'in', [],
@@ -165,7 +165,8 @@ EOH
 
 sub distance {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, select => undef, range => undef});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, select => undef, range => undef}, 
+                                                       {select => 'only'});
     my $help = <<EOH;
     GTC method 'distance' accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
@@ -173,6 +174,7 @@ sub distance {
         to => 'green',        # color object or color definition (required)
         in => 'HSL',          # color space name, defaults to "$default_space_name"
         select => 'red',      # axis name or names (ARRAY ref), default is none
+        only => 'red',        # argument alias name to select
         range => 2**16,       # value range definition, defaults come from color space def
 EOH
     return $arg.$help unless ref $arg;

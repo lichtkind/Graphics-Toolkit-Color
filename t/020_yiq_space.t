@@ -31,19 +31,19 @@ is( $space->shape->has_constraints,             0, 'YIQ is a cube wiht all the e
 is( $space->can_convert('rgb'),                 1, 'do only convert from and to rgb');
 is( $space->can_convert('yiq'),                 0, 'can not convert to itself');
 
-is( ref $space->check_value_shape([0, 0, 0]),              'ARRAY',   'check neutral YIQ values are in bounds');
-is( ref $space->check_value_shape([0, -0.5959, 0.5227]),   'ARRAY',   'check YIQ values works on lower bound values');
-is( ref $space->check_value_shape([1, -0.5227, 0.5227]),   'ARRAY',   'check YIQ values works on upper bound values');
-is( ref $space->check_value_shape([0,0]),              '',   "YIQ got too few values");
-is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "YIQ got too many values");
-is( ref $space->check_value_shape([-0.1, 0, 0]),       '',   "luminance value is too small");
-is( ref $space->check_value_shape([1.1, 0, 0]),        '',   "luminance value is too big");
-is( ref $space->check_value_shape([0, -0.6, 0]),       '',   "in_phase value is too small");
-is( ref $space->check_value_shape([0, 0.6, 0]),        '',   "in_phase value is too big");
-is( ref $space->check_value_shape([0, 0, .6 ] ),       '',   "quadrature value is too small");
-is( ref $space->check_value_shape([0, 0, -.6] ),       '',   "quadrature value is too big");
+is( ref $space->check_value_shape([0, 0, 0]),            'ARRAY',   'check neutral YIQ values are in bounds');
+is( ref $space->check_value_shape([0, -0.5959, 0.5227]), 'ARRAY',   'check YIQ values works on lower bound values');
+is( ref $space->check_value_shape([1, -0.5227, 0.5227]), 'ARRAY',   'check YIQ values works on upper bound values');
+is( ref $space->check_value_shape([0,0]),                     '',   "YIQ got too few values");
+is( ref $space->check_value_shape([0, 0, 0, 0]),              '',   "YIQ got too many values");
+is( ref $space->check_value_shape([-0.1, 0, 0]),              '',   "luminance value is too small");
+is( ref $space->check_value_shape([1.1, 0, 0]),               '',   "luminance value is too big");
+is( ref $space->check_value_shape([0, -0.6, 0]),              '',   "in_phase value is too small");
+is( ref $space->check_value_shape([0, 0.6, 0]),               '',   "in_phase value is too big");
+is( ref $space->check_value_shape([0, 0, .6 ] ),              '',   "quadrature value is too small");
+is( ref $space->check_value_shape([0, 0, -.6] ),              '',   "quadrature value is too big");
 
-is( $space->is_value_tuple([0,0,0]),           1,   'value vector has 3 elements');
+is( $space->is_value_tuple([0,0,0]),                    1, 'value vector has 3 elements');
 is( $space->is_partial_hash({i => 1, Quadrature => 0}), 1, 'found hash with some keys');
 is( $space->format([0,0,0], 'css_string'), 'yiq(0, 0, 0)', 'can format css string');
 

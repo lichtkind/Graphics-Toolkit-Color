@@ -5,8 +5,11 @@
 package Graphics::Toolkit::Color::Space::Format;
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Space::Util qw/number_re/;
 
-my $number_form = '-?(?:\d+|\d+\.\d+|\.\d+)';
+my $number_form = number_re();
+#say $number_form = '-?(?:\d+|\d+\.\d+|\.\d+)';
+#say number_re();
 
 #### constructor, building attr data ###################################
 sub new { # -, $:Basis -- ~|@~val_form, , ~|@~suffix --> :_
@@ -16,7 +19,7 @@ sub new { # -, $:Basis -- ~|@~val_form, , ~|@~suffix --> :_
 
     my $count = $basis->axis_count;
     $value_form = $number_form unless defined $value_form;
-    $value_form = [($value_form) x $count] unless ref $value_form;
+    $value_form = [($value_form) x $count] if ref $value_form ne 'ARRAY';
     return "Definition of the value format has to be as ARRAY reference" if ref $value_form ne 'ARRAY';
     $value_form = [ map {(defined $_ and $_) ? $_ : $number_form } @$value_form]; # fill missing defs with default
     return 'Need a value form definition for every axis!' unless @$value_form == $count;
@@ -85,18 +88,19 @@ sub has_formatter   { (defined $_[1] and exists $_[0]{'formatter'}{ lc $_[1] }) 
 sub has_deformatter { (defined $_[1] and exists $_[0]{'deformatter'}{ lc $_[1] }) ? 1 : 0 }
 
 sub deformat {
-    my ($self, $color, $suffix) = @_;
-    return undef unless defined $color;
+    my ($self, $color_def, $suffix) = @_;
+    return undef unless defined $color_def;
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
     for my $format_name (sort keys %{$self->{'deformatter'}}){
         my $deformatter = $self->{'deformatter'}{$format_name};
-        my $tuple = $deformatter->( $self, $color );
+        my $tuple = $deformatter->( $self, $color_def );
         next unless ref $tuple;
-        $tuple = $self->check_raw_value_format( $tuple );
-        next unless ref $tuple;
-        $tuple = $self->remove_suffix($tuple, $suffix);
-        next unless ref $tuple;
+#say "-- $format_name: -@$tuple- " if ref $tuple;
+        $tuple = $self->remove_suffix( $tuple, $suffix );
+#say "-- $format_name: @$tuple " if ref $tuple;
+        next unless $self->are_tuple_numbers_well_formatted( $tuple );
+#say "-- $format_name: @$tuple " if ref $tuple;
         return wantarray ? ($tuple, $format_name) : $tuple;
     }
     return undef;
@@ -112,7 +116,7 @@ sub format {
 }
 
 #### work methods ######################################################
-sub remove_suffix { # and unnecessary white space
+sub remove_suffix { # and unnecessary white space and remove special number formats
     my ($self, $tuple, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $tuple );
     $suffix = $self->get_suffix( $suffix );
@@ -124,6 +128,7 @@ sub remove_suffix { # and unnecessary white space
     }
     local $/ = ' ';
     chomp $tuple->[$_] for $self->basis->axis_iterator;
+    $tuple->[$_] =~tr/ //d for $self->basis->axis_iterator;
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
         my $val_length = length $tuple->[ $axis_index ];
@@ -145,7 +150,11 @@ sub add_suffix {
         return unless $self->basis->is_value_tuple( $tuple );
     }
     local $/ = ' ';
-    chomp $tuple->[$_] for $self->basis->axis_iterator;
+    for my $axis_index ($self->basis->axis_iterator){
+		chomp $tuple->[$axis_index];
+		$tuple->[$axis_index] = substr($tuple->[$axis_index], 1) while $tuple->[$axis_index] 
+		                                                           and substr($tuple->[$axis_index],0,1) eq ' ';
+	}
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
         my $val_length = length $tuple->[ $axis_index ];
@@ -156,16 +165,18 @@ sub add_suffix {
     return $tuple;
 }
 
-sub check_raw_value_format {
+sub are_tuple_numbers_well_formatted { # custom or normal
     my ($self, $tuple) = @_;
     return 0 if ref $tuple ne 'ARRAY';
     return 0 if @$tuple != $self->basis->axis_count;
     my @re = $self->get_value_regex();
     for my $axis_index ($self->basis->axis_iterator){
+#say "raw $axis_index : .$tuple->[$axis_index]. -- ", $re[$axis_index];
         return 0 unless $tuple->[$axis_index] =~ /^$re[$axis_index]$/;
     }
-    return $tuple;
+    return 1;
 }
+
 
 sub get_value_regex {
     my ($self) = @_;

@@ -84,9 +84,9 @@ is( $s3d->is_value_tuple([1,2,3,4]),          0,        'too large ARRAY');
 is( $s3d->is_value_tuple([1,2,3]),            1,        'correctly sized value ARRAY');
 
 is( $s3d->is_number_tuple([1,2,3]),           1,        'correct tuple of numbers only');
-is( $s3d->is_number_tuple(['a',2,3]),         0,        'cought not a number on first position');
-is( $s3d->is_number_tuple([1,'-',3]),         0,        'cought not a number on second position');
-is( $s3d->is_number_tuple([1,2,'A']),         0,        'cought not a number on third position');
+is( $s3d->is_number_tuple(['a',2,3]),         0,        'caught not a number on first position');
+is( $s3d->is_number_tuple([1,'-',3]),         0,        'caught not a number on second position');
+is( $s3d->is_number_tuple([1,2,'A']),         0,        'caught not a number on third position');
 
 is( $s3d->pos_from_long_axis_name('alpha'),   0,        '"alpha" is long name of first axis');
 is( $s3d->pos_from_long_axis_name('beta'),    1,        '"beta" is long name of second axis');

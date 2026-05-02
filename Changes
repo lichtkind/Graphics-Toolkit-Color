@@ -8,6 +8,7 @@
     * + add constructor argument 'color', and 'range' to input custom ranged values
     * + add constructor argument 'color' and 'raw' to input unclamped, imaginary colors
     * + add argument 'raw' to method 'values' to return even out of gamut values
+    * + add argument 'only' as alias of 'select' in method 'distance'
     * + added hash format for range definitions: {r => 100, g => 'normal', b => [-.5,.5]}
     * + added ouput format ARRAY (tuple) (output only)
     * + can insert ' ', '-', '_' and '.' into color space names

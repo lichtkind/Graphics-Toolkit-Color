@@ -47,15 +47,6 @@ sub new_from_tuple { #
     bless { rgb_tuple => $tuple, source_tuple => $source_tuple, source_space_name => $source_space_name, color_name => $name };
 }
 
-sub is_in_gamut {
-    my ($color_def, $space_name) = @_;
-    my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
-    return 1 if ref $rgb;
-    my ($tuple, $found_space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $found_space_name );
-    return 0 unless ref $color_space;
-    return $color_space->is_in_bounds( $tuple ); # , $range_def 
-}
 
 #### getter ############################################################
 sub normalized { # normalized (0..1) value tuple in any color space
@@ -85,6 +76,16 @@ sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~r
     return $color_space->format( $tuple, $format_name, $suffix_def );
 }
 sub name { $_[0]->{'color_name'} }
+
+sub is_in_gamut {
+    my ($color_def, $space_name) = @_;
+    my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
+    return 1 if ref $rgb;
+    my ($tuple, $found_space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $found_space_name );
+    return 0 unless ref $color_space;
+    return $color_space->is_in_bounds( $tuple ); # , $range_def 
+}
 
 
 1;

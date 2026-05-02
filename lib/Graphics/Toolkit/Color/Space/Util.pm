@@ -53,10 +53,10 @@ sub gamma_correct { # spow: sign preserving power function
     return -((-$base) ** $exponent);
 }
 
-my $number_re = qr/^\-?(?:\d+|(?:\d*\.\d+)?)(?:e-?\d+)?$/;
+my $number_re = qr/^\-?(?:\d+|(?:\d*\.\d+))(?:e-?\d+)?$/;
 
 sub number_re { $number_re }
-sub is_nr { $_[0] =~ $number_re }
+sub is_nr { ($_[0] =~ $number_re) ? 1 : 0 }
 
 #### color computation #################################################
 sub mult_matrix_vector_3 {

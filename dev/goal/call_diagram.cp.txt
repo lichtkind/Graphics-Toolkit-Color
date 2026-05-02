@@ -4,41 +4,44 @@ Graphics::Toolkit::Color class and method call Hierarchy
 --------------------------------------------------------
 
 
-    = G::T::Color          (public API)
-      - new                (GTC::Values::new_from_any_input)
+    = GT::Color            (public API)
+      - new                (::Values::new_from_any_input)
       -----
-      - values             (GTC::Values::formatted)
-      - name               (GTC::Name::from_values | GTC::Values::name)
-      - closest_name       (GTC::Name::closest_from_values)
-      - distance           (GTC::Space::Hub::distance)
+      - name               (::Name::from_values | GTC::Values::name)
+      - closest_name       (::Name::closest_from_values)
+      - values             (::Values::formatted)
+      - is_in_gamut        (::Values::is_in_gamut)
+       -----
+      - set_value          (::Calculator::set)
+      - add_value          (::Calculator::add)
+      - mix                (::Calculator::mix)
+      - invert             (::Calculator::invert)
       -----
-      - set_value          (GTC::Values::set)
-      - add_value          (GTC::Values::add)
-      - mix                (GTC::Values::mix)
-      - invert             (GTC::Values::invert)
-      -----
-      - complement         (GTC::SetCalculator::complement)
-      - gradient           (GTC::SetCalculator::gradient)
-      - cluster            (GTC::SetCalculator::cluster)
+      - complement         (::SetCalculator::complement)
+      - gradient           (::SetCalculator::gradient)
+      - cluster            (::SetCalculator::cluster)
       ======
         = ::SetCalculator
-          - gradient       (Values::mix)
-          - complement     (Values::add)
-          - cluster        (Values::add)
+          - gradient       (::Values::new, ::Calculator::mix)
+          - complement     (::Values::new, ::Calculator::add)
+          - cluster        (::Values::new, ::Calculator::add)
+        ======
+        = ::Calculator
+          - apply_gamma    (::Values::new, ::Space::*)
+          - set_value      (::Values::new, ::Space::*, ::Space::Hub::deformat_partial_hash)
+          - add_value      (::Values::new, ::Space::*, ::Space::Hub::deformat_partial_hash)
+          - mix            (::Values::new, ::Space::*)
+          - invert         (::Values::new, ::Space::*)
         ======
         = ::Values
-          - new_from_any_input    (GTC::Space::Hub::deformat |GTC::Name::values, -> ..)
-          - new_from_tuple        (GTC::Space::Hub::deconvert)
+          - new_from_any_input    (::Space::Hub::deformat | ::Name::values, -> ..)
+          - new_from_tuple        (::Space::Hub::deconvert)
           -----
-          - normalized     (GTC::Space::Hub::convert)
-          - shaped         (GTC::Space->denormalize, ->clamp, ->round)
-          - formatted      (GTC::Space->format)
+          - normalized     (::Space::Hub::convert)
+          - shaped         (::Space->denormalize, ->clamp, ->round)
+          - formatted      (::Space->format)
           - name           (:name)
-          ----
-          - set            (GTC::Space::Hub::partial_hash_deformat)
-          - add            (GTC::Space::Hub::partial_hash_deformat)
-          - mix            ()
-          - invert         ()
+          - is_in_gamut    (::Space->is_in_bounds, ::Space::Hub::deformat)
           ======
           = ::Space::Name
             - all

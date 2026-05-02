@@ -36,11 +36,13 @@ TODO:
    + palette method
    + random color
 
- = 3.0
+ = 2.9
    + color space parameter: illuminant
    + own Exception Class hierarchy
 
-
+ = 3.0
+  + color set object and methods
+ 
  # Likely:                                     
 
 

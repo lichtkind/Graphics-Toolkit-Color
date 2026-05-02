@@ -2,7 +2,7 @@ ATTR
 
  in:    ~space_name // 'RGB'
  from:  ~|@~scheme // 'default'
- tilt:  + // 0
+ tilt:  +          // 0
  range: +|@+|@@+range // :space_def
 
 

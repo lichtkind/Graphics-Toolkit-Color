@@ -1,0 +1,33 @@
+
+      ---------------
+      | GTC classes |
+      ---------------
+
+Graphics::Toolkit == GT
+
+                      [public API]
+ 
+                       GT::Color 
+
+                    [high level API]
+
+     GT::Color::SetCalculator (Calc., Vals, Hub, Space)
+      - GT::Color::Calculator    (Values, Hub, Space)
+        - GT::Color::Values        (Name, Hub, Space)
+          -  GT::Color::Name          (Util)     <Graphics::ColorNames::*>
+            - GT::Color::Name::Scheme   (Hub, Util)
+            - GT::Color::Name::Constant
+                                                         
+
+                     [low level API]
+
+          - GT::Color::Space::Hub (GT::Color::Space::Instance::*)
+
+                - GT::Color::Space
+                   - GT::Color::Space::Format
+                   - GT::Color::Space::Shape
+                     - GT::Color::Space::Basis
+                       - GT::Color::Space::Util
+
+
+

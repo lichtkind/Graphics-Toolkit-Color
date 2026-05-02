@@ -63,6 +63,7 @@ is( $space->format([600, 100, 0], 'css_string', ''),  'ncol(R0, 100, 0)',  'conv
 
 my $ncol = $space->deformat('ncol(R00, 0%, 0%)');
 is_tuple( $ncol, [0, 0, 0], [qw/hue whiteness blackness/], 'deformat CSS string with suffix "%"  and leading zero in hue');
+
 $ncol = $space->deformat('ncol(R0, 0%, 0%)');
 is_tuple( $ncol, [0, 0, 0], [qw/hue whiteness blackness/], 'deformat CSS string with suffix "%"');
 $ncol = $space->deformat('NCOL: G12, 34%, 56%');

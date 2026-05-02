@@ -68,7 +68,7 @@ is( ref Graphics::Toolkit::Color->new( c => 0, m => 0, kkey => 0, y=> 1),       
 is( ref Graphics::Toolkit::Color->new( c => 0, m => 0, k=> 1),                  '', 'one key is missing');
 is( ref Graphics::Toolkit::Color->new( luma => 0, Pb => 0, Pr=> .5),       $module, 'YPbPr hash');
 is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '100','b*'=> .5),$module, 'LAB hash');
-is( ref Graphics::Toolkit::Color->new( 'L*' => 0, 'a*' => '10e0', 'b*' => .5),  '', 'dont accept scientific notation');
+is( ref Graphics::Toolkit::Color->new( 'L*'=> 0, 'a*'=> '10e0', 'b*'=> .5),$module, 'accepts scientific notation in numbers');
 is( ref Graphics::Toolkit::Color->new( l => 0,  chroma => '0',  hue => 0), $module, 'CIELCHuv hash');
 is( ref Graphics::Toolkit::Color->new( l => "0%",  c => '0',  hue => 0),        '', 'CIELCHuv has no value suffix');
 is( ref Graphics::Toolkit::Color->new( h => "0",  w => '0',  b => 0),      $module, 'HWB hash');

@@ -95,12 +95,18 @@ sub deformat {
     for my $format_name (sort keys %{$self->{'deformatter'}}){
         my $deformatter = $self->{'deformatter'}{$format_name};
         my $tuple = $deformatter->( $self, $color_def );
+ # say "-- $format_name: -@$tuple- " if ref $tuple;        
         next unless ref $tuple;
-#say "-- $format_name: -@$tuple- " if ref $tuple;
-        $tuple = $self->remove_suffix( $tuple, $suffix );
-#say "-- $format_name: @$tuple " if ref $tuple;
+ # say "-- $format_name: -@$tuple- " if ref $tuple;        
+        $tuple =  $self->trim_tuple( $tuple ); # remove space
+ # say "-- $format_name: -@$tuple- " if ref $tuple;        
+        $tuple =  $self->remove_suffix( $tuple, $suffix );
+ # say "-- $format_name: -@$tuple- " if ref $tuple;        
         next unless $self->are_tuple_numbers_well_formatted( $tuple );
-#say "-- $format_name: @$tuple " if ref $tuple;
+ # say "-- $format_name: -@$tuple- " if ref $tuple;
+        $tuple =  $self->numify_values( $tuple );
+# say "-- $format_name: -@$tuple- " if ref $tuple;
+        next unless $self->basis->is_number_tuple( $tuple );
         return wantarray ? ($tuple, $format_name) : $tuple;
     }
     return undef;
@@ -111,24 +117,32 @@ sub format {
     return '' unless $self->has_formatter( $format );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
+    $tuple =  $self->denumify_values( $tuple );
     $tuple = $self->add_suffix( $tuple, $suffix );
     $self->{'formatter'}{ lc $format }->($self, $tuple);
 }
 
 #### work methods ######################################################
+sub trim_tuple { 
+    my ($self, $dirty_tuple) = @_;
+    return unless $self->basis->is_value_tuple( $dirty_tuple );
+    my $tuple = [@$dirty_tuple];
+    $tuple->[$_] =~tr/ //d for $self->basis->axis_iterator;
+    #~ for my $axis_index ($self->basis->axis_iterator){
+		#~ chomp $tuple->[$axis_index];
+		#~ $tuple->[$axis_index] = substr($tuple->[$axis_index], 1) while $tuple->[$axis_index] 
+		                                                           #~ and substr($tuple->[$axis_index],0,1) eq ' ';
+	#~ }
+	return $tuple;
+}
+
 sub remove_suffix { # and unnecessary white space and remove special number formats
     my ($self, $tuple, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $tuple );
     $suffix = $self->get_suffix( $suffix );
     return $suffix unless ref $suffix;
     $tuple = [@$tuple]; # loose ref and side effects
-    if (ref $self->{'value_numifier'}{'into_numric'}){
-        $tuple = $self->{'value_numifier'}{'into_numric'}->($tuple);
-        return unless $self->basis->is_value_tuple( $tuple );
-    }
-    local $/ = ' ';
-    chomp $tuple->[$_] for $self->basis->axis_iterator;
-    $tuple->[$_] =~tr/ //d for $self->basis->axis_iterator;
+    #local $/ = ' ';
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
         my $val_length = length $tuple->[ $axis_index ];
@@ -143,18 +157,9 @@ sub add_suffix {
     my ($self, $tuple, $suffix) = @_;
     return unless $self->basis->is_value_tuple( $tuple );
     $suffix = $self->get_suffix( $suffix );
-    return $suffix unless ref $suffix; # has to be array or error message
+    return $suffix unless ref $suffix; # tuple or error message
     $tuple = [@$tuple]; # loose ref and side effects
-    if (ref $self->{'value_numifier'}{'from_numeric'}){
-        $tuple = $self->{'value_numifier'}{'from_numeric'}->($tuple);
-        return unless $self->basis->is_value_tuple( $tuple );
-    }
-    local $/ = ' ';
-    for my $axis_index ($self->basis->axis_iterator){
-		chomp $tuple->[$axis_index];
-		$tuple->[$axis_index] = substr($tuple->[$axis_index], 1) while $tuple->[$axis_index] 
-		                                                           and substr($tuple->[$axis_index],0,1) eq ' ';
-	}
+    # local $/ = ' ';
     for my $axis_index ($self->basis->axis_iterator){
         next unless $suffix->[ $axis_index ];
         my $val_length = length $tuple->[ $axis_index ];
@@ -165,13 +170,27 @@ sub add_suffix {
     return $tuple;
 }
 
+# works only on special value formats
+sub numify_values { 
+    my ($self, $tuple) = @_;
+    return $tuple unless ref $self->{'value_numifier'}{'into_numric'};
+    $tuple = $self->{'value_numifier'}{'into_numric'}->($tuple);
+    return $tuple if $self->basis->is_value_tuple( $tuple );
+}
+sub denumify_values {
+    my ($self, $tuple) = @_;
+    return $tuple unless ref $self->{'value_numifier'}{'into_numric'};
+    $tuple = $self->{'value_numifier'}{'from_numeric'}->($tuple);
+    return $tuple if  $self->basis->is_value_tuple( $tuple );
+}
+
 sub are_tuple_numbers_well_formatted { # custom or normal
     my ($self, $tuple) = @_;
     return 0 if ref $tuple ne 'ARRAY';
     return 0 if @$tuple != $self->basis->axis_count;
     my @re = $self->get_value_regex();
     for my $axis_index ($self->basis->axis_iterator){
-#say "raw $axis_index : .$tuple->[$axis_index]. -- ", $re[$axis_index];
+#	say "raw $axis_index : .$tuple->[$axis_index]. -- ", $re[$axis_index];
         return 0 unless $tuple->[$axis_index] =~ /^$re[$axis_index]$/;
     }
     return 1;

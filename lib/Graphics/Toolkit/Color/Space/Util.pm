@@ -5,7 +5,7 @@ package Graphics::Toolkit::Color::Space::Util;
 use v5.12;
 use warnings;
 use Exporter 'import';
-our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real gamma_correct mult_matrix_vector_3 is_nr/;
+our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real gamma_correct mult_matrix_vector_3 is_nr number_re/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 #### lists #############################################################
@@ -53,7 +53,10 @@ sub gamma_correct { # spow: sign preserving power function
     return -((-$base) ** $exponent);
 }
 
-sub is_nr { $_[0] =~ /^\-?\d+(?:\.\d+)?(?:e-?\d+)?$/ }
+my $number_re = qr/^\-?(?:\d+|(?:\d*\.\d+)?)(?:e-?\d+)?$/;
+
+sub number_re { $number_re }
+sub is_nr { $_[0] =~ $number_re }
 
 #### color computation #################################################
 sub mult_matrix_vector_3 {

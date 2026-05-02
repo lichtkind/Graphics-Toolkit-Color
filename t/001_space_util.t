@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 66;
+use Test::More tests => 74;
 
 my $module = 'Graphics::Toolkit::Color::Space::Util';
 eval "use $module";
@@ -81,8 +81,15 @@ is( $pow->(-2.2, 2),               -4.84,   'simple power negative');
 is( $rd->($pow->(2.2, .1),8),   1.08203739,   'power with decimals');
 is( $rd->($pow->(-2.2, .1),8), -1.08203739,   'negative power with decimals');
 
-
-
+my $is_nr = \&Graphics::Toolkit::Color::Space::Util::is_nr;
+is( $is_nr->(0),                         1,   'zero should be a number');
+is( $is_nr->(54),                        1,   'ints are number');
+is( $is_nr->(-4),                        1,   'negative ints are number');
+is( $is_nr->(4.4),                       1,   'number with decimal');
+is( $is_nr->(-.59),                      1,   'negative fraction without leading digit');
+is( $is_nr->(4e3),                       1,   '4000 in scientific notation is number');
+is( $is_nr->(0.2e-3),                    1,   'decimal number in scientific notation');
+is( $is_nr->(.2e13),                     1,   'decimal number without leading zero in scientific notation');
 
 my $MM = \&Graphics::Toolkit::Color::Space::Util::mult_matrix_vector_3;
 my @rv = $MM->([[1,2,3],[1,2,3],[1,2,3],], 0,0,0);

@@ -34,4 +34,3 @@ Graphics::Toolkit::Color::Space->new(
    precision => 6,
      convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );
-

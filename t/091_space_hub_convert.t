@@ -25,7 +25,6 @@ is( ref $convert->(),                       '', 'convert needs at least one argu
 is( ref $convert->({r => 1,g => 1,b => 1}), '', 'convert only value ARRAY no HASH');
 is( ref $convert->([0,0]),                  '', 'tuple has not enough values');
 is( ref $convert->($black, 'Jou'),          '', 'convert needs a valid target name space');
-
 is( ref $deconvert->(),                     '', 'deconvert needs at least one argument');
 is( ref $deconvert->('JAP'),                '', 'deconvert needs a valid source space name name');
 is( ref $deconvert->('RGB', {r => 1,g => 1,b => 1}), '', 'deconvert tule as ARRAY');
@@ -34,13 +33,11 @@ is( ref $deconvert->('JAP', $black),       '', 'space name bad but tuple good');
 #### simple conversion #################################################
 my $rgb = $convert->([0,1/255,1], 'RGB');
 is_tuple( $rgb, [0, 1, 255], $rgb_axis, 'none conversion from RGB space to RGB');
-
 $rgb = $convert->([0,1/255,1], 'RGB', 'normal');
 is_tuple( $rgb, [0, 1/255, 1], $rgb_axis, 'none conversion with normalisation');
 
 my $yuv = $convert->([.1, .2, .3], 'YUV', 'normal', [1, .1, 0] ,'YUV');
 is_tuple( $yuv, [1, .1, 0], $yuv_axis, 'conversion to YUV, normal with drop in source values');
-
 $yuv = $convert->( [.1, .2, .3], 'YUV', undef, [1, 0.1, 0] ,'YUV');
 is_tuple( $yuv, [1, -0.4, -0.5], $yuv_axis, 'conversion to YUV, no normal with drop in source values');
 
@@ -53,19 +50,16 @@ is_tuple( $rgb, [0, 0.1, 1], $rgb_axis, 'conversion back from CMY');
 #### chained conversion ################################################
 my $xyz = $convert->( $black, 'XYZ');
 is_tuple( $RGB->round($xyz, 5), [0, 0, 0], $xyz_axis, 'convert black to XYZ (2 hop conversion)');
-
 $rgb = $deconvert->([0, 0, 0], 'XYZ');
 is_tuple( $RGB->round($rgb, 5), $black, $xyz_axis, 'convert black from XYZ (2 hop conversion)');
 
 $xyz = $convert->($white, 'XYZ');
 is_tuple( $RGB->round($xyz, [6,4,6]), [95.047, 100, 108.883], $xyz_axis, 'convert white to XYZ (2 hop conversion)');
-
 $rgb = $deconvert->( $white, 'XYZ');
 is_tuple( $RGB->round($rgb, 4), [255, 255, 255], $xyz_axis, 'deconvert white from XYZ (2 hop conversion)');
 
 $xyz = $convert->([1, 1, 1], 'XYZ', 'normal');
 is_tuple( $RGB->round($xyz, 6), [1, 1, 1], $xyz_axis, 'convert white to normal XYZ (2 hop conversion) and normalisation');
-
 $xyz = $convert->([.1, .2, .3], 'XYZ');
 is_tuple( $RGB->round($xyz, 4), [2.9187, 3.1093, 7.3739], $xyz_axis, 'convert dark blue to XYZ');
 

@@ -2,8 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 110;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 92;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
@@ -73,18 +74,11 @@ is( ref $snow->distance( in => 'LAB'),                         '', 'missing requ
 
 #### values ############################################################
 my @values = $blue->values();
-is( int @values,                3, 'default result for "values" are 3 numbers');
-is( $values[0],                 0, 'red value is correct');
-is( $values[1],                 0, 'green value is correct');
-is( $values[2],               255, 'blue red value is correct');
+is_tuple( \@values, [0, 0, 255], [qw/red green blue/], 'default output of "values is a RGB list"');
 
 @values = $blue->values(as => 'array');
 is( int @values,                 1, 'ordered one ARRAY ref');
-is( ref $values[0],        'ARRAY', 'it is an ARRAY ref');
-is( int @{$values[0]},           3, 'has three values inside');
-is( $values[0][0],               0, 'red value is correct');
-is( $values[0][1],               0, 'green value is correct');
-is( $values[0][2],             255, 'blue value is correct');
+is_tuple( $values[0], [0, 0, 255], [qw/red green blue/], '"ARRAY" format is for RGB');
 
 @values = $blue->values(as => 'named_array');
 is( int @values,                 1, 'named ARRAY ref');
@@ -102,11 +96,7 @@ is( ref $blue->values( in => 'LAB', suffix => [1,2]),     '', 'suffix def too sh
 is( ref $blue->values( in => 'LAB', suffix => [1,2,3,4]), '', 'suffix def too long');
 
 @values = $blue->values(in => 'CMYK');
-is( int @values,                4, 'CMYK has 4 values');
-is( $values[0],                 1, 'cyan value is correct');
-is( $values[1],                 1, 'magenta value is correct');
-is( $values[2],                 0, 'yellow red value is correct');
-is( $values[3],                 0, '"key" value is correct');
+is_tuple( \@values, [1, 1, 0, 0], [qw/cyan magenta yellow key/], 'value list in CMYK');
 
 is( $blue->values(as => 'css_string'),      'rgb(0, 0, 255)', 'blue in CSS string format');
 is( $blue->values(as => 'named_string'),    'rgb: 0, 0, 255', 'blue in named string format');
@@ -139,23 +129,16 @@ is( $values->{'s'},           100, '"saturation" value is correct');
 is( $values->{'l'},            50, '"lightness" value is correct');
 
 my $too_blue = Graphics::Toolkit::Color->new( color => [-1, 10, 256], raw => 1);
-my @rgb = $too_blue->values(range => 1, precision => 3);
-is( @rgb,                      3, '3 RGB values converted into special range');
-is( $rgb[0],                   0, 'red is 0, clamped up');
-is( $rgb[1],               0.039, 'green is 0.039, correct precision');
-is( $rgb[2],                   1, 'blue is 1, got clamped down');
-
+my @rgb = $too_blue->values(range => {red => 100, green => 510, blue => 255});
+is_tuple( \@rgb, [0, 20, 255], [qw/red green blue/], 'clamped RGB values in custom range in HASH definition');
+@rgb = $too_blue->values(range => {red => 100, green => 510 });
+is_tuple( \@rgb, [0, 20, 255], [qw/red green blue/], 'same, but missing axis in HASH definition, gets replaced with default');
+@rgb = $too_blue->values(range => 1, precision => 3);
+is_tuple( \@rgb, [0, 0.039, 1], [qw/red green blue/], 'clamped RGB values in normal range and custom precision');
 @rgb = $too_blue->values(raw => 1);
-is( @rgb,                      3, '3 RGB values in raw mode');
-is( $rgb[0],                  -1, 'red value is -1, unclamped');
-is( $rgb[1],                  10, 'green value is 10');
-is( $rgb[2],                 256, 'blue value is 256, unclamped');
-
+is_tuple( \@rgb, [-1, 10, 256], [qw/red green blue/], 'raw RGB values');
 @rgb = Graphics::Toolkit::Color->new( color => [4,5,6], range => 10)->values(range => 'normal');
-is( @rgb,                      3, '3 RGB values read with special range');
-is( $rgb[0],                 0.4, 'red is 0.4');
-is( $rgb[1],                 0.5, 'green is 0.5');
-is( $rgb[2],                 0.6, 'blue is 0.6');
+is_tuple( \@rgb, [0.4, .50, .6], [qw/red green blue/], 'custom ranged RGB values as input, normalized');
 
 #### is_in_gamut #######################################################
 is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');

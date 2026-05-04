@@ -26,7 +26,7 @@ sub new {
         }
     } else        { return 'invalid axis type definition in color space '.$basis->space_name }
 
-    $range = expand_range_definition( $basis, $range );
+    $range = expand_range_definition(undef, $basis, $range );
     return $range unless ref $range;
     $precision = expand_precision_definition( $basis, $precision );
     return $precision unless ref $precision;
@@ -58,7 +58,7 @@ sub new {
 
 #### object attribute checker ##########################################
 sub expand_range_definition { # check if range def is valid and eval (expand) it
-    my ($basis, $range) = @_;
+    my ($self, $basis, $range) = @_;
     $basis = $basis->{'basis'} if ref $basis eq __PACKAGE__;
     my $error_msg = 'Bad value range definition!';
     $range =   1 if not defined $range or $range eq 'normal';
@@ -72,6 +72,11 @@ sub expand_range_definition { # check if range def is valid and eval (expand) it
 			next unless $basis->is_axis_name( $axis_name );
 			$range_array->[ $basis->pos_from_axis_name($axis_name) ] = $range->{$axis_name};
 		}
+		for my $axis_index ($basis->axis_iterator){
+			next if exists $range_array->[$axis_index] and defined $range_array->[$axis_index];
+			next unless ref $self and ref $self->{'range'};
+			$range_array->[$axis_index] = $self->{'range'}[$axis_index];
+		}		
 		$range = $range_array;
 	}
     $range = [$range] unless ref $range;
@@ -96,7 +101,7 @@ sub expand_range_definition { # check if range def is valid and eval (expand) it
 sub try_check_range_definition { # check if range def is valid and eval (expand) it
     my ($self, $range) = @_;
     return $self->{'range'} unless defined $range;
-    return expand_range_definition( $self->{'basis'}, $range );
+    return $self->expand_range_definition( $self->{'basis'}, $range );
 }
 
 sub expand_precision_definition { # check if precision def is valid and eval (exapand) it

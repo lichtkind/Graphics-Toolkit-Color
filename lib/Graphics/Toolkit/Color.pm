@@ -207,6 +207,10 @@ sub is_in_gamut {
     my $color_def = _compact_color_def_into_scalar(@args);
 	return 0 unless defined $color_def;
 	# _new_from_scalar_def()
+	# color
+	# in 
+	# range
+	## raw => 1,
     Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg # in is third
 }
 	
@@ -643,7 +647,7 @@ can also specify the space as always with the argument L</in>.
     $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
-    if (is_in_gamut('rgb: 0, 0, 300')){                     # 300 will be clamped to 255
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
     is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
 
 

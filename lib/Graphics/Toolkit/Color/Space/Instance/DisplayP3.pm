@@ -15,8 +15,8 @@ sub from_dp3l {
 }
 sub to_dp3l {
 	my ($rgb) = shift;
-	return [  map {  (abs($_) > 0.04045)  ? gamma_correct((($_ + 0.055) /  1.055 ), $gamma) 
-                                          :                ($_          / 12.92)           } @$rgb ];
+	return [ map { (abs($_) > 0.04045)  ? gamma_correct((($_ + 0.055) /  1.055 ), $gamma) 
+                                        :                ($_          / 12.92)           } @$rgb ];
 }
  
 Graphics::Toolkit::Color::Space->new(

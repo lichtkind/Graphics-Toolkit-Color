@@ -1,4 +1,3 @@
-DCIP3, DCIP3LinearDCI Theaterja, D65 → Theater
 ProPhotoRGBD50ja, D65 → D50
 WideGamutRGBD50ja, D65 → D50
 CIERGBE (Equal Energy)ja, D65 → E

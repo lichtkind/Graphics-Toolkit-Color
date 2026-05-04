@@ -495,7 +495,8 @@ Even greater gamut then previous spaces with white point D50 and gamma of ~2.2.
 
 =head2 Display P3
 
-wide gamut RGB variant with same gamma function as L</RGB>
+wide gamut RGB variant with same gamma function as L</RGB>, 
+has alias name B<P3>.
 
 =head2 Display P3 Linear
 
@@ -503,7 +504,15 @@ P3 variant without any gamma - wider gamut variant of L<\LinearRGB>.
 
 =head2 DCI-P3
 
-Simply I<Display P3 Linear> with a gamma of 2.4.
+Simply I<Display P3 Linear> with a gamma of 2.4, has alias name B<SMPTE P3>.
+
+=head2 Rec.709
+
+RGB space, has alias name B<BT.709>.
+
+=head2 Rec.2020
+
+RGB space, has alias name B<BT.2020>.
 
 =head2 OKLAB
 
@@ -521,12 +530,6 @@ B<l>,  B<c> and B<h>. Value ranges are similar as in C<OKLAB>:
 I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
-
-=head2 OKHSL
-
-=head2 OKHSV
-
-=head2 OKHWB
 
 
 =head1 RANGES

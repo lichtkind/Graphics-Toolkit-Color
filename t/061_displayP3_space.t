@@ -14,7 +14,7 @@ is( $space->name,                     'DISPLAYP3', 'normalized name is : "DISPLA
 is( $space->name(undef,'original'),  'display-p3', 'original name is : "display-p3"');
 is( $space->name('alias'),                   'P3', 'alias name is : "P3"');
 is( $space->is_name('Display P3'),              1, 'can use arbritrary spacing in space name');
-is( $space->is_name('p3'),                      1, 'alias space name in lower case: "pr"');
+is( $space->is_name('p3'),                      1, 'alias space name in lower case: "p3"');
 is( $space->is_name('Display P3 Linear'),       0, 'linear P3 is not P3');
 is( $space->is_axis_name('P3'),                 0, 'space name is not axis name');
 is( $space->is_axis_name('Red'),                1, '"red" is an axis name');
@@ -67,7 +67,7 @@ is( $rgb,    undef,     'array format is RGB only');
 
 ($rgb, $name) = $space->deformat('display_p3: 0.2, 0.3, 0.7');
 is( $name, 'named_string',     'discovered "named_string" format');
-is_tuple( $rgb, [0.2, 0.3, 0.7], [qw/red green blue/], 'clamp changes values to min, max and removes superfluous values');
+is_tuple( $rgb, [0.2, 0.3, 0.7], [qw/red green blue/], 'got right values out of named string');
 
 $rgb = $space->convert_from( 'DisplayP3Linear', [0, 0, 0]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], "convert black from 'Display-P3-Linear'");
@@ -87,6 +87,6 @@ is_tuple( $space->round($lrgb, 9), [.5,.5,.5], [qw/red green blue/], "convert gr
 $rgb = $space->convert_from( 'DisplayP3Linear', [.001,.1,.999]);
 is_tuple( $space->round($rgb, [9,9,8]), [.01292,.349190213,.99956029], [qw/red green blue/], "convert deep blue from 'Display-P3-Linear'");
 $lrgb = $space->convert_to( 'DisplayP3Linear', [.01292,.349190213,.999560289]);
-is_tuple( $space->round($lrgb, [9,9,8]), [.001,.1,.999], [qw/red green blue/], "convert gray deep blue to 'Display-P3-Linear'");
+is_tuple( $space->round($lrgb, [9,9,8]), [.001,.1,.999], [qw/red green blue/], "convert deep blue back to 'Display-P3-Linear'");
 
 exit 0;

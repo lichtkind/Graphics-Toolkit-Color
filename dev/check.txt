@@ -1,3 +1,0 @@
-ProPhotoRGBD50ja, D65 → D50
-WideGamutRGBD50ja, D65 → D50
-

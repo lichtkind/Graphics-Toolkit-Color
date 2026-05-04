@@ -1,5 +1,5 @@
 
-# Rec.2020
+# Rec.2020 slightly improved Rec.709
 
 package Graphics::Toolkit::Color::Space::Instance::Rec2020;
 use v5.12;
@@ -8,7 +8,7 @@ use Graphics::Toolkit::Color::Space qw/gamma_correct/;
 
 
 my $alpha = 1.09929682680944;
-my $beta  = 0.018; # 0.018053968510807;
+my $beta  = 0.018053968510807; # 0.0180 - Rec709
 my $lin_factor = 4.5;
 my $beta_inv  = $lin_factor * $beta;
 my $gamma = 0.45;
@@ -31,3 +31,5 @@ Graphics::Toolkit::Color::Space->new(
    precision => 6,
      convert => {LinearRGB => [\&to_lrgb, \&from_lrgb]},
 );
+
+# .001,.1,.999

@@ -6,18 +6,18 @@ use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
 use Test::More tests => 58;
 
-my $module = 'Graphics::Toolkit::Color::Space::Instance::Rec2020';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::Rec709';
 my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
-is( $space->name,                       'REC2020', 'normalized name is : "REC2020"');
-is( $space->name(undef,'original'),    'Rec.2020', 'original name is : "Rec.2020"');
-is( $space->name('alias'),               'BT2020', 'normalized alias name is : "BT2020"');
-is( $space->name('alias','original'),   'BT.2020', 'original alias name is : "BT.2020"');
-is( $space->is_name('Rec.2020'),                1, 'recognize original name: "Rec.2020"');
-is( $space->is_name('BT.2020'),                 1, 'recognize original alias name: "BT.2020"');
+is( $space->name,                        'REC709', 'normalized name is : "REC709"');
+is( $space->name(undef,'original'),     'Rec.709', 'original name is : "Rec.709"');
+is( $space->name('alias'),                'BT709', 'normalized alias name is : "BT709"');
+is( $space->name('alias','original'),    'BT.709', 'original alias name is : "BT.709"');
+is( $space->is_name('Rec.709'),                 1, 'recognize original name: "Rec.709"');
+is( $space->is_name('BT.709'),                  1, 'recognize original alias name: "BT.709"');
 is( $space->is_name('LinearRGB'),               0, 'converter source: "LinearRGB" is not name of this space');
-is( $space->is_axis_name('REC2020'),            0, 'space name is not axis name');
+is( $space->is_axis_name('REC709'),             0, 'space name is not axis name');
 is( $space->is_axis_name('Red'),                1, '"red" is an axis name');
 is( $space->is_axis_name('gREEN'),              1, '"green" is an axis name');
 is( $space->is_axis_name('blue'),               1, '"blue" is an axis name');
@@ -32,9 +32,9 @@ is( $space->pos_from_axis_name('r'),            0, '"r" is name of first axis');
 is( $space->pos_from_axis_name('g'),            1, '"g" is name of second axis');
 is( $space->pos_from_axis_name('b'),            2, '"b" is name of third axis');
 is( $space->pos_from_axis_name('ed'),       undef, '"ed" is not an axis name');
-is( $space->axis_count,                         3, 'Rec.2020 color space has 3 axis');
-is( $space->is_euclidean,                       1, 'Rec.2020 is euclidean');
-is( $space->is_cylindrical,                     0, 'Rec.2020 is not cylindrical');
+is( $space->axis_count,                         3, 'Rec.709 color space has 3 axis');
+is( $space->is_euclidean,                       1, 'Rec.709 is euclidean');
+is( $space->is_cylindrical,                     0, 'Rec.709 is not cylindrical');
 
 is( $space->is_value_tuple([0,0,0]),                   1,  'tuple has 3 elements');
 is( $space->is_number_tuple([1.1,-12.3,.4e-4]),        1,  'tuple has 3 numbers');
@@ -65,7 +65,7 @@ is_tuple( $rgb, [0, 1, 0.5], [qw/red green blue/], 'clamp changes values to min,
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,    undef,     'array format is RGB only');
 
-($rgb, $name) = $space->deformat('rec.2020: 0.2, 0.3, 0.7');
+($rgb, $name) = $space->deformat('rec.709: 0.2, 0.3, 0.7');
 is( $name, 'named_string',     'discovered "named_string" format');
 is_tuple( $rgb, [0.2, 0.3, 0.7], [qw/red green blue/], 'got right values out of named string');
 
@@ -80,13 +80,13 @@ $lrgb = $space->convert_to( 'LinearRGB', [1, 1, 1]);
 is_tuple( $space->round($lrgb, 9), [1, 1, 1], [qw/red green blue/], "convert white back to 'LinearRGB'");
 
 $rgb = $space->convert_from( 'LinearRGB', [.5,.5,.5]);
-is_tuple( $space->round($rgb, 9), [.705435553,.705435553,.705435553], [qw/red green blue/], "convert gray from 'LinearRGB'");
-$lrgb = $space->convert_to( 'LinearRGB', [.705435553,.705435553,.705435553]);
+is_tuple( $space->round($rgb, 9), [.70551509,.70551509,.70551509], [qw/red green blue/], "convert gray from 'LinearRGB'");
+$lrgb = $space->convert_to( 'LinearRGB', [.70551509,.70551509,.70551509]);
 is_tuple( $space->round($lrgb, 9), [.5,.5,.5], [qw/red green blue/], "convert gray back to 'LinearRGB'");
 
 $rgb = $space->convert_from( 'LinearRGB', [.001,.1,.999]);
-is_tuple( $space->round($rgb, [9,9,9]), [.0045,.290748406,.99950518], [qw/red green blue/], "convert deep blue from 'LinearRGB'");
-$lrgb = $space->convert_to( 'LinearRGB', [.0045,.290748406,.99950518]);
-is_tuple( $space->round($lrgb, [9,9,8]), [.001,.1,.999], [qw/red green blue/], "convert gray deep blue to 'LinearRGB'");
+is_tuple( $space->round($rgb, [9,9,9]), [.0045,.290939915,.999505314], [qw/red green blue/], "convert deep blue from 'LinearRGB'");
+$lrgb = $space->convert_to( 'LinearRGB', [.0045,.290939915,.999505314]);
+is_tuple( $space->round($lrgb, [9,9,9]), [.001,.1,.999], [qw/red green blue/], "convert gray deep blue to 'LinearRGB'");
 
 exit 0;

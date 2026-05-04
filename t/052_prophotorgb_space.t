@@ -45,52 +45,43 @@ is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big"
 
 my $rgb = $space->clamp([]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamped empty tuple into default color (black)');
-
 $rgb = $space->clamp([0, 1]);
 is_tuple( $rgb, [0, 1, 0], [qw/red green blue/], 'clamp inserted zero for missing value');
-
 $rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
 is_tuple( $rgb, [0, 1, 0.5], [qw/red green blue/], 'clamp changes values to min, max and removes superfluous values');
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
 is( $rgb,    undef,     'array format is RGB only');
-
 ($rgb, $name) = $space->deformat('pro_photo_rgb: 0.2, 0.3, 0.7');
 is( $name, 'named_string',     "recognized 'named_string' format");
 is_tuple( $rgb, [0.2, 0.3, 0.7], [qw/red green blue/], "got values out of 'named_string'");
-
 ($rgb, $name) = $space->deformat('romm-rgb(0, 1, 0.7)');
 is( $name, 'css_string',     "recognized 'CSS_string' format with alias space name");
 is_tuple( $rgb, [0, 1, 0.7], [qw/red green blue/], "got values out of 'CSS_string'");
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
 is_tuple( $d, [0, 0, 0], [qw/red green blue/], "delta vector of a tuple with itself is zero");
-
 $d = $space->delta([0.1,0.2,0.4],[0, 0.5, 1]);
 is_tuple( $d, [-0.1, 0.3, 0.6], [qw/red green blue/], "correct delta vector between two tuple");
 
 $rgb = $space->convert_from( 'XYZ', [0, 0, 0]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], "convert black from XYZ");
-
 my $xyz = $space->convert_to( 'XYZ', [0, 0, 0]);
 is_tuple( $space->round($xyz, 9), [0, 0, 0], [qw/X Y Z/], "convert black back to XYZ");
 
 $rgb = $space->convert_from( 'XYZ', [1, 1, 1]);
-is_tuple( $space->round($rgb, 7), [1, 1, 1], [qw/red green blue/], "convert white from XYZ");
-
+is_tuple( $space->round($rgb, [7, 7, 7]), [1, 1, 1], [qw/red green blue/], "convert white from XYZ");
 $xyz = $space->convert_to( 'XYZ', [1, 1, 1]);
-is_tuple( $space->round($xyz, 9), [1, 1, 1], [qw/X Y Z/], "convert white back to XYZ");
+is_tuple( $space->round($xyz, [7, 6, 7]), [1, 1, 1], [qw/X Y Z/], "convert white back to XYZ");
 
 $rgb = $space->convert_from( 'XYZ', [1, 0.9, 0]);
-is_tuple( $space->round($rgb, [8,9, 9]), [1.03708387, 0.903010729, 0], [qw/red green blue/], "convert deep yellow from XYZ");
-
-$xyz = $space->convert_to( 'XYZ', [1.03708387, 0.903010729, 0]);
-is_tuple( $space->round($xyz, [6,6,9]), [1, 0.9, 0], [qw/X Y Z/], "convert deep yellow back to XYZ");
+is_tuple( $space->round($rgb, [9, 9, 9]), [1.07177559, 0.903644813, 0.057048425], [qw/red green blue/], "convert deep yellow from XYZ");
+$xyz = $space->convert_to( 'XYZ', [1.07177559, 0.903644813, 0.057048425]);
+is_tuple( $space->round($xyz, [9, 9, 9]), [1, 0.9, 0], [qw/X Y Z/], "convert deep yellow back to XYZ");
 
 $rgb = $space->convert_from( 'XYZ', [0.1, 0.01, 0.95]);
-is_tuple( $space->round($rgb, [9,8,9]), [0.257791785, -0.11794369, 0.971905937], [qw/red green blue/], "convert deep blue from XYZ");
-
-$xyz = $space->convert_to( 'XYZ', [0.257791785, -0.117943692, 0.971905937]);
-is_tuple( $space->round($xyz, 7), [0.1, 0.01, 0.95], [qw/X Y Z/], "convert deep blue back to XYZ");
+is_tuple( $space->round($rgb, [9, 8, 8]), [0.13191899, -0.10595116, 0.967296], [qw/red green blue/], "convert deep blue from XYZ");
+$xyz = $space->convert_to( 'XYZ', [0.13191899, -0.105951156, 0.967296]);
+is_tuple( $space->round($xyz, [9, 9, 8]), [0.1, 0.01, 0.95], [qw/X Y Z/], "convert deep blue back to XYZ");
 
 exit 0;

@@ -234,12 +234,10 @@ EOH
 	} else {
 		$color_def = _compact_color_def_into_scalar(@args);
 		return "Got no valid color definition!\n\n".$help if @args and not defined $color_def;
-# say "alt @args : $color_def -- $self";
 	}
 	my $values = (defined $color_def) 
 	           ? Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def, $raw // 1 )
 	           : $self->{'values'};
-#say "alt @args : $color_def . $values";
 	return $values unless ref $values;
     $values->is_in_gamut( $space_name );
 }

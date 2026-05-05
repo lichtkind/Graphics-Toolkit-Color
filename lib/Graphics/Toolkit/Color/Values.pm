@@ -76,12 +76,10 @@ sub name { $_[0]->{'color_name'} }
 
 sub is_in_gamut {
     my ($self, $space_name) = @_;
-#say " == method is_in_gamut";
     $space_name = $self->{'source_space_name'} if not defined $space_name and $self->{'source_space_name'};
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ); # default to RGB
     return 0 unless ref $color_space;
     my $tuple = $self->normalized( $space_name );
-#say " == method is_in_gamut @$tuple ",$color_space->is_in_linear_bounds( $tuple, 'normal' );
     return 0 unless ref $tuple;
     return $color_space->is_in_linear_bounds( $tuple, 'normal' );
 }

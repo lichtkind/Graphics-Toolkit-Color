@@ -2,18 +2,20 @@ TODO:
 ------
    
  = 2.2:
-   + Jzazbz / JzCzhz, HSLuv / HPLuv
-     OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+   + move POD to GTC::CookBook, GTC::Manual
+   + reestablish optional Carp error messages
 
  = 2.3:
+   + Jzazbz / JzCzhz, HSLuv / HPLuv
+     OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+   + LMS spaces
+   + cubehelix method
+
+ 
+ = 2.4:
    + gamut mapping
    + complement in selectable cylindrical space
    + method analogues with args: to, steps and tilt
- 
- = 2.4:
-   + cubehelix method
-   + reestablish optional Carp error messages
-   + move POD to GTC::CookBook, GTC::Manual
 
  = 2.5 
    + LMS support, Mochado/Brettel

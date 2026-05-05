@@ -1,6 +1,12 @@
+2.2    2026-06-05   lichtkind
+-------
+   + Jzazbz / JzCzhz, HSLuv / HPLuv
+     OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+    * & move some methods from Color::Space::Shape > Color::Space
+
 2.1    2026-05-05   lichtkind
 -------
-    * = big feature release: +12 spaces, +6 args, +2 features
+    * = big feature release: +12 spaces, +7 args, +2 features
     * * add color spaces: LinearRGB, CIERGB, Adobe 98 RGB, Apple RGB,
                           ProPhoto RGB, Wide Gamut RGB,      Rec.709, Rec.2020,
                           Linear Display P3, Display P3, Linear DCI P3, DCI P3

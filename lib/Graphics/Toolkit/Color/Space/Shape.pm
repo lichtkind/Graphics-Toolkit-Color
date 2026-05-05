@@ -220,6 +220,7 @@ sub is_equal {  # @tuple_a, @tuple_b -- $precision --> ?
 
 sub is_in_constraints {  # @tuple --> ?  # normalized values only, so it works on any ranges
     my ($self, $tuple) = @_;
+    return 0 unless $self->basis->is_number_tuple( $tuple );
     return 1 unless $self->has_constraints;
     for my $constraint (values %{$self->{'constraint'}}){
         return 0 unless $constraint->{'checker'}->( $tuple );
@@ -229,16 +230,13 @@ sub is_in_constraints {  # @tuple --> ?  # normalized values only, so it works o
 
 sub is_in_bounds {  # @tuple --> ?
     my ($self, $tuple, $range) = @_;
-    return 0 unless $self->basis->is_number_tuple( $tuple );
+    return 0 unless $self->is_in_linear_bounds( $tuple, $range );
     $range = $self->try_check_range_definition( $range );
     for my $axis_nr ($self->basis->axis_iterator) {
-		next if $self->{'type'}[$axis_nr] > 1; # skip none numeric axis
+		next if $self->{'type'}[$axis_nr]; # skip none linear axis
         return 0 if $tuple->[$axis_nr] < $range->[$axis_nr][0]
                  or $tuple->[$axis_nr] > $range->[$axis_nr][1];
     }
-    if ($self->has_constraints){
-		return $self->is_in_constraints( $self->normalize( $tuple, $range) );
-	}
     return 1;
 }
 

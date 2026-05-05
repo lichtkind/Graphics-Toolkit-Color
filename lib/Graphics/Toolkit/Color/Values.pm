@@ -33,20 +33,17 @@ sub new_from_tuple { #
     $tuple = $color_space->normalize( $tuple, $range_def );
     $tuple = $color_space->clamp( $tuple, 'normal' ) unless defined $raw and $raw;
 
-    # convert into RGB if needed
     my $source_tuple = '';
     my $source_space_name = '';
-    if ($color_space->name ne $RGB->name){
+    if ($color_space->name ne $RGB->name){ # convert into RGB if needed
         $source_tuple = $tuple;
         $source_space_name = $color_space->name;
         $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $tuple, $color_space->name, 'normal' );
     }
-    #$tuple = $RGB->clamp( $tuple, 'normal' );
-    #my $nv = $RGB->round( $RGB->denormalize( $tuple ) );
+
     my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $tuple ) ) );
     bless { rgb_tuple => $tuple, source_tuple => $source_tuple, source_space_name => $source_space_name, color_name => $name };
 }
-
 
 #### getter ############################################################
 sub normalized { # normalized (0..1) value tuple in any color space
@@ -78,14 +75,15 @@ sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~r
 sub name { $_[0]->{'color_name'} }
 
 sub is_in_gamut {
-    my ($color_def, $space_name) = @_;
-    my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
-    return 1 if ref $rgb;
-    my ($tuple, $found_space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $found_space_name );
+    my ($self, $space_name) = @_;
+#say " == method is_in_gamut";
+    $space_name = $self->{'source_space_name'} if not defined $space_name and $self->{'source_space_name'};
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ); # default to RGB
     return 0 unless ref $color_space;
-    return $color_space->is_in_bounds( $tuple ); # , $range_def 
+    my $tuple = $self->normalized( $space_name );
+#say " == method is_in_gamut @$tuple ",$color_space->is_in_linear_bounds( $tuple, 'normal' );
+    return 0 unless ref $tuple;
+    return $color_space->is_in_linear_bounds( $tuple, 'normal' );
 }
-
 
 1;

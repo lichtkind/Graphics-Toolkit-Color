@@ -3,7 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/';
-use Test::More tests => 83;
+use Test::More tests => 87;
 use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color';
@@ -92,9 +92,13 @@ is( ref color( [1,2,3] ),                          $module, 'ARRAY ref');
 is( ref color( {l => 50, c => 12.4, h => .6} ),    $module, 'LCH short axis name HASH');
 is( ref color( {hue => 0, whiteness => '0%', blackness => '100%'} ), $module, 'HWB long axis name HASH');
 
-is( is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut detected normal HSL color');
-is( is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut detected out of range HSL color');
+#is( is_in_gamut(),                     0, 'can not call is_in_gamut without any color');
+is( is_in_gamut(0,0,0),                1, 'is_in_gamut detect RGB black in list format as valid color');
+is( is_in_gamut([255,255,255]),        1, 'is_in_gamut detect RGB white in ARRAY format as valid color');
 is( is_in_gamut(RGB => [255,255,256]), 0, 'is_in_gamut routine detected out of range RGB color');
-
+is( is_in_gamut(color => [255,255,255], range => 1), 0, 'is_in_gamut detect out of range RGB tuple with custom range');
+is( is_in_gamut('hsl: 10,10,10'),      1, 'is_in_gamut detected normal HSL color');
+is( is_in_gamut('hsl: -10,10,10'),     1, 'is_in_gamut ignores out of range values on cylindrical axis');
+is( is_in_gamut('hsl: 10,-10,10'),     0, 'is_in_gamut detecteds out of value in HSL color');
 
 exit 0;

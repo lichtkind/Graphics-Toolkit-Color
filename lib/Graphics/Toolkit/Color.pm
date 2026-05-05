@@ -168,7 +168,8 @@ sub distance {
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, select => undef, range => undef}, 
                                                        {select => 'only'});
     my $help = <<EOH;
-    GTC method 'distance' accepts as arguments either a scalar color definition or
+    GTC method 'distance' computes the Euclidean distance between two colors (points)
+    in a color space. It accepts as arguments either a scalar color definition or
     four named arguments, only the first being required:
     distance ( ...
         to => 'green',        # color object or color definition (required)
@@ -203,15 +204,44 @@ EOH
 
 sub is_in_gamut {
     my ($self, @args) = @_;
+    my $help = <<EOH;
+    GTC method 'is_in_gamut' returns a perlish pseudo boolean (0/1),
+    telling you if a color is inside the gamut (range) of a color space or not.
+    It accepts any color definition 'new' would. And like 'new' you have to give
+    the color as value of the argument 'color', if you want to add information 
+    about the color. If no color definition is provided, the method will operate
+    upon the current color, held by the object.
+    Unlike 'new', the argument 'raw' defaults here to true (1).
+    is_in_gamut ( ...
+        color => [12,1000,5], # color definition
+        range => 2**16,       # observe these value ranges while reading the color definition
+        in => 'HSL',          # check if color is in gamut of that space
+                              # if no space name is provided, the color will be checked 
+                              # against the boundaries of the space the color was defined in 
+        raw => 0,             # clamp values to boundaries of the space, the color was defined in,
+                              # before converting it into the space you check against
+EOH
     unshift @args, $self unless ref $self eq __PACKAGE__;
-    my $color_def = _compact_color_def_into_scalar(@args);
-	return 0 unless defined $color_def;
-	# _new_from_scalar_def()
-	# color
-	# in 
-	# range
-	## raw => 1,
-    Graphics::Toolkit::Color::Values::is_in_gamut($color_def); # range def later as second arg # in is third
+    return $help if not ref $self and not @args;
+    my ($color_def, $space_name, $range_def, $raw);
+    if (not @args % 2 and @args and ($args[0] eq 'color' or $args[0] eq 'range' or $args[0] eq 'in' or $args[0] eq 'raw')){
+		my %args = @args;
+		$color_def = delete $args{'color'};
+		$range_def = delete $args{'range'};
+		$raw = delete $args{'raw'};
+		$space_name = delete $args{'in'};
+		return "Got no color definition!\n\n".$help unless defined $color_def or ref $self;
+	} else {
+		$color_def = _compact_color_def_into_scalar(@args);
+		return "Got no valid color definition!\n\n".$help if @args and not defined $color_def;
+# say "alt @args : $color_def -- $self";
+	}
+	my $values = (defined $color_def) 
+	           ? Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def, $raw // 1 )
+	           : $self->{'values'};
+#say "alt @args : $color_def . $values";
+	return $values unless ref $values;
+    $values->is_in_gamut( $space_name );
 }
 	
 ## single color creation methods #######################################
@@ -623,34 +653,6 @@ giving access to different parts of the objects data or calculating
 properties based on it.
 
 
-=head2 is_in_gamut
-
-Takes any here described color definition and returns a perlish pseudo 
-boolean (zero or one). It will tell you if the color is within the gamut,
-of the color space, the color was defined in. Or in simpler terms: 
-are the color values within the accepted ranges? Some spaces exclude
-certain value combinations. This is the way to ensure you got a valid
-color definition. Since the GTC L</CONSTRUCTOR> clamps out of shape values,
-and forces them to be in gamut - this method is only needed to ensure 
-that there is nothing to clamp and the constructor did not change any value.
-
-If it is too clumsy for you to use an existing color object to check if
-another color is valid: use the importable routine with the same name.
-
-Please note also that gamuts of color spaces are different. A color which 
-is out of gamut in one space can be in gamut in another space. This method
-will use the color space the color is defined in per default. But you
-can also specify the space as always with the argument L</in>.
-
-
-    $color->is_in_gamut( in => 'okLab');                    # does convert clamp $color?
-    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
-
-    use Graphics::Toolkit::Color qw/is_in_gamut/;
-    if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
-    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
-
-
 =head2 values
 
 Returns the numeric values of the color, held by the object.
@@ -807,6 +809,34 @@ The last argument is named L</range>, which can change the result drasticly.
     $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
     $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
 
+
+=head2 is_in_gamut
+
+Takes any color definition I<new> would accept and returns a perlish pseudo 
+boolean (zero or one). That will tell you, if the color is within the gamut 
+(value range) of a color space. This can be either the color space the
+color was defined in or you choose the space by the argument L</in>.
+
+If you omit a color definition, the current color held by the object will be
+checked against that space. But you can also use the argument I<color> 
+to provide the color definition and additional information.
+
+The optional argument L</range> overrides the default range definition 
+of the space the color is defined in.
+
+The optional argument L</raw> defaults to true, unlike within the method I<new>. 
+But you can still set it false for the unlikely occasion you want to clamp the
+values to the boundaries of the space the color was defined in and then convert
+it into the selected space in order to check if the clamped color fits there.
+
+
+    $color->is_in_gamut( in => 'okLab');                    # does convert clamp $color?
+    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
+
+    use Graphics::Toolkit::Color qw/is_in_gamut/;
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
+    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
+    
 
 =head1 SINGLE COLOR
 
@@ -1033,7 +1063,7 @@ space, the results of methods can be very different, since colors are
 arranged very differently and have different distances to each other.
 Some colors might not even exist in some spaces (they are out of gamut).
 
-The following methods accept the I<in> argument: L</values>,  L</is_in_gamut>,
+The following methods accept the I<in> argument: L</values>, L</is_in_gamut>,
 L</distance>, L</apply>, L</set_value>, L</add_value>, L</mix>, L</invert>, 
 L</gradient>, L</cluster>.
 
@@ -1056,7 +1086,7 @@ to -100 .. 100 but keep the other two untouched you would have to insert:
 C<< range => [[-100,100],100,100] >>.
 
 The following methods accept the I<range> argument: 
-L<new|/CONSTRUCTOR>, L</values>, L</distance>.
+L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>, L</distance>.
 
 
 =head2 to
@@ -1076,7 +1106,8 @@ defaults to 0, you use it only with 1 or a fitting word string.
 It signifies that the color values will not be clamped into gamut
 and maybe not even rounded.
 
-The following methods accept the I<raw> argument: L<new|/CONSTRUCTOR>, L</values>.
+The following methods accept the I<raw> argument:
+L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>.
 
 
 =head1 SEE ALSO

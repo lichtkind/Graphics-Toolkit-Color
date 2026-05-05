@@ -7,7 +7,7 @@ use Test::Color;
 use Test::More tests => 36	;
 
 my $module = 'Graphics::Toolkit::Color::Values';
-eval "use $module";
+eval "use $module"; # say $@;
 is( not($@), 1, 'could load the module');
 
 my (@values, $values);

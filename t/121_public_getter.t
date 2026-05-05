@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 92;
+use Test::More tests => 94;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
@@ -141,11 +141,13 @@ is_tuple( \@rgb, [-1, 10, 256], [qw/red green blue/], 'raw RGB values');
 is_tuple( \@rgb, [0.4, .50, .6], [qw/red green blue/], 'custom ranged RGB values as input, normalized');
 
 #### is_in_gamut #######################################################
-is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');
-is( $blue->is_in_gamut('hsl: -10,10,10'),   0, 'is_in_gamut method works with normal HSL color');
+is( $blue->is_in_gamut(),                   1, 'blue is_in_gamut');
+is( $blue->is_in_gamut( in => 'XYZ'),       1, 'blue is_in_gamut in CIEXYZ');
+is( $blue->is_in_gamut('xyz:1,1,1'),        1, 'xyz white is in xyz gamut');
+is( $blue->is_in_gamut(color => 'xyz:1,1,1', in => 'SRGB', range => 1), 0, 'xyz white is not in RGB');
 is( $blue->is_in_gamut('xyz: 100,100,100'), 0, 'x value is out of gamut');
-is( is_in_gamut([0,0,0]),                   1, 'is_in_gamut symbol got imported');
-is( is_in_gamut(okLAB => [1,0,0]),          1, 'is_in_gamut symbol works with any color space');
-is( is_in_gamut(okLAB => [1.1,0,0]),        0, 'too much lightness');
+is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');
+is( $blue->is_in_gamut('hsl: -10,10,10'),   1, 'is_in_gamut checks only linear axis');
+is( $blue->is_in_gamut('hsl: 0,1000,10'),   0, 'is_in_gamut checks saturation was out of gamut');
 
 exit 0;

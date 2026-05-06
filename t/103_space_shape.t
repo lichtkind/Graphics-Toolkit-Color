@@ -2,8 +2,9 @@
 
 use v5.12;
 use warnings;
-use lib 'lib', '../lib/';
-use Test::More tests => 204;
+use lib 'lib', '../lib/', '.', './t';
+use Test::Color;
+use Test::More tests => 147;
 
 my $module = 'Graphics::Toolkit::Color::Space::Shape';
 eval "use $module";
@@ -73,6 +74,11 @@ is( $shape->is_axis_euclidean(0), 1, 'first axis is euclidan');
 is( $shape->is_axis_euclidean(1), 0, 'second axis is not euclidan');
 is( $shape->is_axis_euclidean(2), 1, 'third axis is euclidan');
 is( $shape->is_axis_euclidean(3), 0, 'none existing axis can not be euclidan');
+is( $shape->is_axis_angular(0), 0, 'first axis is not angular');
+is( $shape->is_axis_angular(1), 1, 'second axis is angular');
+is( $shape->is_axis_angular(2), 0, 'third axis is not angular');
+is( $shape->is_axis_angular(3), 0, 'none existing axis can not be angular');
+
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[0,1],[-1,1],[1,10]]);
 is( ref $shape,           $module, 'created shape with most complex range definition');
@@ -93,17 +99,9 @@ is( $shape->axis_value_min(2),  1, 'min value of third dimension');
 is( $shape->axis_value_min(3), undef, 'get undef when asking for min of none existing dimension');
 
 $values = $shape->clamp([0, 1, 10, 1] );
-is( ref $values, 'ARRAY', 'clamped in bound values after complex range def');
-is( int @$values,      3, 'clamp down to correct tuple length = 3');
-is( $values->[0],      0, 'value that touched on lower bound was not altered');
-is( $values->[1],      1, 'value that touched on upper bound was not altered');
-is( $values->[2],     10, 'value in middle of range was not altered');
+is_tuple( $values, [0, 1, 10], [qw/first second third/], 'clamp tuple with too many values');
 $values = $shape->clamp([-.1,1.1] );
-is( ref $values, 'ARRAY', 'clamp out of bounds values after complex range def');
-is( int @$values,      3, 'filled to correct tuple length = 3');
-is( $values->[0],      0, 'value below lower bound was clamped up');
-is( $values->[1],      1, 'value above upper bound was clamped down');
-is( $values->[2],      1, 'filled in missing value with lower bounds, since 0 is out of range');
+is_tuple( $values, [0, 1, 1], [qw/first second third/], 'clamp out of range euclidean axis values');
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, undef, [-1,0,1]);
 is( ref $shape,  $module, 'created shape with complex precision definition');
@@ -185,114 +183,53 @@ is( ref $d,  '', 'reject compute delta on too short second  vector');
 
 $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, undef, [[-5,5]]);
 $d = $shape->delta([2,3,4], [1,5,1.1] );
-is( ref $d,   'ARRAY', 'copied 2 bounded axis range def to other axis');
-is( int @$d,        3, 'linear delta result has right length');
-is( $d->[0],       -1, 'first delta value correct');
-is( $d->[1],        2, 'second delta value correct');
-is( $d->[2],     -2.9, 'third delta value correct');
-
+is_tuple( $d, [-1, 2, -2.9], [qw/first second third/], 'delta vector under custom range');
 $d = $bshape->delta([0.1,0.9, .2], [0.9, 0.1, 0.8] );
-is( int @$d,   3, 'circular delta result has right length');
-is( $d->[0],   -0.2, 'first delta value correct');
-is( $d->[1],     .2, 'second delta value correct');
-is( $d->[2],   -0.4, 'third delta value correct');
+is_tuple( $d, [-0.2, .2, -0.4], [qw/first second third/], 'circular delta vector result has right length');
 
 #### clamp & round #####################################################
 my $tr = $shape->clamp([-1.1, 0, 20.1, 21, 1] );
-is( ref $tr, 'ARRAY', 'got back a value ARRAY (vector) from clamp');
-is( int @$tr,   3, 'clamp down to correct vector length = 3');
-is( $tr->[0],  -1.1, 'clamp does not touch small negative value');
-is( $tr->[1],   0, 'do not touch minimal value');
-is( $tr->[2],   5, 'clamp too large nr into upper bound');
-
+is_tuple( $tr, [-1.1, 0, 5], [qw/first second third/], 'clamp into custom range of -5 .. 5');
 my $r = $shape->round([-1.0001, -0.009, 20.1], 0);
-is( ref $r,'ARRAY', 'got back a value ARRAY (tuple) from round');
-is( int @$r,     3, 'rounded three values');
-is( $r->[0],    -1, 'rounded negative value');
-is( $r->[1],     0, 'rounded zero');
-is( $r->[2],    20, 'rounded too large value');
+is_tuple( $r, [-1, 0, 20], [qw/first second third/], 'round with user set precision of 0');
 
-$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [ 'circular', 'linear', 'linear'], [[-5,5],[-5,5],[-5,5]], [0,1,2] );
+$shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, [ 'circular', 'linear', 'linear'], [[-5,5],[-4,4],[-5,5]], [0,1,2] );
 $tr = $shape->clamp( [-10, 20] );
-is( int @$tr,  3, 'clamp added missing value');
-is( $tr->[0],  0, 'rotates in circular value');
-is( $tr->[1],  5, 'value was just max, clamped to min');
-is( $tr->[2],  0, 'added a zero into missing value');
-
+is_tuple( $tr, [0, 4, 0], [qw/first second third/], 'clamp into custom range that is defined per axis by space');
 $tr = $shape->clamp( [6, -1, 11], [5,7,[-5, 10]]  );
-is( int @$tr,   3, 'clamp with special range def');
-is( $tr->[0],    1, 'rotated larg value down');
-is( $tr->[1],    0, 'too small value clamped up to min');
-is( $tr->[2],   10, 'clamped down into special range');
-
+is_tuple( $tr, [1, 0, 10], [qw/first second third/], 'clamp into custom range that is defined per axis and brought as arg');
 $r = $shape->round([-1.0001, -0.2109, 20.333]);
-is( ref $r,'ARRAY', 'rounding with custom precision, different for each axis');
-is( int @$r,     3, 'rounded three values');
-is( $r->[0],    -1, 'rounded to int');
-is( $r->[1],  -0.2, 'rounded with precision 1');
-is( $r->[2], 20.33, 'rounded with precision 2');
-
+is_tuple( $r, [-1, -0.2, 20.33], [qw/first second third/], 'round to space set precision of 2');
 $r = $shape->round([-1.0001, -0.2109, 20.333], [0,1,2]);
-is( ref $r,'ARRAY', 'rounding with insert precision different for each axis');
-is( int @$r,     3, 'rounded three values');
-is( $r->[0],    -1, 'rounded to int');
-is( $r->[1],  -0.2, 'rounded with precision 1');
-is( $r->[2], 20.33, 'rounded with precision 2');
+is_tuple( $r, [-1, -0.2, 20.33], [qw/first second third/], 'round to arg set precision, that is different per axis');
+$r = $shape->rotate([-10, 20, 30]);
+is_tuple( $r, [0, 20, 30], [qw/first second third/], 'just rotate first value');
 
 $bshape = Graphics::Toolkit::Color::Space::Shape->new( $basis, ['angular', 'circular', 0], [[-5,5],[-5,5],[-5,5]], [0,1,-1],  $constraints);
 is( $bshape->has_constraints,            1, 'got some contraints');
 is( $bshape->is_in_constraints([0,0,0]), 1, 'origin is within constraints');
 is( $bshape->is_in_constraints([1,1,0]), 0, 'point out of constraints');
-$tr = $bshape->clamp( [-.1, 1.123, 2.54], ['normal',2,[-1,4]]);
-is( $bshape->is_int_valued, 0, 'not all axis are int valued');
-
-is( int @$tr,    3, ' clamp kept right amount of values');
-is( $tr->[0],  0.9,  'rotated value to int');
-is( $tr->[1],  0.2,  'cut by constrained x 2 due to custom range');
-is( $tr->[2],  2.54, 'in range value is kept');
+$tr = $bshape->clamp( [-.1, 3.123, 2.54], ['normal',2,[-1,4]]);
+is( $bshape->is_int_valued, 0, 'first axis is not int valued');
+is_tuple( $tr, [ .9, .2, 2.54], [qw/first second third/], 'constraints clamped middle value to 0.1, but due to range 0..2 its 0.2');
 
 #### normalize #########################################################
 my $norm = $shape->normalize([-5, 0, 5]);
-is( ref $norm,   'ARRAY', 'normalized values');
-is( int @$norm,   3, 'normalized 3 into 3 values');
-is( $norm->[0],    0, 'normalized first min value');
-is( $norm->[1],    0.5, 'normalized second mid value');
-is( $norm->[2],    1,   'normalized third max value');
-
+is_tuple( $norm, [ 0, .5, 1], [qw/first second third/], 'normalized extreme  values to range of -5 .. 5');
 $norm = $shape->denormalize([0, 0.5 , 1]);
-is( @$norm,        3, 'denormalized 3 into 3 values');
-is( $norm->[0],   -5, 'denormalized min value');
-is( $norm->[1],    0, 'denormalized second mid value');
-is( $norm->[2],    5, 'denormalized third max value');
+is_tuple( $norm, [ -5, 0, 5], [qw/first second third/], 'denormalized extreme values to range of -5 .. 5');
 
-$norm = $bshape->normalize([-1, 0, 5]);
-is( @$norm,   3, 'normalize bawl coordinates');
-is( $norm->[0],    0.4, 'normalized first min value');
-is( $norm->[1],    0.5, 'normalized second mid value');
-is( $norm->[2],    1,   'normalized third max value');
-
-$norm = $bshape->denormalize([0.4, 0.5, 1]);
-is( @$norm,   3, 'denormalized 3 into 3 values');
-is( $norm->[0],   -1, 'denormalized small value');
-is( $norm->[1],    0, 'denormalized mid value');
-is( $norm->[2],    5, 'denormalized max value');
+$norm = $bshape->normalize([-1, 0, 1]);
+is_tuple( $norm, [ 0.4, .5, .6], [qw/first second third/], 'normalized values to range of -5 .. 5');
+$norm = $bshape->denormalize([0.4, 0.5, .6]);
+is_tuple( $norm, [ -1, 0, 1], [qw/first second third/], 'denormalized values to range of -5 .. 5');
 
 $norm = $bshape->denormalize([1, 0, 0.5], [[-10,250],[30,50], [-70,70]]);
-is( @$norm,   3, 'denormalized bowl with custom range');
-is( $norm->[0],  250, 'denormalized with special ranges max value');
-is( $norm->[1],   30, 'denormalized with special ranges min value');
-is( $norm->[2],    0, 'denormalized with special ranges mid value');
-
+is_tuple( $norm, [ 250, 30, 0], [qw/first second third/], 'denormalized tuple on custom range per axis as arg');
 $norm = $bshape->normalize([250, 30, 0], [[-10,250],[30,50], [-70,70]]);
-is( @$norm,  3,  'normalized  bowl with custom range');
-is( $norm->[0],   1,  'normalized with special ranges max value');
-is( $norm->[1],   0,  'normalized with special ranges min value');
-is( $norm->[2],   0.5,'normalized with special ranges mid value');
+is_tuple( $norm, [ 1, 0, 0.5], [qw/first second third/], 'normalized tuple on custom range per axis as arg');
 
-$norm = $shape->denormalize_delta([0, 0.5 , 1]);
-is( @$norm,        3, 'denormalized 3 into 3 values');
-is( $norm->[0],    0, 'denormalized min delta');
-is( $norm->[1],    5, 'denormalized second mid delta');
-is( $norm->[2],   10, 'denormalized third max delta');
+$norm = $shape->denormalize_delta([0, 0.4 , 1]);
+is_tuple( $norm, [ 0, 3.2, 10], [qw/first second third/], 'denormalized delta tuple, middle axis is on -4 .. 4');
 
 exit 0;

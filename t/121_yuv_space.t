@@ -56,46 +56,36 @@ is_tuple( $yuv, [1, 0, -0.1], [qw/Y U V/], 'deformat flat named ARRAY');
 
 $yuv = $space->convert_from( 'RGB', [ 0, 0, 0]);
 is_tuple( $yuv, [0, 0.5, 0.5], [qw/Y U V/], 'convert black from RGB');
-
 $yuv = $space->denormalize( [0, 0.5, 0.5] );
 is_tuple( $yuv, [0, 0, 0], [qw/Y U V/], 'denormalize black in YUV');
-
 $yuv = $space->normalize( [0, 0, 0] );
 is_tuple( $yuv, [0, 0.5, 0.5], [qw/Y U V/], 'normalize black in YUV');
-
 my $rgb = $space->convert_to( 'RGB', [0, 0.5, 0.5]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'convert black to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 1, 1, 1]);
 is_tuple( $yuv, [1, 0.5, 0.5], [qw/Y U V/], 'convert white from RGB');
-
 $yuv = $space->denormalize( [1, 0.5, 0.5] );
 is_tuple( $yuv, [1, 0, 0], [qw/Y U V/], 'denormalize white in YUV');
-
 $rgb = $space->convert_to( 'RGB', [1, .5, .5]);
 is_tuple( $rgb, [1, 1, 1], [qw/red green blue/], 'convert white to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ .5, .5, .5]);
 is_tuple( $yuv, [.5, .5, .5], [qw/Y U V/], 'convert grey from RGB');
-
 $yuv = $space->denormalize( [0.5, 0.5, 0.5] );
 is_tuple( $yuv, [.5, 0, 0], [qw/Y U V/], 'denormalize grey in YUV');
-
 $yuv = $space->normalize( [0.5, 0, 0] );
 is_tuple( $yuv, [.5, .5, .5], [qw/Y U V/], 'denormalize grey in YUV');
-
 $rgb = $space->convert_to( 'RGB', [.5, .5, .5]);
 is_tuple( $rgb, [.5, .5, .5], [qw/red green blue/], 'convert grey to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 0.11, 0, 1]);
 is_tuple( $space->round($yuv, 5), [0.14689, 0.48144+0.5, -0.02631+0.5], [qw/Y U V/], 'convert nice blue from RGB');
-
 $rgb = $space->convert_to( 'RGB', [0.14689, 0.48143904+0.5, -0.026312+0.5]);
 is_tuple( $space->round($rgb, 5), [0.11, 0, 1], [qw/red green blue/], 'convert nice blue to RGB');
 
 $yuv = $space->convert_from( 'RGB', [ 0.8156, 0.0470588, 0.137254]);
 is_tuple( $space->round($yuv, 5), [0.28713, -0.08458+0.5, 0.37694+0.5], [qw/Y U V/], 'convert nice red from RGB');
-
 $rgb = $space->convert_to( 'RGB', [0.2871348716, -0.0845829679232+0.5, 0.3769366478976+0.5]);
 is_tuple( $space->round($rgb, 5), [0.8156, 0.04706, 0.13725], [qw/red green blue/], 'convert nice red to RGB');
 

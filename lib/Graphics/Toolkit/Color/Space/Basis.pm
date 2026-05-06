@@ -5,6 +5,7 @@ package Graphics::Toolkit::Color::Space::Basis;
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
+use Graphics::Toolkit::Color::Error;
 
 sub new {
     my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name) = @_;

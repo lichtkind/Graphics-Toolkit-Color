@@ -7,7 +7,7 @@ use v5.12;
 use warnings;
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT qw//;
+our @EXPORT = qw/error/;
 use Carp;
 
 my $mode = 'carp';
@@ -15,7 +15,7 @@ my $mode = 'carp';
 sub import {
     my ($class, @args) = @_;
     my @export_symbols;
-    push @EXPORT, shift @args while lc $args[0] ne 'mode';
+    push @EXPORT, shift @args while exists $args[0] and lc $args[0] ne 'mode';
     $mode = (exists $args[1]) ? $args[1] : 'carp';
     say "called for illegal error mode, setting it to carp" unless defined change_mode( $mode );
     $class->Exporter::export_to_level(1, $class);

@@ -1,33 +1,28 @@
 
 # central hub of error handling
 
-package Graphics::Toolkit::Color::Error;
+package Error;
 
 use v5.12;
 use warnings;
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT qw//;
+our @EXPORT;
 use Carp;
 
-my $mode = 'carp';
+my $mode ;
 
 sub import {
     my ($class, @args) = @_;
     my @export_symbols;
     push @EXPORT, shift @args while lc $args[0] ne 'mode';
     $mode = (exists $args[1]) ? $args[1] : 'carp';
-    say "called for illegal error mode, setting it to carp" unless defined change_mode( $mode );
+    $mode = lc $mode;
+    if ($mode ne 'carp' and $mode ne 'croak' and $mode ne 'say' and $mode ne 'die'){
+		say "called for illegal error mode, setting it to carp";
+		$mode = 'carp';
+	}
     $class->Exporter::export_to_level(1, $class);
-}
-
-sub change_mode {
-    my ($new_mode) = @_;
-    return unless defined $new_mode;
-    $new_mode = lc $new_mode;
-    return unless $new_mode eq 'carp' or $new_mode eq 'croak'
-               or $new_mode eq 'say'  or $new_mode eq 'die';
-	$mode = $new_mode;    
 }
 
 sub error {
@@ -40,4 +35,7 @@ sub error {
 	elsif ($mode eq 'croak'){ croak $report }
 }
 
+sub call { error(@_) }
+
 1;
+

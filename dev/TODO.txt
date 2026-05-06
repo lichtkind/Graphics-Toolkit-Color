@@ -2,12 +2,11 @@ TODO:
 ------
    
  = 2.2:
-   + move POD to GTC::CookBook, GTC::Manual
-   + reestablish optional Carp error messages
 
  = 2.3:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+   + 4 LMS variants
    + LMS spaces
    + cubehelix method
 
@@ -23,9 +22,6 @@ TODO:
    
  = 2.6:
    + designer API: 
-   + lighten / darken, 
-   + saturate / desaturate, 
-   + tint (white) / shade (black) / tone (grey)
    + brightness, contrast, vibrance
    + triadic, tetradic, square, 
    + compound, monochromatic ? probably later

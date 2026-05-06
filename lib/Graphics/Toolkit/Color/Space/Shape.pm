@@ -270,13 +270,14 @@ sub clamp { # change values if outside of range to nearest boundary, angles get 
     $tuple = [@$tuple];
 
     for my $axis_nr ($self->basis->axis_iterator){
-        next unless $self->is_axis_euclidean( $axis_nr );
+        next unless $self->is_axis_numeric( $axis_nr );
         if (not defined $tuple->[$axis_nr]){
             my $default_value = 0;
             $default_value = $range->[$axis_nr][0] if $default_value < $range->[$axis_nr][0]
                                                    or $default_value > $range->[$axis_nr][1];
             $tuple->[$axis_nr] = $default_value;
         } else {
+            next unless $self->is_axis_euclidean( $axis_nr );
 			$tuple->[$axis_nr] = $range->[$axis_nr][0] if $tuple->[$axis_nr] < $range->[$axis_nr][0];
 			$tuple->[$axis_nr] = $range->[$axis_nr][1] if $tuple->[$axis_nr] > $range->[$axis_nr][1];
 		}

@@ -22,7 +22,7 @@ TODO:
    
  = 2.6:
    + designer API: 
-   + brightness, contrast, vibrance
+   + brightness, contrast, vibrance, saturation
    + triadic, tetradic, square, 
    + compound, monochromatic ? probably later
 

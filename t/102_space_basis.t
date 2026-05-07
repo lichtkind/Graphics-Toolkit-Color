@@ -7,8 +7,7 @@ use Test::More tests => 180;
 
 my $module = 'Graphics::Toolkit::Color::Space::Basis';
 eval "use $module";
-is( not($@), 1, 'could load the module'); # 
-say "$@";
+is( not($@), 1, 'could load the module'); # say "$@";
 #### basic construction ################################################
 is( ref Graphics::Toolkit::Color::Space::Basis->new(),         '', 'constructor needs arguments');
 is( ref Graphics::Toolkit::Color::Space::Basis->new([1]), $module, 'one constructor argument is enough');

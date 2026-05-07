@@ -35,9 +35,9 @@ sub new {
     bless { space_name => $space_name, alias_name => $alias_name,
 		    normal_name => normalize_name('',$space_name), normal_alias => normalize_name('',$alias_name),
 		    space_family_name => $family // '', 
-            axis_long_name  => \@axis_long_name,   long_name_order => \%long_name_order,
-            axis_short_name => \@axis_short_name, short_name_order => \%short_name_order,
-            axis_role_name  =>  $axis_role_names,  role_name_order => \%role_name_order,
+            axis_long_name  => \@axis_long_name,         long_name_order => \%long_name_order,
+            axis_short_name => \@axis_short_name,       short_name_order => \%short_name_order,
+            axis_role_name  =>  $axis_role_names // [],  role_name_order => \%role_name_order,
             axis_iterator => \@iterator,
     }
 }
@@ -53,6 +53,7 @@ sub space_name { #  -- ?alias ?given  --> ~
 sub family           {   $_[0]{'space_family_name'}} # 
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } #
 sub short_axis_names { @{$_[0]{'axis_short_name'}} } #
+sub axis_role_names  { @{$_[0]{'axis_role_name'}}  } #
 sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1
 sub axis_count   { int @{$_[0]{'axis_iterator'}} }   #
 
@@ -73,15 +74,17 @@ sub normalize_name {
 	return $name;
 }
 
-sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~long_name  --> ?
-sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~short_name --> ?
-sub is_axis_role_name   { (defined $_[1] and exists $_[0]->{'role_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~role_name  --> ?
-sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }        # ~long|short --> ?
+sub is_long_axis_name  { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~long_name  --> ?
+sub is_short_axis_name { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~short_name --> ?
+sub is_axis_role_name  { (defined $_[1] and exists $_[0]->{'role_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~role_name  --> ?
+sub is_axis_name       { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }        # ~long|short --> ?
+sub is_axis_role       { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_axis_role_name($_[1]) }         # ~long|role  --> ?
 
-sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }       # ~long_name  --> +pos
-sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef }      # ~short_name --> +pos
-sub pos_from_axis_role_name  {  defined $_[1] ? $_[0]->{'role_name_order'}{ lc $_[1] } : undef }       # ~role_name  --> +pos
-sub pos_from_axis_name       {  pos_from_long_axis_name(@_) // pos_from_short_axis_name(@_) }          # ~long|short --> +pos
+sub pos_from_long_axis_name  { defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }       # ~long_name  --> +pos
+sub pos_from_short_axis_name { defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef }      # ~short_name --> +pos
+sub pos_from_axis_role_name  { defined $_[1] ? $_[0]->{'role_name_order'}{ lc $_[1] } : undef }       # ~role_name  --> +pos
+sub pos_from_axis_name       { pos_from_long_axis_name(@_) // pos_from_short_axis_name(@_) }          # ~long|short --> +pos
+sub pos_from_axis_role       { pos_from_long_axis_name(@_) // pos_from_axis_role_name(@_) }           # ~long|role  --> +pos
 
 sub is_hash {         # with all axis names as keys
     my ($self, $value_hash) = @_;

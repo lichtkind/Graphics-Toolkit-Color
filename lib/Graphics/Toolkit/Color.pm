@@ -295,6 +295,28 @@ EOH
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::add_value( $self->{'values'}, $partial_color, $space_name ) );
 }
 
+sub lighten {
+    my ($self, @args) = @_;
+}
+sub darken {
+    my ($self, @args) = @_;
+}
+sub saturate {
+    my ($self, @args) = @_;
+}
+sub desaturate {
+    my ($self, @args) = @_;
+}
+sub tint {
+    my ($self, @args) = @_;
+}
+sub shade {
+    my ($self, @args) = @_;
+}
+sub tone {
+    my ($self, @args) = @_;
+}
+
 sub mix {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => -1});

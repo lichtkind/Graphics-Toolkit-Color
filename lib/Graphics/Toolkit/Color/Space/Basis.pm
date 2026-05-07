@@ -8,7 +8,7 @@ use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::Error;
 
 sub new {
-    my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name, $family, $axis_role) = @_;
+    my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name, $family, $axis_role_names) = @_;
     return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_long_names eq 'ARRAY';
     return 'amount of short axis names have to match the count of long axis names'
         if defined $axis_short_names and (ref $axis_short_names ne 'ARRAY' or @$axis_long_names != @$axis_short_names);
@@ -18,9 +18,9 @@ sub new {
     return 'need some axis names to create a color space' unless @axis_long_name > 0;
     return 'need same amount of axis short names and long names' unless @axis_long_name == @axis_short_name;
     return 'space family dan only be a string' if defined $family and ref $family;
-    return 'axis role description has to be provided with a family name' if defined($axis_role) and not defined($family);
+    return 'axis role description has to be provided with a family name' if defined($axis_role_names) and not defined($family);
     return 'axis role description has to have same length as axis names' 
-		if defined $axis_role and (ref $axis_role ne 'ARRAY' or @$axis_role != @$axis_long_names);
+		if defined $axis_role_names and (ref $axis_role_names ne 'ARRAY' or @$axis_role_names != @$axis_long_names);
 
     my @iterator         = 0 .. $#axis_long_name;
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
@@ -29,23 +29,26 @@ sub new {
     $space_name //= $axis_initials;
     $alias_name //= '';
 
+    my %role_name_order;
+    %role_name_order = map { $axis_role_names->[$_] => $_ } @iterator if defined $axis_role_names;
+
     bless { space_name => $space_name, alias_name => $alias_name,
 		    normal_name => normalize_name('',$space_name), normal_alias => normalize_name('',$alias_name),
-		    space_family_name => $family // '', axis_role => $axis_role,
-            axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
-            long_name_order => \%long_name_order, short_name_order => \%short_name_order,
-            axis_iterator => \@iterator }
+		    space_family_name => $family // '', 
+            axis_long_name  => \@axis_long_name,   long_name_order => \%long_name_order,
+            axis_short_name => \@axis_short_name, short_name_order => \%short_name_order,
+            axis_role_name  =>  $axis_role_names,  role_name_order => \%role_name_order,
+            axis_iterator => \@iterator,
+    }
 }
 sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
 
 #### getter ############################################################
 sub space_name { #  -- ?alias ?given  --> ~
     my ($self, $alias, $given) = @_;
-    if (defined $alias and $alias ){
-		return (defined $given and $given) ? $self->{'alias_name'} : $self->{'normal_alias'};
-	} else {
-		return (defined $given and $given) ? $self->{'space_name'} : $self->{'normal_name'};
-	}
+    $given = undef if defined $given and not $given;
+    if (defined $alias and $alias ){ return defined( $given ) ? $self->{'alias_name'} : $self->{'normal_alias'} } 
+    else                           { return defined( $given ) ? $self->{'space_name'} : $self->{'normal_name'} }
 }
 sub family           {   $_[0]{'space_family_name'}} # 
 sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } #
@@ -72,11 +75,13 @@ sub normalize_name {
 
 sub is_long_axis_name   { (defined $_[1] and exists $_[0]->{'long_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~long_name  --> ?
 sub is_short_axis_name  { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~short_name --> ?
-sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }        # ~name       --> ?
+sub is_axis_role_name   { (defined $_[1] and exists $_[0]->{'role_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~role_name  --> ?
+sub is_axis_name        { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }        # ~long|short --> ?
 
 sub pos_from_long_axis_name  {  defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }       # ~long_name  --> +pos
 sub pos_from_short_axis_name {  defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef }      # ~short_name --> +pos
-sub pos_from_axis_name       {  pos_from_long_axis_name(@_) // pos_from_short_axis_name(@_) }
+sub pos_from_axis_role_name  {  defined $_[1] ? $_[0]->{'role_name_order'}{ lc $_[1] } : undef }       # ~role_name  --> +pos
+sub pos_from_axis_name       {  pos_from_long_axis_name(@_) // pos_from_short_axis_name(@_) }          # ~long|short --> +pos
 
 sub is_hash {         # with all axis names as keys
     my ($self, $value_hash) = @_;

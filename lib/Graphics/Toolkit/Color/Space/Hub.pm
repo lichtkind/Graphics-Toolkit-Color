@@ -79,6 +79,7 @@ sub remove_space {
 	while ($upper_space_name ne $name){
 		$upper_space_name = delete $next_conversion_node{ $upper_space_name }{ $name };
 	}
+	delete $space_family{ $space->family } if $space->family;
     delete $space_obj{ $space->name('alias') } if $space->name('alias');
     delete $space_obj{ $name };
 }

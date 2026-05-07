@@ -4,12 +4,12 @@
 package Graphics::Toolkit::Color::Space;
 use v5.12;
 use warnings;
-require Exporter;
+use Graphics::Toolkit::Color::Space::Basis;         # 1 attr class
+use Graphics::Toolkit::Color::Space::Shape;         # 2 ..
+use Graphics::Toolkit::Color::Space::Format;        # 3 ..
+use Graphics::Toolkit::Color::Space::Util qw/:all/; # forward all its symbols
+use Exporter;
 our @ISA = qw(Exporter);
-use Graphics::Toolkit::Color::Space::Basis;
-use Graphics::Toolkit::Color::Space::Shape;
-use Graphics::Toolkit::Color::Space::Format;
-use Graphics::Toolkit::Color::Space::Util qw/:all/;
 our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real gamma_correct mult_matrix_vector_3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
@@ -18,7 +18,8 @@ sub new {
     my $pkg = shift;
     return if @_ % 2;
     my %args = @_;
-    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'alias'});
+    my $basis = Graphics::Toolkit::Color::Space::Basis->new( $args{'axis'}, $args{'short'}, $args{'name'}, $args{'alias_name'}, 
+                                                             $args{'family'}, $args{'role'}, );
     return $basis unless ref $basis;
     my $shape = Graphics::Toolkit::Color::Space::Shape->new( $basis, $args{'type'}, $args{'range'}, $args{'precision'}, $args{'constraint'} );
     return $shape unless ref $shape;
@@ -55,6 +56,7 @@ sub new {
 ########################################################################
 sub basis              { $_[0]{'basis'} }
 sub name               { shift->basis->space_name(@_) }       #       -- ?alias ?given     --> ~
+sub family             { shift->basis->family(@_) }           #                            --> ~
 sub is_name            { shift->basis->is_name(@_) }          # ~name                      --> ?
 sub normalize_name     { shift->basis->normalize_name(@_) }   # ~name                      --> ~
 sub axis_count         { shift->basis->axis_count }           #                            --> +

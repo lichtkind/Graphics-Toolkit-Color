@@ -28,11 +28,13 @@ sub to_lab {
 }
 
 Graphics::Toolkit::Color::Space->new(
-         name => 'LCH',
-        alias => 'CIELCHab',
-         axis => [qw/luminance chroma hue/],
-         type => [qw/linear linear angular/],
-        range => [100, 539, 360],
-    precision => 3,
-      convert => { LAB => [\&to_lab, \&from_lab] },
+            name => 'LCH',
+      alias_name => 'CIELCHab',
+          family => 'HSL',
+            axis => [qw/luminance chroma hue/],
+            role => [qw/lightness saturation hue/],
+            type => [qw/linear linear angular/],
+           range => [100, 539, 360],
+       precision => 3,
+         convert => { LAB => [\&to_lab, \&from_lab] },
 );

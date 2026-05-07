@@ -27,11 +27,13 @@ sub to_luv {
 }
 
 Graphics::Toolkit::Color::Space->new(
-       name => 'CIELCHuv',
-      alias => 'LCHuv',
-       axis => [qw/luminance chroma hue/],
-       type => [qw/linear linear angular/],
-      range => [100, 261, 360],
-  precision => 3,
-    convert => {LUV => [\&to_luv, \&from_luv]},
+           name => 'CIELCHuv',
+     alias_name => 'LCHuv',
+         family => 'HSL',
+           axis => [qw/luminance chroma hue/],
+           role => [qw/lightness saturation hue/],
+           type => [qw/linear linear angular/],
+          range => [100, 261, 360],
+      precision => 3,
+        convert => {LUV => [\&to_luv, \&from_luv]},
 );

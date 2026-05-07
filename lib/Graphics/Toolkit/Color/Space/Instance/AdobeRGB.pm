@@ -29,7 +29,8 @@ sub to_xyz {
  
 Graphics::Toolkit::Color::Space->new(
         name => 'AdobeRGB',
-       alias => 'opRGB',
+  alias_name => 'opRGB',
+      family => 'RGB',
         axis => [qw/red green blue/],
    precision => 6,
      convert => {CIEXYZ => [\&to_xyz, \&from_xyz]},

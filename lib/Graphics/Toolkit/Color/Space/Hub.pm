@@ -14,7 +14,7 @@ our @load_order = ($default_space_name,
                   qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3 Rec709 Rec2020/,
                   qw/OKLAB OKLCH/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
-my ($default_space, @search_order, %space_obj, %next_conversion_node);
+my ($default_space, @search_order, %space_obj, %next_conversion_node, %space_family);
 
 #### space API #########################################################
 sub is_space_name      { 
@@ -64,6 +64,7 @@ sub add_space {
     push @search_order, $name;
     $space_obj{ $name } = $space;
     $space_obj{ $alias } = $space if $alias and not ref get_space( $alias );
+    push @{$space_family{ $space->family }}, $space if $space->family;
     return 1;
 }
 sub remove_space {

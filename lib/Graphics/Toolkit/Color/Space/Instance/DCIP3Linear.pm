@@ -26,9 +26,10 @@ sub to_xyz {
 
  
 Graphics::Toolkit::Color::Space->new(
-        name => 'dci-p3-linear',
-       alias => 'Linear DCI-P3',
-        axis => [qw/red green blue/],
-   precision => 6,
-     convert => {XYZ => [\&to_xyz, \&from_xyz]},
+           name => 'dci-p3-linear',
+     alias_name => 'Linear DCI-P3',
+         family => 'RGB',
+           axis => [qw/red green blue/],
+      precision => 6,
+        convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );

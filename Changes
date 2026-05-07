@@ -1,12 +1,12 @@
 2.2    2026-06-05   lichtkind
 -------
-   = big feature release: +7 methods, new docs, new error handling
-   + add methods lighten / darken, saturate / desaturate, 
-   + add methods tint (white) / shade (black) / tone (grey)
-
-   + move POD to GTC::CookBook, GTC::Manual, rewrite both
-   + reestablish optional Carp error messages
-
+    * = big feature release: +7 methods, new docs, new error handling
+    * + add methods lighten / darken, saturate / desaturate, 
+    * + add methods tint (white) / shade (black) / tone (grey)
+    * 
+    * + move POD to GTC::CookBook, GTC::Manual, rewrite both
+    * + reestablish optional Carp error messages
+    * ! HSB should never had constraints as HSV
 
 
 2.1    2026-05-05   lichtkind

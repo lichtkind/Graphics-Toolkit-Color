@@ -20,9 +20,10 @@ sub to_dcip3l {
 }
  
 Graphics::Toolkit::Color::Space->new(
-        name => 'DCI-P3',
-       alias => 'SMPTE P3',
-        axis => [qw/red green blue/],
-   precision => 6,
-     convert => {'dci-p3-linear' => [\&to_dcip3l, \&from_dcip3l]},
+           name => 'DCI-P3',
+     alias_name => 'SMPTE P3',
+         family => 'RGB',
+           axis => [qw/red green blue/],
+      precision => 6,
+        convert => {'dci-p3-linear' => [\&to_dcip3l, \&from_dcip3l]},
 );

@@ -30,9 +30,11 @@ sub to_lab {
 
 Graphics::Toolkit::Color::Space->new(
         name => 'OKLCH',
+        family => 'HSL',
         axis => [qw/luminance chroma hue/],
+        role => [qw/lightness saturation hue/],
         type => [qw/linear linear angular/],
        range => [1, .5, 360],
-   precision => [5,5,2],
+   precision => [5, 5, 2],
      convert => { OKLAB => [\&to_lab, \&from_lab] },
 );

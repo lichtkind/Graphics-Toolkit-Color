@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 79;
+use Test::More tests => 80;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::RGB';
 my $space = eval "require $module";
@@ -12,6 +12,7 @@ is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got right return value by loading module');
 is( $space->name,                           'RGB', 'color space has right name');
 is( $space->name('alias'),                 'SRGB', 'color space has no alias name');
+is( $space->family,                         'RGB', 'belongs to the RGB family of color spaces');
 is( $space->is_name('rgb'),                     1, 'asked for right space name');
 is( $space->is_name('srgb'),                    1, 'asked for right space name alias');
 is( $space->is_name('lrgb'),                    0, 'asked for wrong space name');

@@ -20,9 +20,10 @@ sub to_dp3l {
 }
  
 Graphics::Toolkit::Color::Space->new(
-        name => 'display-p3',
-       alias => 'P3',
-        axis => [qw/red green blue/],
-   precision => 6,
-     convert => {'Display-P3-Linear' => [\&to_dp3l, \&from_dp3l]},
+           name => 'display-p3',
+     alias_name => 'P3',
+         family => 'RGB',
+           axis => [qw/red green blue/],
+      precision => 6,
+        convert => {'Display-P3-Linear' => [\&to_dp3l, \&from_dp3l]},
 );

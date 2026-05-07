@@ -32,7 +32,8 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
         name => 'ProPhotoRGB',
-       alias => 'ROMMRGB',
+  alias_name => 'ROMMRGB',
+      family => 'RGB',  
         axis => [qw/red green blue/],
    precision => 6,
      convert => {XYZ => [\&to_xyz, \&from_xyz]},

@@ -27,9 +27,9 @@ sub to_xyz {
 }
 
 Graphics::Toolkit::Color::Space->new (
-        alias => 'CIELAB',          # space name LAB
-         axis => [qw/L* a* b*/],    # short l a b  -  lightness, cyan-orange balance, magenta-green balance
-        range => [100, [-500, 500], [-200, 200]],
-    precision => 3,
-      convert => {XYZ => [\&to_xyz, \&from_xyz, ]},
+      alias_name => 'CIELAB',          # space name LAB
+            axis => [qw/L* a* b*/],    # short l a b  -  lightness, cyan-orange balance, magenta-green balance
+           range => [100, [-500, 500], [-200, 200]],
+       precision => 3,
+         convert => {XYZ => [\&to_xyz, \&from_xyz, ]},
 );

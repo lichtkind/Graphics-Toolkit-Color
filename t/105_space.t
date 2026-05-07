@@ -52,7 +52,7 @@ is( ref $space->basis,  'Graphics::Toolkit::Color::Space::Basis', 'have a valid 
 is( ref $space->shape,  'Graphics::Toolkit::Color::Space::Shape', 'have a valid space shape sub object');
 is( ref $space->form,   'Graphics::Toolkit::Color::Space::Format','have a valid format sub object');
 
-$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], alias => 'alias');
+$space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], alias_name => 'alias');
 is( $space->name,          'ABCD', 'got auto generated space name');
 is( $space->name('alias'),'ALIAS', 'got user set space name alias');
 is( $space->is_name('abcd'),     1,  'axis initials are a space name');
@@ -78,7 +78,7 @@ is( $val->[2],                     1, 'passed through third value');
 is( $val->[3],                     0, 'zero is default value');
 
 $space = Graphics::Toolkit::Color::Space->new(axis => [qw/AAA BBB CCC DDD/], range => [10,20,'normal', [-10,10]],
-                                              name => 'name', alias => 'alias' );
+                                              name => 'name', alias_name => 'alias' );
 is( $space->name,          'NAME', 'got back user set space name');
 is( $space->name('alias'), 'ALIAS', 'got back user set space name alias');
 is( $space->is_name('name'),     1,  'axis initials are space name');

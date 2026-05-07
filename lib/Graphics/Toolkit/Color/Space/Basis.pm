@@ -8,7 +8,7 @@ use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::Error;
 
 sub new {
-    my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name) = @_;
+    my ($pkg, $axis_long_names, $axis_short_names, $space_name, $alias_name, $family, $axis_role) = @_;
     return 'first argument (axis names) has to be an ARRAY reference' unless ref $axis_long_names eq 'ARRAY';
     return 'amount of short axis names have to match the count of long axis names'
         if defined $axis_short_names and (ref $axis_short_names ne 'ARRAY' or @$axis_long_names != @$axis_short_names);
@@ -17,6 +17,10 @@ sub new {
     my @axis_short_name = map { color_key_shortcut($_) } (defined $axis_short_names) ? @$axis_short_names : @axis_long_name;
     return 'need some axis names to create a color space' unless @axis_long_name > 0;
     return 'need same amount of axis short names and long names' unless @axis_long_name == @axis_short_name;
+    return 'space family dan only be a string' if defined $family and ref $family;
+    return 'axis role description has to be provided with a family name' if defined($axis_role) and not defined($family);
+    return 'axis role description has to have same length as axis names' 
+		if defined $axis_role and (ref $axis_role ne 'ARRAY' or @$axis_role != @$axis_long_names);
 
     my @iterator         = 0 .. $#axis_long_name;
     my %long_name_order  = map { $axis_long_name[$_] => $_ }  @iterator;
@@ -26,7 +30,8 @@ sub new {
     $alias_name //= '';
 
     bless { space_name => $space_name, alias_name => $alias_name,
-		    normal_name => normalize_name('',$space_name), normal_alias => normalize_name('',$alias_name) ,
+		    normal_name => normalize_name('',$space_name), normal_alias => normalize_name('',$alias_name),
+		    space_family_name => $family // '', axis_role => $axis_role,
             axis_long_name => \@axis_long_name, axis_short_name => \@axis_short_name,
             long_name_order => \%long_name_order, short_name_order => \%short_name_order,
             axis_iterator => \@iterator }
@@ -41,11 +46,12 @@ sub space_name { #  -- ?alias ?given  --> ~
 	} else {
 		return (defined $given and $given) ? $self->{'space_name'} : $self->{'normal_name'};
 	}
-}      
-sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } # axis full names
-sub short_axis_names { @{$_[0]{'axis_short_name'}} } # axis short names
+}
+sub family           {   $_[0]{'space_family_name'}} # 
+sub long_axis_names  { @{$_[0]{'axis_long_name'}}  } #
+sub short_axis_names { @{$_[0]{'axis_short_name'}} } #
 sub axis_iterator    { @{$_[0]{'axis_iterator'}} }   # counting all axis 0 .. -1
-sub axis_count   { int @{$_[0]{'axis_iterator'}} }   # amount of axis
+sub axis_count   { int @{$_[0]{'axis_iterator'}} }   #
 
 #### predicates ########################################################
 sub is_name          {   # --> ?                     # is this a valid name of this space

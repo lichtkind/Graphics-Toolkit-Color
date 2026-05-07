@@ -18,7 +18,8 @@ sub to_lrgb {
  
 Graphics::Toolkit::Color::Space->new(
         name => 'Rec.709',
-       alias => 'BT.709',
+  alias_name => 'BT.709',
+      family => 'RGB',  
         axis => [qw/red green blue/],
    precision => 6,
      convert => {LinearRGB => [\&to_lrgb, \&from_lrgb]},

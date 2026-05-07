@@ -26,7 +26,8 @@ sub to_lrgb {
  
 Graphics::Toolkit::Color::Space->new(
         name => 'Rec.2020',
-       alias => 'BT.2020',
+  alias_name => 'BT.2020',
+      family => 'RGB',  
         axis => [qw/red green blue/],
    precision => 6,
      convert => {LinearRGB => [\&to_lrgb, \&from_lrgb]},

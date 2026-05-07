@@ -26,7 +26,7 @@ sub to_rgb {
 }
 
 Graphics::Toolkit::Color::Space->new(
-        alias => 'YPbPr',
+   alias_name => 'YPbPr',
         axis  => [qw/luma Pb Pr/], # luma, cyan-orange balance, magenta-green balance
         short => [qw/Y U V/],
         range => [1, [-.5, .5], [-.5, .5],],

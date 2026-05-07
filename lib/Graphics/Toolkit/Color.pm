@@ -296,7 +296,7 @@ EOH
 }
 
 sub lighten {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub darken {
     my ($self, @args) = @_;

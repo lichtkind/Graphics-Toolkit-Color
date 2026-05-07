@@ -1,1 +1,62 @@
+=pod
 
+=head1 INTRODUCTION
+
+=head1 OVERVIEW
+
+Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
+
+=head1 SYNOPSIS
+
+    use Graphics::Toolkit::Color qw/color is_in_gamut/;
+
+    my $red = Graphics::Toolkit::Color->new('red');  # create color object
+    say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'magenta'
+    my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
+    if (is_in_gamut('oklab(14, -106, 3)')) { ..      # check if valid
+    $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
+    $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
+    my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
+    my @reds = $red->cluster( r => 1.1, min_d => 1 );# 13 shades of red
+
+=head1 DESCRIPTION
+
+Graphics::Toolkit::Color, for short B<GTC>, is the top level API of this
+release and the only package a regular user should be concerned with.
+Its main purpose is the creation of related colors or sets of them,
+such as gradients, complements and more. But if you want to convert, 
+quantize, round or reformat color definitions, it can be helpful too.
+
+GTC are read only, one color representing objects with no additional
+dependencies. Create them in many different ways (see L</CONSTRUCTOR>).
+Access its values via methods from section L</GETTER>.
+Measure differences with the L</distance> method. L</SINGLE-COLOR>
+methods create one new object that is related to the current one and
+L</COLOR-SETS> methods will create a group of colors, that are not
+only related to the current color but also have relations between each other.
+Error messages will appear as return values instead of the expected result.
+
+While this module can understand and output color values for many
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>,
+L<RGB|Graphics::Toolkit::Color::Space::Hub/RGB>
+is the (internal) primal one, because GTC is about colors that can be
+shown on the screen, and these are usually encoded in I<RGB> (nonlinear standard RGB).
+Humans access colors on hardware level (eye) in I<RGB>, on cognition level
+in I<HSL> or I<LAB> (brain) and on cultural level (language) with names.
+With all these options available you can express easily and intuitively
+with which color to start. And plenty of functions with lots of options
+help you to arrive at the desired color (palette) quickly.
+
+
+=head1 CONSTRUCTOR
+
+There are many ways to create a color object. In short you can either
+use the name of a constant (see L</name>) or provide values, which are
+coordinates in one of several
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The latter are also understood in many
+L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+From now on any input that the constructor method C<new> accepts,
+is called a B<color definition>.
+
+=cut

@@ -1,29 +1,27 @@
 TODO:
 ------
    
- = 2.2:
 
  = 2.3:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
      OKHSL, OKHSV, OKHWB, HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
    + 4 LMS variants
-   + LMS spaces
-   + cubehelix method
 
  
  = 2.4:
    + gamut mapping
-   + complement in selectable cylindrical space
-   + method analogues with args: to, steps and tilt
-
- = 2.5 
    + LMS support, Mochado/Brettel
    + delta_e method
+   + complement in selectable cylindrical space
+
+ = 2.5 
+   + cubehelix method
+   + method analogues with args: to, steps and tilt
+   + brightness, contrast, vibrance, saturation
+   + triadic, tetradic, square, 
    
  = 2.6:
    + designer API: 
-   + brightness, contrast, vibrance, saturation
-   + triadic, tetradic, square, 
    + compound, monochromatic ? probably later
 
  = 2.7

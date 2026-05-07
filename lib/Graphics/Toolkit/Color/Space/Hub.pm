@@ -715,3 +715,5 @@ under the same terms as Perl itself.
 =head1 AUTHOR
 
 Herbert Breunung, <lichtkind@cpan.org>
+
+=cut

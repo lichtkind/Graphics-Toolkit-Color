@@ -1,1 +1,152 @@
+=pod
+
+=head1 INTRODUCTION
+
+=head1 OVERVIEW
+
+
+
+=head1 CONSTRUCTOR
+
+There are many ways to create a color object. In short you can either
+use the name of a constant (see L</name>) or provide values, which are
+coordinates in one of several
+L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The latter are also understood in many
+L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
+From now on any input that the constructor method C<new> accepts,
+is called a B<color definition>.
+
+
+=head2 new({ r => $r, g => $g, b => $b })
+
+Most clear, flexible and longest input format: a hash with long or short
+axis names as keys with fitting values. This can be C<red>, C<green> and
+C<blue> or C<r>, C<g> and C<b> or names from any other color space.
+Upper or lower case doesn't matter.
+
+    my $red = Graphics::Toolkit::Color->new( r => 255, g => 0, b => 0 );
+    my $red = Graphics::Toolkit::Color->new({r => 255, g => 0, b => 0}); # works too
+                          ... ->new( Red => 255, Green => 0, Blue => 0); # also fine
+              ... ->new( Hue => 0, Saturation => 100, Lightness => 50 ); # same color
+                  ... ->new( Hue => 0, whiteness => 0, blackness => 0 ); # still the same
+
+
+=head2 new( [$r, $g, $b] )
+
+takes a triplet of integer I<RGB> values (red, green and blue : 0 .. 255).
+They can, but don't have to be put into an ARRAY reference (square brackets).
+If you want to define a color by values from another color space,
+you have to prepend the values with the name of a supported color space.
+Out of range (gamut) values will be corrected (clamped).
+
+    my $red = Graphics::Toolkit::Color->new(          255, 0, 0 );
+    my $red = Graphics::Toolkit::Color->new(         [255, 0, 0]);   # does the same
+    my $red = Graphics::Toolkit::Color->new( 'RGB',   255, 0, 0 );   # named list syntax
+    my $red = Graphics::Toolkit::Color->new(  RGB =>  255, 0, 0 );   # with fat comma
+    my $red = Graphics::Toolkit::Color->new([ RGB =>  255, 0, 0]);   # named ARRAY
+    my $red = Graphics::Toolkit::Color->new(  RGB => [255, 0, 0]);   # separate name and values
+    my $red = Graphics::Toolkit::Color->new([ RGB => [255, 0, 0]]);  # even inside an ARRAY
+    my $red = Graphics::Toolkit::Color->new(  YUV => .299,-0.168736, .5); # same color in YUV
+
+
+=head2 new('rgb($r,$g,$b)')
+
+String format that is supported by CSS (I<css_string> format): it starts
+with the case insensitive color space name (lower case is default),
+followed by the (optionally) comma separated values in round braces.
+The value suffixes that are defined by the color space (I<'%'> in case
+of I<HSV>) are optional.
+
+    my $red = Graphics::Toolkit::Color->new(  'rgb(255 0 0)' );         # comma optional
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100%, 100%)' );
+    my $blue = Graphics::Toolkit::Color->new( 'hsv(240, 100, 100)' );   # works too
+
+
+=head2 new('rgb: $r, $g, $b')
+
+String format I<named_string> (good for serialisation) that maximizes
+readability. Here are commas not optional, but space name is still case
+insensitive.
+
+    my $red = Graphics::Toolkit::Color->new(  'rgb: 255, 0, 0' );
+    my $blue = Graphics::Toolkit::Color->new( 'HSV: 240, 100, 100' );
+
+
+=head2 new('#rgb')
+
+Color definitions in hexadecimal format as widely used in the web, are
+also acceptable (I<RGB> only).
+
+    my $color = Graphics::Toolkit::Color->new('#FF0000');
+    my $color = Graphics::Toolkit::Color->new('#f00');    # short version
+
+
+=head2 new('name')
+
+Get a color object by providing a name from the X11, HTML (CSS) or SVG
+scheme or a Pantone report. UPPER or CamelCase will be normalized to
+lower case and inserted underscore letters ('_') will be ignored as perl
+does in numbers (1_000 == 1000). All available names are listed
+L<here | Graphics::Toolkit::Color::Name::Constant/NAMES>.
+
+    my $color = Graphics::Toolkit::Color->new('Emerald');
+    my @names = Graphics::Toolkit::Color::Name::all(); # select from these
+
+
+=head2 new('scheme:color')
+
+Get a color by name from a specific scheme or standard as provided by an
+external module L<Graphics::ColorNames>::* , which has to be installed
+separately or with L<Bundle::Graphics::ColorNames>.
+See all scheme names L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
+The color name will be normalized as described above.
+
+    my $color = Graphics::Toolkit::Color->new('SVG:green');
+    my @schemes = Graphics::ColorNames::all_schemes();    # list installed schemes
+
+
+=head2 new( color => .., range => .., raw => ..)
+
+In the rare occasion you are given a color definition with values in a 
+none standard range, you will need a mechanism to tell GTC what ranges
+to use when reading the color definition. This is also important in 
+combination with wider gamut spaces such as I<ProPhotoRGB> that use either
+normalized values or several huge none standard ranges, in order to get
+a similar resolution for the normal colors as stadard RGB.
+
+Just use the named argument I<color> and give it a scalar color definition
+as described above. The second argument that can be L</range>.
+
+    my $color = Graphics::Toolkit::Color->new( 
+                 color => [AppleRGB => [1438, 374, 8285]], range => 2**32
+    );
+    
+The second reason to use the B<color> argument is to combine it with B<raw>.
+Then the values will be not be clamped into range, taken as is.
+You might want to use the argument I<raw> also on the method I<values>.
+This is the only way to calculate with imaginary colors.
+But please note this might cause some functions not to work as intended.
+
+    my $color = Graphics::Toolkit::Color->new( 
+                 color => {r => 0, g => 0, b => 256}, raw => 1
+    );
+
+
+=head2 color
+
+If writing
+
+    Graphics::Toolkit::Color->new( ...);
+
+is too much typing work for you or takes up too much space in the code file,
+import the subroutine C<color>, which accepts all the same arguments as C<new>.
+
+    use Graphics::Toolkit::Color qw/color/;
+    my $green = color('green');
+    my $darkblue = color([20, 20, 250]);
+
+
+
+=cut
 

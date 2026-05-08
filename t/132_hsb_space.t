@@ -33,7 +33,7 @@ is( $space->pos_from_axis_name('a'),          undef, '"a" is not an axis name');
 is( $space->axis_count,                           3, 'color space has 3 axis');
 is( $space->is_euclidean,                         0, 'HSB is not euclidean');
 is( $space->is_cylindrical,                       1, 'HSB is cylindrical');
-is( $space->shape->has_constraints,               0, 'HSB is a cylinder');
+is( $space->shape->has_constraints,               1, 'HSB is a cone');
 is( $space->can_convert('RGB'),                   1, 'do only convert from and to rgb');
 
 is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY', 'check HSB values works on lower bound values');
@@ -57,7 +57,7 @@ is_tuple( $hsb, [0, 0, 0], [qw/hue saturation brightness/], 'clamp inserted zero
 $hsb = $space->clamp([0, 0, 0, 10]);
 is_tuple( $hsb, [0, 0, 0], [qw/hue saturation brightness/], 'clamp removed superfluous value');
 $hsb = $space->clamp([0, 100, 0]);
-is_tuple( $hsb, [0, 100, 0], [qw/hue saturation brightness/], 'contraints do not clamp saturation down');
+is_tuple( $hsb, [0, 0, 0], [qw/hue saturation brightness/], 'contraints do clamp saturation down');
 $hsb = $space->clamp([-1.1, -1, 101]);
 is_tuple( $hsb, [358.9, 0, 100], [qw/hue saturation brightness/], 'clamping of brightnesss works');
 

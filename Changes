@@ -6,6 +6,7 @@
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
     * + reestablish optional Carp error messages
     * + added nested_array as output format
+    * ! HSB should never have had constraints as HSV
 
 2.11   2026-05-08   lichtkind
 -------

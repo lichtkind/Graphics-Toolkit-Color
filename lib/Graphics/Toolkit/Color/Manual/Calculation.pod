@@ -1,1 +1,124 @@
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Calculation - 
+
+=head1 INTRODUCTION
+
+=head1 OVERVIEW
+
+=head1 SINGLE COLOR
+
+These methods generate one new color object that is related to the calling
+object (invocant). You might expect that methods like C<set_value> change
+the values of the invocant, but GTC objects are as mentioned in the
+L</DESCRIPTION> read only. That supports a more functional programming
+style as well as method stacking like:
+
+    $color->add_value( saturation => 5)->invert->mix( to => 'green');
+
+
+=head2 apply
+
+Creates a new GTC color object with recalculated values. Each calculation
+is triggered by one named argument and currently is only one possible.
+I<gamma> triggers a gamma correction which can be reversed with the inverse argument.
+Use an ARRAY ref to apply each color value with a different gamma. 
+The argument L</in> determines in which space the carlculation takes place:
+
+    my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
+    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'RGB' );
+
+
+Applying a gamma value mages only sense in euclidean spaces with the origin
+in one corner of the space like I<RGB> or I<CIEXYZ>.
+
+
+=head2 set_value
+
+Creates a new GTC color object that shares some values with the current one,
+but differs in others. The altered values are provided as absoltue numbers.
+If the resulting color will be outside of the given color space, the values
+will be clamped so it will become a regular color of that space.
+
+The axis of
+L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
+have long and short names. For instance I<HSL> has I<hue>, I<sturation>
+and I<lightness>. The short equivalents are I<h>, I<s> and I<l>. This
+method accepts these axis names as named arguments and disregards if
+characters are written upper or lower case. This method can not work,
+if you mix axis names from different spaces or choose one axis more than once.
+One solvable issue is when axis in different spaces have the same name.
+For instance I<HSL> and I<HSV> have a I<saturation> axis. To disambiguate
+you can add the named argument L</in>.
+
+    my $blue = $black->set_value( blue => 255 );              # same as #0000ff
+    my $pale_blue = $blue->set_value( saturation => 50 );        # ->( s => 50) works too
+    my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # previous was HSL
+
+
+=head2 add_value
+
+Creates a new GTC color object that shares some values with the current one,
+but differs in others. The altered values are provided relative to the current
+ones. The rest works as described in L</set_value>.
+This method was mainly created to get lighter, darker or more saturated
+colors by using it like:
+
+    my $blue = Graphics::Toolkit::Color->new('blue');
+    my $darkblue = $blue->add_value( Lightness => -25 );    # get a darker tone
+    my $blue2 = $blue->add_value( blue => 10 );             # bluer than blue ?
+    my $blue3 = $blue->add_value( l => 10, in => 'LAB' );   # lighter color according CIELAB
+
+
+=head2 mix
+
+Create a new GTC object, that has the average values between the calling
+object and another color (or several colors). It accepts three named
+arguments: L</to>, C<amount> and L</in>, but only the first one is
+required and can be also provided as the only positional argument.
+
+The L</to> argument works like in other methods, with the exception that
+it also accepts an ARRAY ref (square brackets) with several
+color definitions or GTC color objects.
+
+Per default I<mix> computes a 50-50 (1:1) mix between all involved colors.
+In order to change that, employ the C<amount> argument, which is the share
+the mixed in color(s) get, counted in percentage. The remaining percentage
+to 100 is the share of the color, held by the caller object. This would
+be naturally nothing, if the C<amount> is greater than hundret. When mixing
+more than two colors at once, C<amount> accpets also an ARRAY of share values
+that will be applied in the same order as the colors of the C<to> argument.
+Their sum can reach easily values greater than 100. In that case again
+the calling object gets no share. If the amount-sum is greater than 100,
+than the amounts will be recalculated, keeping the ratios but leaving
+out the calling color. If you mix more than two colors, but provide only
+one scalar amount value, then it will be applied to all mixed in colors.
+
+    $blue->mix( $silver );                                         # 50% silver, 50% blue
+    $blue->mix( to => 'silver', amount => 60 );                    # 60% silver, 40% blue
+    $blue->mix( to => [qw/silver green/], amount => [10, 20]);     # 10% silver, 20% green, 70% blue
+    $blue->mix( to => [qw/silver green/], amount => [30, 90]);     # 25% silver, 75% green,  0% blue
+    $blue->mix( to => [qw/silver green/], amount =>  30);          # 30% silver, 30% green, 40% blue
+    $blue->mix( to => [qw/silver green/] );                        # 33% silver, 33% green, 33% blue
+    $blue->mix( to => {H => 120, S =>100, L => 50}, in => 'HSV' ); # teal =      50% green, 50% blue
+
+
+=head2 invert
+
+Computes a new color object, where all or some values are inverted 
+according to the ranges of the chosen color space (see L</in>). It takes 
+two optional, positional arguments, a space name and axis names.
+
+    my $black = $white->invert();                   # to state the obvious
+    my $gray = $gray->invert();                     # changed nothing
+    my $blue = $yellow->invert( 'LUV' );            # invert in LUV space
+    $yellow->invert( in => 'LUV' );                 # would work too
+    $yellow->invert( in => 'HSL', only => 'hue' );  # same result as $yellow->complement();
+    $yellow->invert( in => 'HSL', only => [qw/s l/] ); # invert only saturation and lightness
+
+=cut
+
+
 

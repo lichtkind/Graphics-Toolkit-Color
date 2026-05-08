@@ -26,6 +26,7 @@ sub new { # -, $:Basis -- ~|@~val_form, ~|@~suffix --> :_
     # format --> tuple
     my %deformats = ( hash => sub { tuple_from_hash(@_)         },
                named_array => sub { tuple_from_named_array(@_)  },
+              nested_array => sub { tuple_from_nested_array(@_)  },
               named_string => sub { tuple_from_named_string(@_) },
                 css_string => sub { tuple_from_css_string(@_)   },
     );
@@ -35,6 +36,7 @@ sub new { # -, $:Basis -- ~|@~val_form, ~|@~suffix --> :_
                    hash => sub { $basis->long_name_hash_from_tuple($_[1]) },  # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->short_name_hash_from_tuple($_[1]) }, # { r =>1, g => 2, b => 3 }
             named_array => sub { [$basis->space_name, @{$_[1]}] },            # ['rgb',1,2,3]
+           nested_array => sub { [$basis->space_name, [@{$_[1]}]] },          # ['rgb' => [1,2,3]]
            named_string => sub { $_[0]->named_string_from_tuple($_[1]) },     #  'rgb: 1, 2, 3'
              css_string => sub { $_[0]->css_string_from_tuple($_[1]) },       #  'rgb(1,2,3)'
     );
@@ -222,6 +224,14 @@ sub tuple_from_named_array {
     $array = $array->[0] if @$array == 1 and ref $array->[0] eq 'ARRAY';
     return 0 unless @$array == $self->basis->axis_count;
     return $array;
+}
+sub tuple_from_nested_array {
+    my ($self, $array) = @_;
+    return 0 if ref $array ne 'ARRAY' or @$array != 2;
+    return 0 unless $self->basis->is_name( $array->[0] );
+    $array = $array->[1];
+    return 0 if ref $array ne 'ARRAY' or @$array != $self->basis->axis_count;
+    return [@$array];
 }
 sub tuple_from_hash        {
     my ($self, $hash) = @_;

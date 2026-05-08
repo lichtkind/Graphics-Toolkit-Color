@@ -5,8 +5,13 @@
     * * add methods tint (white) / shade (black) / tone (grey)
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
     * + reestablish optional Carp error messages
-    * ! HSB should never have had constraints as HSV
+    * + added nested_array as output format
 
+2.11   2026-05-08   lichtkind
+-------
+    * = bug fix release
+    * ! fix hash in scalar context bug while arg spltting in new
+    * ! HSB should never have had constraints as HSV
 
 2.1    2026-05-05   lichtkind
 -------

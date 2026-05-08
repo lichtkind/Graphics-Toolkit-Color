@@ -1,10 +1,206 @@
 =pod
 
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Getter - 
+
+
 =head1 INTRODUCTION
 
 =head1 OVERVIEW
 
+=head1 METHODS
 
+=head1 GETTER
+
+giving access to different parts of the objects data or calculating 
+properties based on it.
+
+
+=head2 values
+
+Returns the numeric values of the color, held by the object.
+The method accepts six optional, named arguments:
+L</in> (color space), C<as> (format), L</range>, C<precision>, C<suffix>. and I<raw>.
+In most cases, only the first one is needed.
+
+When given no arguments, the method returns a list with the integer
+values: C<red>, C<green> and C<blue> in 0 .. 255 range, since I<RGB> is
+the default color space of this module.
+
+If one positional argument is provided, the values get converted into the
+color space of the given name. The same is done when using the named
+argument L</in> (full explanation behind the link). 
+
+The named argument L</range> is also explained in its own section. 
+Please note you have to use the C<range> argument only, if you like to
+deviate from the value ranges defined by the chosen color space.
+
+Maybe the most characteristic argument of this method is C<as>, which
+selects the format of the output. I<GTC> is built with the design principle
+of total serialisation or I<idempotent> data format. This means: every 
+contructor input format can be reproduced by a getter method and vice versa. 
+These formats are: C<'list'> (default), C'<named_array'>, C<'hash'>, 
+C<'char_hash'>, C<'named_string'>, C<'css_string'>, C<'array'> (RGB only) 
+and C<'hex_string'> (RGB only). The remaining two: C<name> and C<full:name>
+are produce by the method L</name>.
+Format names are case insensitive. For more explanations, please see:
+L<formats section|Graphics::Toolkit::Color::Space::Hub/FORMATS> in GTC::Space::Hub.
+
+C<precision> is a more exotic argument, but sometimes you need to escape
+the numeric precision, set by a color spaces definition.
+For instance C<LAB> values will have maximally three decimals, no matter
+how precise the input was. In case you prefer 4 decimals, just use
+C<< precision => 4 >>. A zero means no decimals and -1 stands for maximal
+precision -  which may spit out more decimals than you prefer.
+Different precisions per axis are possible via an ARRAY ref:
+C<< precision => [1,2,3] >>.
+
+In the same way you can atach a little strings per value by using the C<suffix>
+argument. Normally these are percentage signs but in some spaces, where
+they appear by default you can surpress them by adding C<< suffix => '' >>.
+
+The last argument is C<raw> which takes any perlish boolean true value,
+since it defaults to false (0). When true the values will not be clamped
+into range and might be outof gamut. Its only useful if you want the
+unsanitized input  converted as output.
+
+
+    $blue->values();                                      # 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');            # 0, 0, 255 # explicit arguments
+    $blue->values(              as => 'array');           # [0, 0, 255] - RGB only
+    $blue->values( in => 'RGB', as => 'named_array');     # ['RGB', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');            # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');       # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string');    # 'rgb: 0, 0, 255'
+    $blue->values( in => 'RGB', as => 'css_string');      # 'rgb( 0, 0, 255)'
+    $blue->values(              as => 'hex_string');      # '#0000ff' - RGB only
+    $blue->values(           range => 2**16 );            # 0, 0, 65536
+    $blue->values('HSL');                                 # 240, 100, 50
+    $blue->values( in => 'HSL',suffix => ['', '%','%']);  # 240, '100%', '50%'
+    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};  # 240
+   ($blue->values( 'HSB'))[0];                            # 240
+    $blue->values( in => 'XYZ', range => 1, precision => 2);# normalized, 2 decimals max.
+
+
+=head2 name
+
+Returns the normalized name string (lower case, without I<'_'>) that
+represents the I<RGB> values of this color in the default color scheme,
+which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
+(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
+These are the same which can be used with L</new('name')>.
+
+Alternatively you may provide named arguments or one positional argument,
+which is the same as the named argument C<from>. That required a name of
+a color schemes, as listed L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
+You also can submit a list thereof inside a ARRRAY ref which also dictates
+the order of resulting color names.
+Please note that all color schemes, except the default one, depend on
+external modules, which have to be installed separately or via
+L<Bundle::Graphics::ColorNames>.
+If you try to use a scheme from a not installed module your will get an
+error message instead of a color name. You can also create your custom
+color naming scheme via L<Graphics::Toolkit::Color::Name::Scheme>.
+
+The second named argument is C<all>, which needs to be a perly boolean.
+It defaults to false. But if set to 1, you will get a list of all names
+that are associated with the current values. There will be no duplicates,
+when several schemes are searched.
+
+A third named argument is C<full> - also needing a perly boolean that
+defaults to false. When set C<true> (1), the schema name becomes part of
+the returned color name as in C<'SVG:red'>. These full names are also
+accepted by the constructor.
+
+The fourth named argument is C<distance>, which means the same thing as
+in L</distance> and it defaults to zero. It is most useful in combinataion
+with C<all> to get all color names that are within a certain distance.
+
+    $blue->name();                                   # 'blue'
+    $blue->name('SVG');                              # 'blue'
+    $blue->name( from => [qw/CSS X/], all => 1);     # 'blue', 'blue1'
+    $blue->name( from => 'CSS', full => 1);          # 'CSS:blue'
+    $blue->name( distance => 3, all => 1) ;          # all names within the distance
+
+
+=head2 closest_name
+
+Returns in scalar context a color name, which has the shortest L</distance>
+in I<RGB> to the current color. In list context, you get additionally
+the just mentioned distance as a second return value. This method works
+almost identically as method L</name>, but guarantees a none empty
+result, unless invoking a unusually empty color scheme.
+
+All arguments work as mentioned above, only here is no C<distance> argument.
+The only difference is (due to the second return value), multiple names
+(when requested) have to come in the form of an ARRAY as the first return value.
+
+    my $name = $red_like->closest_name;              # closest name in default scheme
+    my $name = $red_like->closest_name('HTML');      # closest HTML constant
+    ($red_name, $distance) = $red_like->closest_name( from => 'Pantone', all => 1 );
+
+
+=head2 distance
+
+Is a floating point number that measures the Euclidean distance between
+two colors, which represent two points in a color space. One color
+is the calling object itself and the second one has to be provided as
+either the only argument or the named argument L</to>, which is the only
+required one.
+
+The C<distance> is measured in I<RGB> color space unless told otherwise
+by the argument L</in>. Please use the I<OKLAB> (better) or I<CIELUV> space,
+if you are interested in getting a result that matches the human perception.
+
+The third argument is named C<select>. It's useful if you want to regard
+only certain dimensions (axis - long and short axis names are accepted).
+For instance if you want to know only the difference in brightness between
+two colors, you type C<< select => 'lightness' >> or C<< select => 'l' >>.
+This naturally works only if you did also choose I<HSL> as a color space
+or something similar that has a C<lightness> axis like I<LAB> or I<OKLAB>.
+The C<select> argument accepts a string or an ARRAY with several axis names,
+which can also repeat. For instance there is a formula to compute distances
+in RGB that weights the squared value delta's:
+C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>.
+You can recreate that formula by typing C<< select => [qw/ r r r g g g g b b/] >>
+
+The last argument is named L</range>, which can change the result drasticly.
+
+    my $d = $blue->distance( 'lapisblue' );                 # how close is blue to lapis?
+    $d = $blue->distance( to => 'airyblue', select => 'b'); # have they the same amount of blue?
+    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );  # same hue?
+    $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
+    $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
+
+
+=head2 is_in_gamut
+
+Takes any color definition I<new> would accept and returns a perlish pseudo 
+boolean (zero or one). That will tell you, if the color is within the gamut 
+(value range) of a color space. This can be either the color space the
+color was defined in or you choose the space by the argument L</in>.
+
+If you omit a color definition, the current color held by the object will be
+checked against that space. But you can also use the argument I<color> 
+to provide the color definition and additional information.
+
+The optional argument L</range> overrides the default range definition 
+of the space the color is defined in.
+
+The optional argument L</raw> defaults to true, unlike within the method I<new>. 
+But you can still set it false for the unlikely occasion you want to clamp the
+values to the boundaries of the space the color was defined in and then convert
+it into the selected space in order to check if the clamped color fits there.
+
+
+    $color->is_in_gamut( in => 'okLab');                    # does convert clamp $color?
+    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
+
+    use Graphics::Toolkit::Color qw/is_in_gamut/;
+    if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
+    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
 
 =cut
 

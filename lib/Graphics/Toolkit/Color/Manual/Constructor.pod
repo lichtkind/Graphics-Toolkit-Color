@@ -1,12 +1,10 @@
 =pod
 
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Constructor - 
+
 =head1 INTRODUCTION
-
-=head1 OVERVIEW
-
-
-
-=head1 CONSTRUCTOR
 
 There are many ways to create a color object. In short you can either
 use the name of a constant (see L</name>) or provide values, which are

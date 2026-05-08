@@ -1,0 +1,54 @@
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Name - all about color names in GTC
+
+=head1 SYNOPSIS
+
+=head1 OVERVIEW
+
+L<Graphics::Toolkit::Color::Name::Constant>
+
+L<Graphics::ColorNames> 
+L<Graphics::ColorNames::SVG> 
+L<Bundle::Graphics::ColorNames>
+
+
+Returns the normalized name string (lower case, without I<'_'>) that
+represents the I<RGB> values of this color in the default color scheme,
+which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
+(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
+These are the same which can be used with L</new('name')>.
+
+Alternatively you may provide named arguments or one positional argument,
+which is the same as the named argument C<from>. That required a name of
+a color schemes, as listed L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
+You also can submit a list thereof inside a ARRRAY ref which also dictates
+the order of resulting color names.
+Please note that all color schemes, except the default one, depend on
+external modules, which have to be installed separately or via
+L<Bundle::Graphics::ColorNames>.
+If you try to use a scheme from a not installed module your will get an
+error message instead of a color name. You can also create your custom
+color naming scheme via L<Graphics::Toolkit::Color::Name::Scheme>.
+
+The second named argument is C<all>, which needs to be a perly boolean.
+It defaults to false. But if set to 1, you will get a list of all names
+that are associated with the current values. There will be no duplicates,
+when several schemes are searched.
+
+A third named argument is C<full> - also needing a perly boolean that
+defaults to false. When set C<true> (1), the schema name becomes part of
+the returned color name as in C<'SVG:red'>. These full names are also
+accepted by the constructor.
+
+The fourth named argument is C<distance>, which means the same thing as
+in L</distance> and it defaults to zero. It is most useful in combinataion
+with C<all> to get all color names that are within a certain distance.
+
+
+=cut
+
+
+

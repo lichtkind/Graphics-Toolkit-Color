@@ -1,0 +1,109 @@
+=pod
+
+=head1 INTRODUCTION
+
+=head1 OVERVIEW
+
+=head1 METHODS
+
+=head1 COLOR SETS
+
+construct several interrelated color objects at once.
+
+
+=head2 complement
+
+Creates a set of complementary colors (GTC objects), which will be
+computed in I<HSL> color space. The method accepts three optional,
+named arguments: C<steps> and C<tilt> and C<target>. But if none are
+provided, THE (one) complementary color will be produced.
+
+One singular, positional argument defines the number of produced colors,
+same as the named argument C<steps> would have. If you want to get
+'triadic' colors, choose 3 as an argument for C<steps> - 4 would get
+you the 'quadratic' colors, .... and so on. The given color is always
+the last in the row of produced complementary colors.
+
+If you need split-complementary colors, just use the C<tilt> argument,
+which defaults to zero. Without any tilt, complementary colors are equally
+distanced dots on a horizontal circle around the vertical, central column
+in I<HSL> space. In other words: complementary colors have all the same
+'saturation' (distance from the column) and 'lightness' (height).
+They differ only in 'hue' (position on the circle). The given color
+and its (THE) complement sit on opposite sides of the circle.
+The greater the C<tilt> amount, the more these colors (minus the given
+one) will move on the circle toward THE complement and vice versa.
+What is traditionally meant by split-complementary colors you will
+get here with a C<tilt> factor of around 3.42 and three C<steps> or
+a C<tilt> of 1.585 and four C<steps> (depending on if you need
+THE complement also in your set).
+
+To get an even greater variety of complementary colors, you can use
+C<target> argument and move around THE complement and thus shape the
+circle in all three directions. C<hue> (or C<h>) values move it
+circularly C<saturation> (or C<s>) move it away or negative values toward
+the central column and C<lightness> (or C<l>) move it up and down.
+
+    my @colors = $c->complement( 4 );                       # 'quadratic' colors
+    my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
+    my @colors = $c->complement( steps => 3, tilt => 2, target => { l => -10 } );
+    my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });
+
+
+=head2 gradient
+
+Creates a gradient (a list of color objects that build a transition)
+between the current color held by the object and a second color,
+provided by the named argument L</to>, which is  required.
+Optionally C<to> accepts an ARRAY ref (square braces) with a list of
+colors in order to create the most fancy, custom and nonlinear gradients.
+
+Also required is the named argument C<steps>, which is the gradient length
+or count of colors, which are part of this gradient. Included in there
+are the start color (given by this object) and end color (given with C<to>).
+
+The optional, floating point valued argument C<tilt> makes the gradient
+skewed toward one or the other end. Default is zero, which results in
+a linear, uniform transition between start and stop.
+Greater values of the argument let the color change rate start small,
+steadily getting bigger. Negative values work vice versa.
+The bigger the absolute numeric value the bigger the effect. Please have
+in mind that values over 2 result is a very strong tilt.
+
+Optional is the named argument L</in> (color space - details behind link).
+Tip: use C<oklab> and C<cieluv> spaces for visually smooth gradients.
+
+    # we turn to grey
+    my @colors = $c->gradient( to => $grey, steps => 5);
+    # none linear gradient in HSL space :
+    @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 1, in => 'HSL' );
+    @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
+
+
+=head2 cluster
+
+Computes a set of colors that are all similar but not the same.
+The method accepts three named arguments: C<radius>, C<minimal_distance>
+and L</in>, of which the first two are required.
+
+The produced colors form a ball or cuboid in a color space around the given
+color, depending on what the argument C<radius> got. If it is a single
+number, it will be a ball with the given radius. If it is an ARRAY of
+values you get the a cuboid with the given dimensions.
+
+The minimal distance between any two colors of a cluster is set by the
+C<minimal_distance> argument, which is computed the same way as the method
+C<minimal_distance>, it has a short alias C<min_d>. In a cuboid shaped cluster,
+colors will form a cubic grid - inside the ball shaped cluster they
+form a cuboctahedral grid, which is packed tighter, but still obeys the
+minimal distance.
+
+    my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
+    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
+
+
+
+
+
+
+=cut

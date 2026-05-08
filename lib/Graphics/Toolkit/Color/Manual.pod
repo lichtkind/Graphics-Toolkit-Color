@@ -1,23 +1,102 @@
 =pod
 
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual - The central GTC documentation hub
+
 =head1 INTRODUCTION
 
-=head1 OVERVIEW
+Welcome to the documentation of the Perl module I<Graphics::Toolkit::Color>.
+It is an all in one solution to compute color sets, single colors,
+handle color names and to convert and reformat color definitions.
+This page gives you an overview where to find what information about this library.
+If you do not find a needed information, please open a request of L<github|https://github.com/lichtkind/Graphics-Toolkit-Color>.
 
-Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
+=head1 INDEX
 
-=head1 SYNOPSIS
+The manual encompasses the following pages:
 
-    use Graphics::Toolkit::Color qw/color is_in_gamut/;
+=over 4
 
-    my $red = Graphics::Toolkit::Color->new('red');  # create color object
-    say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'magenta'
-    my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
-    if (is_in_gamut('oklab(14, -106, 3)')) { ..      # check if valid
-    $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
-    $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
-    my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
-    my @reds = $red->cluster( r => 1.1, min_d => 1 );# 13 shades of red
+=item *
+
+Overviews
+
+=over 4
+
+=item *
+
+L<Overview|Graphics::Toolkit::Color> - of the public API
+
+=item *
+
+L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet> - all methods, args and spaces on one page
+
+=item *
+
+L<Cookbook|Graphics::Toolkit::Color::Manual::Cookbook> - code examples to solve real life problems
+
+=back
+
+=item *
+
+Reference
+
+=over 4
+
+=item *
+
+L<Constructor|Graphics::Toolkit::Color::Manual::Constructor> - options to create a color object (color definitions)
+
+=item *
+
+L<Getter|Graphics::Toolkit::Color::Manual::Getter> - methods that return not a color object
+
+=item *
+
+L<Calculation|Graphics::Toolkit::Color::Manual::Calculation> - methods that calculate one related color
+
+=item *
+
+L<Set|Graphics::Toolkit::Color::Manual::Set> - methods that calculate sets of colors
+
+=item *
+
+L<Argument|Graphics::Toolkit::Color::Manual::Argument> - explaining all common arguments
+
+=back
+
+=item *
+
+Topics 
+
+=over 4
+
+=item *
+
+L<Name|Graphics::Toolkit::Color::Manual::Name> - about color names
+
+=item *
+
+L<Space|Graphics::Toolkit::Color::Manual::Space> - detail info about color spaces
+
+=item *
+
+L<Format|Graphics::Toolkit::Color::Manual::Format> - input and output formats
+
+=item *
+
+L<Error|Graphics::Toolkit::Color::Manual::Error> - ways to do error handling
+
+=item *
+
+L<Plugin|Graphics::Toolkit::Color::Manual::Plugin> - How to extend the library ?
+
+=back
+
+=back
+
+=head1 GUIDE
 
 =head1 DESCRIPTION
 

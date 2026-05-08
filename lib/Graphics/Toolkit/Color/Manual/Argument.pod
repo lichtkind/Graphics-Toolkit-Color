@@ -1,0 +1,75 @@
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Argument - 
+
+=head1 INTRODUCTION
+
+=head1 OVERVIEW
+
+=head1 ARGUMENTS
+
+Some named arguments of the above listed methods reappear in several methods.
+Thus they are explained here once. Please note that you must NOT wrap
+the named args in curly braces (HASH ref) but you may if you prefer to do so.
+
+
+=head2 in
+
+The named argument I<in> expects the name of a color space as
+L<listed here|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
+The default color space in this module is I<RGB>. Depending on the chosen
+space, the results of methods can be very different, since colors are
+arranged very differently and have different distances to each other.
+Some colors might not even exist in some spaces (they are out of gamut).
+
+The following methods accept the I<in> argument: L</values>, L</is_in_gamut>,
+L</distance>, L</apply>, L</set_value>, L</add_value>, L</mix>, L</invert>, 
+L</gradient>, L</cluster>.
+
+
+=head2 range
+
+Every color space comes with range definitions for its values.
+For instance I<red>, I<green> and I<blue> in I<RGB> go usually from zero
+to 255 (0..255). In order to change that, many methods accept the named
+argument C<range>. When only one integer value is provided, it changes the
+upper bound on all three axis and as lower bound is assumed zero.
+Let's say you need I<RGB16> values with a range of 0 .. 65536,
+then you type C<< range => 65536 >> or C<< range => 2**16 >>.
+
+If you provide an ARRAY ref you can change the upper bounds of all axis
+individually and in order to change even the lower boundaries, use ARRAY
+refs even inside that. For instance in C<HSL> the C<hue> is normally
+0 .. 359 and the other two axis are 0 .. 100. In order to set C<hue>
+to -100 .. 100 but keep the other two untouched you would have to insert:
+C<< range => [[-100,100],100,100] >>.
+
+The following methods accept the I<range> argument: 
+L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>, L</distance>.
+
+
+=head2 to
+
+This argument receives a second or target color. It may come in form of
+another GTC object or a color definition that is acceptable to the
+constructor. But it has to be a scalar (string or (HASH) reference),
+not a value list or hash.
+
+The following methods accept the I<to> argument:  L</distance>, L</mix>, L</gradient>.
+
+
+=head2 raw
+
+This argument is a perlish pseudo boolean (0 or 1). But since it
+defaults to 0, you use it only with 1 or a fitting word string.
+It signifies that the color values will not be clamped into gamut
+and maybe not even rounded.
+
+The following methods accept the I<raw> argument:
+L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>.
+
+
+=cut
+

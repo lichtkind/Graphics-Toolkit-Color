@@ -2,11 +2,11 @@
 -------
     * = big feature release: +7 methods, new docs, new error handling
     * * add methods lighten / darken, saturate / desaturate, 
-    * * add methods tint (white) / shade (black) / tone (grey)
+    * * add methods tint (white) / shade (black) / tone (grey) tint(0.5) → 50% Mischung zwischen Originalfarbe und Weiß
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
     * + reestablish optional Carp error messages
     * + added nested_array as output format
-    * ! HSB should never have had constraints as HSV
+    * ! HSB constraints removal was msitake
 
 2.11   2026-05-08   lichtkind
 -------

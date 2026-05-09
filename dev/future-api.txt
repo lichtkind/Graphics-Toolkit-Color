@@ -1,0 +1,3 @@
+by   für relative Änderung (neu eingeführt mit Designer-API)
+set  für absolute Setzung (etabliert via set_value, jetzt erweitert)
+in   für Raum-Wahl (etabliert in vielen Methoden)

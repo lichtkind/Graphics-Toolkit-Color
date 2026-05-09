@@ -1,6 +1,12 @@
 TODO:
 ------
    
+ = 2.2:
+   + new documentation
+   + felxible error handling
+   + lighten / darken, saturate / desaturate, 
+   + tint (white) / shade (black) / tone (grey)
+
 
  = 2.3:
    + Jzazbz / JzCzhz, HSLuv / HPLuv
@@ -12,6 +18,7 @@ TODO:
    + gamut mapping
    + LMS support, Mochado/Brettel
    + delta_e method
+   + contrast ratio (calc)
    + complement in selectable cylindrical space
 
  = 2.5 

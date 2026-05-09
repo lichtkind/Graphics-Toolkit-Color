@@ -5,3 +5,17 @@ S =  0.00000 * X + 0.00000 * Y + 1.00000 * Z
 X = 1.91020·L - 1.11212·M + 0.20191·S
 Y = 0.37095·L + 0.62905·M + 0.00000·S
 Z = 0.00000·L + 0.00000·M + 1.00000·S
+
+
+Official Formula (WCAG):
+
+Contrast Ratio=L1+0.05L2+0.05
+
+Contrast Ratio = \frac{L1 + 0.05}{L2 + 0.05}\text{Contrast Ratio} = \frac{L1 + 0.05}{L2 + 0.05}
+
+Where:L1 = Relative luminance of the lighter color
+L2 = Relative luminance of the darker color
+
+Relative luminance is calculated from sRGB values using this weighted formula:
+L=0.2126×R+0.7152×G+0.0722×B
+

@@ -298,24 +298,25 @@ EOH
 
 sub lighten {
     my ($self, $amount, $space) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $amount, $space ) );
 }
 sub darken {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub saturate {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub desaturate {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub tint {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub shade {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 sub tone {
-    my ($self, @args) = @_;
+    my ($self, $amount, $space) = @_;
 }
 
 sub mix {
@@ -672,6 +673,11 @@ Only the first one is required and may be provided as the only positional argume
 
 
 =head2 cluster
+
+
+    my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
+    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
+
 
 =head1 SEE ALSO
 

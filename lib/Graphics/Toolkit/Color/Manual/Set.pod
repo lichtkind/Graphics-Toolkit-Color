@@ -102,8 +102,4 @@ minimal distance.
     my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
 
 
-
-
-
-
 =cut

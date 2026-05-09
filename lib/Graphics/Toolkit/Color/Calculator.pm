@@ -59,6 +59,45 @@ sub add_value { # .values, %newval -- ~space_name --> _
     return $color_values->new_from_tuple( $tuple, $color_space->name );
 }
 
+
+########################################################################
+sub lighten {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    return "$space_name is not a know color space" unless ref $color_space;
+    my $axis_nr = $color_space->is_axis_role('lightness');
+    return "color space: '".$color_space->name."' has no lightness axis" unless defined $axis_nr;
+    my $tuple = $self->normalized( $color_space->name );
+
+}
+sub darken {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+
+sub saturate {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+sub desaturate {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+
+sub tint {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+sub shade {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+sub tone {
+    my ($self, $amount, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+}
+
+########################################################################
 sub mix { #  @%(+percent, _color)  -- ~space_name --> _
     my ($color_values, $recipe, $color_space ) = @_;
     return if ref $recipe ne 'ARRAY';

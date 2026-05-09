@@ -285,62 +285,6 @@ The whole definition has to be an ARRAY ref. Each element is the range definitio
 of one dimension. If the definition is not an ARRAY but a single value it is applied
 as definition of every dimension.
 
-
-=head1 FORMATS
-
-Unless stated otherwise, these formats are available in all color spaces.
-
-=head2 list
-
-A list of values, the first being the name of the color space. The name
-can be omitted, if it is the default color space (L</RGB>).
-Default format of the output method "values".
-
-    (10, 20, 30)
-    ('XYZ', 15, 3.53, 37.1)
-
-=head2 named_array
-
-The same with squared brackets around.
-
-    [RGB => 10, 20, 30]
-
-
-=head2 named_string
-
-Same inside a quotes.
-
-    'RGB: 10, 20, 30'
-
-=head2 css_string
-
-Strings for usage in CSS, SVG files and alike. Here are commas optional.
-There are two spots where space is not allowed: 1. Between the space
-name and opening bracket and between axis value and value suffix (here '%').
-
-    'rgb(10, 20, 30)'
-    'hsl(10  20%  30%)'
-
-=head2 hex_string
-
-String for websites and alike, RGB only. Long and short form can be read
-and output is long form only.
-
-    '#1020FF'
-    '#12F'
-
-=head2 hash
-
-Hash reference with long axis names.
-
-    { red => 10, green => 20, blue => 30 }
-
-=head2 char_hash
-
-Hash reference with short axis names.
-
-    { r => 10, g => 20, b => 30 }
-
 =head1 ROUTINES
 
 This package provides two sets of routines. The first is just a lookup

@@ -13,17 +13,19 @@
 
     Sets:      complement           gradient                 cluster
 
+
 =head1 ARGUMENTS
 
-     in    : # all except:
-     from  :                       name closest_name : 
+     in    : # all except:         name closest_name
+     from  :                       name closest_name
      range : new values distance
      raw   : new values            is_in_gamut
      only  :            distance   invert
      precision : values
-     to    :            distance   gradient
-     steps :            complement gradient 
-     tilt  :            complement gradient 
+     to    :            distance   mix          gradient
+     steps :                       complement   gradient 
+     tilt  :                       complement   gradient 
+
 
 =head1 FORMATS
 
@@ -31,13 +33,14 @@
       hash    char_hash
       named_string   css_string   hex_string 
 
+
 =head1 SPACES
 
       RGB / LinearRGB / CMY / CMYK
       HSL / HSV / HWB / NCol
       YIQ / YUV / HunterLAB
       CIEXYZ / CIERGB / CIELAB / CIELUV / CIELCHab / CIELCHuv / CIELUV
-      OKLAB / OKLCH
+      OKHSL / OKHSV / OKLAB / OKLCH
       AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB
       Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
       

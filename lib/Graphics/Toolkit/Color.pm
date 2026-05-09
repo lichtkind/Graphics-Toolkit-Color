@@ -296,32 +296,39 @@ EOH
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::add_value( $self->{'values'}, $partial_color, $space_name ) );
 }
 
+# lightweight designer API
 sub lighten {
-    my ($self, $amount, $space) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $amount, $space ) );
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $amount, $space_name ) );
 }
 sub darken {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->{'values'}, $amount, $space_name ) );
 }
 sub saturate {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->{'values'}, $amount, $space_name ) );
 }
 sub desaturate {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->{'values'}, $amount, $space_name ) );
 }
 sub tint {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->{'values'}, $amount, $space_name ) );
 }
 sub shade {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $amount, $space_name ) );
 }
 sub tone {
-    my ($self, $amount, $space) = @_;
+    my ($self, $amount, $space_name) = @_;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->{'values'}, $amount, $space_name ) );
 }
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => -1});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => $default_space_name, amount => undef});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
@@ -335,42 +342,25 @@ EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
-    my $recipe = _new_from_scalar_def( $arg->{'to'} );
-    if (ref $recipe){
-        return "argument 'amount' has to be a scalar value if only one color is mixed !\n".$help if ref $arg->{'amount'};
-        $arg->{'amount'} = 50 if $arg->{'amount'} < 0;
-        $arg->{'amount'} = 100 if $arg->{'amount'} > 100;
-        $recipe = [{color => $recipe->{'values'}, percent => $arg->{'amount'}}];
-        push @$recipe, {color => $self->{'values'}, percent => 100 - $arg->{'amount'} } if $arg->{'amount'} < 100;
-
-    } else {
+    my $second_color = _new_from_scalar_def($arg->{'to'});
+    if (ref $second_color){ $arg->{'to'} = [$second_color->{'values'}] } 
+    else {
         if (ref $arg->{'to'} ne 'ARRAY'){
-            return "target color definition (argument 'to'): '$arg->{to}' is ill formed. It has to be one color definition or an ARRAY of them.";
+			return "target color definition (argument 'to'): '$arg->{to}' is ill formed. $second_color";
         } else {
-            return "Argument 'amount' has to be an ARRAY of same length as argument 'to' (color definitions)!\n".$help
-                if ref $arg->{'to'} eq 'ARRAY' and ref $arg->{'amount'} eq 'ARRAY' and @{$arg->{'amount'}} != @{$arg->{'to'}};
-            my $color_count = 1 + @{$arg->{'to'}};
-            unless (ref $arg->{'amount'}){
-                $arg->{'amount'} = ($arg->{'amount'} < 0)
-                                 ? [(100/$color_count) x $color_count]
-                                 : [($arg->{'amount'}) x $color_count];
-            }
-            $recipe = [];
-            my $amount_sum = 0;
-            for my $color_nr (0 .. $#{$arg->{'to'}}){
-                my $color_def = $arg->{'to'}[$color_nr];
-                my $color = _new_from_scalar_def( $color_def );
-                return "target color nr. $color_nr definition: '$color_def' is ill formed" unless ref $color;
-                push @$recipe, { color => $color->{'values'}, percent => $arg->{'amount'}[$color_nr] };
-                $amount_sum += $arg->{'amount'}[$color_nr];
-            }
-            push @$recipe, {color => $self->{'values'}, percent => 100 - $amount_sum } if $amount_sum < 100;
-            if ($amount_sum > 100){
-                $_->{'percent'} = ($_->{'percent'} / $amount_sum * 100) for @$recipe;
-            }
-        }
-    }
-    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::mix( $self->{'values'}, $recipe, $color_space ) );
+			my @to = ();
+			for my $color_def (@{$arg->{'to'}}){
+				if (ref $color_def eq __PACKAGE__) { push @to, $color_def->{'values'} }
+				else {
+					$second_color = Graphics::Toolkit::Color::Values->new_from_any_input( $color_def );
+                    return "target color definition (argument 'to'): '$color_def' is ill formed. $second_color" unless ref $second_color;
+					push @to, $second_color;
+				}
+			}
+			$arg->{'to'} = \@to;
+		}
+    }  
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::mix( $self->{'values'}, $arg->{'to'}, $arg->{'amount'}, $color_space ) );
 }
 
 sub invert {

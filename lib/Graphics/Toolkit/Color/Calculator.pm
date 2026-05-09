@@ -6,7 +6,6 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Values;
 
-
 sub apply_gamma {
     my ($color_values, $gamma, $color_space) = @_;
     my $gamma_array;
@@ -60,55 +59,98 @@ sub add_value { # .values, %newval -- ~space_name --> _
 }
 
 
-########################################################################
-sub lighten {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+#### light designer API ################################################
+sub _clear_3_args {
+    my ($color_values, $amount, $space_name) = @_;
+    return "need a G::T::Color::Values object as fist argument" 
+		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
+    return "need a numeric amount between 0 and 1 as first argument" unless defined $amount;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKHSL' );
     return "$space_name is not a know color space" unless ref $color_space;
-    my $axis_nr = $color_space->is_axis_role('lightness');
+    return ($color_values, $amount, $color_space);
+}
+sub lighten {
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    my $axis_nr = $color_space->pos_from_axis_role('lightness');
     return "color space: '".$color_space->name."' has no lightness axis" unless defined $axis_nr;
-    my $tuple = $self->normalized( $color_space->name );
-
+    my $tuple = $color_values->normalized( $color_space->name );
+	$tuple->[$axis_nr] += $amount;
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 sub darken {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    my $axis_nr = $color_space->pos_from_axis_role('lightness');
+    return "color space: '".$color_space->name."' has no lightness axis" unless defined $axis_nr;
+    my $tuple = $color_values->normalized( $color_space->name );
+	$tuple->[$axis_nr] -= $amount;
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
 sub saturate {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    my $axis_nr = $color_space->pos_from_axis_role('saturation');
+    return "color space: '".$color_space->name."' has no saturation axis" unless defined $axis_nr;
+    my $tuple = $color_values->normalized( $color_space->name );
+	$tuple->[$axis_nr] += $amount;
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 sub desaturate {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    my $axis_nr = $color_space->pos_from_axis_role('saturation');
+    return "color space: '".$color_space->name."' has no saturation axis" unless defined $axis_nr;
+    my $tuple = $color_values->normalized( $color_space->name );
+	$tuple->[$axis_nr] -= $amount;
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
 sub tint {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([255, 255, 255])], $amount*100, $color_space);
 }
 sub shade {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([127.5, 127.5, 127.5])], $amount*100, $color_space);
 }
 sub tone {
-    my ($self, $amount, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKLCH' );
+    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    return $color_values unless ref $color_values;
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([0,0,0])], $amount*100, $color_space);
 }
 
-########################################################################
-sub mix { #  @%(+percent, _color)  -- ~space_name --> _
-    my ($color_values, $recipe, $color_space ) = @_;
-    return if ref $recipe ne 'ARRAY';
+#### deep designer methods #############################################
+sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .color_values
+    my ($base_color, $added_color, $add_amount, $color_space ) = @_;
+    return "need color value object as first argument !\n" unless ref $base_color eq 'Graphics::Toolkit::Color::Values';
+    return "second argument has to be an ARRAY !\n" unless ref $added_color eq 'ARRAY';
+    return "need a color space object !\n" unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
+
+    my $color_count = @$added_color + 1;
+    $add_amount = 100 / $color_count unless defined $add_amount;
+    $add_amount = [($add_amount) x ($color_count - 1)] unless ref $add_amount eq 'ARRAY';
+	return "ARRAY of mix amounts needs a value for every color !\n" unless @$add_amount == $color_count - 1;
+    my $mix_sum = 0;
+    map {$mix_sum += $_ } @$add_amount;
+    if ($mix_sum > 100){
+		for my $reciepe_index (0 .. $#$add_amount){
+			$add_amount->[$reciepe_index] = $add_amount->[$reciepe_index] * 100 / $mix_sum;
+		}
+	} else {
+         push @$add_amount, 100 - $mix_sum;
+         push @$added_color, $base_color;
+	}
+   
     my $result_values = [(0) x $color_space->axis_count];
-    for my $ingredient (@$recipe){
-        return if ref $ingredient ne 'HASH' or not exists $ingredient->{'percent'}
-               or not exists $ingredient->{'color'} or ref $ingredient->{'color'} ne ref $color_values;
-        my $tuple = $ingredient->{'color'}->shaped( $color_space->name );
-        $result_values->[$_] +=  $tuple->[$_] * $ingredient->{'percent'} / 100 for 0 .. $#$tuple;
+    for my $color_nr (0 .. $#$added_color){
+        my $tuple = $added_color->[$color_nr]->shaped( $color_space->name );
+        $result_values->[$_] +=  $tuple->[$_] * $add_amount->[$color_nr] / 100 for 0 .. $#$tuple;
     }
-    return $color_values->new_from_tuple( $result_values, $color_space->name );
+    return $base_color->new_from_tuple( $result_values, $color_space->name );
 }
 
 sub invert {

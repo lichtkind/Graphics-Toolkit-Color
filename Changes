@@ -1,9 +1,10 @@
 2.2    2026-06-05   lichtkind
 -------
-    * = big feature release: +7 methods, new docs, new error handling
+    * = big feature release: +3 spaces, +7 methods, new docs, new error handling
     * * add methods lighten / darken, saturate / desaturate, 
-    * * add methods tint (white) / shade (black) / tone (grey) tint(0.5) → 50% Mischung zwischen Originalfarbe und Weiß
+    * * add methods tint (white) / shade (black) / tone (grey)
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
+    * + add OKHSL, OKHSV, OKHWB space
     * + reestablish optional Carp error messages
     * + added nested_array as output format
     * ! HSB constraints removal was msitake

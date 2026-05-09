@@ -9,7 +9,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 my $module = 'Graphics::Toolkit::Color';
 eval "use $module qw/color is_in_gamut/";
 
-is( not( $@), 1, 'could load the module'); # say $@;
+is( not( $@), 1, 'could load the module'); # say $@; exit 0;
 is( ref Graphics::Toolkit::Color->new(),        '', 'constructor need arguments');
 is( ref Graphics::Toolkit::Color->new('red'), $module, 'constructor accepts color name');
 is( ref Graphics::Toolkit::Color->new( 'red', 'green'), '', 'constructor needs only one color name');

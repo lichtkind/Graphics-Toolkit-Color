@@ -4,12 +4,12 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 40;
+use Test::More tests => 42;
 use Graphics::Toolkit::Color::Values;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
-eval "use $module"; # say "$@"; exit 1;
+eval "use $module";
 is( not($@), 1, "could load the module $module"); # say "$@"; exit 1;
 
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
@@ -79,22 +79,23 @@ $values = $cyan->normalized();
 is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color in RGB');
 
 #### mix ###############################################################
-my $grey = Graphics::Toolkit::Color::Calculator::mix ( 
-	$white, [{color => $black, percent => 50}, {color => $white, percent => 50}], $RGB );
-is( ref $grey,                   $value_ref,  'created gray by mixing black and white');
+my $grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], undef, $RGB );
+is( ref $grey,                   $value_ref,  'created gray by mixing black and white without amount');
 $values = $grey->shaped();
 is_tuple( $values, [128, 128, 128], [qw/red green blue/], 'mixed grey from black and white');
 is( $grey->name(),                'gray',  'created gray by mixing black and white');
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], 50, $RGB );
+is( $grey->name(),                'gray',  'created gray by mixing black and white with percentage amount');
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], [50], $RGB );
+is( $grey->name(),                'gray',  'the percentage amount is in ARRAY this time');
 
-my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( 
-	$white, [{color => $black, percent => 5}, {color => $white, percent => 95}], $RGB);
+my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black, $white], [5,95], $RGB);
 is( ref $lgrey,                   $value_ref,  'created light gray');
 $values = $lgrey->shaped();
 is_tuple( $values, [242, 242, 242], [qw/red green blue/], 'mixed light grey from black and white');
 is( $lgrey->name(),             'gray95',  'created gray by mixing black and white');
 
-my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( 
-	$white, [{color => $blue, percent => 50},{color => $black, percent => 50},], $HSL);
+my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( $white, [$blue, $black], [50, 50], $HSL);
 is( ref $darkblue,               $value_ref,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
 $values = $darkblue->shaped('HSL');
 is_tuple( $values, [120, 50, 25], [qw/hue saturation lightness/], 'mixed grey from black and white in HSL');

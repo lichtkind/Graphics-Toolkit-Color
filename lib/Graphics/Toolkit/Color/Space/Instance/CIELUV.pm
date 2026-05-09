@@ -52,7 +52,9 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
      alias_name => 'CIELUV',        # space name is LUV
+         family => 'LAB',
            axis => [qw/L* u* v*/],  # short l u v
+           role => [qw/L a b/],
           range => [100, [-134, 220], [-140, 122]],
       precision => 3,
         convert => {XYZ => [\&to_xyz, \&from_xyz]},

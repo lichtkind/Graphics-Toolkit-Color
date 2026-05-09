@@ -78,13 +78,13 @@ sub is_long_axis_name  { (defined $_[1] and exists $_[0]->{'long_name_order'}{ l
 sub is_short_axis_name { (defined $_[1] and exists $_[0]->{'short_name_order'}{ lc $_[1] }) ? 1 : 0 } # ~short_name --> ?
 sub is_axis_role_name  { (defined $_[1] and exists $_[0]->{'role_name_order'}{ lc $_[1] }) ? 1 : 0 }  # ~role_name  --> ?
 sub is_axis_name       { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_short_axis_name($_[1]) }        # ~long|short --> ?
-sub is_axis_role       { $_[0]->is_long_axis_name($_[1]) or $_[0]->is_axis_role_name($_[1]) }         # ~long|role  --> ?
+sub is_axis_role       { $_[0]->is_axis_name($_[1])      or $_[0]->is_axis_role_name($_[1]) }         # ~name       --> ?
 
 sub pos_from_long_axis_name  { defined $_[1] ? $_[0]->{'long_name_order'}{ lc $_[1] } : undef }       # ~long_name  --> +pos
 sub pos_from_short_axis_name { defined $_[1] ? $_[0]->{'short_name_order'}{ lc $_[1] } : undef }      # ~short_name --> +pos
 sub pos_from_axis_role_name  { defined $_[1] ? $_[0]->{'role_name_order'}{ lc $_[1] } : undef }       # ~role_name  --> +pos
 sub pos_from_axis_name       { pos_from_long_axis_name(@_) // pos_from_short_axis_name(@_) }          # ~long|short --> +pos
-sub pos_from_axis_role       { pos_from_long_axis_name(@_) // pos_from_axis_role_name(@_) }           # ~long|role  --> +pos
+sub pos_from_axis_role       { pos_from_axis_name(@_)     // pos_from_axis_role_name(@_) }            # ~name       --> +pos
 
 sub is_hash {         # with all axis names as keys
     my ($self, $value_hash) = @_;

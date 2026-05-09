@@ -30,7 +30,7 @@ sub to_lab {
 
 Graphics::Toolkit::Color::Space->new(
         name => 'OKLCH',
-        family => 'HSL',
+      family => 'HSL',
         axis => [qw/luminance chroma hue/],
         role => [qw/lightness saturation hue/],
         type => [qw/linear linear angular/],

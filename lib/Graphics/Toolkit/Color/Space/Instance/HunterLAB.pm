@@ -32,6 +32,7 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
          name => 'HunterLAB',
+       family => 'LAB',
          axis => [qw/l a b/],  # same as short
         range => [100, [-$K{'a'}, $K{'a'}], [-$K{'b'}, $K{'b'}]], # cyan-orange, magenta-green
     precision => 3,

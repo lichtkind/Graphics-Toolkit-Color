@@ -42,6 +42,7 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
          name => 'OKLAB',       # no alias, short axis name eq long
+       family => 'LAB',
          axis => [qw/L a b/],  # lightness, cyan-orange balance, magenta-green balance
         range => [1, [-.5, .5], [-.5, .5]],
     precision => 3,

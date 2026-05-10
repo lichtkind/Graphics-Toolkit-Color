@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 69;
+use Test::More tests => 70;
 use Graphics::Toolkit::Color qw/color/;
 
 my $module  = 'Graphics::Toolkit::Color';
@@ -75,12 +75,13 @@ is( $colors[9]->name,             'green',    'last color is green');
 is( int @colors,                       10,    'default for steps is 10');
 is( $colors[0]->name,               'red',    'first color is red');
 is( $colors[9]->name,             'green',    'last color is green');
-@colors = $blue->gradient( to => 'red', steps => 3 );
+@colors = $blue->gradient( to => 'red', steps => 3, in => 'RGB' );
 is( int @colors,                        3,    'argument steps works');
 is( $colors[1]->name,            'purple',    'got mixed color in the middle');
-@colors = $blue->gradient( to => ['white','red', 'blue'], steps => 7 );
+@colors = $blue->gradient( to => ['white','red', 'blue'], steps => 7, in => 'RGB' );
+is( int @colors,                        7,    'created seven colors');
 is( $colors[5]->name,            'purple',    'got mixed inside cmlex rainbow');
-@colors = $blue->gradient( to => 'red', steps => 3, tilt => 1 );
+@colors = $blue->gradient( to => 'red', steps => 3, tilt => 1, in => 'RGB' );
 @values = $colors[1]->values();
 is_tuple( \@values, [   64, 0, 191], [qw/red green blue/], 'center color in tilted gradient');
 
@@ -101,7 +102,7 @@ like( $white->cluster(radius => 0, minimal_distance => 0),          qr/GTC metho
 like( $white->cluster(radius => 1, minimal_distance => 1, ar => 2), qr/GTC method/, "reject invented arguments");
 like( $white->cluster(radius => 1, minimal_distance => 1, 'ar'),    qr/GTC method/, "odd number of arguments");
 
-@colors = $midblue->cluster( radius => 2.01, minimal_distance => 2 );
+@colors = $midblue->cluster( radius => 2.01, minimal_distance => 2, in => 'RGB' );
 is( int @colors,                       13,    'computed smallest ball shaped cluster in RGB');
 @values = $colors[0]->values();
 is_tuple( \@values, [ 41, 52, 242], [qw/red green blue/], 'first color of cluster around mid blue');

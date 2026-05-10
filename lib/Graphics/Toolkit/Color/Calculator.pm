@@ -65,7 +65,7 @@ sub _clear_3_args {
     return "need a G::T::Color::Values object as fist argument" 
 		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
     return "need a numeric amount between 0 and 1 as first argument" unless defined $amount;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name // 'OKHSL' );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return "$space_name is not a know color space" unless ref $color_space;
     return ($color_values, $amount, $color_space);
 }

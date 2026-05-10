@@ -9,8 +9,8 @@ use Graphics::Toolkit::Color::Calculator;
 my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 my $half_hue_max = $HSL->shape->axis_value_max(0) / 2;
 ########################################################################
-sub complement { # :base_color +steps +tilt %target_delta --> @:values
-    my ($start_color, $steps, $tilt, $target_delta) = @_;
+sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @:values
+    my ($start_color, $target_delta, $steps, $tilt, $color_space) = @_;
     my $start_tuple = $start_color->shaped( $HSL->name );
     my $target_values = [@$start_tuple];
     $target_values->[0] += $half_hue_max;
@@ -44,7 +44,14 @@ sub complement { # :base_color +steps +tilt %target_delta --> @:values
 }
 
 ########################################################################
-sub gradient { # @:colors, +steps, +tilt, :space --> @:values
+sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:values
+    my ($start_color, $next_color, $steps, $tilt, $color_space) = @_;
+    my @result = ($start_color, $next_color);
+    return @result;
+}
+
+########################################################################
+sub gradient { # @:color_values -- +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;
     my $scaling_exponent = abs($tilt) + 1; # tilt = exponential scaling
     my $segment_count = @$colors - 1;
@@ -65,7 +72,7 @@ sub gradient { # @:colors, +steps, +tilt, :space --> @:values
 ########################################################################
 my $adj_len_at_45_deg = sqrt(2) / 2;
 
-sub cluster { # .center, +radius @+|+distance, .space --> @:values
+sub cluster { # :center_vales, +radius @+|+distance -- :space --> @:values
     my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
     my $color_space_name = $color_space->name;
     my $center_tuple = $center_color->shaped( $color_space_name );

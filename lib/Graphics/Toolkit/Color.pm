@@ -297,33 +297,41 @@ EOH
 }
 
 # lightweight designer API
+my $design_default = 'OKHSL';
 sub lighten {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub darken {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub saturate {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub desaturate {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub tint {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub shade {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub tone {
-    my ($self, $amount, $space_name) = @_;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->{'values'}, $amount, $space_name ) );
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 
 sub mix {
@@ -382,13 +390,14 @@ EOH
 ## color set creation methods ##########################################
 sub complement {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0, target => {}});
+    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0, target => {}, in => 'HSL'});
     my $help = <<EOH;
     GTC method 'complement' is computed in HSL and has two named, optional arguments:
     complement ( ...
         steps => 20,                                # count of produced colors, default is 1
         tilt => 10,                                 # default is 0
         target => {h => 10, s => 20, l => 3},       # sub-keys are independent, default to 0
+        in    => 'HSL',          # color space name, defaults to "OKHSL"
 EOH
     return $arg.$help unless ref $arg;
     return "Optional argument 'steps' has to be a number !\n".$help unless is_nr($arg->{'steps'});
@@ -401,20 +410,49 @@ EOH
         return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$help
             unless ref $target_values;
     } else { $target_values = [] }
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return "$color_space\n".$help unless ref $color_space;
+    return "Need a cylindrical space from the HSL family \n" unless uc($color_space->family) eq 'HSL';
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, @$arg{qw/steps tilt/}, $target_values );
+        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, $target_values, @$arg{qw/steps tilt/}, $color_space );
+}
+
+sub analogous {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 4, tilt => 0, in => 'OKHSL'});
+    my $help = <<EOH;
+    GTC method 'analogous' accepts four named arguments, only the first is required:
+    analogous ( ...
+        to    => 'blue',         # scalar color definition or GTC object of next color
+        steps => 20,             # count of produced colors, defaults to 10
+        tilt  => 1,              # dynamics of color change, defaults to 0
+        in    => 'HSL',          # color space name, defaults to "OKHSL"
+EOH
+    return $arg.$help unless ref $arg;
+    my @colors = ($self->{'values'});
+    my $next_color = _new_from_scalar_def( $arg->{'to'} );
+    if  (ref $next_color) { $arg->{'to'} = $next_color }
+    else                  { return "Argument 'to' contains malformed color definition!\n".$help}
+    return "Argument 'steps' has to be a number greater zero !\n".$help
+        unless is_nr($arg->{'steps'}) and $arg->{'steps'} > 0;
+    $arg->{'steps'} = int $arg->{'steps'};
+    return "Argument 'tilt' has to be a number !\n".$help unless is_nr($arg->{'tilt'});
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return "$color_space\n".$help unless ref $color_space;
+    map {_new_from_value_obj( $_ )}
+        Graphics::Toolkit::Color::SetCalculator::analogous( $self->{'values'}, $arg->{'to'}, @$arg{qw/steps tilt/}, $color_space);
 }
 
 sub gradient {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, in => $default_space_name});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, in => 'OKLAB'});
     my $help = <<EOH;
     GTC method 'gradient' accepts four named arguments, only the first is required:
     gradient ( ...
         to    => 'blue',         # scalar color definition or ARRAY ref thereof
         steps => 20,             # count of produced colors, defaults to 10
         tilt  => 1,              # dynamics of color change, defaults to 0
-        in    => 'HSL',          # color space name, defaults to "$default_space_name"
+        in    => 'HSL',          # color space name, defaults to "OKLAB"
 EOH
     return $arg.$help unless ref $arg;
     my @colors = ($self->{'values'});
@@ -441,7 +479,7 @@ EOH
 
 sub cluster {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, ['radius', 'minimal_distance'], {in => $default_space_name},
+    my $arg = _split_named_args( \@args, undef, ['radius', 'minimal_distance'], {in => 'OKLAB'},
                                  {radius => 'r', minimal_distance => 'min_d'}                              );
     my $help = <<EOH;
     GTC method 'cluster' accepts three named arguments, the first two being required:
@@ -450,7 +488,7 @@ sub cluster {
         r => [10, 5, 3]                # cuboid shaped cluster with cubical packing
         minimal_distance => 0.5        # minimal distance between colors in cluster
         min_d => 0.5                   # short alias for minimal distance
-        in => 'HSL'                    # color space name, defaults to "$default_space_name"
+        in => 'HSL'                    # color space name, defaults to "OKLAB"
 EOH
     return $arg.$help unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
@@ -576,6 +614,9 @@ colors, or the relationship between a color and its space.
 
 =head2 values
 
+This is the most important output method, the major counterpart to the L</CONSTRUCTOR>,
+which can output almost everything I<new> or I<color> can read.
+
 =head2 name
 
 =head2 closest_name
@@ -620,19 +661,22 @@ more powerful low level methods
 
 =head2 invert
 
+
 =head1 COLOR SETS
 
 These methods create sets of colors which are currently just a list of
 GTC objects.
 
+
 =head2 complement 
 
-Produces a circle of complementary colors, currently only computed in HSL.
-It listens to 3 named arguments: C<steps>, C<tilt>, C<target>
-and creates THE complementary color if none are provided. 
+L<complement|Graphics::Toolkit::Color::Manual::Set/complement> computes 
+colors that form a circle of complementary colors.
+It understands 4 named arguments: C<steps>, C<tilt>, C<target>, C<in>.
 
-C<steps> is the amont of colors produced, so a value of 3 would result in
-triadic color set, 4 in a quadratic and so forth. 
+C<steps> is the amount of colors produced. It defaults to 1, giving just
+THE complementary color, 2 would include the given and a value of 3
+would result in a triadic color set, 4 in a quadratic and so forth. 
 
 With a positive C<tilt> value, the colors will aggregate more around THE
 complementary color, with a negative value more around the given. 
@@ -642,31 +686,70 @@ for triadic and 1.585 for quadratic colors.
 The argument C<target> works a bit like L</add_value> on THE complement
 and thus moving the whole circle.
 
+C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+the complements will be computed in. It defaults to I<OKHSL> and can only be
+a cylindrical space from the I<HSL> family.
+
+
     my @colors = $c->complement( 4 );                       # 'quadratic' colors
     my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
     my @colors = $c->complement( steps => 3, tilt => 2, target => { l => -10 } );
     my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });
 
+
 =head2 gradient
 
-Creates a list of colors that are a gradual blend between two or more
-colors. Its accepts four named arguments: C<to>, C<steps>, C<tilt>, C<in>.
-Only the first one is required and may be provided as the only positional argument.
+L<gradient|Graphics::Toolkit::Color::Manual::Set/gradient> creates a list 
+of GTC color objects that are a gradual blend between two or more colors.
+It accepts four named arguments: C<to>, C<steps>, C<tilt>, C<in>.
 
- 
+Only C<to> is required and may be given as a positional argument, if it 
+is the only one. It requires as value a GTC object or any scalar 
+I<color definition> C<new> would accept. Alternatively you can pass an
+ARRAY with any mix of GTC objects and scalar color definitions.
 
-    # we turn to grey
-    my @colors = $c->gradient( to => $grey, steps => 5);
-    # none linear gradient in HSL space :
-    @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 1, in => 'HSL' );
-    @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
+C<steps> is the amount of colors produced. It defaults to 10.
+
+C<tilt> needs a floating point number that defaults to zero. In that
+case you get a linear, uniform transition between start and end color.
+Greater than zero values start with small color changes, steadily increasing 
+the rate. The larger the number - the larger the effect and negative values
+work vice versa.
+
+C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+the gradient will be computed in. It defaults to I<OKLAB>.
+
+
+    my @colors = $c->gradient( to => $grey, steps => 5);       # we turn to grey
+    @colors = $c1->gradient( to => [14,10,222], steps => 10, tilt => 1, in => 'HSL' );
+    @colors = $c1->gradient( to => ['blue', 'brown', {h => 30, s => 44, l => 50}] );
 
 
 =head2 cluster
 
+L<cluster|Graphics::Toolkit::Color::Manual::Set/cluster> creates a list 
+of GTC color objects that look similar to the given one but distinctly different.
+It accepts three named arguments: C<radius>, C<minimal_distance> and L</in>.
+The first two are required and can be written as C<r> and C<min_d>.
+The color of the calling object is the center and part of the cluster.
+
+C<radius> accepts a floating point number or an ARRAY of such numbers (one for each axis).
+If one number is given, I<radius> is the maximal Euclidean L</distance> 
+a color of the cluster can have from the center. In that case the method
+uses cuboctahedral packing to fit as many colors as possible into that 
+sphere with the given radius. If an ARRAY is provided, a simple cubic grid
+of colors is created that extends on each axis by the given distance in 
+both directions.
+
+C<minimal_distance> is the minimal L</distance> two neighbours of the
+cluster need to have in any direction.
+
+C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+the cluster will be computed in. It defaults to I<OKLAB>.
+
 
     my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
-    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
+    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => 'YUV' );
 
 
 =head1 SEE ALSO

@@ -1,10 +1,13 @@
 2.2    2026-06-05   lichtkind
 -------
-    * = big feature release: +3 spaces, +7 methods, new docs, new error handling
+    * = big feature release: +3 spaces, +8 methods, +2 args, new docs, error handling
     * * add methods lighten / darken, saturate / desaturate, 
     * * add methods tint (white) / shade (black) / tone (grey)
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
     * + add OKHSL, OKHSV, OKHWB space
+    * + method analogues with args: to, steps and tilt
+    * + added argument 'in' to method 'complement' (selectable cylindrical space)
+    * + added argument 'skew' to method 'complement'
     * + reestablish optional Carp error messages
     * + added nested_array as output format
     * ! HSB constraints removal was msitake

@@ -5,10 +5,9 @@ TODO:
    + new documentation
    + flexible error handling
    + OKHSL, OKHSV, OKHWB, 
-   + complement in selectable cylindrical space
    + lighten / darken, saturate / desaturate, 
    + tint (white) / shade (black) / tone (grey)
-   + triadic, tetradic, square
+   + complement in selectable cylindrical space
    + method analogues with args: to, steps and tilt
 
 
@@ -16,17 +15,18 @@ TODO:
    + Jzazbz / JzCzhz, HSLuv / HPLuv, HSI
      HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
    + 4 LMS variants
+   + delta_e method difference
 
  
  = 2.4:
    + gamut mapping
    + LMS support, Mochado/Brettel
-   + delta_e method
    + contrast ratio (calc)
 
  = 2.5 
    + cubehelix method
    + brightness, contrast, vibrance, saturation
+   + triadic, tetradic
 
    
  = 2.6:

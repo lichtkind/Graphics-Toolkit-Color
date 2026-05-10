@@ -11,7 +11,7 @@
 
                mix                  invert
 
-    Sets:      complement           gradient                 cluster
+    Sets:      complement / analogous / gradient / cluster
 
 
 =head1 ARGUMENTS
@@ -30,8 +30,8 @@
 =head1 FORMATS
 
       list    array   named_array   nested_array
-      hash    char_hash
-      named_string   css_string   hex_string 
+              hash    char_hash
+      named_string    css_string    hex_string 
 
 
 =head1 SPACES

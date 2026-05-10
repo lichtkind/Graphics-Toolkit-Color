@@ -99,7 +99,6 @@ L<Plugin|Graphics::Toolkit::Color::Manual::Plugin> - How to extend the library ?
 =head1 GUIDE
 
 
-
 =head1 AUTHOR
 
 Herbert Breunung, <lichtkind@cpan.org>

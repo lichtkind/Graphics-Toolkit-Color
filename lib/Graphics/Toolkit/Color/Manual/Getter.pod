@@ -3,16 +3,13 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Getter - 
-
+Graphics::Toolkit::Color::Manual::Getter - reference of value access or calculating methods
 
 =head1 INTRODUCTION
 
 =head1 OVERVIEW
 
 =head1 METHODS
-
-=head1 GETTER
 
 giving access to different parts of the objects data or calculating 
 properties based on it.

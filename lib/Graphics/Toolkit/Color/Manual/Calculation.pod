@@ -2,13 +2,11 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Calculation - 
-
-=head1 INTRODUCTION
+Graphics::Toolkit::Color::Manual::Calculation - reference of one color calculating methods
 
 =head1 OVERVIEW
 
-=head1 SINGLE COLOR
+=head1 METHODS
 
 These methods generate one new color object that is related to the calling
 object (invocant). You might expect that methods like C<set_value> change

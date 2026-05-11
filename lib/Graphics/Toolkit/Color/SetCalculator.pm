@@ -47,6 +47,18 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
 sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:values
     my ($start_color, $next_color, $steps, $tilt, $color_space) = @_;
     my @result = ($start_color, $next_color);
+    my $start_tuple = $start_color->normalized( $color_space->name );
+    my $next_tuple = $next_color->normalized( $color_space->name );
+    my $delta_tuple = $color_space->delta( $start_tuple, $next_tuple );
+    for my $color_nr (3 .. $steps){
+		for my $axis_nr ($color_space->basis->axis_iterator){
+			$delta_tuple->[$axis_nr] *= 1 + $tilt;
+			$next_tuple->[$axis_nr] += $delta_tuple->[$axis_nr];
+		}
+        my $next_color = $start_color->new_from_tuple( $next_tuple, $color_space->name, 'normal' );
+		last unless $next_color->is_in_gamut( $color_space->name );
+		push @result, $next_color;
+	}
     return @result;
 }
 
@@ -61,7 +73,7 @@ sub gradient { # @:color_values -- +steps, +tilt, :space --> @:values
     for my $step_nr (2 .. $steps - 1){
         my $percent_in_gradient = $percent_in_gradient[$step_nr-2];
         my $current_segment_nr = int ($percent_in_gradient * $segment_count);
-        my $percent_in_segment = 100 * $segment_count * ($percent_in_gradient - ($current_segment_nr / $segment_count));
+        my $percent_in_segment = $segment_count * ($percent_in_gradient - ($current_segment_nr / $segment_count));
         push @result, Graphics::Toolkit::Color::Calculator::mix(
                           $colors->[$current_segment_nr], [ $colors->[$current_segment_nr+1] ], $percent_in_segment, $color_space );
     }

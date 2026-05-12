@@ -1,36 +1,24 @@
 TODO:
 ------
    
- = 2.2:
-   + new documentation
-   + flexible error handling
-   + OKHSL, OKHSV, OKHWB, 
-   + lighten / darken, saturate / desaturate, 
-   + tint (white) / shade (black) / tone (grey)
-   + complement in selectable cylindrical space
-   + method analogues with args: to, steps and tilt
-
-
  = 2.3:
    + Jzazbz / JzCzhz, HSLuv / HPLuv, HSI
      HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
-   + 4 LMS variants
+   + gamut mapping
+   + brightness, contrast, vibrance, saturation
    + delta_e method difference
 
- 
- = 2.4:
-   + gamut mapping
+  = 2.4:
+   + 4 LMS variants
    + LMS support, Mochado/Brettel
    + contrast ratio (calc)
 
  = 2.5 
    + cubehelix method
-   + brightness, contrast, vibrance, saturation
    + triadic, tetradic
 
    
  = 2.6:
-   + designer API: 
    + compound, monochromatic ? probably later
 
  = 2.7

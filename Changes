@@ -5,11 +5,14 @@
     * * add methods tint (white) / shade (black) / tone (grey)
     * * move POD to GTC::CookBook, GTC::Manual, rewrite both
     * + add OKHSL, OKHSV, OKHWB space
-    * + method analogues with args: to, steps and tilt
+    * + method analogous with args: 'to', 'steps' and 'tilt'
     * + added argument 'in' to method 'complement' (selectable cylindrical space)
     * + added argument 'skew' to method 'complement'
     * + reestablish optional Carp error messages
     * + added nested_array as output format
+    * ~ change 'amount' argument of 'mix' understanding percent as 0 .. 1 instead of 0 .. 100
+    * ~ change default argument of 'invert' from 'in' to 'only'
+    * ~ change default color space for most methods to 'OKLAB' or 'OKHSL'
     * ! HSB constraints removal was msitake
 
 2.11   2026-05-08   lichtkind

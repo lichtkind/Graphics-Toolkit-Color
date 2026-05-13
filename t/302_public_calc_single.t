@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 62;
+use Test::More tests => 64;
 use Graphics::Toolkit::Color qw/color/;
 
 my $module = 'Graphics::Toolkit::Color';
@@ -12,14 +12,18 @@ my $red   = color('#FF0000');
 my $blue  = color('#0000FF');
 my $white = color('white');
 my $black = color('black');
-my $nice_blue = color(10,20,200);
+my $nice_blue = color(10, 20, 200);
 
 #### apply gamma #######################################################
-my @values = $red->apply( gamma => 2.4 )->values();
-is_tuple( \@values, [255, 0, 0], [qw/red green blue/], 'correct red with gamma of 2.4');
+my @values = $red->apply( gamma => 2.4 )->values('LinearRGB');
+is_tuple( \@values, [1, 0, 0], [qw/red green blue/], 'gamma correction does not touch max or min values');
 
-@values = $nice_blue->apply( gamma => 0.4 )->values();
-is_tuple( \@values, [ 70, 92, 231], [qw/red green blue/], 'correct nice blue with gamma of 0.4');
+@values = $nice_blue->apply( gamma => 1 )->values(in => 'LinearRGB', precision => 7);
+is_tuple( \@values, [ 0.0030353, 0.0069954, 0.5775804], [qw/red green blue/], 'gamma correction with a gamma of 1 does not touch values');
+
+@values = $nice_blue->apply( gamma => 0.4 )->values(in => 'LinearRGB', precision => 7);
+is_tuple( \@values, [ 0.0983737, 0.1373806, 0.8028696], [qw/red green blue/], 'gamma correct nice blue with gamma of 0.4');
+
 @values = $nice_blue->apply( gamma => {cyan => 2, m => 0.5}, in => 'CMY' )->values();
 is_tuple( \@values, [ 20, 10, 200], [qw/red green blue/], 'correct nice blue with special gamma per axis');
 
@@ -69,10 +73,10 @@ is( ref $white->mix( to => 'black'),                  $module,  'one named argum
 is( ref $white->mix( to => ['black']),                $module,  'one named argument as ARRAY');
 is( ref $white->mix( to => ['black', 'blue']),        $module,  'one named argument as longer ARRAY');
 
-is($white->mix( $black)->name,                       'gray', 'grey is the mix between black and white');
-is($white->mix( to => 'black')->name,                'gray', 'use color constant and named argument');
-is($white->mix( to => 'black', amount => 50)->name,  'gray', 'use also amount argument');
-is($white->mix( to => 'black', amount => 20)->name,'gray80', 'use different amount');
+is($white->mix( $black )->name,	                   'gray39', 'grey is the mix between black and white in OKLAB');
+is($white->mix( to => 'black', in => 'RGB' )->name,  'gray', 'use color constant and named argument');
+is($white->mix( to => 'black', amount => 50, in => 'RGB')->name,  'gray', 'use also amount argument');
+is($white->mix( to => 'black', amount => 20, in => 'RGB')->name,'gray80', 'use different amount');
 
 @values = $white->mix( to => $blue, in => 'HSL')->values('HSL');
 is_tuple( \@values, [ 120, 50, 75], [qw/hue saturation lightness/], 'mix white and blue 1:1 in HSL');
@@ -80,30 +84,32 @@ is_tuple( \@values, [ 120, 50, 75], [qw/hue saturation lightness/], 'mix white a
 is_tuple( \@values, [ 24, 10, 95], [qw/hue saturation lightness/], 'mix white and blue 9:1 in HSL');
 @values = $white->mix( to => $blue, in => 'HSL', amount => 110)->values('HSL');
 is_tuple( \@values, [ 240, 100, 50], [qw/hue saturation lightness/], 'mix white and 110% blue HSL = blue');
-@values = $white->mix( to => [$blue, $black] )->values('RGB');
+@values = $white->mix( to => [$blue, $black], in => 'RGB' )->values('RGB');
 is_tuple( \@values, [ 85, 85, 170], [qw/red green blue/], 'mix white with blue and black');
-@values = $white->mix( to => [$blue, $black], amount => [20, 10] )->values('RGB');
+@values = $white->mix( to => [$blue, $black], amount => [20, 10], in => 'RGB' )->values('RGB');
 is_tuple( \@values, [ 179, 179, 230], [qw/red green blue/], 'mix white with blue (20%) and black(10%)');
-@values = $white->mix( to => [$blue, $black], amount => [80, 20] )->values('RGB');
+@values = $white->mix( to => [$blue, $black], amount => [80, 20], in => 'RGB' )->values('RGB');
 is_tuple( \@values, [ 0, 0, 204], [qw/red green blue/], 'mix white with blue (80%) and black(20%) - no white influence left');
-@values = $white->mix( to => [$blue, $black], amount => [90, 30] )->values('RGB');
+@values = $white->mix( to => [$blue, $black], amount => [90, 30], in => 'RGB' )->values('RGB');
 is_tuple( \@values, [ 0, 0, 191], [qw/red green blue/], 'mix white with blue (90%) and black(30%) - still no white');
 
 #### invert ############################################################
-is( ref $white->invert('-'),                     '',  'need a valid name space to invert');
+is( ref $white->invert('-'),                     '',  'need a valid axis name space to invert');
 is( ref $white->invert( at => 'RGB'),            '',  'can not use invented arguments');
 is( ref $white->invert(),                   $module,  'works without argument');
 is( ref $white->invert(in => 'RGB'),        $module,  'can use "in" argument');
 is( $white->invert()->name,                 'black',  'black is white inverted');
+is( $white->invert('red')->name,             'cyan',  'cyan is result when taking white and inverting only the red axis');
 is( $white->invert(only => 'b')->name,     'yellow',  'you get yellow if you invert only blue axis');
-is( $white->invert('RGB')->name,            'black',  'explicit color space name works');
-is( $white->invert(in => 'RGB')->name,      'black',  'named argument "in" works');
-is( $black->invert('RGB')->name,            'white',  'white is black inverted');
-is( $black->invert(only => ['red', 'green'])->name,     'yellow',  'you get yellow if you invert red and green');
-is( $blue->invert('RGB')->name,            'yellow',  'yellow is blue inverted');
-is( $blue->invert('HSL')->name,              'gray',  'in HSL is gray opposite to any color');
-is( $blue->invert('LAB')->name,                  '',  'LAB is not symmetrical');
-is( $white->invert('HSL')->name,            'black',  'primary contrast works in HSL');
-is( $white->invert('HWB')->name,            'black',  'primary contrast works in HWB');
+is( $white->invert(in => 'RGB')->name,      'black',  'invert listens to explicit color space argument');
+is( $black->invert(only => 'green', in => 'RGB')->name, 'lime',  'named arguments only and "in" work together');
+is( $black->invert(only => [qw/g b/], in => 'RGB')->name, 'cyan',  'invert values on two selected axes (short names)');
+
+is( $black->invert(only => ['red', 'green'], in => 'RGB')->name,     'yellow',  'use long axes names');
+is( $blue->invert(in => 'RGB')->name,      'yellow',  'yellow is blue inverted');
+is( $blue->invert(in => 'HSL')->name,        'gray',  'in HSL is gray opposite to any color');
+is( $blue->invert(in => 'LAB')->name,            '',  'LAB is not symmetrical');
+is( $white->invert( in => 'HSL')->name,     'black',  'primary contrast works in HSL');
+is( $white->invert( in => 'HWB')->name,     'black',  'primary contrast works in HWB');
 
 exit 0;

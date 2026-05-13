@@ -8,7 +8,7 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color::Name::Scheme';
 eval "use $module";
-is( not($@), 1, 'could load the module');
+is( not($@), 1, 'could load the module'); #say $@;
 
 my ($scheme, $names, @names, $values, $distance);
 $scheme = Graphics::Toolkit::Color::Name::Scheme->new('');
@@ -70,7 +70,7 @@ is( $values->[0],                           255,  'red value is right');
 is( $values->[0],                           255,  'green value is right');
 is( $values->[0],                           255,  'blue value is right');
 $names = $scheme->names_from_values([255,255,255]);
-is( ref $names,                          'ARRAY',  'get color names from 255, 255, 255');
+is( ref $names,                          'ARRAY',  'get color names from 255, 255, 255 (white)');
 is( @$names,                                   2,  'its two colors now');
 is( $names->[0],                         'white',  'first is "white"');
 is( $names->[1],                          'snow',  'the second is "snow"');

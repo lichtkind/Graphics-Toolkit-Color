@@ -16,15 +16,15 @@
 
 =head1 ARGUMENTS
 
-     in    : # all except:         name closest_name
-     from  :                       name closest_name
-     range : new values distance
-     raw   : new values            is_in_gamut
-     only  :            distance   invert
-     precision : values
-     to    :            distance   mix          gradient
-     steps :                       complement   gradient 
-     tilt  :                       complement   gradient 
+     in    : all except:             name closest_name
+     from  :                         name closest_name
+     range : new  values  distance
+     raw   : new  values             is_in_gamut
+     only  :              distance   invert
+     precision : values 
+     to    :              distance   mix          analogous  gradient
+     steps :                         complement   analogous  gradient 
+     tilt  :                         complement   analogous  gradient 
 
 
 =head1 FORMATS

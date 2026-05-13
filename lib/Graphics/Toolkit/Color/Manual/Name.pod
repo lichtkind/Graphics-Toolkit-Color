@@ -8,6 +8,14 @@ Graphics::Toolkit::Color::Manual::Name - all about color names in GTC
 
 =head1 OVERVIEW
 
+=head1 DEFAULT
+
+ in the default color scheme,
+which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
+(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
+These are the same which can be used with L</new('name')>.
+
+
 L<Graphics::Toolkit::Color::Name::Constant>
 
 L<Graphics::ColorNames> 

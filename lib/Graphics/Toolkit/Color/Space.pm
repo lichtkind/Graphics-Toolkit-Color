@@ -62,6 +62,7 @@ sub normalize_name     { shift->basis->normalize_name(@_) }   # ~name           
 sub axis_count         { shift->basis->axis_count }           #                            --> +
 sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name                 --> ?
 sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) }# ~axis_name                --> +|
+sub pos_from_axis_role { shift->basis->pos_from_axis_role(@_) }# ~axis_name                --> +|
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+tuple                    --> ?
 sub is_number_tuple    { shift->basis->is_number_tuple(@_) }  # @+tuple                    --> ?
 sub is_partial_hash    { shift->basis->is_partial_hash(@_) }  # %+partial_hash             --> ?

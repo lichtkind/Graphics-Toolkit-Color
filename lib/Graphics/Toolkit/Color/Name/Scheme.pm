@@ -21,7 +21,7 @@ sub add_color {
     $self->{'shaped'}{'values'}{$name} = $values;
     $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]] =
         (exists $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]])
-       ? [@{$self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]]}, $name]
+       ? [ @{$self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]]}, $name ]
        : [$name];
     1;
 }
@@ -40,11 +40,11 @@ sub values_from_name {
 }
 sub names_from_values {
     my ($self, $values) = @_;
-    return '' unless ref $values eq 'ARRAY' and @$values == 3;
-    return '' unless exists $self->{'shaped'}{'name'}[$values->[0]];
-    return '' unless exists $self->{'shaped'}{'name'}[$values->[0]][$values->[1]];
-    return '' unless exists $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]];
-    return                  $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]];
+    return '' unless ref $values eq 'ARRAY' and @$values == 3
+              and exists ($self->{'shaped'}{'name'}[$values->[0]])
+              and exists ($self->{'shaped'}{'name'}[$values->[0]][$values->[1]])
+              and exists ($self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]]);
+    return                $self->{'shaped'}{'name'}[$values->[0]][$values->[1]][$values->[2]];
 }
 
 #### nearness methods ##################################################
@@ -68,7 +68,7 @@ sub closest_names_from_values {
         $sqr_min = $temp_sqr_sum;
     }
     return '' unless @names;
-    # restore as much order as possible
+    # keep names in insert possible
     @names = map { @{$self->names_from_values( $self->values_from_name($_))} } @names;
     @names = uniq( @names );
     return (\@names, sqrt($sqr_min));
@@ -77,7 +77,7 @@ sub closest_names_from_values {
 sub names_in_range {
     my ($self, $values, $range) = @_;
     my @names;
-    my $sqr_max  = $range ** 2;
+    my $sqr_max = $range ** 2;
     my $all_values = $self->{'shaped'}{'values'};
     for my $index_name (keys %$all_values){
         my $index_values = $all_values->{ $index_name };
@@ -87,10 +87,11 @@ sub names_in_range {
         next if $temp_sqr_sum > $sqr_max;
         $temp_sqr_sum += ($index_values->[2] - $values->[2]) ** 2;
         next if $temp_sqr_sum > $sqr_max;
-        push @names, $index_name;
+        push @names, [$index_name, $temp_sqr_sum];
     }
     return '' unless @names;
-    # restore as much order as possible
+    @names = map { $_->[0] } sort { $a->[1] <=> $b->[1] } @names;
+    # keep names in insert possible
     @names = map { @{$self->names_from_values( $self->values_from_name($_))} } @names;
     return [ uniq( @names ) ];
 }

@@ -4,19 +4,23 @@
 package Graphics::Toolkit::Color::Calculator;
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::Values;
 
 sub apply_gamma {
     my ($color_values, $gamma, $color_space) = @_;
-    my $gamma_array;
+    my $gamma_array = '';
+    return "need a color space as third argument" if ref $color_space ne 'Graphics::Toolkit::Color::Space';
     if (ref $gamma eq 'HASH'){
         ($gamma_array, my $deduced_space_name) = 
 			Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $gamma, $color_space->name );
 		return 'axis names: '.join(', ', keys %$gamma).' do not correlate to the selected color space: '.
 			($color_space->name).'!' unless ref $gamma_array;
-	} else {
-		$gamma_array = [ ($gamma) x $color_space->axis_count];
 	}
+	$gamma_array = [ ($gamma) x $color_space->axis_count] if is_nr( $gamma );
+	$gamma_array = $gamma if not defined $gamma_array and ref $gamma eq 'ARRAY';
+    return 'got badly formatted gamma value' if ref $gamma_array ne 'ARRAY';
+	
 	my $tuple = $color_values->normalized( $color_space->name );
     for my $axis_nr ($color_space->basis->axis_iterator){
 	    $tuple->[$axis_nr] = $tuple->[$axis_nr] ** $gamma_array->[$axis_nr] if exists $gamma_array->[$axis_nr];
@@ -110,17 +114,17 @@ sub desaturate {
 sub tint {
     my ($color_values, $amount, $color_space) = _clear_3_args(@_);
     return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([255, 255, 255])], $amount*100, $color_space);
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([255, 255, 255])], $amount, $color_space);
 }
 sub shade {
     my ($color_values, $amount, $color_space) = _clear_3_args(@_);
     return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([127.5, 127.5, 127.5])], $amount*100, $color_space);
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([127.5, 127.5, 127.5])], $amount, $color_space);
 }
 sub tone {
     my ($color_values, $amount, $color_space) = _clear_3_args(@_);
     return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([0,0,0])], $amount*100, $color_space);
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([0,0,0])], $amount, $color_space);
 }
 
 #### deep designer methods #############################################
@@ -131,40 +135,50 @@ sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .c
     return "need a color space object !\n" unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
 
     my $color_count = @$added_color + 1;
-    $add_amount = 100 / $color_count unless defined $add_amount;
+    $add_amount = 1 / $color_count unless defined $add_amount;
     $add_amount = [($add_amount) x ($color_count - 1)] unless ref $add_amount eq 'ARRAY';
 	return "ARRAY of mix amounts needs a value for every color !\n" unless @$add_amount == $color_count - 1;
     my $mix_sum = 0;
-    map {$mix_sum += $_ } @$add_amount;
-    if ($mix_sum > 100){
+    map { $_ /= 100 if $_ > 1 ;$mix_sum += $_ } @$add_amount;
+    if ($mix_sum > 1){
 		for my $reciepe_index (0 .. $#$add_amount){
-			$add_amount->[$reciepe_index] = $add_amount->[$reciepe_index] * 100 / $mix_sum;
+			$add_amount->[$reciepe_index] = $add_amount->[$reciepe_index] / $mix_sum;
 		}
 	} else {
-         push @$add_amount, 100 - $mix_sum;
+         push @$add_amount, 1 - $mix_sum;
          push @$added_color, $base_color;
 	}
    
     my $result_values = [(0) x $color_space->axis_count];
     for my $color_nr (0 .. $#$added_color){
         my $tuple = $added_color->[$color_nr]->shaped( $color_space->name );
-        $result_values->[$_] +=  $tuple->[$_] * $add_amount->[$color_nr] / 100 for 0 .. $#$tuple;
+        $result_values->[$_] +=  $tuple->[$_] * $add_amount->[$color_nr] for 0 .. $#$tuple;
     }
     return $base_color->new_from_tuple( $result_values, $color_space->name );
 }
 
 sub invert {
-    my ($color_values, $only, $color_space ) = @_;
-    return unless ref $color_space;
-    $only = [$only] if defined $only and not ref $only; # check which axis selected
+    my ($color_values, $only, $color_space, $default_color_space ) = @_;
+    $only = [$only] if defined $only and not ref $only; # selected axes
+    return "need argument only as axis name (short or long) or as ARRAY of names!"
+		if defined $only and ref $only ne 'ARRAY';
+    if (defined $only){
+		my %partial_hash = map { $_ => 1 } @$only;
+		my $preselected_space_name = defined($color_space) ? $color_space->name : undef;
+		my ($new_values, $deduced_space_name) =
+			Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( \%partial_hash, $preselected_space_name );
+		return "could not find any color space that contains the axes: ". join(', ', @$only).' !' 
+			if not defined $deduced_space_name and not defined $color_space;
+		return "axes ". join(', ', @$only) . 'do not match color space '.$color_space->name.' !'
+			if not defined $deduced_space_name and ref $color_space;
+		$color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $deduced_space_name );
+	}
+	$color_space //= $default_color_space;
+    
     my $selected_axis = (defined $only) ? [ ] : [$color_space->basis->axis_iterator];
     if (defined $only) {
 	    for my $axis_name (@$only){
-		    my $pos = $color_space->pos_from_axis_name( $axis_name );
-			return "axis name '$axis_name' is not part of color space '".$color_space->name.
-			       "', please try: ".(join(' ', $color_space->long_axis_names)).
-			       ' or '.(join(' ', $color_space->short_axis_names)).' !' unless defined $pos;
-			return "axis '$axis_name' is already selected for inversion" if exists $selected_axis->[$pos];
+		    my $pos = $color_space->pos_from_axis_role( $axis_name );
 			$selected_axis->[$pos] = $pos;
 		}
 	} 
@@ -183,5 +197,5 @@ sub invert {
 	}
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
-
+ 
 1;

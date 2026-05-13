@@ -46,6 +46,9 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
 ########################################################################
 sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:values
     my ($start_color, $next_color, $steps, $tilt, $color_space) = @_;
+    $steps = int $steps;
+    return $start_color if $steps == 1;
+    return $start_color, $next_color if $steps == 2;
     my @result = ($start_color, $next_color);
     my $start_tuple = $start_color->normalized( $color_space->name );
     my $next_tuple = $next_color->normalized( $color_space->name );
@@ -55,7 +58,7 @@ sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:val
 			$delta_tuple->[$axis_nr] *= 1 + $tilt;
 			$next_tuple->[$axis_nr] += $delta_tuple->[$axis_nr];
 		}
-        my $next_color = $start_color->new_from_tuple( $next_tuple, $color_space->name, 'normal' );
+        my $next_color = $start_color->new_from_tuple( $next_tuple, $color_space->name, 'normal', 'raw' );
 		last unless $next_color->is_in_gamut( $color_space->name );
 		push @result, $next_color;
 	}

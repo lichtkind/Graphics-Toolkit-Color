@@ -1,15 +1,16 @@
 =pod
 
-=head1 INTRODUCTION
+=head1 NAME
 
-=head1 OVERVIEW
+Graphics::Toolkit::Color::Manual::Set - color set creation methods
+
+=head1 SYNOPSIS
+
+=head1 INTRODUCTION
 
 =head1 METHODS
 
-=head1 COLOR SETS
-
 construct several interrelated color objects at once.
-
 
 =head2 complement
 
@@ -101,5 +102,17 @@ minimal distance.
     my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
     my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
 
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut

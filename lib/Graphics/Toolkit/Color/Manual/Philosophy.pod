@@ -1,0 +1,31 @@
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Philosophy - GTC design principles
+
+=head1 SYNOPSIS
+
+
+
+Humans access colors at hardware level (eye) in I<RGB>, at cognition level 
+in I<HSL> or I<LAB> (brain) and at the cultural level (language) with names.
+With all these options available you can express easily and intuitively
+with which color to start. And with a wealth of functions that understand
+lots of arguments you can arrive at the desired color (palette) quickly.
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
+

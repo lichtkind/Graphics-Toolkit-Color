@@ -1,13 +1,10 @@
 =pod
 
-
 =head1 NAME
 
 Graphics::Toolkit::Color::Manual::Getter - reference of value access or calculating methods
 
-=head1 INTRODUCTION
-
-=head1 OVERVIEW
+=head1 SYNOPSIS
 
 =head1 METHODS
 
@@ -198,6 +195,19 @@ it into the selected space in order to check if the clamped color fits there.
     use Graphics::Toolkit::Color qw/is_in_gamut/;
     if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
     is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 

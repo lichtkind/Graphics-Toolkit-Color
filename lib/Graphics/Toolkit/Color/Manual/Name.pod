@@ -55,6 +55,18 @@ The fourth named argument is C<distance>, which means the same thing as
 in L</distance> and it defaults to zero. It is most useful in combinataion
 with C<all> to get all color names that are within a certain distance.
 
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 

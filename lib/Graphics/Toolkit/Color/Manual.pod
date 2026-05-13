@@ -2,15 +2,17 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual - The central GTC documentation hub
+Graphics::Toolkit::Color::Manual - GTC documentation hub
 
 =head1 INTRODUCTION
 
 Welcome to the documentation of the Perl module I<Graphics::Toolkit::Color>.
 It is an all in one solution to compute color sets, single colors,
 handle color names and to convert and reformat color definitions.
-This page gives you an overview where to find what information about this library.
-If you do not find a needed information, please open a request of L<github|https://github.com/lichtkind/Graphics-Toolkit-Color>.
+It is mostly aimed toward the needs of a designer but also contains
+color science and math. This page gives you an overview where to find 
+what information about this library. If you do not find a needed information, 
+please open a request of L<github|https://github.com/lichtkind/Graphics-Toolkit-Color>.
 
 =head1 INDEX
 
@@ -26,7 +28,7 @@ Overviews
 
 =item *
 
-L<Overview|Graphics::Toolkit::Color> - of the public API
+L<Overview|Graphics::Toolkit::Color> - of the public API, short desciption of methods
 
 =item *
 
@@ -35,6 +37,10 @@ L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet> - all methods, args a
 =item *
 
 L<Cookbook|Graphics::Toolkit::Color::Manual::Cookbook> - code examples to solve real life problems
+
+=item *
+
+L<Philosophy|Graphics::Toolkit::Color::Manual::Philosophy> - explaining the design and the mindest behind it
 
 =back
 
@@ -46,11 +52,11 @@ Reference
 
 =item *
 
-L<Constructor|Graphics::Toolkit::Color::Manual::Constructor> - options to create a color object (color definitions)
+L<Constructor|Graphics::Toolkit::Color::Manual::Constructor> - ways to create a color object
 
 =item *
 
-L<Getter|Graphics::Toolkit::Color::Manual::Getter> - methods that return not a color object
+L<Getter|Graphics::Toolkit::Color::Manual::Getter> - methods that return information, but not a color object
 
 =item *
 
@@ -62,7 +68,7 @@ L<Set|Graphics::Toolkit::Color::Manual::Set> - methods that calculate sets of co
 
 =item *
 
-L<Argument|Graphics::Toolkit::Color::Manual::Argument> - explaining all common arguments
+L<Argument|Graphics::Toolkit::Color::Manual::Argument> - explaining all arguments than several methods share
 
 =back
 
@@ -78,7 +84,7 @@ L<Name|Graphics::Toolkit::Color::Manual::Name> - about color names
 
 =item *
 
-L<Space|Graphics::Toolkit::Color::Manual::Space> - detail info about color spaces
+L<Space|Graphics::Toolkit::Color::Manual::Space> - list of all supported color spaces with detailed informations
 
 =item *
 

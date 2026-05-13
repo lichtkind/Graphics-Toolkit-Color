@@ -11,10 +11,11 @@ TODO:
   = 2.4:
    + 4 LMS variants
    + LMS support, Mochado/Brettel
+   + cubehelix method
+   + rectangular
    + contrast ratio (calc)
 
  = 2.5 
-   + cubehelix method
    + triadic, tetradic
 
    

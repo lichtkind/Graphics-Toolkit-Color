@@ -1,5 +1,12 @@
 =pod
 
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
+
+=head1 SYNOPSIS
+
+
 =head1 METHODS
 
    Value:      values               name / closest_name      distance
@@ -40,9 +47,28 @@
       HSL / HSV / HWB / NCol
       YIQ / YUV / HunterLAB
       CIEXYZ / CIERGB / CIELAB / CIELUV / CIELCHab / CIELCHuv / CIELUV
-      OKHSL / OKHSV / OKLAB / OKLCH
+      OKHSL / OKHSV / OKHWB / OKLAB / OKLCH
       AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB
       Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
       
+      RGB : RGB / LinearRGB / AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB
+            Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
+      LAB : OKLAB / CIELAB
+      HSL : OKHSL / OKLCH / HSL / CIELCHab / CIELCHuv
+      HWB : OKHWB / HWB / NCol
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
 =cut
 

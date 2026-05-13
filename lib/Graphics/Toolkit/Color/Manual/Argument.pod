@@ -4,9 +4,9 @@
 
 Graphics::Toolkit::Color::Manual::Argument - 
 
-=head1 INTRODUCTION
+=head1 SYNOPSIS
 
-=head1 OVERVIEW
+=head1 INTRODUCTION
 
 =head1 ARGUMENTS
 
@@ -70,6 +70,18 @@ and maybe not even rounded.
 The following methods accept the I<raw> argument:
 L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>.
 
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 

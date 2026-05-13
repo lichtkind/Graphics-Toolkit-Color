@@ -4,7 +4,7 @@
 
 Graphics::Toolkit::Color::Manual::Calculation - reference of one color calculating methods
 
-=head1 OVERVIEW
+=head1 SYNOPSIS
 
 =head1 METHODS
 
@@ -115,6 +115,19 @@ two optional, positional arguments, a space name and axis names.
     $yellow->invert( in => 'LUV' );                 # would work too
     $yellow->invert( in => 'HSL', only => 'hue' );  # same result as $yellow->complement();
     $yellow->invert( in => 'HSL', only => [qw/s l/] ); # invert only saturation and lightness
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 

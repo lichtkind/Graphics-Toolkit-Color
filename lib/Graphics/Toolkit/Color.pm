@@ -537,22 +537,23 @@ such as gradients, complements and more. But if you want to convert,
 quantize, round or reformat color definitions or translate from and to 
 color names, it can be helpful too.
 
-GTC is a read only, one color representing object with no additional 
-dependencies. This page will give you a quick overview of its methods. 
-The  L<Manual|Graphics::Toolkit::Color::Manual> contains deeper explanations
-and describes every argument and topic of interest in detail.
-The behavior of error messages can be chosen, but defaults to using L<Carp>.
+This page will give you a quick overview of all GTC methods. 
+The L<Manual|Graphics::Toolkit::Color::Manual> contains deeper explanations
+and describes every argument and topic of interest in detail. Therefore each
+chapter here starts with a link to the appropriate paragraph of a manual page.
 
-While this module can understand and output color values of many (30+)
+While this module can understand and output color values of many (33)
 L<color spaces|Graphics::Toolkit::Color::Manual::Space>,
-L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB>
-is the (internal) primary one, because GTC is about colors that can be
-shown on the screen, and these are usually encoded in I<RGB> (nonlinear standard RGB).
-Humans access colors at hardware level (eye) in I<RGB>, at cognition level
-in I<HSL> or I<LAB> (brain) and at the cultural level (language) with names.
-With all these options available you can express easily and intuitively
-with which color to start. And with a wealth of functions that understand
-lots of arguments you can arrive at the desired color (palette) quickly.
+L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> is the internal and
+primary one for input and output, because GTC is about colors that can be 
+shown on the screen, and these are usually encoded in I<RGB> (nonlinear standard RGB). 
+However, many color calculations are operating by default in 
+I<OKLAB> or I<OKHSL> to give perceptually uniform results. 
+
+Each GTC object represents one color and is read-only. It has no runtime 
+dependencies. Only L<Test::Simple> and L<Test::Warn> are needed for testing. 
+The behavior of L<error messages|Graphics::Toolkit::Color::Manual::Error>
+can be chosen, but defaults to using L<Carp>.
 
 =head1 CONSTRUCTOR
 
@@ -722,48 +723,53 @@ within this distance from the given color, including the caller itself.
 
 =head2 closest_name
 
-L<closest_name|Graphics::Toolkit::Color::Manual::Getter/closest_name> returns the 
+L<closest_name|Graphics::Toolkit::Color::Manual::Getter/closest_name> always
+returns a normalized color name (unlike L<name>). 
+In list context it also returns the L</distance> between the current color 
+and the color belonging to the returned name. 
+If several names belong to that color one can still force the method to
+list them C<all>. But they will be bundled inside an ARRAY, 
+so that the distance is always the second return value.
 
-almost identically as method L</name>, but guarantees a none empty
-result, unless invoking a unusually empty color scheme.
-
-All arguments work as mentioned above, only here is no C<distance> argument.
-The only difference is (due to the second return value), multiple names
-(when requested) have to come in the form of an ARRAY as the first return value.
+It has three optional named arguments: C<from>, C<all>, C<full> which 
+work the same way as in L</name>.
 
     my $name = $red_like->closest_name;              # closest name in default scheme
     my $name = $red_like->closest_name('HTML');      # closest HTML constant
-    ($red_name, $distance) = $red_like->closest_name( from => 'Pantone', all => 1 );
+    ($name, $distance) = $color->closest_name( from => 'Pantone', all => 1 );
 
 =head2 distance
 
-L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> returns the 
+L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> returns  
+a numeric value, the Euclidean distance between two colors in some color
+space, which works even in cylindrical spaces. 
+It has four optional, named arguments: C<to>, C<range>, C<select> and C<in>.
+Only the first one is required and can be provided as a positional argument
+if it is the only one.
 
+C<to> defines the second color. It accepts a GTC object or any color 
+definition L<new|/CONSTRUCTOR> would read.
 
-The C<distance> is measured in I<RGB> color space unless told otherwise
-by the argument L</in>. Please use the I<OKLAB> (better) or I<CIELUV> space,
-if you are interested in getting a result that matches the human perception.
+C<range> expects a range definition, please read in the L</values> section
+how range definitions have to be formatted. It is advisable to use the
+range definition 'normal' for results that are easy to compare.
 
-The third argument is named C<select>. It's useful if you want to regard
-only certain dimensions (axis - long and short axis names are accepted).
-For instance if you want to know only the difference in brightness between
-two colors, you type C<< select => 'lightness' >> or C<< select => 'l' >>.
-This naturally works only if you did also choose I<HSL> as a color space
-or something similar that has a C<lightness> axis like I<LAB> or I<OKLAB>.
-The C<select> argument accepts a string or an ARRAY with several axis names,
-which can also repeat. For instance there is a formula to compute distances
-in RGB that weights the squared value delta's:
-C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>.
-You can recreate that formula by typing C<< select => [qw/ r r r g g g g b b/] >>
+C<select> (alias is C<only>) allows the user to select a certain axis so
+that e.g. only a difference in I<lightness> will be shown. One can choose 
+several axes or even an axis several times, to heighten the weight of this axis.
+To recreate the formula:
+C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>
+it is necessary to choose: C<< select => [qw/ r r r g g g g b b/] >>
 
-The last argument is named L</range>, which can change the result drasticly.
+C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+the distance will be computed in. Please note that different spaces have 
+different default ranges, which changes the size of the distance drastically.
 
-    my $d = $blue->distance( 'lapisblue' );                 # how close is blue to lapis?
-    $d = $blue->distance( to => 'airyblue', select => 'b'); # have they the same amount of blue?
-    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );  # same hue?
-    $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
-    $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
-
+    my $d = $blue->distance( 'lapisblue' );                        # how close is blue to lapis?
+    $d = $blue->distance( to => 'airyblue', select => 'b');        # do they have the same amount of blue?
+    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' ); # same hue?
+    $d = $color->distance( to => $c2, range => 'normal' );         # distance with values in 0 .. 1 range
+    $d = $color->distance( to => $c2, select => [qw/r g b b/]);    # double the weight of blue value differences
 
 
 =head1 SINGLE COLOR

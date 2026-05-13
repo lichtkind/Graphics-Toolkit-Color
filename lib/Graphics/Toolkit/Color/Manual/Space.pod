@@ -1,9 +1,12 @@
 =pod
 
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Space - details about the supported color spaces
+
+=head1 SYNOPSIS
+
 =head1 INTRODUCTION
-
-=head1 OVERVIEW
-
 
 Up next, a listing of all supported color spaces. These are mathematical
 constructs that associate each color with a point inside this space.
@@ -273,6 +276,17 @@ I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
 
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
 =cut
-
-

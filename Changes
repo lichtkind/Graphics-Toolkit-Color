@@ -1,4 +1,4 @@
-2.2    2026-06-05   lichtkind
+2.20   2026-06-05   lichtkind
 -------
     * = big feature release: +3 spaces, +8 methods, +2 args, new docs, error handling
     * * add methods lighten / darken, saturate / desaturate, 

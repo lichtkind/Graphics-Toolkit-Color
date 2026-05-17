@@ -1,38 +1,39 @@
 TODO:
 ------
-   
- = 2.3:
-   + Jzazbz / JzCzhz, HSLuv / HPLuv, HSI
-     HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
-   + gamut mapping
-   + brightness, contrast, vibrance, saturation
-   + delta_e method difference
 
-  = 2.4:
+ = 2.3:
+   + triadic, tetradic, rectangular
+   + brightness, contrast, vibrance, saturation
+   + cubehelix method
+   + random color
+   
+ = 2.4:
    + 4 LMS variants
    + LMS support, Mochado/Brettel
-   + cubehelix method
-   + rectangular
+   + gamut mapping
+   + delta_e method difference
    + contrast ratio (calc)
 
  = 2.5 
-   + triadic, tetradic
+   + CAM16, CIECAM02,XYB,ICtCp,RLAB,LLAB
 
-   
- = 2.6:
-   + compound, monochromatic ? probably later
+ = 2.6
+   + Jzazbz / JzCzhz, HSLuv / HPLuv, 
+     HSI, Yxy, HCT , YCbCr, JCh (+ M,s,Q,H)
+
+ = 2.7:
+   + ramp up precision computing own matrices and abolish converter flags
+   + palette method
+   + own Exception Class hierarchy
 
  = 2.7
-   + ramp up precision computing own matrices and abolish converter flags
-   + some more spaces
+   + compound, monochromatic ? probably later
 
  = 2.8
-   + palette method
-   + random color
-
+   +
+   
  = 2.9
    + color space parameter: illuminant
-   + own Exception Class hierarchy
 
  = 3.0
   + color set object and methods

@@ -11,7 +11,7 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
     my ($start_color, $target_delta, $steps, $tilt, $color_space) = @_;
     return unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
     return 'need a cylindrical color space from the HSL family as color space' unless $color_space->family eq 'HSL';
-	$axis_position = {
+	my 	$axis_position = {
 	             h => $color_space->pos_from_axis_role('hue'),
 	             s => $color_space->pos_from_axis_role('saturation'),
 	             l => $color_space->pos_from_axis_role('lightness'),
@@ -21,7 +21,8 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
     my $start_tuple = $start_color->shaped( $color_space->name );
     my $target_values = [@$start_tuple];       # target = THE complement + usr changes
     $target_values->[$axis_position->{'h'}] += $hue_half_max;
-    $target_values->[$_] += $target_delta->[$_] // 0 for 0 .. 2;
+    $target_delta->[$_] //= 0 for 0 .. 2;
+    $target_values->[$_] += $target_delta->[$_] for 0 .. 2;
     $target_values = $color_space->clamp( $target_values );
 
     $target_delta->[$axis_position->{'s'}] = $target_values->[$axis_position->{'s'}] - $start_tuple->[$axis_position->{'s'}];

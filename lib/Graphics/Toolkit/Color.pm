@@ -300,36 +300,43 @@ my $design_default = 'OKHSL';
 sub lighten {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub darken {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub saturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub desaturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub tint {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub shade {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 sub tone {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 
@@ -405,17 +412,17 @@ EOH
     return "Optional argument 'steps' is zero, no complement colors will be computed !\n".$help unless $arg->{'steps'};
     return "Optional argument 'tilt' has to be a number !\n".$help unless is_nr($arg->{'tilt'});
     return "Optional argument 'target' has to be a HASH ref !\n".$help if ref $arg->{'target'} ne 'HASH';
-    my ($target_values, $space_name);
+    my ($target_delta, $space_name);
     if (keys %{$arg->{'target'}}){
-        ($target_values, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
+        ($target_delta, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
         return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$help
-            unless ref $target_values;
-    } else { $target_values = [] }
+            unless ref $target_delta;
+    } else { $target_delta = [] }
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return "$color_space\n".$help unless ref $color_space;
     return "Need a cylindrical space from the HSL family \n" unless uc($color_space->family) eq 'HSL';
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, $target_values, @$arg{qw/steps tilt/}, $color_space );
+        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, $target_delta, @$arg{qw/steps tilt/}, $color_space );
 }
 
 sub analogous {

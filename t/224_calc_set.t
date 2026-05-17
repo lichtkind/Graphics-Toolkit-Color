@@ -24,19 +24,19 @@ my (@colors, $values);
 #### complement ########################################################
 # :base_color +steps +tilt %target_delta --> @:values
 my $complement = \&Graphics::Toolkit::Color::SetCalculator::complement;
-@colors = $complement->($blue, [], 1, 0 );
+@colors = $complement->($blue, [], 1, 0, $HSL );
 is( int    @colors,                     1,   'got only one complement');
 is( ref $colors[0],            $value_ref,   'but it is a value object');
 is( $colors[0]->name,            'yellow',   'and has right values');
 
-@colors = $complement->($blue, [], 2, 0);
+@colors = $complement->($blue, [], 2, 0,  $HSL);
 is( int @colors,                        2,   'got 2 colors, complement and invocant');
 is( ref $colors[0],            $value_ref,   'first is a value object');
 is( ref $colors[1],            $value_ref,   'second is a value object');
 is( $colors[0]->name,            'yellow',   'and has right values');
 is( $colors[1],                     $blue,   'got invocant back as second color');
 
-@colors = $complement->($blue, [], 3, 0);
+@colors = $complement->($blue, [], 3, 0,  $HSL);
 is( int @colors,                        3,   'got 3 "triadic "colors');
 is( ref $colors[0],            $value_ref,   'first is a value object');
 is( ref $colors[1],            $value_ref,   'second is a value object');
@@ -45,7 +45,7 @@ is( $colors[0]->name,               'red',   'first color is red');
 is( $colors[1]->name,              'lime',   'second color is full green (lime)');
 is( $colors[2],                     $blue,   'got invocant back as third color');
 
-@colors = $complement->($blue, [], 4, 0);
+@colors = $complement->($blue, [], 4, 0,  $HSL);
 is( int @colors,                        4,   'got 4 "tetradic "colors');
 is( $colors[0]->name,                  '',   'first color has no name');
 is( $colors[1]->name,            'yellow',   'second color is yellow');
@@ -60,20 +60,20 @@ is_tuple( $values, [150, 100, 50], [qw/hue saturation lightness/], 'third comple
 $values = $colors[3]->shaped('HSL');
 is_tuple( $values, [240, 100, 50], [qw/hue saturation lightness/], 'forth complement is blue (original color)');
 
-@colors = $complement->($midblue, [], 5, 0 );
+@colors = $complement->($midblue, [], 5, 0 ,  $HSL);
 is( int @colors,                        5,    '4 complements from custom color');
 is( $colors[4],                  $midblue,    'got invocant back as last color');
 is_tuple( $colors[0]->shaped('HSL'), [ 309, 88, 56], [qw/hue saturation lightness/], 'first complement is lila');
 is_tuple( $colors[1]->shaped('HSL'), [  21, 88, 56], [qw/hue saturation lightness/], 'second complement is redish orange');
 is_tuple( $colors[2]->shaped('HSL'), [  93, 88, 56], [qw/hue saturation lightness/], 'third complement is green');
 	
-@colors = $complement->($blue, [], 3, 2);
+@colors = $complement->($blue, [], 3, 2,  $HSL);
 is( int @colors,                        3,    '3 complements of blue with tilt');
 is_tuple( $colors[0]->shaped('HSL'), [ 7, 100, 50], [qw/hue saturation lightness/], 'first complement is red');
 is_tuple( $colors[1]->shaped('HSL'), [113, 100, 50], [qw/hue saturation lightness/], 'second complement is green');
 is_tuple( $colors[2]->shaped('HSL'), [240, 100, 50], [qw/hue saturation lightness/], 'third complement is blue');
 
-@colors = $complement->($blue, [10,-20,30], 4, 1.5);
+@colors = $complement->($blue, [10,-20,30], 4, 1.5,  $HSL);
 is( int @colors,                        4,    '4 complements of blue with less tilt and moved target');
 is_tuple( $colors[0]->shaped('HSL'), [ 36, 84, 75], [qw/hue saturation lightness/], 'first complement is orange');
 is_tuple( $colors[1]->shaped('HSL'), [ 70, 80, 80], [qw/hue saturation lightness/], 'second complement is yellow');

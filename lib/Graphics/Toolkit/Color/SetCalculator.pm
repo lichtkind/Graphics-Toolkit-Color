@@ -6,39 +6,46 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Calculator;
 
-my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
-my $half_hue_max = $HSL->shape->axis_value_max(0) / 2;
 ########################################################################
 sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @:values
     my ($start_color, $target_delta, $steps, $tilt, $color_space) = @_;
-    my $start_tuple = $start_color->shaped( $HSL->name );
-    my $target_values = [@$start_tuple];
-    $target_values->[0] += $half_hue_max;
-    for my $axis_index (0 .. 2) {
-        $target_delta->[$axis_index] = 0 unless defined $target_delta->[$axis_index];
-        $target_values->[$axis_index] += $target_delta->[$axis_index];
-    }
-    $target_values = $HSL->clamp( $target_values );  # bring back out of bound linear axis values
-    $target_delta->[1] = $target_values->[1] - $start_tuple->[1];
-    $target_delta->[2] = $target_values->[2] - $start_tuple->[2];
+    return unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
+    return 'need a cylindrical color space from the HSL family as color space' unless $color_space->family eq 'HSL';
+	$axis_position = {
+	             h => $color_space->pos_from_axis_role('hue'),
+	             s => $color_space->pos_from_axis_role('saturation'),
+	             l => $color_space->pos_from_axis_role('lightness'),
+	};
+	my $hue_half_max = $color_space->shape->axis_value_max( $axis_position->{'h'} ) / 2;
+
+    my $start_tuple = $start_color->shaped( $color_space->name );
+    my $target_values = [@$start_tuple];       # target = THE complement + usr changes
+    $target_values->[$axis_position->{'h'}] += $hue_half_max;
+    $target_values->[$_] += $target_delta->[$_] // 0 for 0 .. 2;
+    $target_values = $color_space->clamp( $target_values );
+
+    $target_delta->[$axis_position->{'s'}] = $target_values->[$axis_position->{'s'}] - $start_tuple->[$axis_position->{'s'}];
+    $target_delta->[$axis_position->{'l'}] = $target_values->[$axis_position->{'l'}] - $start_tuple->[$axis_position->{'l'}];
+
     my $result_count = int abs $steps;
     my $scaling_exponent = abs($tilt) + 1;
+
     my @hue_percent = map {($_ * 2 / $result_count) ** $scaling_exponent} 1 .. ($result_count - 1) / 2;
     @hue_percent = map {1 - $_} reverse @hue_percent if $tilt > 0;
-    my $hue_delta = $half_hue_max + $target_delta->[0]; # real value size of half complement circle
+    my $hue_delta = $hue_half_max + $target_delta->[$axis_position->{'h'}]; # real value size of half complement circle
     my @result = ();
     push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$start_tuple->[0] + ($hue_delta         * $_),
-                     $start_tuple->[1] + ($target_delta->[1] * $_),
-                     $start_tuple->[2] + ($target_delta->[2] * $_)], $HSL->name)) for @hue_percent;
-    push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $HSL->name)
+                    [$start_tuple->[$axis_position->{'h'}] + ($hue_delta         * $_),
+                     $start_tuple->[$axis_position->{'s'}] + ($target_delta->[$axis_position->{'s'}] * $_),
+                     $start_tuple->[$axis_position->{'l'}] + ($target_delta->[$axis_position->{'l'}] * $_)], $color_space->name)) for @hue_percent;
+    push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $color_space->name)
         if $result_count == 1 or not $result_count % 2;
-    $hue_delta = $half_hue_max - $target_delta->[0];
+    $hue_delta = $hue_half_max - $target_delta->[$axis_position->{'h'}];
     @hue_percent = map {1 - $_} reverse @hue_percent;
     push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$target_values->[0] + ($hue_delta         * $_),
-                     $target_values->[1] - ($target_delta->[1] * $_),
-                     $target_values->[2] - ($target_delta->[2] * $_)], $HSL->name)) for @hue_percent;
+                    [$target_values->[$axis_position->{'h'}] + ($hue_delta         * $_),
+                     $target_values->[$axis_position->{'s'}] - ($target_delta->[$axis_position->{'s'}] * $_),
+                     $target_values->[$axis_position->{'l'}] - ($target_delta->[$axis_position->{'l'}] * $_)], $color_space->name)) for @hue_percent;
     push @result, $start_color if $result_count > 1;
     return @result;
 }

@@ -4,6 +4,7 @@ TODO:
  = 2.3:
    + triadic, tetradic, rectangular
    + brightness, contrast, vibrance, saturation
+   + read color def with alpha channel
    + cubehelix method
    + random color
    

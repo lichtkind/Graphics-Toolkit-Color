@@ -2,31 +2,97 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Argument - 
+Graphics::Toolkit::Color::Manual::Argument - shape, content and meaning of reoccurring method arguments                                             
 
 =head1 SYNOPSIS
 
+
+See a condensed overview om the L<color spaces|Graphics::Toolkit::Color::Manual::CheatSheert>.
+
 =head1 INTRODUCTION
+
+L<Graphics::Toolkit::Color::Manual::Philosophy/>
+
+Some named arguments of the above listed methods reappear in several methods.
+Thus they are explained here in full detail once. Please note that you must
+NOT wrap the named args in curly braces (HASH ref) but you may if you 
+prefer to do so.
+
 
 =head1 ARGUMENTS
 
-Some named arguments of the above listed methods reappear in several methods.
-Thus they are explained here once. Please note that you must NOT wrap
-the named args in curly braces (HASH ref) but you may if you prefer to do so.
-
-
 =head2 in
 
-The named argument I<in> expects the name of a color space as
-L<listed here|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
-The default color space in this module is I<RGB>. Depending on the chosen
-space, the results of methods can be very different, since colors are
-arranged very differently and have different distances to each other.
-Some colors might not even exist in some spaces (they are out of gamut).
+I<in> expects a string with the name of a color space.
+The options are currently: I<RGB>, I<LinearRGB>, I<CMY>, I<CMYK>, I<HSL>, 
+I<HSV>, I<HSB>, I<HWB>, I<NCol>, I<YIQ>, I<YUV>, I<CIEXYZ>, I<CIELAB>, 
+I<HunterLAB>, I<CIELUV>, I<CIELCHab>, I<CIELCHuv>, I<CIERGB>, I<AdobeRGB>,
+I<AppleRGB>, I<ProPhotoRGB>, I<WideGamutRGB>, I<DisplayP3>, I<DisplayP3Linear>,
+I<DCIP3>, I<DCIP3Linear>, I<Rec709>, I<Rec2020>, I<OKLAB>, I<OKLCH>, 
+I<OKHSL>, I<OKHSV>, I<OKHWB>. If you want to know more about them, 
+please read L<this page|Graphics::Toolkit::Color::Manual::Space>.
+There you can also discover that many of them have an alias name that
+is also acceptable: I<SRGB>, I<LinRGB>, I<YPbPr>, I<XYZ>, I<LAB>, I<LUV>,
+I<LCH>, I<LCHuv>, I<opRGB>, I<ROMMRGB>, I<P3>, I<LinearDisplayP3>,
+I<SMPTEP3>, I<LinearDCIP3>, I<BT709>, I<BT2020>. Please note that there
+is a great degree of freedom with which a color space name can be written.
+The user is free to use upper and lower case characters or to insert 
+special characters for better readability, such as whitespace I<' '>, 
+underscore I<'_'>, dash I<'-'> and dot I<'.'>.
 
-The following methods accept the I<in> argument: L</values>, L</is_in_gamut>,
-L</distance>, L</apply>, L</set_value>, L</add_value>, L</mix>, L</invert>, 
-L</gradient>, L</cluster>.
+The default color space for input and output is I<RGB>, but most
+calculating methods default to I<OKLAB> or I<OKHSL> if a cylindrical
+option is needed (I<complement>).
+
+The argument I<in> is understood by all methods except I<new>, I<name> and I<closest_name>:
+L<Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>, 
+L<Graphics::Toolkit::Color::Manual::Getter/values>, 
+L<Graphics::Toolkit::Color::Manual::Getter/distance>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/lighten>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/darken>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/saturate>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/desaturate>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/tint>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/tone>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/shade>,
+L<Graphics::Toolkit::Color::Manual::Calculation/apply>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/set_value>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/add_value>,
+L<Graphics::Toolkit::Color::Manual::Calculation/mix>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/invert>, 
+L<Graphics::Toolkit::Color::Manual::Set/complement>, 
+L<Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<Graphics::Toolkit::Color::Manual::Set/gradient>, 
+L<Graphics::Toolkit::Color::Manual::Set/cluster>.
+The I<values> method also expects I<in> as a positional argument if it
+is the only one, since conversion into that space is the main purpose 
+of that method.
+
+=head2 by
+
+
+L<Graphics::Toolkit::Color::Manual::Calculation/lighten>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/darken>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/saturate>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/desaturate>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/tint>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/tone>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/shade>,
+
+
+=head2 to
+
+This argument receives a second or target color. It may come in form of
+another GTC object or a color definition that is acceptable to the
+constructor. But it has to be a scalar (string or (HASH) reference),
+not a value list or hash.
+
+The following methods accept the I<to> argument:  
+L<Graphics::Toolkit::Color::Manual::Getter/distance>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/mix>, 
+L<Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<Graphics::Toolkit::Color::Manual::Set/gradient>.
+
 
 
 =head2 range
@@ -47,28 +113,65 @@ to -100 .. 100 but keep the other two untouched you would have to insert:
 C<< range => [[-100,100],100,100] >>.
 
 The following methods accept the I<range> argument: 
-L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>, L</distance>.
-
-
-=head2 to
-
-This argument receives a second or target color. It may come in form of
-another GTC object or a color definition that is acceptable to the
-constructor. But it has to be a scalar (string or (HASH) reference),
-not a value list or hash.
-
-The following methods accept the I<to> argument:  L</distance>, L</mix>, L</gradient>.
+L<new|Graphics::Toolkit::Color::Manual::Constructor>, 
+L<Graphics::Toolkit::Color::Manual::Getter/values>,
+L<Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>, 
+L<Graphics::Toolkit::Color::Manual::Getter/distance>.
 
 
 =head2 raw
 
-This argument is a perlish pseudo boolean (0 or 1). But since it
-defaults to 0, you use it only with 1 or a fitting word string.
-It signifies that the color values will not be clamped into gamut
-and maybe not even rounded.
+I<raw> expects a perlish pseudo boolean (0 or 1). When set to true,
+GTC will not change the color values even if they are out of L</range>.
+Values on angular axes might still get put into range, because a rotation
+of 360 degrees is no change in mathematical-geometric meaning.
 
-The following methods accept the I<raw> argument:
-L<new|/CONSTRUCTOR>, L</values>, L</is_in_gamut>.
+I<raw> is set off (false) by default for IO methods, because this is usually
+the expected behaviour by the user and by the calculation methods. They might
+create unexpected results when getting fed out of gamut colors as input.
+Here it is mostly useful in debugging scenarios.
+
+I<raw> is set on (true) by default at the I<is_in_gamut> method, because 
+in most cases it does not make sense to clamp a color into gamut and then
+ask if it is in gamut, which would be always true. However - it can be 
+useful to set it there to false in combination with the L</in> argument. 
+It can be a valid question to ask if a color, 
+that got clamped into range in its original space, gets out of gamut
+when converted into another space.
+
+The I<raw> argument can be used in:
+L<new|Graphics::Toolkit::Color::Manual::Constructor>, 
+L<Graphics::Toolkit::Color::Manual::Getter/values>, 
+L<Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>.
+
+
+=head2 steps
+
+L<Graphics::Toolkit::Color::Manual::Set/complement>, 
+L<Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<Graphics::Toolkit::Color::Manual::Set/gradient>, 
+
+
+
+=head2 tilt
+
+L<Graphics::Toolkit::Color::Manual::Set/complement>, 
+L<Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<Graphics::Toolkit::Color::Manual::Set/gradient>, 
+
+
+=head2 only
+
+L<Graphics::Toolkit::Color::Manual::Getter/distance>, 
+L<Graphics::Toolkit::Color::Manual::Calculation/invert>
+
+
+=head2 from
+
+L<Graphics::Toolkit::Color::Manual::Getter/name>, 
+L<Graphics::Toolkit::Color::Manual::Getter/closest_name>.
+
+
 
 =head1 AUTHOR
 
@@ -85,3 +188,13 @@ under the same terms as Perl itself.
 
 =cut
 
+Color definitions contain either the name of a space or the names
+of its axis (long or short). If the space name or its alias is used,
+the values have to be provided in the same order as the axis described here.
+
+Color space or axis names may be written in any combination of upper and
+lower case characters, but I recommend using the spelling presented here.
+Each axis has also two specific names, one long and one short, which are
+in rare cases equal. To define a color according to a space you need
+to provide for each axis one value, that is inside the required value
+range and of a specified type (int or real with amount of decimals).

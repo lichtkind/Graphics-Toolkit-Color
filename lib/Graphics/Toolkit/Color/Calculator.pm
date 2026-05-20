@@ -64,67 +64,43 @@ sub add_value { # .values, %newval -- ~space_name --> _
 
 
 #### light designer API ################################################
-sub _clear_3_args {
-    my ($color_values, $amount, $space_name) = @_;
-    return "need a G::T::Color::Values object as fist argument" 
+sub _clear_values_amount_space_name {
+    my ($color_values, $amount, $space_name, @more) = @_;
+    return "need a G::T::Color::Values object as first argument" 
 		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
     return "need a numeric amount between 0 and 1 as first argument" unless defined $amount;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return "$space_name is not a know color space" unless ref $color_space;
-    return ($color_values, $amount, $color_space);
-}
-sub lighten {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
-    return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role('lightness');
-    return "color space: '".$color_space->name."' has no lightness axis" unless defined $axis_nr;
-    my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] += $amount;
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
-}
-sub darken {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
-    return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role('lightness');
-    return "color space: '".$color_space->name."' has no lightness axis" unless defined $axis_nr;
-    my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] -= $amount;
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+    return "$space_name is not a known color space" unless ref $color_space;
+    return ($color_values, $amount, $color_space, @more);
 }
 
-sub saturate {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
-    return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role('saturation');
-    return "color space: '".$color_space->name."' has no saturation axis" unless defined $axis_nr;
-    my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] += $amount;
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+sub lighten { add_axis_value( @_, 'lightness') }
+sub darken  {
+    my ($color_values, $amount, $color_space) = @_;
+    add_axis_value($color_values, -$amount, $color_space, 'lightness');
 }
+sub saturate   { add_axis_value( @_, 'saturation') }
 sub desaturate {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+    my ($color_values, $amount, $color_space) = @_;
+    add_axis_value($color_values, -$amount, $color_space, 'saturation');
+}
+sub add_axis_value {
+    my ($color_values, $amount, $color_space, $axis_name) = _clear_values_amount_space_name(@_);
     return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role('saturation');
-    return "color space: '".$color_space->name."' has no saturation axis" unless defined $axis_nr;
+    my $axis_nr = $color_space->pos_from_axis_role( $axis_name );
+    return "color space: '".$color_space->name."' has no $axis_name axis" unless defined $axis_nr;
     my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] -= $amount;
+	$tuple->[$axis_nr] += $amount;
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
-sub tint {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
+sub tint  { mix_with(@_, [255  ,255  ,255  ]) } # white
+sub tone  { mix_with(@_, [127.5,127.5,127.5]) } # grey50
+sub shade { mix_with(@_, [  0,    0,    0  ]) } # black
+sub mix_with {
+    my ($color_values, $amount, $color_space, $tuple) = _clear_values_amount_space_name(@_);
     return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([255, 255, 255])], $amount, $color_space);
-}
-sub shade {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
-    return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([127.5, 127.5, 127.5])], $amount, $color_space);
-}
-sub tone {
-    my ($color_values, $amount, $color_space) = _clear_3_args(@_);
-    return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple([0,0,0])], $amount, $color_space);
+    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple( $tuple )], $amount, $color_space);
 }
 
 #### deep designer methods #############################################

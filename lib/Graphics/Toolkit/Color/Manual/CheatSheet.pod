@@ -9,13 +9,12 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
 =head1 METHODS
 
-   Value:      values               name / closest_name      distance
-                                                             is_in_gamut
+   Value:      is_in_gamut
+               values               name / closest_name      
+               distance
 
-
-   Color:      apply                set_value / add_value     
-               lighten / darken     saturate / desaturate    tint / shade / tone
-
+   Color:      lighten / darken     saturate / desaturate    tint / tone / shade
+               apply                set_value / add_value
                mix                  invert
 
     Sets:      complement / analogous / gradient / cluster
@@ -23,39 +22,41 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
 =head1 ARGUMENTS
 
-     in    : all except:             name closest_name
-     from  :                         name closest_name
-     range : new  values  distance
-     raw   : new  values             is_in_gamut
-     only  :              distance   invert
+     in        : (all except)      new   name closest_name
+     from      :                         name closest_name
+     range     : new  values  distance
+     raw       : new  values             is_in_gamut
+     only      :              distance   invert
      precision : values 
-     to    :              distance   mix          analogous  gradient
-     steps :                         complement   analogous  gradient 
-     tilt  :                         complement   analogous  gradient 
+     suffix    : values 
+     to        :              distance   mix          analogous  gradient
+     steps     :                         complement   analogous  gradient 
+     tilt      :                         complement   analogous  gradient 
 
 
 =head1 FORMATS
 
-      list    array   named_array   nested_array
-              hash    char_hash
-      named_string    css_string    hex_string 
+              list  (1,2,3)
+             array  [1,2,3]
+       named_array  [RGB =>  1,2,3 ]
+      nested_array  [RGB => [1,2,3]]
+              hash  {red => 1, green => 2, blue => 3}
+         char_hash  {r   => 1, g     => 2, b    => 3}
+      named_string  'rgb: 1, 2, 3'  
+        css_string  'rgb( 1, 2, 3)' 
+        hex_string  '#010203'
 
 
 =head1 SPACES
 
-      RGB / LinearRGB / CMY / CMYK
-      HSL / HSV / HWB / NCol
-      YIQ / YUV / HunterLAB
-      CIEXYZ / CIERGB / CIELAB / CIELUV / CIELCHab / CIELCHuv / CIELUV
-      OKHSL / OKHSV / OKHWB / OKLAB / OKLCH
-      AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB
-      Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
-      
-      RGB : RGB / LinearRGB / AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB
+      RGB : RGB / LinearRGB / CIEXYZ / CIERGB 
+            AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB 
             Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
-      LAB : OKLAB / CIELAB
-      HSL : OKHSL / OKLCH / HSL / CIELCHab / CIELCHuv
+      LAB : OKLAB / CIELAB / HunterLAB / CIELUV / YIQ / YUV
+      HSL : OKHSL / OKLCH / HSL / HSB / CIELCHab / CIELCHuv
+      HSV : OKHSV / HSV
       HWB : OKHWB / HWB / NCol
+    other : CMY / CMYK
 
 =head1 AUTHOR
 

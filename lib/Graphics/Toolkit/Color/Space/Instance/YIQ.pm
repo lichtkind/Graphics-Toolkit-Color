@@ -28,8 +28,10 @@ sub to_rgb {
 }
 
 Graphics::Toolkit::Color::Space->new(
+       family => 'LAB',   
         axis  => [qw/luminance in_phase quadrature/],
         short => [qw/Y I Q/],
+         role => [qw/l a b/], 
         range => [1, [-$i_max, $i_max], [-$q_max, $q_max]],
       convert => {RGB => [\&to_rgb, \&from_rgb]},
 );

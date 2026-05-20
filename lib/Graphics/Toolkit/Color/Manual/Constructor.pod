@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Constructor - 
+Graphics::Toolkit::Color::Manual::Constructor - ways to create a GTC object
 
 =head1 INTRODUCTION
 

@@ -609,7 +609,7 @@ I<SVG> standard. Read more about that subject L<here|Graphics::Toolkit::Color::M
 In order to add information to a color definition you have to provide the
 color definition via the named argument B<color>. Then you can also use
 the named argument B<range>, which allows you to set value ranges that 
-override the color space standard. With the argument B<raw> (default is false)
+override the color space default. With the argument B<raw> (default is false)
 you can force GTC to accept values outside the defined value ranges. 
 This might cause unwanted behaviour for some operations.
 
@@ -655,7 +655,8 @@ I<values> accepts six optional, named arguments:
 C<in> (color space), C<as> (format), C<range>, C<precision>, C<suffix> and C<raw>.
 If only one positional argument is provided, it will be understood as C<in>.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Argument/in> is the name of a
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the values will be converted to. It defaults to I<RGB> (standard RGB).
 
 C<as> is setting the output format. Please see the L</CONSTRUCTOR> chapter
@@ -768,7 +769,8 @@ To recreate the formula:
 C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>
 it is necessary to choose: C<< select => [qw/ r r r g g g g b b/] >>
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Argument/in> is the name of 
+the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the distance will be computed in. Please note that different spaces have 
 different default ranges, which changes the size of the distance drastically.
 
@@ -793,7 +795,8 @@ It understands 2 named arguments: C<by> and C<in>. The first is the
 required one, which can be provided as a positional argument, if it is 
 the only one. C<by> needs a number with decimals between 0 and 1.
 Usually the method produces the same color again when 0 is provided and
-and a fixed predictable outcome when the argument is 1. C<in> is as 
+and a fixed predictable outcome when the argument is 1. 
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is as 
 always the L<color spaces|Graphics::Toolkit::Color::Manual::Space> the
 method is computed in, which defaults here to I<OKHSL>. The first 4 methods
 can only operate in a space of the I<HSL> family.
@@ -854,7 +857,8 @@ C<gamma> is the only required argument. It expects a floating point number
 (gamma value) or an HASH with axis names as keys that assigns to each 
 axis one gamma value. 
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Argument/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 I<apply> will be computed in. It defaults to I<LinearRGB>. 
 So if you like to see the calculated values directly you need to get 
 C<$color->values( in => 'LinearRGB');>.
@@ -871,7 +875,8 @@ returns a color that differs in some chosen values from the current one.
 Its arguments have to be short or long axis names from one selected 
 L<color space|Graphics::Toolkit::Color::Manual::Space>.
 You may additionally provide the color space in mind with the argument 
-C<in> if the axis names alone are too ambiguous.
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> if the axis names 
+alone are too ambiguous.
 
     my $blue = $black->set_value( blue => 255 );                    # same as #0000ff
     my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # would otherwise use OKHSL
@@ -902,7 +907,8 @@ gets mixed in. If there are several new colors the amount may still be
 provided as one number. But in most cases you want to provide for each
 new color one percentage amount in an ARRAY.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 I<mix> will be computed in. It defaults to I<OKLAB>. 
 
     $blue->mix( $silver );                                         # 50% silver, 50% blue
@@ -920,7 +926,8 @@ C<only> is a string with one short or long axis name or an ARRAY with
 several of them. Only the values of these axes will be inverted. Per 
 default all axes get inverted.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 I<invert> will be computed in. It defaults to I<OKHSL>. Please note that
 in euclidean spaces inversion means that the value will have the same 
 L</distance> to the minimum as it had to the maximum (normalized: 1 - $_). 
@@ -955,7 +962,8 @@ for triadic and 1.585 for quadratic colors.
 The argument C<target> works a bit like L</add_value> on THE complement
 and thus moving the whole circle.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the I<complement>s will be computed in. It defaults to I<OKHSL> and can only be
 a cylindrical space from the I<HSL> family.
 
@@ -985,7 +993,8 @@ case the L</distance> between two neighbours in the series will be always
 the same. A value of 0.2 will result in a serious where each distance is
 20 percent larger than the previous one.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the gradient will be computed in. It defaults to I<OKHSL>, but unlike 
 I<complement>, this operation can be computed in any space.
 
@@ -1012,7 +1021,8 @@ Greater than zero values start with small color changes, steadily increasing
 the rate. The larger the number - the larger the effect and negative values
 work vice versa.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the gradient will be computed in. It defaults to I<OKLAB>.
 
     my @colors = $c->gradient( to => $grey, steps => 5);       # we turn to grey
@@ -1039,7 +1049,8 @@ both directions.
 C<minimal_distance> is the minimal L</distance> two neighbours of the
 cluster need to have in any direction.
 
-C<in> is the name of the L<color spaces|Graphics::Toolkit::Color::Manual::Space>
+L<Graphics::Toolkit::Color::Manual::Philosophy/in> is the name of the
+L<color spaces|Graphics::Toolkit::Color::Manual::Space>
 the cluster will be computed in. It defaults to I<OKLAB>.
 
     my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );

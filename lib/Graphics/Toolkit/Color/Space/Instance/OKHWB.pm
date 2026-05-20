@@ -23,6 +23,7 @@ Graphics::Toolkit::Color::Space->new(
          name => 'OKHWB',
        family => 'HWB',
          axis => [qw/hue whiteness blackness/], 
+         type => [qw/angular linear linear/],
         range => [360, 1, 1],
     precision => 5,
       convert => {OKHSV => [\&to_hsv, \&from_hsv]},

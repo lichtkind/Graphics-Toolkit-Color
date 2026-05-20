@@ -49,7 +49,6 @@ sub new {
         $format->set_value_numifier( $numifier->{'read'}, $numifier->{'write'} )
             if ref $numifier->{'read'} eq 'CODE' and ref $numifier->{'write'} eq 'CODE';
     }
-
     return $self;
 }
 

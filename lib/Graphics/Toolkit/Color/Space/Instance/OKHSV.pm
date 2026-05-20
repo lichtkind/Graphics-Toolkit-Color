@@ -42,8 +42,10 @@ sub to_xyz {
 
 Graphics::Toolkit::Color::Space->new(
          name => 'OKHSV',
+       family => 'HSV',
          axis => [qw/hue saturation value/], 
-        range => [1, [-.5, .5], [-.5, .5]],
-    precision => 3,
+         type => [qw/angular linear linear/],
+        range => [360, 1, 1],
+    precision => 5,
       convert => {XYZ => [\&to_xyz, \&from_xyz]},
 );

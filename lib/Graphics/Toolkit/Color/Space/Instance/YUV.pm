@@ -27,8 +27,10 @@ sub to_rgb {
 
 Graphics::Toolkit::Color::Space->new(
    alias_name => 'YPbPr',
+       family => 'LAB',   
         axis  => [qw/luma Pb Pr/], # luma, cyan-orange balance, magenta-green balance
         short => [qw/Y U V/],
+         role => [qw/l a b/], 
         range => [1, [-.5, .5], [-.5, .5],],
       convert => {RGB => [\&to_rgb, \&from_rgb]},
 );

@@ -4,8 +4,49 @@
 
 Graphics::Toolkit::Color::Manual::Philosophy - GTC design principles
 
+
 =head1 SYNOPSIS
 
+This document explains why GTC was built the way it is and with what
+principles in mind the API was designed. This helps to understand how
+the functionality is ordered as well as the internal structure.
+
+
+=head1 GOAL
+
+GTC is a comprehensive library on the topic of color calculations and 
+translation.
+It aims to be an all-in-one solution for designers and programmers,
+who create computer graphics, especially at runtime.
+Its primary goal is to enable an intuitive expression of intent
+and to make the path to desired color definition(s) as easy as possible.
+It tries to offer as much useful functionality as possible without getting 
+bloated or overengineered.
+
+
+=head1 HISTORY
+
+GTC started as a supporting library for modules like L<Chart> and the 
+many siblings of L<App::GUI::Harmonograph>. In that role it powers a 
+complex color picker and calculates gradients and other sets of harmonious colors.
+But during its first iteration other goals were added, like technical
+excellence, clean code and a testbed for a certain architectural style.
+Ultimately it is just driven by personal preferences, which also developed
+while progressing from version to version.
+
+=head1 CODE STYLE
+
+=head1 ARCHITECTURE
+
+lean
+
+=head1 SYNTAX
+
+=head1 API 
+
+=head1 MEASURES
+
+Immutable data
 
 
 Humans access colors at hardware level (eye) in I<RGB>, at cognition level 

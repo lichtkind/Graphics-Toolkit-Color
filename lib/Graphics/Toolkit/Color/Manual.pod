@@ -98,6 +98,10 @@ L<Error|Graphics::Toolkit::Color::Manual::Error> - ways to do error handling
 
 L<Plugin|Graphics::Toolkit::Color::Manual::Plugin> - How to extend the library ?
 
+=item *
+
+L<Plugin|Graphics::Toolkit::Color::Manual::Deprecation> - What key words will go?
+
 =back
 
 =back

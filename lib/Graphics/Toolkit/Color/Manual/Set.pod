@@ -2,11 +2,10 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Set - color set creation methods
+Graphics::Toolkit::Color::Manual::Set - reference of color set creation methods
 
 =head1 SYNOPSIS
 
-=head1 INTRODUCTION
 
 =head1 METHODS
 
@@ -49,6 +48,8 @@ the central column and C<lightness> (or C<l>) move it up and down.
     my @colors = $c->complement( steps => 4, tilt => 4 );   # split-complementary colors
     my @colors = $c->complement( steps => 3, tilt => 2, target => { l => -10 } );
     my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });
+
+=head2 analogous
 
 
 =head2 gradient

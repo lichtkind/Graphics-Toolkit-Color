@@ -10,7 +10,8 @@ GTC supports 33 color spaces. This page lists them all and displays their
 name, alias name, family name, axis names (long and short and their role)
 as well as their default value ranges.
 Some relevant context knowledge and background information is also added.
-See a condensed overview om the L<color spaces|Graphics::Toolkit::Color::Manual::CheatSheert>.
+See a condensed overview of the color spaces at the
+L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet/SPACES>.
 
 =head1 INTRODUCTION
 
@@ -39,30 +40,40 @@ and I<OKHSL>) or by assigning a role name to each axis. For instance
 the I<chroma> axis of the I<LCH> space gets the role name I<saturation> 
 so GTC can treat the I<chroma> value as synonym of the I<HSL> I<saturation>
 value. Not every color space belongs to a family. The spaces on this page
-are grouped by family.
+are grouped by family, as they are on the 
+L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet/SPACES>.
 
+=head1 TERMS
+
+B<name>, B<alias name>, B<family name>
+B<range>
+B<gamut>
+B<whitepoint>
+B<transfer function>
 
 =head1 RGB family
 
 =head2 RGB
 
-(Alias name is B<SRGB> - standard RGB, I<RGB> family) is the default color space
-of this module.
+(alias name is B<SRGB> - standard RGB) is the default color space of this 
+module internally and for input and output.
 It is used by most computer hardware like monitors and follows the logic of 
 additive color mixing as produced by an overlay of three colored light beams.
 The sum of all colors will be white, as opposed to subtractive mixing. 
-It is a completely Cartesian (Euclidean) 3D space and thus an RGB tuple 
-consists of three integer values:
+I<RGB> is a completely Cartesian (Euclidean) 3D space and thus an I<RGB>
+tuple consists of three integer values:
 
 B<red> (short B<r>) range: 0 .. 255, B<green> (short B<g>) range: 0 .. 255
 and B<blue> (short B<b>) range: 0 .. 255.
 A higher value means that a stronger amount of that base color flows into 
-the mix that is displayed on a black background, so that black is (0, 0, 0), 
+the mix that is displayed on a black background. Therefore black is (0, 0, 0), 
 white (255, 255, 255) and a pure red (fully saturated color) is (255, 0, 0). 
-RGB has a gamma of 2.4, which is clipped in the corners (piecewise transfer function).
+RGB has a gamma of 2.4, but a piecewise transfer function, which is 
+clipped at the corners (around the normalized values of zero and one).
 
 =head2 LinearRGB
 
+(alias name is B<LinRGB>)
 Same as L</RGB> but with normal value ranges (0 .. 1) and removed piecewise
 gamma correction. That means there is a linear correlation between the 
 shown values and the RGB brightness of the pixel on the screen without
@@ -299,6 +310,13 @@ B<l>,  B<c> and B<h>. Value ranges are similar as in C<OKLAB>:
 I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
+
+=head2 OKHSL
+
+=head2 OKHSV
+
+=head2 OKHWB
+
 
 =head1 AUTHOR
 

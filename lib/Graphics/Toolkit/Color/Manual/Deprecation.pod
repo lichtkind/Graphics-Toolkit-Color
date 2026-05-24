@@ -1,0 +1,36 @@
+=pod
+
+=head1 NAME
+
+Graphics::Toolkit::Color::Manual::Deprecation - GTC error handling
+
+=head1 SYNOPSIS
+
+=head1 METHODS
+
+=head1 ARGUMENTS
+
+=head2 amount
+
+C<mix>
+
+=head2 select
+
+C<distance>
+
+=head1 FEATURES
+
+=head1 AUTHOR
+
+Herbert Breunung, <lichtkind@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2026 Herbert Breunung.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut

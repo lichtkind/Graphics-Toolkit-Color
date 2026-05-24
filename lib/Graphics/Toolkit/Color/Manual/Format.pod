@@ -12,6 +12,16 @@ Graphics::Toolkit::Color::Manual::Format - shapes of acceptable color definition
 =head1 FORMATS
 
 
+              list  (1,2,3)
+             array  [1,2,3]
+       named_array  [RGB =>  1,2,3 ]
+      nested_array  [RGB => [1,2,3]]
+              hash  {red => 1, green => 2, blue => 3}
+         char_hash  {r   => 1, g     => 2, b    => 3}
+      named_string  'rgb: 1, 2, 3'  
+        css_string  'rgb( 1, 2, 3)' 
+        hex_string  '#010203' '#123'
+
 =head1 AUTHOR
 
 Herbert Breunung, <lichtkind@cpan.org>

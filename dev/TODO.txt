@@ -6,7 +6,10 @@ TODO:
    + brightness, contrast, vibrance, saturation
    + read color def with alpha channel
    + cubehelix method
-   + random color
+   + added argument 'skew' to method 'complement'
+   + format 'plain_object', 'plain_object_string'
+   + argument 'in' to 'new'
+   + argument 'to' to methd 'invert'
    
  = 2.4:
    + 4 LMS variants
@@ -16,6 +19,7 @@ TODO:
    + contrast ratio (calc)
 
  = 2.5 
+   + random color
    + CAM16, CIECAM02,XYB,ICtCp,RLAB,LLAB
 
  = 2.6

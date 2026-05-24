@@ -8,8 +8,9 @@ Graphics::Toolkit::Color::Manual::Philosophy - GTC design principles
 =head1 SYNOPSIS
 
 This document explains why GTC was built the way it is and with what
-principles in mind the API was designed. This helps to understand how
-the functionality is ordered as well as the internal structure.
+principles in mind the API was designed. This helps to understand what
+GTC offers and how the functionality is ordered as well as the internal
+structure.
 
 
 =head1 GOAL
@@ -21,7 +22,8 @@ who create computer graphics, especially at runtime.
 Its primary goal is to enable an intuitive expression of intent
 and to make the path to desired color definition(s) as easy as possible.
 It tries to offer as much useful functionality as possible without getting 
-bloated or overengineered.
+bloated or overengineered. It also aims to avoid opposition to industry
+or scientific standards, as long as it doesn't lead to impracticalities.
 
 
 =head1 HISTORY
@@ -34,19 +36,9 @@ excellence, clean code and a testbed for a certain architectural style.
 Ultimately it is just driven by personal preferences, which also developed
 while progressing from version to version.
 
-=head1 CODE STYLE
 
-=head1 ARCHITECTURE
+=head1 FUNCTIONALITY
 
-lean
-
-=head1 SYNTAX
-
-=head1 API 
-
-=head1 MEASURES
-
-Immutable data
 
 
 Humans access colors at hardware level (eye) in I<RGB>, at cognition level 
@@ -54,6 +46,28 @@ in I<HSL> or I<LAB> (brain) and at the cultural level (language) with names.
 With all these options available you can express easily and intuitively
 with which color to start. And with a wealth of functions that understand
 lots of arguments you can arrive at the desired color (palette) quickly.
+
+
+=head1 API 
+
+
+few methods as possible with a lot of functionality
+lots of arguments
+argument reuse
+memory footprint
+
+
+Immutable data
+
+=head1 ARCHITECTURE
+
+=head1 CODE STYLE
+
+=head2 SYNTAX
+
+simple minimal
+ddd
+consistent names
 
 =head1 AUTHOR
 

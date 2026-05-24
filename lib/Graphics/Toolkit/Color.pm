@@ -11,7 +11,16 @@ use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 use Graphics::Toolkit::Color::Error;
 
-my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
+sub import {
+    my ($class, @args) = @_;
+    my @export_symbols;
+    push @EXPORT, shift @args while exists $args[0] and lc $args[0] ne 'mode';
+    $mode = (exists $args[1]) ? $args[1] : 'carp';
+    say "called for illegal error mode, setting it to carp" unless 
+		defined Graphics::Toolkit::Color::Error::change_mode( $mode );
+    $class->Exporter::export_to_level(1, $class);
+}
+
 our @EXPORT_OK = qw/color is_in_gamut/;
 
 ## constructor #########################################################
@@ -110,6 +119,7 @@ sub _split_named_args {
 }
 
 ### getter #############################################################
+my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
 sub is_in_gamut {
     my ($self, @args) = @_;
     my $help = <<EOH;
@@ -342,7 +352,7 @@ sub tone {
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', amount => undef});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', amount => undef}, {amount => 'by'});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
@@ -562,20 +572,25 @@ dependencies. Only L<Test::Simple> and L<Test::Warn> are needed for testing.
 The behavior of L<error messages|Graphics::Toolkit::Color::Manual::Error>
 can be chosen, but defaults to using L<Carp>.
 
+=head1 DEPRECATION
+
+The next API cleanup will come with version 3.0. Please see which 
+syntax L<is on the way out|Graphics::Toolkit::Color::Manual::Deprecation>.
+
 =head1 CONSTRUCTOR
 
-You create I<GTC> objects either with L<new|Graphics::Toolkit::Color::Manual::Constructor>
-or the importable routine B<color>, which is a mere alias for convenience. 
-It understands every input I<new> would do. Because I<new> caters to many needs,
-there are plenty of options to use it, but they can be divided into two groups.
-The first group consists of a variety of I<color definitions>.
-In simple terms: you just tell I<GTC> a color name or some number values
-that define a color in one of the supported 
-L<color spaces|Graphics::Toolkit::Color::Manual::Space> using one of the
-below listed formats.
-Please ensure that you have installed e.g. L<Graphics::ColorNames::SVG> or
-L<Bundle::Graphics::ColorNames> if you want to use a color name from the 
-I<SVG> standard. Read more about that subject L<here|Graphics::Toolkit::Color::Manual::Name>.
+I<GTC> objects are created either with L<new|Graphics::Toolkit::Color::Manual::Constructor>
+or the importable routine B<color>, which is a mere alias for convenience
+that avoids the long class name. I<color> understands every input I<new> would too. 
+
+The primary way to use I<new> is to pass it a I<color definition>, which
+can be either a L<color name|Graphics::Toolkit::Color::Manual::Name> or
+a set of values in one of the many supported 
+L<formats|Graphics::Toolkit::Color::Manual::Format> (which are summarized below).
+Most formats contain the name of a L<color space|Graphics::Toolkit::Color::Manual::Space>
+or the names of its axes. Please be also aware that you need the appropriate
+module from the L<Bundle::Graphics::ColorNames> installed, if you wish to
+use color names from a certain scheme.
 
     use Graphics::Toolkit::Color qw/color/;
 
@@ -609,7 +624,8 @@ I<SVG> standard. Read more about that subject L<here|Graphics::Toolkit::Color::M
 In order to add information to a color definition you have to provide the
 color definition via the named argument B<color>. Then you can also use
 the named argument B<range>, which allows you to set value ranges that 
-override the color space default. With the argument B<raw> (default is false)
+override the color space default. With the argument 
+L<Graphics::Toolkit::Color::Manual::Argument/raw> (default is false)
 you can force GTC to accept values outside the defined value ranges. 
 This might cause unwanted behaviour for some operations.
 
@@ -634,7 +650,8 @@ like C<range>, C<raw> and (unlike C<new>) C<in>. Same as with C<new> you
 have the option to use C<is_in_gamut> as a standalone, importable routine
 that works the same way as the method.
 
-C<range> and C<raw> work exactly like with I<new>, only C<raw> defaults
+C<range> and C<raw> work exactly like with I<new>, only 
+L<Graphics::Toolkit::Color::Manual::Argument/raw> defaults
 here to true. C<in> is the color space in which the check will be done,
 otherwise it is in the space the color was defined in.
 
@@ -679,7 +696,8 @@ That would be e.g. '%' for saturation in I<HWB> space. Use this argument
 to set your own suffix or to remove the suffix by setting it to C<''>.
 Use an ARRAY ref to set a different I<suffix> per value.
 
-C<raw> expects a perlish pseudo boolean that defaults to false (0).
+L<Graphics::Toolkit::Color::Manual::Argument/raw> expects a 
+perlish pseudo boolean that defaults to false (0).
 When true the values will not be clamped into range and might be out of gamut.
 
     $blue->values();                                        #  0, 0, 255

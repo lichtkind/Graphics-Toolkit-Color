@@ -37,9 +37,9 @@ sub to_rgb {
 }
 
 Graphics::Toolkit::Color::Space->new (
-          family => 'HSL',
+          family => 'HSV',
             axis => [qw/hue saturation brightness/],
-            role => [qw/hue saturation lightness/],
+            role => [qw/hue saturation value/],
            range => [360, 100, 100],
        precision => 0,
             type => [qw/angular linear linear/],

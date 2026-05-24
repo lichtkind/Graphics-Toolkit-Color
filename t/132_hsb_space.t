@@ -11,7 +11,7 @@ my $space = eval "require $module";
 is( not($@), 1, 'could load the module');
 is( ref $space,   'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
 is( $space->name,                             'HSB', 'color space has initials as name');
-is( $space->family,                           'HSL', 'color space belongs to the HSL family');
+is( $space->family,                           'HSV', 'color space belongs to the HSL family');
 is( $space->name('alias'),                       '', 'color space has no alias name');
 is( $space->is_name('HsB'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');

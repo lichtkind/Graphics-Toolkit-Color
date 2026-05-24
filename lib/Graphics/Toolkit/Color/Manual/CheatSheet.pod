@@ -4,9 +4,6 @@
 
 Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
-=head1 SYNOPSIS
-
-
 =head1 METHODS
 
    Value:      is_in_gamut
@@ -24,11 +21,10 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
      in        : (all except)      new   name closest_name
      from      :                         name closest_name
-     range     : new  values  distance
+     color     :                   new   is_in_gamut
      raw       : new  values             is_in_gamut
+     range     : new  values  distance
      only      :              distance   invert
-     precision : values 
-     suffix    : values 
      to        :              distance   mix          analogous  gradient
      steps     :                         complement   analogous  gradient 
      tilt      :                         complement   analogous  gradient 
@@ -44,7 +40,7 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
          char_hash  {r   => 1, g     => 2, b    => 3}
       named_string  'rgb: 1, 2, 3'  
         css_string  'rgb( 1, 2, 3)' 
-        hex_string  '#010203'
+        hex_string  '#010203' '#123'
 
 
 =head1 SPACES
@@ -53,8 +49,8 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
             AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB 
             Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
       LAB : OKLAB / CIELAB / HunterLAB / CIELUV / YIQ / YUV
-      HSL : OKHSL / OKLCH / HSL / HSB / CIELCHab / CIELCHuv
-      HSV : OKHSV / HSV
+      HSL : OKHSL / OKLCH / HSL / CIELCHab / CIELCHuv
+      HSV : OKHSV / HSV / HSB
       HWB : OKHWB / HWB / NCol
     other : CMY / CMYK
 

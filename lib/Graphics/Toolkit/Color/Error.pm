@@ -12,7 +12,6 @@ use Carp;
 
 my $mode = 'carp';
 
-
 sub change_mode {
     my ($new_mode) = @_;
     return unless defined $new_mode;

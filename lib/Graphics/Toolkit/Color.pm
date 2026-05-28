@@ -1,31 +1,31 @@
 
-# public user level API: docs, help and arg cleaning
+# public user level API: doc summary, help msg and arg cleaning
 
 package Graphics::Toolkit::Color;
 our $VERSION = '2.20';
-
 use v5.12;
 use warnings;
-use Exporter 'import';
 use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
 use Graphics::Toolkit::Color::Error;
 
+## import export, error handling #######################################
+use Exporter;
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw/color is_in_gamut/;
+
 sub import {
     my ($class, @args) = @_;
     my @export_symbols;
-    push @EXPORT, shift @args while exists $args[0] and lc $args[0] ne 'mode';
-    $mode = (exists $args[1]) ? $args[1] : 'carp';
-    say "called for illegal error mode, setting it to carp" unless 
+    push @export_symbols, shift @args while @args and lc $args[0] ne 'mode';
+    my $mode = (exists $args[1]) ? $args[1] : 'carp';
+    Carp::carp( "called for illegal error mode, setting it to carp" ) unless 
 		defined Graphics::Toolkit::Color::Error::change_mode( $mode );
-    $class->Exporter::export_to_level(1, $class);
+    $class->Exporter::export_to_level(1, $class, @export_symbols);
 }
 
-our @EXPORT_OK = qw/color is_in_gamut/;
-
 ## constructor #########################################################
-
-sub color       { Graphics::Toolkit::Color->new ( @_ ) }
+sub color { Graphics::Toolkit::Color->new ( @_ ) }
 
 sub new {
     my ($pkg, @args) = @_;
@@ -43,9 +43,9 @@ sub new {
         the option 'raw' and/or 'range'
 EOH
     my ($color_def, $range_def, $raw) = _compact_color_def_into_scalar( @args );
-    return $help unless defined $color_def;
+    error($help) unless defined $color_def;
     my $self = _new_from_scalar_def( $color_def, $range_def, $raw );
-    return (ref $self) ? $self : $help;
+    return (ref $self) ? $self : error($help);
 }
 sub _compact_color_def_into_scalar {
     my (@args) = @_;
@@ -408,7 +408,7 @@ EOH
 ## color set creation methods ##########################################
 sub complement {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0, target => {}, in => $design_default});
+    my $arg = _split_named_args( \@args, 'steps', [], {steps => 1, tilt => 0, skew => 0, target => {}, in => $design_default});
     my $help = <<EOH;
     GTC method 'complement' is computed in HSL and has two named, optional arguments:
     complement ( ...
@@ -432,7 +432,7 @@ EOH
     return "$color_space\n".$help unless ref $color_space;
     return "Need a cylindrical space from the HSL family \n" unless uc($color_space->family) eq 'HSL';
     map {_new_from_value_obj( $_ )}
-        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, $target_delta, @$arg{qw/steps tilt/}, $color_space );
+        Graphics::Toolkit::Color::SetCalculator::complement( $self->{'values'}, $target_delta, @$arg{qw/steps tilt skew/}, $color_space );
 }
 
 sub analogous {

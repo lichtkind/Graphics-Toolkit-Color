@@ -7,8 +7,8 @@ use warnings;
 use Graphics::Toolkit::Color::Calculator;
 
 ########################################################################
-sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @:values
-    my ($start_color, $target_delta, $steps, $tilt, $color_space) = @_;
+sub complement { # -- :start_values, @target_delta, +steps, +tilt, +skew, :space  --> @:values
+    my ($start_color, $target_delta, $steps, $tilt, $skew, $color_space) = @_;
     return unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
     return 'need a cylindrical color space from the HSL family as color space' unless $color_space->family eq 'HSL';
 	my 	$axis_position = {
@@ -19,6 +19,7 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
 	my $hue_half_max = $color_space->shape->axis_value_max( $axis_position->{'h'} ) / 2;
 
     my $start_tuple = $start_color->shaped( $color_space->name );
+    $start_tuple = $color_space->rotate( $start_tuple );
     my $target_values = [@$start_tuple];       # target = THE complement + usr changes
     $target_values->[$axis_position->{'h'}] += $hue_half_max;
     $target_delta->[$_] //= 0 for 0 .. 2;
@@ -30,23 +31,31 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, :space  --> @
 
     my $result_count = int abs $steps;
     my $scaling_exponent = abs($tilt) + 1;
+    my @hue_pos_normal = map {($_ * 2 / $result_count) ** $scaling_exponent} 1 .. ($result_count - 1) / 2;
+    @hue_pos_normal = map {1 - $_} reverse @hue_pos_normal if $tilt > 0;            # reverse tilt effect if tilt negative
 
-    my @hue_percent = map {($_ * 2 / $result_count) ** $scaling_exponent} 1 .. ($result_count - 1) / 2;
-    @hue_percent = map {1 - $_} reverse @hue_percent if $tilt > 0;
-    my $hue_delta = $hue_half_max + $target_delta->[$axis_position->{'h'}]; # real value size of half complement circle
+    my $hue_target_delta  = $hue_half_max + $target_delta->[$axis_position->{'h'}]; # real value size of half complement circle
     my @result = ();
-    push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$start_tuple->[$axis_position->{'h'}] + ($hue_delta         * $_),
-                     $start_tuple->[$axis_position->{'s'}] + ($target_delta->[$axis_position->{'s'}] * $_),
-                     $start_tuple->[$axis_position->{'l'}] + ($target_delta->[$axis_position->{'l'}] * $_)], $color_space->name)) for @hue_percent;
+    for my $hue_position (@hue_pos_normal){
+		my $tuple = [];
+		$tuple->[$axis_position->{'h'}] = $start_tuple->[$axis_position->{'h'}] + ($hue_target_delta                      * $hue_position);
+		$tuple->[$axis_position->{'s'}] = $start_tuple->[$axis_position->{'s'}] + ($target_delta->[$axis_position->{'s'}] * $hue_position);
+		$tuple->[$axis_position->{'l'}] = $start_tuple->[$axis_position->{'l'}] + ($target_delta->[$axis_position->{'l'}] * $hue_position);
+		$tuple->[$axis_position->{'l'}] -= ($hue_position <= 0.5) ? ($skew * $hue_position * 2) : ($skew * (2 - ( $hue_position * 2)));
+		push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $tuple, $color_space->name );
+	}
     push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $target_values, $color_space->name)
         if $result_count == 1 or not $result_count % 2;
-    $hue_delta = $hue_half_max - $target_delta->[$axis_position->{'h'}];
-    @hue_percent = map {1 - $_} reverse @hue_percent;
-    push( @result, Graphics::Toolkit::Color::Values->new_from_tuple(
-                    [$target_values->[$axis_position->{'h'}] + ($hue_delta         * $_),
-                     $target_values->[$axis_position->{'s'}] - ($target_delta->[$axis_position->{'s'}] * $_),
-                     $target_values->[$axis_position->{'l'}] - ($target_delta->[$axis_position->{'l'}] * $_)], $color_space->name)) for @hue_percent;
+    $hue_target_delta = $hue_half_max - $target_delta->[$axis_position->{'h'}];
+    @hue_pos_normal = map {1 - $_} reverse @hue_pos_normal;
+    for my $hue_position (@hue_pos_normal){
+		my $tuple = [];
+		$tuple->[$axis_position->{'h'}] = $target_values->[$axis_position->{'h'}] + ($hue_target_delta                      * $hue_position);
+		$tuple->[$axis_position->{'s'}] = $target_values->[$axis_position->{'s'}] - ($target_delta->[$axis_position->{'s'}] * $hue_position);
+		$tuple->[$axis_position->{'l'}] = $target_values->[$axis_position->{'l'}] - ($target_delta->[$axis_position->{'l'}] * $hue_position);
+		$tuple->[$axis_position->{'l'}] += ($hue_position <= 0.5) ? ($skew * $hue_position * 2) : ($skew * (2 - ( $hue_position * 2)));
+		push @result, Graphics::Toolkit::Color::Values->new_from_tuple( $tuple, $color_space->name );
+	}
     push @result, $start_color if $result_count > 1;
     return @result;
 }
@@ -95,7 +104,7 @@ sub gradient { # @:color_values -- +steps, +tilt, :space --> @:values
 ########################################################################
 my $adj_len_at_45_deg = sqrt(2) / 2;
 
-sub cluster { # :center_vales, +radius @+|+distance -- :space --> @:values
+sub cluster { # :center_values, @+|+radius +min_distance -- :space --> @:values
     my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
     my $color_space_name = $color_space->name;
     my $center_tuple = $center_color->shaped( $color_space_name );

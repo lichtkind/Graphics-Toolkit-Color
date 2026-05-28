@@ -2,11 +2,19 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Cookbook - examples that fix real issues
+Graphics::Toolkit::Color::Manual::Cookbook - examples that fix practical issues
 
 =head1 SYNOPSIS
 
-=head1 INTRODUCTION
+=head1 RECIPES
+
+=head2 How to convert color values?
+
+=head2 How to translate a CSS color name into values?
+
+=head2 How to get a split complementary palette?
+
+=head2 How to get a monochrome palette?
 
 
 =head1 AUTHOR

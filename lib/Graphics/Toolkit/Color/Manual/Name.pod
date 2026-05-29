@@ -2,9 +2,12 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Name - all about color names in GTC
+Graphics::Toolkit::Color::Manual::Name - GTC color name handling
 
 =head1 SYNOPSIS
+
+This L<manual|Graphics::Toolkit::Color::Manual> page explains how GTC error
+messages behave and how to change it to a preferred behaviour.
 
 =head1 OVERVIEW
 

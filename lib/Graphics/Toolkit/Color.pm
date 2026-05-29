@@ -100,7 +100,7 @@ sub _split_named_args {
             and exists $arg_hash{ $parameter_alias->{$parameter_name} }){
             $arg_hash{ $parameter_name } = delete $arg_hash{ $parameter_alias->{$parameter_name} };
         }
-        return "Argument '$parameter_name' is missing\n" unless exists $arg_hash{$parameter_name};
+        return "Argument '$parameter_name' is missing!\n" unless exists $arg_hash{$parameter_name};
         $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name };
     }
     for my $parameter_name (keys %$optional_parameter){
@@ -335,17 +335,17 @@ sub tint {
     return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
-sub shade {
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
-}
 sub tone {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
     return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
+}
+sub shade {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
+    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->{'values'}, $arg->{'by'}, $arg->{'in'} ) );
 }
 
 sub mix {

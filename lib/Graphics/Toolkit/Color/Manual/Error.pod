@@ -6,8 +6,8 @@ Graphics::Toolkit::Color::Manual::Error - GTC error handling
 
 =head1 SYNOPSIS
 
-This L<manual|Graphics::Toolkit::Color::Manual> explains how GTC error
-messages behave and how to change it to a preferred behaviour.
+This L<manual|Graphics::Toolkit::Color::Manual> page explains how GTC 
+error messages behave and how to change it to a preferred behaviour.
 
 =head1 MODES
 

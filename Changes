@@ -10,6 +10,7 @@
     * + argument 'skew' to method 'complement' (move circle along color-target axis)
     * + reestablish optional Carp error messages
     * + added nested_array as output format
+    * + argument 'by' as alias of 'amount' argument for 'mix' 
     * ~ change 'amount' argument of 'mix' understanding percent as 0 .. 1 instead of 0 .. 100
     * ~ change default argument of 'invert' from 'in' to 'only'
     * ~ change default color space for most methods to 'OKLAB' or 'OKHSL'

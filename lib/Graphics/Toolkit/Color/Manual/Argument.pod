@@ -74,8 +74,8 @@ of that method.
 C<by> expects a number, which has to be a floating point 
 number between zero and one. The meaning of the value depends on the 
 method, but zero means this operation is not carried out and one means
-it is carried out to the maximum. C<by> is used for the rather simple
-methods of the high level (designer) API:
+it is carried out to the maximum. C<by> is mostly used for the rather 
+simple methods of the high level (designer) API:
 L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten>, 
 L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken>, 
 L<saturate|Graphics::Toolkit::Color::Manual::Calculation/saturate>, 

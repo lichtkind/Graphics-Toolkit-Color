@@ -5,9 +5,9 @@ package Graphics::Toolkit::Color;
 our $VERSION = '2.20';
 use v5.12;
 use warnings;
+use Graphics::Toolkit::Color::Error       qw/error/;
 use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
 use Graphics::Toolkit::Color::SetCalculator;
-use Graphics::Toolkit::Color::Error;
 
 ## import export, error handling #######################################
 use Exporter;
@@ -17,10 +17,8 @@ our @EXPORT_OK = qw/color is_in_gamut/;
 sub import {
     my ($class, @args) = @_;
     my @export_symbols;
-    push @export_symbols, shift @args while @args and lc $args[0] ne 'mode';
-    my $mode = (exists $args[1]) ? $args[1] : 'carp';
-    Carp::carp( "called for illegal error mode, setting it to carp" ) unless 
-		defined Graphics::Toolkit::Color::Error::change_mode( $mode );
+    push @export_symbols, shift @args while @args and lc $args[0] ne 'error';
+    Graphics::Toolkit::Color::Error::change_mode( $args[1] );
     $class->Exporter::export_to_level(1, $class, @export_symbols);
 }
 

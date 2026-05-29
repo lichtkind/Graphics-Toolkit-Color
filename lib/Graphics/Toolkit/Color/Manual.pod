@@ -7,12 +7,13 @@ Graphics::Toolkit::Color::Manual - GTC documentation hub
 =head1 INTRODUCTION
 
 Welcome to the documentation of the Perl module I<Graphics::Toolkit::Color>.
-It is an all in one solution to compute color sets, single colors,
+It is an all-in-one solution to compute color sets, single colors,
 handle color names and to convert and reformat color definitions.
-It is mostly aimed toward the needs of a designer but also contains
-color science and math. This page gives you an overview where to find 
-what information about this library. If you do not find a needed information, 
-please open a request of L<github|https://github.com/lichtkind/Graphics-Toolkit-Color>.
+It is mostly aimed toward the needs of a graphics programmer and designer 
+but also contains color science and math. This page gives you an overview 
+where to find what information about this library. If you do not find the
+needed information, please open a request on 
+L<github|https://github.com/lichtkind/Graphics-Toolkit-Color>.
 
 =head1 INDEX
 

@@ -8,8 +8,9 @@ Graphics::Toolkit::Color::Manual::Argument - shape, content and meaning of recur
 
 As explained on the L<philosophy page|Graphics::Toolkit::Color::Manual::Philosophy/API>,
 GTC tries to reuse argument names as much as possible to lower the
-cognitive footprint of the API. Here is the most comprehensive explanation
-of all the arguments that are shared by at least two methods.
+cognitive footprint of the API. On this page of the
+L<Manual|Graphics::Toolkit::Color::Manual> are the most comprehensive 
+explanations of all the arguments that are shared by at least two methods.
 All the remaining Arguments are explained in the context of their method.
 See a condensed overview of the here presented argument names on the 
 L<cheat sheet|Graphics::Toolkit::Color::Manual::CheatSheet/ARGUMENTS>.

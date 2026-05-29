@@ -2,43 +2,84 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Calculation - reference of one color calculating methods
+Graphics::Toolkit::Color::Manual::Calculation - reference of single color calculation methods
 
 =head1 SYNOPSIS
 
-=head1 METHODS
-
-These methods generate one new color object that is related to the calling
-object (invocant). You might expect that methods like C<set_value> change
-the values of the invocant, but GTC objects are as mentioned in the
-L</DESCRIPTION> read only. That supports a more functional programming
-style as well as method stacking like:
+This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
+detailed description of the seven color calculation methods of the high
+level API: L</lighten>, L</darken>, L</saturate>, L</desaturate>,
+L</tint>, L</tone>, L</shade> and the five methods of the low level API: 
+L</apply>, L</set_value>, L</add_value>, L</mix> and L</invert>. Every
+L<argument|Graphics::Toolkit::Color::Manual::Argument> and important 
+argument combination will be explained as well. All methods return one 
+GTC object that is related to the one held by the calling object
+unless a typo or data type mismatch triggers an 
+L<error|Graphics::Toolkit::Color::Manual::Error>. This allows method chaining
+like:
 
     $color->add_value( saturation => 5)->invert->mix( to => 'green');
 
 
+=head1 METHODS
+
+=head2 lighten 
+
+=head2 darken
+
+=head2 saturate
+
+=head2 desaturate
+
+=head2 tint
+
+=head2 shade
+
+=head2 tone
+
+
 =head2 apply
 
-Creates a new GTC color object with recalculated values. Each calculation
-is triggered by one named argument and currently is only one possible.
-I<gamma> triggers a gamma correction which can be reversed with the inverse argument.
-Use an ARRAY ref to apply each color value with a different gamma. 
-The argument L</in> determines in which space the carlculation takes place:
+C<apply> calculates a gamma correction, which is just a power function on
+normalized color values (range 0 .. 1). Gamma is in this context the name 
+of a variable that contains the power. (C<$value = $value ** $gamma;>)
+The method expects two named arguments: C<gamma> and C<in>. The first one
+is required and second one is optional. There is no rule that allows for
+a lone positional argument.
 
-    my $linear_blue = $blue->apply( gamma => 2.2 );         # is same the as :
-    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'RGB' );
+C<gamma> has to be either a floating point number or a HASH reference
+that contains a gamma value per axis. Long or short axis names can be used
+as keys. A gamma correction is reversed with the same function, 
+just with an inverted gamma value (C<1 / $gamma>). Even if some 
+implementations apply the inverted gamma, GTC uses the gamma value as given,
+to not further complicate things because there is no I<'invert'> argument.
+Just prepend the C<gamma> with C<< 1 / >>.
+
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
+the values will be first converted to. Then these values will be normalized,
+before the gamma value is applied. C<in> defaults to 
+L<LinearRGB|Graphics::Toolkit::Color::Manual::Space/LinearRGB>
+since this is the default IO space with gamma removed, ready for a custom
+gamma correction. Applying gamma makes only sense in Euclidean spaces 
+with the origin in one corner of the space like I<RGB> or I<CIEXYZ>.
+These are with minor exceptions only the spaces from the 
+L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> family, since even 
+I<LAB> type spaces do not fit. They are Euclidean, but their origin is not
+in one corner but the center of one face.
 
 
-Applying a gamma value mages only sense in euclidean spaces with the origin
-in one corner of the space like I<RGB> or I<CIEXYZ>.
+    my $linear_blue = $blue->apply( gamma => 2.2 );         # is the same as :
+    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
 
 =head2 set_value
 
-Creates a new GTC color object that shares some values with the current one,
-but differs in others. The altered values are provided as absoltue numbers.
-If the resulting color will be outside of the given color space, the values
-will be clamped so it will become a regular color of that space.
+C<set_value> creates a new GTC color object that shares some values with
+the current one, but differs in others. The altered values are provided 
+as absolute numbers with their associated axis names. It is NOT a setter, 
+since it doesn't change the values of the calling object.
+If the resulting color will be outside of the given color space, 
+the values will be clamped so it will become a regular (in range) color.
 
 The axis of
 L<all supported color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>
@@ -58,7 +99,7 @@ you can add the named argument L</in>.
 
 =head2 add_value
 
-Creates a new GTC color object that shares some values with the current one,
+C<add_value> creates a new GTC color object that shares some values with the current one,
 but differs in others. The altered values are provided relative to the current
 ones. The rest works as described in L</set_value>.
 This method was mainly created to get lighter, darker or more saturated
@@ -72,7 +113,7 @@ colors by using it like:
 
 =head2 mix
 
-Create a new GTC object, that has the average values between the calling
+C<mix> Create a new GTC object, that has the average values between the calling
 object and another color (or several colors). It accepts three named
 arguments: L</to>, C<amount> and L</in>, but only the first one is
 required and can be also provided as the only positional argument.
@@ -105,7 +146,7 @@ one scalar amount value, then it will be applied to all mixed in colors.
 
 =head2 invert
 
-Computes a new color object, where all or some values are inverted 
+C<invert> computes a new color, where all or some values are inverted 
 according to the ranges of the chosen color space (see L</in>). It takes 
 two optional, positional arguments, a space name and axis names.
 

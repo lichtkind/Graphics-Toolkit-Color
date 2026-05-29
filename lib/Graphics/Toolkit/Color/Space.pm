@@ -69,19 +69,20 @@ sub tuple_from_partial_hash { shift->basis->tuple_from_partial_hash(@_) } # %+pa
 
 ########################################################################
 sub shape              { $_[0]{'shape'} }
-sub is_euclidean       { shift->shape->is_euclidean() }       #                                    --> ?
-sub is_cylindrical     { shift->shape->is_cylindrical }       #                                    --> ?
-sub is_equal           { shift->shape->is_equal( @_ ) }       # @+val_a, @+val_b -- @+precision    --> ?
-sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+values -- @+range                --> ?
-sub is_in_bounds       { shift->shape->is_in_bounds(@_)}      # @+values -- @+range                --> ?
-sub round              { shift->shape->round( @_ ) }          # @+values -- @+precision            --> @+rvals       # result values
-sub clamp              { shift->shape->clamp( @_ ) }          # @+values -- @+range                --> @+rvals       # result values
-sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+values -- @+range, @+precision   --> @+values|!~   # errmsg
-sub normalize          { shift->shape->normalize(@_)}         # @+values -- @+range                --> @+rvals|!~
-sub denormalize        { shift->shape->denormalize(@_)}       # @+values -- @+range                --> @+rvals|!~
-sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+values -- @+range                --> @+rvals|!~
-sub delta              { shift->shape->delta( @_ ) }          # @+val_a, @+val_b                   --> @+rvals|      # on normalized values
-sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &checker, &remedy   --> %constraint
+sub is_euclidean       { shift->shape->is_euclidean() }       #                                     --> ?
+sub is_cylindrical     { shift->shape->is_cylindrical }       #                                     --> ?
+sub is_equal           { shift->shape->is_equal( @_ ) }       # @+tuple_a, @+tuple_b -- @+precision --> ?
+sub is_in_linear_bounds{ shift->shape->is_in_linear_bounds(@_)}#@+tuple -- @+range                  --> ?
+sub is_in_bounds       { shift->shape->is_in_bounds(@_)}      # @+tuple -- @+range                  --> ?
+sub round              { shift->shape->round( @_ ) }          # @+tuple -- @+precision              --> @+tuple   
+sub clamp              { shift->shape->clamp( @_ ) }          # @+tuple -- @+range                  --> @+tuple   
+sub rotate             { shift->shape->rotate( @_ ) }         # @+tuple -- @+range                  --> @+tuple   
+sub check_value_shape  { shift->shape->check_value_shape( @_)}# @+tuple -- @+range, @+precision     --> @+tuple|!~   # errmsg
+sub normalize          { shift->shape->normalize(@_)}         # @+tuple -- @+range                  --> @+tuple|!~
+sub denormalize        { shift->shape->denormalize(@_)}       # @+tuple -- @+range                  --> @+tuple|!~
+sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+tuple -- @+range                  --> @+tuple|!~
+sub delta              { shift->shape->delta( @_ ) }          # @+tuple_a, @+tuple_b                --> @+tuple|     # on normalized values
+sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &checker, &remedy    --> %constraint
 
 ########################################################################
 sub form               { $_[0]{'format'} }

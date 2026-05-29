@@ -94,9 +94,9 @@ sub add_axis_value {
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
-sub tint  { mix_with(@_, [255  ,255  ,255  ]) } # white
-sub tone  { mix_with(@_, [127.5,127.5,127.5]) } # grey50
-sub shade { mix_with(@_, [  0,    0,    0  ]) } # black
+sub tint     { mix_with(@_, [255  ,255  ,255  ]) } # white
+sub tone     { mix_with(@_, [127.5,127.5,127.5]) } # grey50
+sub shade    { mix_with(@_, [  0,    0,    0  ]) } # black
 sub mix_with {
     my ($color_values, $amount, $color_space, $tuple) = _clear_values_amount_space_name(@_);
     return $color_values unless ref $color_values;

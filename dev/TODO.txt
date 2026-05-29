@@ -2,12 +2,12 @@ TODO:
 ------
 
  = 2.3:
-   + triadic, tetradic, rectangular
-   + brightness, contrast, vibrance, saturation
+   + designer methods: triadic, tetradic, rectangular
+   + designer methods: brightness, contrast, vibrance, saturation
    + read color def with alpha channel
+   + add position of target color in 'gradient'
    + cubehelix method
-   + added argument 'skew' to method 'complement'
-   + format 'plain_object', 'plain_object_string'
+   + format 'plain_object', 'plain_object_string' (culori)
    + argument 'in' to 'new'
    + argument 'to' to methd 'invert'
    

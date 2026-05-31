@@ -43,6 +43,11 @@ value. Not every color space belongs to a family. The spaces on this page
 are grouped by family, as they are on the 
 L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet/SPACES>.
 
+=head1 SYNTAX
+
+=head1 ORDER
+
+
 =head1 TERMS
 
 B<name>, B<alias name>, B<family name>
@@ -80,114 +85,6 @@ shown values and the RGB brightness of the pixel on the screen without
 any adaptation to human sensibilities. Its alias name is B<LinRGB>.
 
 
-=head1 LAB family
-
-=head1 HSL family
-
-=head1 HSV family
-
-=head1 HWB family
-
-=head1 Other spaces
-
-=head2 CMY
-
-is the opposite of L</RGB> since it follows the logic of subtractive
-color mixing as used in printing. Think of it as the amount of colored
-ink on white paper, so that white is (0,0,0) and black (1,1,1).
-It uses normalized real value ranges: 0 .. 1.
-An CMY tuple has also three values:
-
-B<cyan> (short B<c>) is the inverse of I<red>,
-B<magenta> (short B<m> ) is inverse to I<green> and
-B<yellow> (short B<y>) is inverse of I<blue>.
-
-=head2 CMYK
-
-is an extension of L</CMY> with a fourth value named B<key> (short B<k>),
-which is the amount of black ink mixed into the CMY color.
-It also has an normalized range of 0 .. 1. This should not bother you
-since you are free to change the range at your preference.
-
-=head2 HSL
-
-.. is a cylindrical space that orders colors along cognitive properties.
-The first dimension is the angular one and it rotates in 360 degrees around
-the rainbow of fully saturated colors: 0 = red, 15 approximates orange,
-60 - yellow 120 - green, 180 - cyan, 240 - blue, 270 - violet,
-300 - magenta, 330 - pink. 0 and 360 points to the same coordinate.
-This module only outputs 0, even if accepting 360 as input. The second,
-linear dimension (axis) measures the distance between a point the center
-column of the cylinder at the same height, no matter in which direction.
-The center column has the value 0 (white .. gray .. black) and the outer
-mantle of the cylinder contains the most saturated, purest colors.
-The third, vertical axis reaches from bottom value 0 (always black no
-matter the other values) to 100 (always white no matter the other values).
-In summary: HSL needs three integer values: B<hue> (short B<h>) (0 .. 359),
-B<saturation> (short B<s>) (0 .. 100) and B<lightness> (short B<l>) (0 .. 100).
-
-=head2 HSV
-
-... is also cylindrical but can be shaped like a cone.
-Similar to HSL we have B<hue> and B<saturation>, but the third axis is
-named B<value> (short B<v>). In L<HSL> we always get white, when I<lightness>
-is 100. In HSV additionally I<saturation> has to be zero to get white.
-When I<saturation> is 100 and I<value> is 100 we have the purest, most
-saturated color of whatever I<hue> sets. So unlike in C<HSL>, here every
-color has its unique coordinates.
-
-=head2 HSB
-
-Is an alias to L</HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
-
-=head2 HWB
-
-An inverted L</HSV>, where the saturated, pure colors are on the center
-column of the cylinder. It still has the same circular B<hue> dimension
-with an integer range of 0 .. 360. The other two, linear dimensions
-(also 0 .. 100 integer range with optional suffix '%') are B<whiteness>
-(B<w>) and B<blackness> (B<b>). They describe how much white or black
-are mixed into the pure hue. If both are zero, you get a pure color.
-I<whiteness> of 100 always leads to white and I<blackness> of 100 always
-leads to black. The space is truncated as a cone so the sum of I<whiteness>
-and I<blackness> can never be greater than 100.
-
-=head2 NCol
-
-Is a more human readable variant of the L</HWB> space with an altered
-B<hue> values, that consists of a letter and two digits.
-The letter demarks one of the six areas around the rainbow. B<R> is I<Red>,
-B<Y> (I<Yellow>), B<G> (I<Green>), B<C> (I<Cyan>), B<B> (I<Blue>),
-B<M> (I<Magenta>). The two digits after this letter are an angular value,
-measuring the distance between the pure color (as stated by the letter)
-and the described color (toward the next color on the rainbow).
-The B<whiteness> and B<blackness> axis have integer values with the
-suffix I<'%'>, since they are percentual values as well.
-
-=head2 YIQ
-
-Is a space developed for I<NTSC> to broadcast a colored television signal,
-which is still compatible with black and white TV. It achieves this by
-sending the B<luminance> (short I<y>) (sort of brightness with real range
-of 0 .. 1) in channel number one, which is all black and white TV needs.
-Additionally we have the axis of B<in-phase> (short B<i>)
-(cyan - orange - balance, range -0.5959 .. 0.5959) and
-B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
-
-=head2 YUV
-
-Is a slightly altered version of L<YIQ> for the I<PAL> TV standard.
-We use a variant called B<YPbPr>, which can also be used as space name.
-It has computation friendly value ranges and is still relevant in video
-and image formats and compression algorithms, but under the name I<YCbCr>.
-The only difference is that I<YCbCr> works with digital values but
-this module computes with real (analogue) values to enable any precision
-the user might prefer. To make this clear, this space holds the name B<YPbPr>.
-It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
-range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. B<Pr>
-(short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
-
-
 =head2 CIEXYZ
 
 this space (alias B<XYZ>) has the axis B<X>, B<Y> and B<Z> (long and short
@@ -200,49 +97,6 @@ the eye. The values ranges are always from zero and reach 95.047 on the
 C<X> - axis, 100 on C<Y> and 108.883 on C<Z>, due to the used white
 point of I<D65> which has these values divided by 100. The illuminant
 I<D65> is standard for all CIE spaces except I<CIERGB>.
-
-=head2 CIELAB
-
-(alias B<LAB>) is a derivate of L</CIEXYZ> that reorders the colors along
-axis that reflect how the brain processes them. It uses three information
-channels. One named B<L> (lightness) with a real value range of (0 .. 100).
-Second is channel B<a>, that reaches from red to green (-500 .. 500) and
-thirdly B<b> from yellow to blue (-200 .. 200). Values will be displayed
-with three decimals. The long names of the axis names contain a '*'
-and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect the
-opponent color theory.
-
-=head2 HunterLAB
-
-predecessor of L</CIELAB> by Richard S. Hunter with no alias name and
-slightly different color transitions on yellow-blue-direction.
-The axis have same long and short names: B<L> with normal values (0 .. 1),
-B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
-
-=head2 CIELUV
-
-(alias B<LUV>) is a more perceptually uniform version of L</CIELAB> and
-the axis I<a> and I<b> got renamed to I<u> and I<v> (see L</YUV>) but
-did not change their meaning. It has also three Cartesian dimension named
-B<L*>, B<u*> and B<v*>, (short names have only the first letter of these names).
-They have real valued ranges, which are 0 .. 100, -134 .. 220 and
--140 .. 122.
-
-=head2 CIELCHab
-
-(alias B<LCH>) is the cylindrical version of the L</CIELAB> with the
-dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
-The real valued ranges are from zero to 100, 539 and 360 respectively.
-Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
-values are meant as degrees in a circle. For gray colors in the middle
-column the value I<chroma> has no importance and will be in this
-implementation always be zero.
-
-=head2 CIELCHuv
-
-(alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works 
-similar to L<CIELCHab> except the real valued range of B<chroma> is 
-(0 .. 261) and the space has no alias name.
 
 =head2 CIERGB
 
@@ -294,6 +148,37 @@ RGB space, has alias name B<BT.709>.
 
 RGB space, has alias name B<BT.2020>.
 
+
+=head1 LAB family
+
+=head2 CIELAB
+
+(alias B<LAB>) is a derivate of L</CIEXYZ> that reorders the colors along
+axis that reflect how the brain processes them. It uses three information
+channels. One named B<L> (lightness) with a real value range of (0 .. 100).
+Second is channel B<a>, that reaches from red to green (-500 .. 500) and
+thirdly B<b> from yellow to blue (-200 .. 200). Values will be displayed
+with three decimals. The long names of the axis names contain a '*'
+and are thus: B<L*>, B<a*> and B<b*>. The I<a> and I<b> axis reflect the
+opponent color theory.
+
+=head2 HunterLAB
+
+predecessor of L</CIELAB> by Richard S. Hunter with no alias name and
+slightly different color transitions on yellow-blue-direction.
+The axis have same long and short names: B<L> with normal values (0 .. 1),
+B<a> -172.30 .. 172.30 and B<b> -67.20 .. 67.20.
+
+=head2 CIELUV
+
+(alias B<LUV>) is a more perceptually uniform version of L</CIELAB> and
+the axis I<a> and I<b> got renamed to I<u> and I<v> (see L</YUV>) but
+did not change their meaning. It has also three Cartesian dimension named
+B<L*>, B<u*> and B<v*>, (short names have only the first letter of these names).
+They have real valued ranges, which are 0 .. 100, -134 .. 220 and
+-140 .. 122.
+
+
 =head2 OKLAB
 
 is a modern improvement of L</CIELAB> by Bjoern Ottosson with no alias name
@@ -301,6 +186,67 @@ and for nicer color transitions and better numeric behaviour.
 The axis long names are same as the same ones: B<L> with values (0 .. 1),
 B<a> and B<b> with both (-0.5 .. 0.5). If you want to use it like in B<CSS>,
 just add C<< range => [100, [-120,120], [-120,120]], suffix => '%' >>.
+
+=head2 YIQ
+
+Is a space developed for I<NTSC> to broadcast a colored television signal,
+which is still compatible with black and white TV. It achieves this by
+sending the B<luminance> (short I<y>) (sort of brightness with real range
+of 0 .. 1) in channel number one, which is all black and white TV needs.
+Additionally we have the axis of B<in-phase> (short B<i>)
+(cyan - orange - balance, range -0.5959 .. 0.5959) and
+B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
+
+=head2 YUV
+
+Is a slightly altered version of L<YIQ> for the I<PAL> TV standard.
+We use a variant called B<YPbPr>, which can also be used as space name.
+It has computation friendly value ranges and is still relevant in video
+and image formats and compression algorithms, but under the name I<YCbCr>.
+The only difference is that I<YCbCr> works with digital values but
+this module computes with real (analogue) values to enable any precision
+the user might prefer. To make this clear, this space holds the name B<YPbPr>.
+It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
+range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. B<Pr>
+(short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
+
+
+=head1 HSL family
+
+=head2 HSL
+
+.. is a cylindrical space that orders colors along cognitive properties.
+The first dimension is the angular one and it rotates in 360 degrees around
+the rainbow of fully saturated colors: 0 = red, 15 approximates orange,
+60 - yellow 120 - green, 180 - cyan, 240 - blue, 270 - violet,
+300 - magenta, 330 - pink. 0 and 360 points to the same coordinate.
+This module only outputs 0, even if accepting 360 as input. The second,
+linear dimension (axis) measures the distance between a point the center
+column of the cylinder at the same height, no matter in which direction.
+The center column has the value 0 (white .. gray .. black) and the outer
+mantle of the cylinder contains the most saturated, purest colors.
+The third, vertical axis reaches from bottom value 0 (always black no
+matter the other values) to 100 (always white no matter the other values).
+In summary: HSL needs three integer values: B<hue> (short B<h>) (0 .. 359),
+B<saturation> (short B<s>) (0 .. 100) and B<lightness> (short B<l>) (0 .. 100).
+
+=head2 CIELCHab
+
+(alias B<LCH>) is the cylindrical version of the L</CIELAB> with the
+dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
+The real valued ranges are from zero to 100, 539 and 360 respectively.
+Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
+values are meant as degrees in a circle. For gray colors in the middle
+column the value I<chroma> has no importance and will be in this
+implementation always be zero.
+
+=head2 CIELCHuv
+
+(alias B<LCHuv>) is the cylindrical version of the L</CIELUV> and works 
+similar to L<CIELCHab> except the real valued range of B<chroma> is 
+(0 .. 261) and the space has no alias name.
+
+=head2 OKHSL
 
 =head2 OKLCH
 
@@ -311,11 +257,76 @@ I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.
 
-=head2 OKHSL
+=head1 HSV family
+
+=head2 HSV
+
+... is also cylindrical but is shaped like a cone.
+Similar to HSL we have B<hue> and B<saturation>, but the third axis is
+named B<value> (short B<v>). In L<HSL> we always get white, when I<lightness>
+is 100. In HSV additionally I<saturation> has to be zero to get white.
+When I<saturation> is 100 and I<value> is 100 we have the purest, most
+saturated color of whatever I<hue> sets. So unlike in C<HSL>, here every
+color has its unique coordinates.
+
+=head2 HSB
+
+Is an alias to L</HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
 
 =head2 OKHSV
 
+
+=head1 HWB family
+
+=head2 HWB
+
+An inverted L</HSV>, where the saturated, pure colors are on the center
+column of the cylinder. It still has the same circular B<hue> dimension
+with an integer range of 0 .. 360. The other two, linear dimensions
+(also 0 .. 100 integer range with optional suffix '%') are B<whiteness>
+(B<w>) and B<blackness> (B<b>). They describe how much white or black
+are mixed into the pure hue. If both are zero, you get a pure color.
+I<whiteness> of 100 always leads to white and I<blackness> of 100 always
+leads to black. The space is truncated as a cone so the sum of I<whiteness>
+and I<blackness> can never be greater than 100.
+
+=head2 NCol
+
+Is a more human readable variant of the L</HWB> space with an altered
+B<hue> values, that consists of a letter and two digits.
+The letter demarks one of the six areas around the rainbow. B<R> is I<Red>,
+B<Y> (I<Yellow>), B<G> (I<Green>), B<C> (I<Cyan>), B<B> (I<Blue>),
+B<M> (I<Magenta>). The two digits after this letter are an angular value,
+measuring the distance between the pure color (as stated by the letter)
+and the described color (toward the next color on the rainbow).
+The B<whiteness> and B<blackness> axis have integer values with the
+suffix I<'%'>, since they are percentual values as well.
+
 =head2 OKHWB
+
+
+
+=head1 Other spaces
+
+=head2 CMY
+
+is the opposite of L</RGB> since it follows the logic of subtractive
+color mixing as used in printing. Think of it as the amount of colored
+ink on white paper, so that white is (0,0,0) and black (1,1,1).
+It uses normalized real value ranges: 0 .. 1.
+An CMY tuple has also three values:
+
+B<cyan> (short B<c>) is the inverse of I<red>,
+B<magenta> (short B<m> ) is inverse to I<green> and
+B<yellow> (short B<y>) is inverse of I<blue>.
+
+=head2 CMYK
+
+is an extension of L</CMY> with a fourth value named B<key> (short B<k>),
+which is the amount of black ink mixed into the CMY color.
+It also has an normalized range of 0 .. 1. This should not bother you
+since you are free to change the range at your preference.
+
 
 
 =head1 AUTHOR

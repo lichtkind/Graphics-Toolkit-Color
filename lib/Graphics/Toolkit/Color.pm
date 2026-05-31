@@ -350,7 +350,7 @@ sub shade {
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', amount => undef}, {amount => 'by'});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', by => undef}, {by => 'amount'});
     my $help = <<EOH;
     GTC method 'mix' accepts three named arguments, only the first being required:
     mix ( ...
@@ -381,7 +381,13 @@ EOH
 			}
 			$arg->{'to'} = \@to;
 		}
-    }  
+    }
+    # backward compatibility: 'by' > 1 is read as percent (0 .. 100) and mapped to 0 .. 1
+    if (defined $arg->{'by'}){
+        if (ref $arg->{'by'} eq 'ARRAY') { 
+			for (@{$arg->{'by'}}) { $_ /= 100 if is_nr($_) and $_ > 1 } 
+		} elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
+    }
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::mix( $self->{'values'}, $arg->{'to'}, $arg->{'amount'}, $color_space ) );
 }
 
@@ -440,7 +446,7 @@ sub analogous {
     GTC method 'analogous' accepts four named arguments, only the first is required:
     analogous ( ...
         to    => 'blue',         # scalar color definition or GTC object of next color
-        steps => 20,             # count of produced colors, defaults to 10
+        steps => 20,             # count of produced colors, defaults to 4
         tilt  => 1,              # dynamics of color change, defaults to 0
         in    => 'HSL',          # color space name, defaults to "$design_default"
 EOH

@@ -115,7 +115,7 @@ sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .c
     $add_amount = [($add_amount) x ($color_count - 1)] unless ref $add_amount eq 'ARRAY';
 	return "ARRAY of mix amounts needs a value for every color !\n" unless @$add_amount == $color_count - 1;
     my $mix_sum = 0;
-    map { $_ /= 100 if $_ > 1 ;$mix_sum += $_ } @$add_amount;
+    $mix_sum += $_ for @$add_amount;
     if ($mix_sum > 1){
 		for my $reciepe_index (0 .. $#$add_amount){
 			$add_amount->[$reciepe_index] = $add_amount->[$reciepe_index] / $mix_sum;

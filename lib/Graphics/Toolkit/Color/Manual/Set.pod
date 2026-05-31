@@ -123,7 +123,7 @@ might be curved if the color space is cylindrical.
 
 C<gradient> creates a gradient (a list of color objects that build a transition)
 between the current color held by the object and a second color,
-provided by the named argument L</to>. That is required and may be provided
+provided by the named argument C<to>. That is required and may be provided
 as a positional argument if it is the only one. The optional arguments are: 
 C<steps>, C<in> and C<tilt>.
 
@@ -163,7 +163,7 @@ The calling object will sit in the center of the cluster and is always
 part of the result. The amount of resulting colors depends on the
 arguments and can greatly vary.
 The method accepts three named arguments: C<radius>, C<minimal_distance>
-and L</in>, of which the first two are required. C<radius> can be abbreviated 
+and C<in>, of which the first two are required. C<radius> can be abbreviated 
 as C<r> and C<minimal_distance> as C<min_d>.
 
 C<radius> determines the size of the cluster, the maximal 

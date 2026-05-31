@@ -2,15 +2,45 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Cookbook - examples that fix practical issues
+Graphics::Toolkit::Color::Manual::Cookbook - examples that solve practical issues
 
 =head1 SYNOPSIS
+
+This L<manual|Graphics::Toolkit::Color::Manual> page answers practical 
+problems with multi line code examples and their detailed explanation
+with some added background knowledge.
+This is complementary to the reference pages that contain only one line
+examples that showcase a single method or argument.
 
 =head1 RECIPES
 
 =head2 How to convert color values?
 
-=head2 How to translate a CSS color name into values?
+GTC has no dedicated converter methods because of two reasons. For one,
+it supports 33 color spaces and growing and 33 * 32 = 1056 methods would
+be impractical. But abstracting color spaces away makes GTC methods also
+much more powerful, when they can be performed in any or at least many spaces.
+This is why you simply read and write with GTC color definitions and
+the conversion will happen implicitly. Color definitions are read by the
+L<constructor|Graphics::Toolkit::Color::Manual::Constructor>
+and values are written by the method 
+L<values|Graphics::Toolkit::Color::Manual::Getter/values>. Read the next
+recipe if you want to convert from and into color names.
+
+The two most important arguments of C<values> for conversions are
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> and C<as>.
+C<in> selects the color space the color gets converted to.
+(Read all about color spaces L<here|Graphics::Toolkit::Color::Manual::Space>.)
+C<as> allows to select one of the many formats, which are explained 
+L<here|Graphics::Toolkit::Color::Manual::Format>. This makes the conversion
+of an ordinary CSS color look like:
+
+  use Graphics::Toolkit::Color qw/color/;
+  my $okhsl = color('rgb(34, 56, 123)')->values( in => 'OKHSL', as => 'css_string');
+
+
+
+=head2 How to translate a CSS color name into values and back?
 
 =head2 How to get a split complementary palette?
 

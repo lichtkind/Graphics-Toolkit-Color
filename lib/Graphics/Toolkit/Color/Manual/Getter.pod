@@ -2,9 +2,16 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Getter - reference of value access or calculating methods
+Graphics::Toolkit::Color::Manual::Getter - reference of value access or value calculating methods
 
 =head1 SYNOPSIS
+
+This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
+detailed description of the five methods:
+L</values>, L</name>, L</closest_name>, L</distance> and L</is_in_gamut>.
+These methods return various informations about a color, but not a GTC object. 
+They might trigger an L<error|Graphics::Toolkit::Color::Manual::Error> if called incorrectly.
+
 
 =head1 METHODS
 
@@ -14,6 +21,7 @@ properties based on it.
 
 =head2 values
 
+C<values> 
 Returns the numeric values of the color, held by the object.
 The method accepts six optional, named arguments:
 L</in> (color space), C<as> (format), L</range>, C<precision>, C<suffix>. and I<raw>.
@@ -80,6 +88,7 @@ unsanitized input  converted as output.
 
 =head2 name
 
+C<name> 
 Returns the normalized name string (lower case, without I<'_'>) that
 represents the I<RGB> values of this color in the default color scheme,
 which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
@@ -121,6 +130,8 @@ with C<all> to get all color names that are within a certain distance.
 
 =head2 closest_name
 
+
+C<closest_name> 
 Returns in scalar context a color name, which has the shortest L</distance>
 in I<RGB> to the current color. In list context, you get additionally
 the just mentioned distance as a second return value. This method works
@@ -138,6 +149,7 @@ The only difference is (due to the second return value), multiple names
 
 =head2 distance
 
+C<distance>
 Is a floating point number that measures the Euclidean distance between
 two colors, which represent two points in a color space. One color
 is the calling object itself and the second one has to be provided as
@@ -171,6 +183,7 @@ The last argument is named L</range>, which can change the result drasticly.
 
 =head2 is_in_gamut
 
+C<is_in_gamut>
 Takes any color definition I<new> would accept and returns a perlish pseudo 
 boolean (zero or one). That will tell you, if the color is within the gamut 
 (value range) of a color space. This can be either the color space the

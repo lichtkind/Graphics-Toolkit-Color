@@ -75,8 +75,8 @@ is( ref $white->mix( to => ['black', 'blue']),        $module,  'one named argum
 
 is($white->mix( $black )->name,	                   'gray39', 'grey is the mix between black and white in OKLAB');
 is($white->mix( to => 'black', in => 'RGB' )->name,  'gray', 'use color constant and named argument');
-is($white->mix( to => 'black', amount => 50, in => 'RGB')->name,  'gray', 'use also amount argument');
-is($white->mix( to => 'black', amount => 20, in => 'RGB')->name,'gray80', 'use different amount');
+is($white->mix( to => 'black', amount => .5, in => 'RGB')->name,  'gray', 'use also amount argument');
+is($white->mix( to => 'black', amount => .2, in => 'RGB')->name,'gray80', 'use different amount');
 
 @values = $white->mix( to => $blue, in => 'HSL')->values('HSL');
 is_tuple( \@values, [ 120, 50, 75], [qw/hue saturation lightness/], 'mix white and blue 1:1 in HSL');

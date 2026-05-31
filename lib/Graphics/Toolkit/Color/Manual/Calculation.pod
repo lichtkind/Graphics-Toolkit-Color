@@ -15,8 +15,8 @@ L<argument|Graphics::Toolkit::Color::Manual::Argument> and important
 argument combination will be explained as well. All methods return one 
 GTC object that is related to the one held by the calling object
 unless a typo or data type mismatch triggers an 
-L<error|Graphics::Toolkit::Color::Manual::Error>. This allows method chaining
-like:
+L<error|Graphics::Toolkit::Color::Manual::Error>. 
+This allows method chaining like:
 
     $color->add_value( saturation => 5 )->invert->mix( to => 'green' );
 

@@ -60,11 +60,11 @@ is( $name,     'named_string', 'found format of named string');
 is_tuple( $vals, [.1, .22, .33], [qw/first second third/], 'deformat named string without commas');
 
 # CSS string
-($vals, $name) = $pform->deformat(' abg( 1%, 2% ,3%  ) ');
+($vals, $name) = $pform->deformat('abg(1%,2%,3%)');
 is( $name,       'css_string', 'recognized CSS string format');
-is_tuple( $vals, [1, 2, 3], [qw/first second third/], 'deformat CSS string with commas and suffix');
+is_tuple( $vals, [1, 2, 3], [qw/first second third/], 'deformat CSS string with commas and suffix and no space');
 
-($vals, $name) = $pform->deformat(' alias( 1%, 2% , 3% ) ');
+($vals, $name) = $pform->deformat(' alias( 1%, 2%  , 3% ) ');
 is( $name,       'css_string', 'recognized CSS string format');
 is_tuple( $vals, [1, 2, 3], [qw/first second third/], 'deformat CSS string with commas and suffix and weird spacing');
 

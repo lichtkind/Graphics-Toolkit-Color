@@ -7,6 +7,10 @@ Graphics::Toolkit::Color::Manual::Plugin - how to extend GTC
 
 =head1 SYNOPSIS
 
+This L<manual|Graphics::Toolkit::Color::Manual> page explains the two
+mechanisms by which the user might extend GTC functionality.
+
+
 There are mainly two fronts on which GTC is easy to extend without a 
 pull request: 
 
@@ -22,7 +26,10 @@ pull request:
 
 =back
 
-=head1 INTRODUCTION
+=head1 COLOR SPACE
+
+=head1 COLOR SCHEME
+
 
 =head1 AUTHOR
 

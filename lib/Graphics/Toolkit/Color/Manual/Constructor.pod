@@ -4,7 +4,7 @@
 
 Graphics::Toolkit::Color::Manual::Constructor - ways to create a GTC object
 
-=head1 INTRODUCTION
+=head1 SYNOPSIS
 
 There are many ways to create a color object. In short you can either
 use the name of a constant (see L</name>) or provide values, which are
@@ -15,6 +15,7 @@ L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.
 From now on any input that the constructor method C<new> accepts,
 is called a B<color definition>.
 
+=head1 OPTIONS
 
 =head2 new({ r => $r, g => $g, b => $b })
 

@@ -84,9 +84,9 @@ is( ref $grey,                   $value_ref,  'created gray by mixing black and 
 $values = $grey->shaped();
 is_tuple( $values, [128, 128, 128], [qw/red green blue/], 'mixed grey from black and white');
 is( $grey->name(),                'gray',  'created gray by mixing black and white');
-$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], 50, $RGB );
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], .5, $RGB );
 is( $grey->name(),                'gray',  'created gray by mixing black and white with percentage amount');
-$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], [50], $RGB );
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], [.50], $RGB );
 is( $grey->name(),                'gray',  'the percentage amount is in ARRAY this time');
 
 my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black, $white], [5,95], $RGB);

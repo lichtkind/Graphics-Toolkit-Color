@@ -6,57 +6,83 @@ Graphics::Toolkit::Color::Manual::Name - GTC color name handling
 
 =head1 SYNOPSIS
 
-This L<manual|Graphics::Toolkit::Color::Manual> page explains how GTC error
-messages behave and how to change it to a preferred behaviour.
+This L<manual|Graphics::Toolkit::Color::Manual> page explains all there 
+is to know when using color names in GTC. The first chapter describes 
+their role in the overall functionality of the library. 
+The second defines their L<syntax|/SYNTAX>. (How to write them?)
+The next outlines the coverage of the built-in names (L<default scheme|/DEFAULT>).
+And the last chapter illustrates the concept of a L<color scheme|/SCHEME> 
+and how to use them. 
+This is important background to understand the results and inner workings 
+of the methods: L<name|Graphics::Toolkit::Color::Manual::Getter/name> and 
+L<closest_name|Graphics::Toolkit::Color::Manual::Getter/closest_name>.
 
-=head1 OVERVIEW
+
+=head1 ROLE
+
+Because it is intuitive and relatively effortless for humans to refer to 
+colors by name, GTC can interpret them as a convenience.
+But after the name is read, it gets translated into 
+L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> values, 
+since most GTC functionality is about calculating numeric color values. 
+So color names are just one L<format|Graphics::Toolkit::Color::Manual::Format>
+among many and thus mostly a part of the IO layer.
+
+
+=head1 SYNTAX
+
+Color names are mere strings that get normalized to allow a greater flexibility
+in usage.
+Upper and lower case can be chosen freely. And also some special characters
+like the underscore I<'_'>, dash I<'-'>, whitespace I<' '>, the apostrophe I<'> 
+and the dot I<'.'>, that are even sometimes part of the official name,
+may be inserted or removed. That can sometimes improve readability (C<'true_red'>) 
+or help you to adapt the spelling of color names to local standards without
+additional effort.
+
+There is only one character in GTC color names that holds a special meaning, 
+which is the colon I<':'>. It separates the scheme name on the left side 
+from the actual color name on the right (I<'SVG:green'>). You might think
+of schemes as name spaces for color names. Color names without a colon
+are from the L<default scheme|/DEFAULT> (I<'blue'>).
+
 
 =head1 DEFAULT
 
- in the default color scheme,
-which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
-(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
-These are the same which can be used with L</new('name')>.
+The default scheme contains 716 color names which all can be retrieved with:
 
+  my @names = Graphics::Toolkit::Color::Name::all();
 
-L<Graphics::Toolkit::Color::Name::Constant>
+But they can also be seen by name and with their color displayed under: 
+L<Graphics::Toolkit::Color::Name::Constant/NAMES>.
+They are assembled from the I<X11> and I<HTML> (I<SVG>) standard,
+which are most of the commonly used color names on the internet.
+But a lot of them are not aesthetically pleasing. For that reason also
+the colors of the Pantone reports were added. They often have longer,
+more complicated names but they are picked by designers.
 
-L<Graphics::ColorNames> 
-L<Graphics::ColorNames::SVG> 
-L<Bundle::Graphics::ColorNames>
+Because the default scheme contains so many names, some colors end
+up with having several names. For that reason the names are grouped
+by importance, so if you ask for just one color name, you will
+get the better known one (for instance I<'gray'> and not I<'gray50'>).
 
+=head1 SCHEME
 
-Returns the normalized name string (lower case, without I<'_'>) that
-represents the I<RGB> values of this color in the default color scheme,
-which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
-(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
-These are the same which can be used with L</new('name')>.
+Besides the just mentioned default color name scheme, there are no other
+schemes that come with GTC. They have to be obtained separately. 
+For instance to access the names of the I<SVG> standard, you have to install
+the module L<Graphics::ColorNames::SVG>, which of course
+depends on the module L<Graphics::ColorNames>. The list of available 
+schemes include: I<Crayola>, I<CSS>, I<EmergyC>, I<GrayScale>, I<HTML>, 
+I<IE>, I<Mozilla>, I<Netscape>, I<Pantone>, I<PantoneReport>, I<SVG>, 
+I<VACCC>, I<Werner>, I<Windows> and I<WWW>. The following code will check
+what is already installed:
 
-Alternatively you may provide named arguments or one positional argument,
-which is the same as the named argument C<from>. That required a name of
-a color schemes, as listed L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
-You also can submit a list thereof inside a ARRRAY ref which also dictates
-the order of resulting color names.
-Please note that all color schemes, except the default one, depend on
-external modules, which have to be installed separately or via
+   my @schemes = Graphics::ColorNames::all_schemes();
+
+Conveniently all modules can be installed at once with 
 L<Bundle::Graphics::ColorNames>.
-If you try to use a scheme from a not installed module your will get an
-error message instead of a color name. You can also create your custom
-color naming scheme via L<Graphics::Toolkit::Color::Name::Scheme>.
 
-The second named argument is C<all>, which needs to be a perly boolean.
-It defaults to false. But if set to 1, you will get a list of all names
-that are associated with the current values. There will be no duplicates,
-when several schemes are searched.
-
-A third named argument is C<full> - also needing a perly boolean that
-defaults to false. When set C<true> (1), the schema name becomes part of
-the returned color name as in C<'SVG:red'>. These full names are also
-accepted by the constructor.
-
-The fourth named argument is C<distance>, which means the same thing as
-in L</distance> and it defaults to zero. It is most useful in combinataion
-with C<all> to get all color names that are within a certain distance.
 
 =head1 AUTHOR
 
@@ -72,6 +98,3 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-
-

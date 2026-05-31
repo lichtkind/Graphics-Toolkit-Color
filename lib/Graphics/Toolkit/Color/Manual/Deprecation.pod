@@ -6,8 +6,8 @@ Graphics::Toolkit::Color::Manual::Deprecation - deprecated API parts
 
 =head1 SYNOPSIS
 
-This page lists which keywords which will be removed with the next major 
-version (3.0).
+This L<manual|Graphics::Toolkit::Color::Manual> page lists which keywords 
+will be removed with the next major version (3.0).
 
 =head1 METHODS
 

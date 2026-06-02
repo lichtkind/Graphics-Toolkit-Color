@@ -6,11 +6,14 @@ Graphics::Toolkit::Color::Manual::Space - details about supported color spaces
 
 =head1 SYNOPSIS
 
-GTC supports 33 color spaces. This page lists them all and displays their
-name, alias name, family name, axis names (long and short and their role)
-as well as their default value ranges.
-Some relevant context knowledge and background information is also added.
-See a condensed overview of the color spaces at the
+GTC supports 33 color spaces. This 
+L<manual|Graphics::Toolkit::Color::Manual> page lists them all and displays 
+their name, alias name, family name, axis names (long, short and role)
+and all other properties that might help GTC users, like I<shape>, I<gamma>, 
+I<white point> and so on. These terms are explained L<here|/TERMS>. 
+Some sections about a specific color space are enriched by useful 
+background information and historical context.
+See a condensed overview of the color spaces, sorted by family at the
 L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet/SPACES>.
 
 =head1 INTRODUCTION
@@ -19,17 +22,37 @@ Color spaces are mathematical-geometrical constructs that associate each
 color with a point inside a coordinate system. The numerical values of a 
 color definition are viewed as coordinates associated with the axes that 
 express different properties. The closer two colors are along an axis the 
-more similar they are in that property.
+more similar they are in that property. That is also why the ordering of
+the values does matter. Axes have a canonical order which in most cases 
+is reflected in the space name. The values have to be in that same order.
+For the majority of spaces, axes have a long name, often an English word,
+and a short name that is one letter. More often than not the first 
+character of the long name is the short name.
+
 All color spaces are finite and only certain value ranges along an
-axis are acceptable. Most spaces have 3 dimensions (axes) and are
-completely linear like in Euclidean (everyday) geometry.
-A few spaces have more axes and some spaces are cylindrical. That
-means that some axes are not lines but circles and the associated value
-describes an angle (the axis is angular).
+axis are acceptable. In other words: there is a mandatory minimum and 
+maximum value for each axis. A I<normal> axis simply has an associated 
+minimum value of zero and maximum of one.
+L<Color definitions|Graphics::Toolkit::Color::Manual::Format> 
+that do not obey this restriction are out of 
+I<gamut> (L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>).
+And while there might be sometimes subtle differences between value range
+and gamut, these are no subject of consideration here.
+
+Almost all spaces have 3 dimensions (axes), only I<CMYK> has four.
+And most spaces are completely linear like in Euclidean (everyday) geometry,
+but some spaces are cylindrical. 
+That means only two axes are straight lines and one is angular (circle shaped),
+because the associated value describes an angle. Some spaces have additional
+constraints about their shape. For instance L</HSV> has the shape of a
+cone and not of a cylinder and also L</HWB> is not a cylinder since
+the sum of I<whiteness> and I<blackness> should never exceed 100%.
 
 While the author acknowledges that some of the spaces below should be called 
 systems to be technically correct, they still will be called spaces here,
 because one goal of this software is a seamless interoperability between them.
+
+=head1 FAMILY
 
 Another approach to heighten the interoperability is to group them into 
 families of similar spaces. Every family has a representative color space,
@@ -37,24 +60,54 @@ which lends its name as family name. The other members of the family need
 to provide a way to map their axes to the axes of the representative.
 This is achieved either by having the same long axis names (like I<HSL>
 and I<OKHSL>) or by assigning a role name to each axis. For instance 
-the I<chroma> axis of the I<LCH> space gets the role name I<saturation> 
-so GTC can treat the I<chroma> value as synonym of the I<HSL> I<saturation>
-value. Not every color space belongs to a family. The spaces on this page
-are grouped by family, as they are on the 
-L<CheatSheet|Graphics::Toolkit::Color::Manual::CheatSheet/SPACES>.
-
-=head1 SYNTAX
+the I<chroma> axis of the I<LCH> space has the role name I<saturation> 
+so GTC can treat the I<chroma> the same way as an I<HSL> I<saturation> value. 
+The spaces on this page are grouped by family (for better orientation), 
+but not every color space belongs to a family, hence the chapter L</Other>.
 
 =head1 ORDER
 
+Please note the ordering of spaces within each family. That corresponds 
+to the internal search order. That means if you define a color with values 
+in L<hash format|Graphics::Toolkit::Color::Manual::Format/hash>, 
+a HASH reference with values under the keys of I<red>, I<green> and I<blue>,
+they will be understood as standard L</RGB> values. I<RGB> is also the 
+first entry here for the I<RGB family>. This is especially noteworthy 
+since many operations default to OK-type spaces like L<OKLAB> or L<OKHSL>,
+but L<CIELAB> and L<HSL> are higher in search order.
+
+=head1 SYNTAX
+
+Whenever a color space name is used within a 
+L<color definition|Graphics::Toolkit::Color::Manual::Format>, it has to
+be written as shown here in the chapter headings. But there is a rather 
+great degree of freedom to write the name in various ways. First of all
+the name and its alias can be used synonymously by the user. Only when
+GTC writes a color definition, it never uses alias names. Secondly,
+upper and lower case are acceptable. Although some formats will force
+the output to be in a certain casing style. Thirdly, there is a list of
+acceptable, special characters as: underscore I<'_'>, dash I<'-'>,
+whitespace I<' '> and dot I<'.'>. They might be inserted into names to
+write them like I<'BT.2020'>, but that's optional.
 
 =head1 TERMS
 
-B<name>, B<alias name>, B<family name>
-B<range>
-B<gamut>
-B<whitepoint>
-B<transfer function>
+The L</SYNTAX> section already explained the relation between a B<name>
+and B<alias name> and the section before laid out what a space 
+L</FAMILY> is and why there is the concept of an B<axis role>.
+The L</INTRODUCTION> told about long and short B<axes names>, 
+axis B<ranges>, I<normal> ranges and B<gamut>.
+Large gamut just means a space encompasses more colors than other spaces.
+The B<whitepoint> is the set of values that represent pure white in a certain space.
+The conversion between spaces is always a mathematical algorithm, but 
+some conversions are simpler than others. Some are fulfilled by just one 
+operation. There the values of the color are taken as vector that gets
+multiplied with a B<conversion matrix> to obtain the values in the target 
+space. And sometimes conversions consist just of scaling, where a gamma
+value gets applied to every color value: C<$value = $value ** $gamma>. 
+In some cases there are some additional operations to smooth out the edges of 
+the curve. But in any case this procedure is called B<transfer function>.
+
 
 =head1 RGB family
 
@@ -227,8 +280,14 @@ The center column has the value 0 (white .. gray .. black) and the outer
 mantle of the cylinder contains the most saturated, purest colors.
 The third, vertical axis reaches from bottom value 0 (always black no
 matter the other values) to 100 (always white no matter the other values).
-In summary: HSL needs three integer values: B<hue> (short B<h>) (0 .. 359),
+In summary: HSL needs three integer values: B<hue> (short B<h>) (0 .. 360),
 B<saturation> (short B<s>) (0 .. 100) and B<lightness> (short B<l>) (0 .. 100).
+
+=head2 OKHSL
+
+B<OKHSL> is a variant of I<HSL> for perceptual uniformity by Bjoern Ottosson. 
+It has no alias name and the same axis names: B<hue> (short B<h>) (0 .. 360),
+B<saturation> (short B<s>) (0 .. 1) and B<lightness> (short B<l>) (0 .. 1).
 
 =head2 CIELCHab
 
@@ -246,7 +305,6 @@ implementation always be zero.
 similar to L<CIELCHab> except the real valued range of B<chroma> is 
 (0 .. 261) and the space has no alias name.
 
-=head2 OKHSL
 
 =head2 OKLCH
 
@@ -274,6 +332,11 @@ color has its unique coordinates.
 Is an alias to L</HSV>, just the I<value> axis is renamed with B<brightness> (B<b>).
 
 =head2 OKHSV
+
+B<OKHSL> is a variant of I<HSV> for percepual uniformity. It has no alias 
+name and the same axis names: B<hue> (short B<h>) (0 .. 360),
+B<saturation> (short B<s>) (0 .. 1) and B<value> (short B<v>) (0 .. 1).
+
 
 
 =head1 HWB family
@@ -304,9 +367,11 @@ suffix I<'%'>, since they are percentual values as well.
 
 =head2 OKHWB
 
+B<OKHSL> is a variant of I<HWB> for percepual uniformity. It has no alias 
+name and the same axis names: B<hue> (short B<h>) (0 .. 360),
+B<whiteness> (short B<w>) (0 .. 1) and B<blackness> (short B<b>) (0 .. 1).
 
-
-=head1 Other spaces
+=head1 Other
 
 =head2 CMY
 

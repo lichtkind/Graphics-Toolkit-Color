@@ -9,117 +9,116 @@ Graphics::Toolkit::Color::Manual::Getter - reference of value access or value ca
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
 detailed description of the five methods:
 L</values>, L</name>, L</closest_name>, L</distance> and L</is_in_gamut>.
-These methods return various informations about a color, but not a GTC object. 
+These methods return various information about a color, but not a GTC object. 
 They might trigger an L<error|Graphics::Toolkit::Color::Manual::Error> if called incorrectly.
-
 
 =head1 METHODS
 
-giving access to different parts of the objects data or calculating 
-properties based on it.
-
-
 =head2 values
 
-C<values> 
-Returns the numeric values of the color, held by the object.
+C<values> is the universal getter for numerical color values. It can be used 
+to convert, quantize or reformat the values of the color held by the object.
 The method accepts six optional, named arguments:
-L</in> (color space), C<as> (format), L</range>, C<precision>, C<suffix>. and I<raw>.
-In most cases, only the first one is needed.
+C<in>, C<as>, C<raw>, C<range>, C<precision> and C<suffix>.
+If none are provided, the method returns a list with the 
+L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> values
+in default range (0 .. 255), since I<RGB> is the default color space for IO.
+If one positional argument is provided, it is understood as the named
+argument L<in|Graphics::Toolkit::Color::Manual::Argument/in>, the
+name of the color space the values will be converted into. 
 
-When given no arguments, the method returns a list with the integer
-values: C<red>, C<green> and C<blue> in 0 .. 255 range, since I<RGB> is
-the default color space of this module.
+L<as|Graphics::Toolkit::Color::Manual::Argument/as> lets you select the
+output L<format|Graphics::Toolkit::Color::Manual::Format> of the color
+definition, which defaults to I<'list'>. Other options are: C<'hash'>, 
+C<'char_hash'>, C<'named_array'>, C<'nested_array'>, C<'named_string'>, 
+C<'css_string'>, C<'array'> (RGB only) and C<'hex_string'> (RGB only).
 
-If one positional argument is provided, the values get converted into the
-color space of the given name. The same is done when using the named
-argument L</in> (full explanation behind the link). 
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> awaits a pseudo
+boolean which defaults to false. When false, the values will be clamped
+into range, which is either the default range of the selected color space (C<in>)
+or the range set by the user (C<range>).
 
-The named argument L</range> is also explained in its own section. 
-Please note you have to use the C<range> argument only, if you like to
-deviate from the value ranges defined by the chosen color space.
+L<range|Graphics::Toolkit::Color::Manual::Argument/range> requires a range
+definition (follow the link for details about that). It will define the
+minimum and maximum value per axis.
 
-Maybe the most characteristic argument of this method is C<as>, which
-selects the format of the output. I<GTC> is built with the design principle
-of total serialisation or I<idempotent> data format. This means: every 
-contructor input format can be reproduced by a getter method and vice versa. 
-These formats are: C<'list'> (default), C'<named_array'>, C<'hash'>, 
-C<'char_hash'>, C<'named_string'>, C<'css_string'>, C<'array'> (RGB only) 
-and C<'hex_string'> (RGB only). The remaining two: C<name> and C<full:name>
-are produce by the method L</name>.
-Format names are case insensitive. For more explanations, please see:
-L<formats section|Graphics::Toolkit::Color::Space::Hub/FORMATS> in GTC::Space::Hub.
+C<precision> needs a precision definition, that determines how many decimals 
+the result values will have. Use 5 to require five decimals (and so forth), 
+insert 0 to get no decimals (int) and -1 to get all the decimals (max. 15).
+If every value should have a different amount, use an ARRAY reference
+and put inside a precision number for each axis in the same order as in
+a range definition: C<< precision => [1,2,3] >>.
 
-C<precision> is a more exotic argument, but sometimes you need to escape
-the numeric precision, set by a color spaces definition.
-For instance C<LAB> values will have maximally three decimals, no matter
-how precise the input was. In case you prefer 4 decimals, just use
-C<< precision => 4 >>. A zero means no decimals and -1 stands for maximal
-precision -  which may spit out more decimals than you prefer.
-Different precisions per axis are possible via an ARRAY ref:
-C<< precision => [1,2,3] >>.
+C<suffix> accepts a suffix definition, which is a string or an ARRAY reference
+with strings (one per axis), pretty much like a C<precision> definition.
+That string will be attached to the value(s) in question, which is in many
+cases a percent sign I<'%'>. For instance an output in 
+L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL> space will have
+I<saturation> and I<lightness> values with a suffix of I<'%'>. 
+This can be suppressed by adding C<< suffix => '' >>.
 
-In the same way you can atach a little strings per value by using the C<suffix>
-argument. Normally these are percentage signs but in some spaces, where
-they appear by default you can surpress them by adding C<< suffix => '' >>.
-
-The last argument is C<raw> which takes any perlish boolean true value,
-since it defaults to false (0). When true the values will not be clamped
-into range and might be outof gamut. Its only useful if you want the
-unsanitized input  converted as output.
-
-
-    $blue->values();                                      # 0, 0, 255
-    $blue->values( in => 'RGB', as => 'list');            # 0, 0, 255 # explicit arguments
-    $blue->values(              as => 'array');           # [0, 0, 255] - RGB only
-    $blue->values( in => 'RGB', as => 'named_array');     # ['RGB', 0, 0, 255]
-    $blue->values( in => 'RGB', as => 'hash');            # { red => 0, green => 0, blue => 255}
-    $blue->values( in => 'RGB', as => 'char_hash');       # { r => 0, g => 0, b => 255}
-    $blue->values( in => 'RGB', as => 'named_string');    # 'rgb: 0, 0, 255'
-    $blue->values( in => 'RGB', as => 'css_string');      # 'rgb( 0, 0, 255)'
-    $blue->values(              as => 'hex_string');      # '#0000ff' - RGB only
-    $blue->values(           range => 2**16 );            # 0, 0, 65536
-    $blue->values('HSL');                                 # 240, 100, 50
-    $blue->values( in => 'HSL',suffix => ['', '%','%']);  # 240, '100%', '50%'
-    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};  # 240
-   ($blue->values( 'HSB'))[0];                            # 240
+    $blue->values();                                        # 0, 0, 255
+    $blue->values( in => 'RGB', as => 'list');              # 0, 0, 255 # explicit arguments
+    $blue->values(              as => 'array');             # [0, 0, 255] - RGB only
+    $blue->values( in => 'RGB', as => 'named_array');       # ['RGB', 0, 0, 255]
+    $blue->values( in => 'RGB', as => 'hash');              # { red => 0, green => 0, blue => 255}
+    $blue->values( in => 'RGB', as => 'char_hash');         # { r => 0, g => 0, b => 255}
+    $blue->values( in => 'RGB', as => 'named_string');      # 'rgb: 0, 0, 255'
+    $blue->values( in => 'RGB', as => 'css_string');        # 'rgb( 0, 0, 255)'
+    $blue->values(              as => 'hex_string');        # '#0000ff' - RGB only
+    $blue->values(           range => 2**16-1 );            # 0, 0, 65535 - RGB16 values
+    $blue->values('HSL');                                   # 240, 100, 50
+    $blue->values( in => 'HSL',suffix => ['', '%','%']);    # 240, '100%', '50%'
+    $blue->values( in => 'HSB',  as => 'hash')->{'hue'};    # 240
+   ($blue->values( 'HSB'))[0];                              # 240
     $blue->values( in => 'XYZ', range => 1, precision => 2);# normalized, 2 decimals max.
 
 
 =head2 name
 
-C<name> 
-Returns the normalized name string (lower case, without I<'_'>) that
-represents the I<RGB> values of this color in the default color scheme,
-which is I<X11> + I<HTML> (I<SVG>) + I<Pantone report>
-(see L<all names|Graphics::Toolkit::Color::Name::Constant/NAMES>).
-These are the same which can be used with L</new('name')>.
+C<name> returns a string with the name of the color or an empty string
+if the color held by the object has no name. This name will be normalized
+(lower case, no special character - read more 
+L<here|Graphics::Toolkit::Color::Manual::Name/SYNTAX>).
+In rare cases the method might return more than one color name. 
+It accepts four named, optional arguments: C<from>, C<full>, C<all> and C<distance>. 
+If only one, positional argument
+is provided, then it is understood as the C<from> value.
 
-Alternatively you may provide named arguments or one positional argument,
-which is the same as the named argument C<from>. That required a name of
-a color schemes, as listed L<here|Graphics::Toolkit::Color::Name/SCHEMES>.
-You also can submit a list thereof inside a ARRRAY ref which also dictates
-the order of resulting color names.
-Please note that all color schemes, except the default one, depend on
-external modules, which have to be installed separately or via
-L<Bundle::Graphics::ColorNames>.
-If you try to use a scheme from a not installed module your will get an
-error message instead of a color name. You can also create your custom
-color naming scheme via L<Graphics::Toolkit::Color::Name::Scheme>.
+L<from|Graphics::Toolkit::Color::Manual::Argument/from> selects the 
+L<color scheme|Graphics::Toolkit::Color::Manual::Name/SCHEME> the color
+names have to come from. Follow the last link to read what color schemes
+are and how to install them. The options are: I<Crayola>, I<CSS>, I<EmergyC>, 
+I<GrayScale>, I<HTML>, I<IE>, I<Mozilla>, I<Netscape>, I<Pantone>, 
+I<PantoneReport>, I<SVG>, I<VACCC>, I<Werner>, I<Windows> and I<WWW>.
+It is possible to select more than one scheme by providing an ARRAY reference
+with several scheme names. If no scheme name is provided, then the
+L<default scheme|Graphics::Toolkit::Color::Manual::Name/DEFAULT> is selected.
+Please note that even if the color object is created by numeric values,
+C<name> will return a color name.
 
-The second named argument is C<all>, which needs to be a perly boolean.
-It defaults to false. But if set to 1, you will get a list of all names
-that are associated with the current values. There will be no duplicates,
-when several schemes are searched.
+C<full> receives a pseudo boolean that defaults to false (0). 
+When set to true (1), the method will return full color names which are
+explained L<here|Graphics::Toolkit::Color::Manual::Name/SYNTAX>.
+In short: if C<<$color->name(from => 'SVG')>> returns I<'green'>,
+C<<$color->name(from => 'SVG', full => 1)>> will return I<'SVG:green'>.
+Colors from the default scheme will never contain a scheme name.
 
-A third named argument is C<full> - also needing a perly boolean that
-defaults to false. When set C<true> (1), the schema name becomes part of
-the returned color name as in C<'SVG:red'>. These full names are also
-accepted by the constructor.
+C<all> gets also a pseudo boolean that defaults to false (0). 
+When set to true (1), the method might return several color names that
+identify the same color, like I<'gray'> and I<'gray50'>. This might be 
+the case if the default color scheme is selected or several schemes are
+chosen. In the latter case it is helpful to add the argument C<full>.
 
-The fourth named argument is C<distance>, which means the same thing as
-in L</distance> and it defaults to zero. It is most useful in combinataion
-with C<all> to get all color names that are within a certain distance.
+C<distance> (or short C<d>) expects a number which defaults to 0.
+When set to a number larger than zero, the method will search for names
+of colors that are part of the chosen color scheme and that have a smaller
+or equal L</distance> to the color held by the object. It is very useful
+to combine it with the C<all> argument. The names will be sorted by 
+distance (closest first) or it will return the name of the closest color.
+But this ordering is not guaranteed when searching across several schemes.
+However, all returned names will always be unique, which is another
+reason to use C<full>.
 
     $blue->name();                                   # 'blue'
     $blue->name('SVG');                              # 'blue'
@@ -130,17 +129,19 @@ with C<all> to get all color names that are within a certain distance.
 
 =head2 closest_name
 
+C<closest_name> will always return one and only one color name, 
+which has the shortest L</distance> in L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB>
+to the current color. However, should you provide a self made, empty color scheme
+and you insist on only using this one, this method will return an empty string.
+In list context the caller will receive a second return value, which is the
+distance between the current color and the color whose name was found.
+The method accepts three named, optional arguments: C<from>, C<full> and C<all>,
+which work almost identically as for the method L</name>. 
+If only one, positional argument is provided, then it is understood as the C<from> value.
 
-C<closest_name> 
-Returns in scalar context a color name, which has the shortest L</distance>
-in I<RGB> to the current color. In list context, you get additionally
-the just mentioned distance as a second return value. This method works
-almost identically as method L</name>, but guarantees a none empty
-result, unless invoking a unusually empty color scheme.
-
-All arguments work as mentioned above, only here is no C<distance> argument.
-The only difference is (due to the second return value), multiple names
-(when requested) have to come in the form of an ARRAY as the first return value.
+C<all> has a slightly different meaning here, since there can be only one
+closest color. But this color can have several names. Get all of them 
+by switching this argument to true (1).
 
     my $name = $red_like->closest_name;              # closest name in default scheme
     my $name = $red_like->closest_name('HTML');      # closest HTML constant
@@ -149,65 +150,88 @@ The only difference is (due to the second return value), multiple names
 
 =head2 distance
 
-C<distance>
-Is a floating point number that measures the Euclidean distance between
-two colors, which represent two points in a color space. One color
-is the calling object itself and the second one has to be provided as
-either the only argument or the named argument L</to>, which is the only
-required one.
+C<distance> returns a floating point number that measures the Euclidean 
+distance between two colors, which represent two points in a color space. 
+One color is the calling object itself and the second one has to be provided 
+as either the only positional argument or the named argument C<to>, 
+which is the only required one. The other three, optional arguments are:
+C<only> (alias C<select>), C<range> and C<in>.
 
-The C<distance> is measured in I<RGB> color space unless told otherwise
-by the argument L</in>. Please use the I<OKLAB> (better) or I<CIELUV> space,
-if you are interested in getting a result that matches the human perception.
+L<to|Graphics::Toolkit::Color::Manual::Argument/to> receives a color
+definition in any format or a GTC object.
 
-The third argument is named C<select>. It's useful if you want to regard
-only certain dimensions (axis - long and short axis names are accepted).
-For instance if you want to know only the difference in brightness between
-two colors, you type C<< select => 'lightness' >> or C<< select => 'l' >>.
-This naturally works only if you did also choose I<HSL> as a color space
-or something similar that has a C<lightness> axis like I<LAB> or I<OKLAB>.
-The C<select> argument accepts a string or an ARRAY with several axis names,
-which can also repeat. For instance there is a formula to compute distances
-in RGB that weights the squared value delta's:
+L<only|Graphics::Toolkit::Color::Manual::Argument/only> selects along
+which color space dimension the distance will be measured. The default
+is all dimensions. It requires one or several (in a ARRAY reference) 
+axis names (long or short). For instance if you want to know only the 
+difference in brightness between two colors, you choose C<< only => 'lightness' >> 
+or C<< only => 'l' >>. This naturally works only if you did also select
+I<OKLAB> as the color space or something similar that has a C<lightness> 
+axis like I<CIELAB> or I<HSL>. It is allowed to repeat axis names to 
+weight their influence on the outcome. For instance to reproduce the formula:
 C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>.
-You can recreate that formula by typing C<< select => [qw/ r r r g g g g b b/] >>
+insert C<< only => [qw/ r r r g g g g b b/] >>.
 
-The last argument is named L</range>, which can change the result drasticly.
+L<range|Graphics::Toolkit::Color::Manual::Argument/range> requires a range
+definition (follow the link for details about that). It will define the
+minimum and maximum value per axis and thus greatly change the result.
+Please note that this has nothing to do with how the color definition
+of the second color is read. Use constructor arguments and provide
+the object if the second color uses non-default ranges. This
+argument enables you for instance to calculate the distance
+in L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> as if the
+values were normalized. In that case use C<< range => 1>>.
 
-    my $d = $blue->distance( 'lapisblue' );                 # how close is blue to lapis?
-    $d = $blue->distance( to => 'airyblue', select => 'b'); # have they the same amount of blue?
-    $d = $color->distance( to => $c2, in => 'HSL', select => 'hue' );  # same hue?
-    $d = $color->distance( to => $c2, range => 'normal' );  # distance with values in 0 .. 1 range
-    $d = $color->distance( to => $c2, select => [qw/r g b b/]); # double the weight of blue value differences
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
+the L</distance> is calculated in. For compatibility it still defaults
+to L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB>, 
+but this will change with version 3.0. Please use the I<OKLAB> (better) 
+or I<CIELUV> space, if you are interested in getting a result that matches 
+the human perception.
+
+    my $d = $blue->distance( 'lapisblue' );                   # how close is blue to lapis?
+    $d = $blue->distance(  to => 'airyblue', only => 'b');    # have they the same amount of blue?
+    $d = $color->distance( to => $c2, in => 'HSL', only => 'hue' ); # same hue?
+    $d = $color->distance( to => $c2, range => 'normal' );    # distance with values in 0 .. 1 range
+    $d = $color->distance( to => $c2, only => [qw/r g b b/]); # double the weight of blue value differences
 
 
 =head2 is_in_gamut
 
-C<is_in_gamut>
-Takes any color definition I<new> would accept and returns a perlish pseudo 
-boolean (zero or one). That will tell you, if the color is within the gamut 
-(value range) of a color space. This can be either the color space the
-color was defined in or you choose the space by the argument L</in>.
+C<is_in_gamut> returns a perlish pseudo boolean (zero or one). It will 
+tell you, if a color is within the gamut (value range) of a color space. 
+That color can be either the one held by the object or one that is given
+via the argument C<color> or the sole positional argument.
+It requires the same input as the named argument
+L<to|Graphics::Toolkit::Color::Manual::Argument/to>.
 
-If you omit a color definition, the current color held by the object will be
-checked against that space. But you can also use the argument I<color> 
-to provide the color definition and additional information.
+C<is_in_gamut> can be used as a GTC method or as an importable subroutine.
+In the latter case the C<color> argument is required, or there would be
+no color to check. The other optional, named arguments are: C<in> and C<raw>.
 
-The optional argument L</range> overrides the default range definition 
-of the space the color is defined in.
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> needs a color space name. 
+This serves two use cases. Either the color definition given via C<color>
+was ambiguous and you need to clarify in which color space this color was
+defined. The other use case arises if you want to know if a color, 
+converted into another space, is in default gamut of that other space.
+This case will be computed if the selected color space does not match
+the color space name or the axis names used in the color definition (C<color>).
 
-The optional argument L</raw> defaults to true, unlike within the method I<new>. 
-But you can still set it false for the unlikely occasion you want to clamp the
-values to the boundaries of the space the color was defined in and then convert
-it into the selected space in order to check if the clamped color fits there.
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> is a pseudo boolean
+that defaults here to true. This allows to read colors via the C<color>
+argument unaltered, so that the question: is this color in gamut makes sense.
+If C<raw> were set to be false (0), the incoming color would be clamped 
+into range and thus always be in gamut. The only use case for that argument
+is if you want to clamp a color into range in one space, the one the color
+was defined in, and then ask if it is still in gamut in the selected space (C<in>).
 
-
-    $color->is_in_gamut( in => 'okLab');                    # does convert clamp $color?
+    $color->is_in_gamut( in => 'okLab');                    # is $color in OKLAB gamut?
     $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
-    if (is_in_gamut('rgb: 0, 0, 300')){                     # false, 300 has to be clamped to 255
-    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB') # black is always included
+    if (is_in_gamut('rgb: 0, 0, 300')){...}                 # false, 300 has to be clamped to 255
+    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB');# black is always included
+
 
 =head1 AUTHOR
 
@@ -223,6 +247,3 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-
-

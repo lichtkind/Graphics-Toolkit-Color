@@ -9,6 +9,7 @@ Graphics::Toolkit::Color::Manual::Constructor - ways to create a GTC object
 There are many ways to create a color object. In short you can either
 use the name of a constant (see L</name>) or provide values, which are
 coordinates in one of several
+L<manual|Graphics::Toolkit::Color::Manual>
 L<color spaces|Graphics::Toolkit::Color::Space::Hub/COLOR-SPACES>.
 The latter are also understood in many
 L<formats|Graphics::Toolkit::Color::Space::Hub/FORMATS>.

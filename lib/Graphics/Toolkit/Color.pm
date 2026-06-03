@@ -181,7 +181,7 @@ EOH
 sub name         {
     my ($self, @args) = @_;
     return $self->{'values'}->name unless @args;
-    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0, distance => 0});
+    my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0, distance => 0}, {distance => 'd'});
      my $help = <<EOH;
     GTC method 'name' accepts three optional, named arguments:
     name ( ...

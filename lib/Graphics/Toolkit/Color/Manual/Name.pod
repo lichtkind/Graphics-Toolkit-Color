@@ -38,7 +38,8 @@ like the underscore I<'_'>, dash I<'-'>, whitespace I<' '>, the apostrophe I<'>
 and the dot I<'.'>, that are even sometimes part of the official name,
 may be inserted or removed. That can sometimes improve readability (C<'true_red'>) 
 or help you to adapt the spelling of color names to local standards without
-additional effort.
+additional effort. GTC output will always contain normalized names without
+special characters and in complete lowercase.
 
 There is only one character in GTC color names that holds a special meaning, 
 which is the colon I<':'>. It separates the scheme name on the left side 

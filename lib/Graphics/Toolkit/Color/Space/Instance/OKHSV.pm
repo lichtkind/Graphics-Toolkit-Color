@@ -1,5 +1,5 @@
 
-# OK HSV color space by Björn Ottosson
+# OKHSV color space by Björn Ottosson
 
 package Graphics::Toolkit::Color::Space::Instance::OKHSV;
 use v5.12;

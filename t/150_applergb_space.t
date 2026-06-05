@@ -45,7 +45,7 @@ is( $name,   'named_string', 'recognized named string format');
 is_tuple( $rgb, [0.1, 0.2, 0.8], $rgb_axis, 'got values from named_string');
 
 ($rgb, $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 
 ($rgb, $name) = $space->deformat([AppleRGB => [0, 0.2, 1.2]]);
 is( $name,   'named_array', 'recognized named named array format with nested array');

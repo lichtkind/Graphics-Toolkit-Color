@@ -16,7 +16,9 @@ See a condensed overview of the here presented argument names on the
 L<cheat sheet|Graphics::Toolkit::Color::Manual::CheatSheet/ARGUMENTS>.
 
 Please note that you do not have to wrap the named args in curly braces 
-(HASH ref) but you may if you prefer to do so.
+(HASH ref) but you may if you prefer to do so. All GTC methods take
+named arguments, but also almost all methods have a default argument
+that can be used as a positional if it is the only argument.
 
 
 =head1 ARGUMENTS
@@ -44,7 +46,8 @@ The default color space for input and output is I<RGB>, but most
 calculating methods default to I<OKLAB> or I<OKHSL> if a cylindrical
 option is needed (C<complement>).
 
-C<in> is understood by all methods except C<new>, C<name> and C<closest_name>:
+C<in> is understood by all methods except C<name> and C<closest_name>:
+L<new|Graphics::Toolkit::Color::Manual::Constructor/new>, 
 L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>, 
 L<values|Graphics::Toolkit::Color::Manual::Getter/values>, 
 L<distance|Graphics::Toolkit::Color::Manual::Getter/distance>, 
@@ -107,6 +110,18 @@ L<gradient|Graphics::Toolkit::Color::Manual::Set/gradient>.
 
 C<mix> and C<gradient> can handle also an ARRAY that contains any number
 of colors, which can be formatted independently.
+
+
+=head2 color
+
+C<color> is the pendant to the argument L</to> and receives the same input.
+It only uses a different word to communicate the different role of the
+color in question. Whereas C<to> implies a "target", "the other", 
+"that color", just C<color> implies "this color", "here". Because GTC
+tries to have an API that speaks in plain English, that difference is not
+reducible. This argument is currently used in 
+L<new|Graphics::Toolkit::Color::Manual::Constructor> and
+L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>.
 
 
 =head2 range
@@ -174,7 +189,6 @@ when converted into another space.
 The I<raw> argument can be used in:
 L<new|Graphics::Toolkit::Color::Manual::Constructor>, 
 L<values|Graphics::Toolkit::Color::Manual::Getter/values>, 
-L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>.
 
 
 =head2 steps

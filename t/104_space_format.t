@@ -8,7 +8,8 @@ use Test::More tests => 91;
 
 my $module = 'Graphics::Toolkit::Color::Space::Format';
 eval "use $module";
-is( not($@), 1, 'could load the module'); #say $@;
+is( not($@), 1, 'could load the module'); # say $@; exit 1;
+
 use Graphics::Toolkit::Color::Space::Basis;
 my $basis = Graphics::Toolkit::Color::Space::Basis->new([qw/alpha beta gamma/], undef, undef, 'alias');
 

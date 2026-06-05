@@ -51,7 +51,7 @@ $rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
 is_tuple( $rgb, [0, 1, 0.5], [qw/red green blue/], 'clamp changes values to min, max and removes superfluous values');
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,    undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 ($rgb, $name) = $space->deformat('pro_photo_rgb: 0.2, 0.3, 0.7');
 is( $name, 'named_string',     "recognized 'named_string' format");
 is_tuple( $rgb, [0.2, 0.3, 0.7], [qw/red green blue/], "got values out of 'named_string'");

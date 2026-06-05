@@ -88,11 +88,14 @@ L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> values.
 =head2 array
 
 C<array> is just a list inside square brackets (ARRAY reference), 
-hence almost the same rules apply as for C<list> (are read as I<RGB>). 
-This format has the sole advantage over C<list>, that it is from a Perl 
+hence almost the same rules apply as for C<list> (it's read as I<RGB> by default). 
+This format has the sole advantage over a C<list>, that it is from a Perl 
 perspective a scalar and can be therefore used for an argument like 
 L<to|Graphics::Toolkit::Color::Manual::Argument/to>
 in methods like L<distance|Graphics::Toolkit::Color::Manual::Getter/distance>.
+You may use it for values in other spaces too but then you have to provide
+the space name via the argument 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in>.
 
     [1,2,3]
 
@@ -119,13 +122,18 @@ intuitively more sense.
 =head2 hash
 
 C<hash> is the most expressive and spacious format. It is a HASH reference
-with long axis names as keys. It requires all axis names to be present,
+with long axis names as keys. It requires all axes to be presented by name,
 even if GTC will accept any mix of long and short axis names.
 If you order C<hash> as output format you will get long axis names only.
 The biggest downside of this format is its ambiguity, especially because
-GTC supports over 10 RGB spaces. To ensure it is understood as intended,
-please read about the L<search order|Graphics::Toolkit::Color::Manual::Space/ORDER> 
-of color spaces or use a different format.
+GTC supports over 10 L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> spaces.
+Please read about the L<search order|Graphics::Toolkit::Color::Manual::Space/ORDER>
+to see which and how spaces get overshadowed by others. In short, 
+look at the name of a color space family to see which space is dominant.
+If you want to define a color in a color space that is not dominant, 
+you have to either use another format that contains the color space name
+or you provide the space name via the argument 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in>.
 
     {red => 1, green => 2, blue => 3}
     

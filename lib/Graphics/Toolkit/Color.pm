@@ -23,54 +23,59 @@ sub import {
 }
 
 ## constructor #########################################################
-sub color { Graphics::Toolkit::Color->new ( @_ ) }
-
+my $POD_link = ' Type "perldoc Graphics::Toolkit::Color" for more help.';
 sub new {
     my ($pkg, @args) = @_;
-    my $help = <<EOH;
-     constructor new of Graphics::Toolkit::Color object needs either:
-     1. a color name: 'red' or 'SVG:red'
-     2. RGB hex string '#FF0000' or '#f00'
-     3. RGB list or ARRAY ref: ( 255, 0, 0 ) or ( [255, 0, 0] )
-     4. named list or named ARRAY:  ( 'HSL', 255, 0, 0 ) or ( ['HSL', 255, 0, 0 ])
-        which works even nested: 'HSL' => [ 255, 0, 0 ] or ['HSL' => [ 255, 0, 0 ]]
-     5. string:  new( 'HSL: 0, 100, 50' ) or new( 'ncol(r0, 0%, 0%)' )
-     6. HASH or HASH ref with values from RGB or any other space:
-        (r => 255, g => 0, b => 0) or { hue => 0, saturation => 100, lightness => 50 }
-     7. or use the key 'color' with any SCALAR color definition in order to add
-        the option 'raw' and/or 'range'
-EOH
-    my ($color_def, $range_def, $raw) = _compact_color_def_into_scalar( @args );
-    error($help) unless defined $color_def;
-    my $self = _new_from_scalar_def( $color_def, $range_def, $raw );
-    return (ref $self) ? $self : error($help);
-}
-sub _compact_color_def_into_scalar {
-    my (@args) = @_;
-    return unless @args;
-    if (not(@args % 2) and ($args[0] eq 'range' or $args[0] eq 'color' or $args[0] eq 'raw')){
-		if (@args == 2 and $args[0] eq 'color'){ shift @args } # ->new (color => ...) is allowed
-		elsif (@args > 2) {
-			my %h = @args;
-			return (delete( $h{'color'} ), delete( $h{'range'} ), delete( $h{'raw'} )) if @args == (scalar keys %h) * 2; # prevent double use of a key
-	    }
-	    else { return; }
+    my $help = 'method "new" accepts the arguments: "color" (color definition), "raw", '.
+               '"range" and "in" (space name). "color" is the required and default argument.'.$POD_link;
+	my ($color_def, $space_name, $range_def, $is_raw);
+    unless (@args % 2 or not @args){
+		my %h = @args;
+		($color_def, $space_name, $range_def, $is_raw) = ($h{'color'}, $h{'in'}, $h{'range'}, $h{'raw'} // 0);
 	}
-    my $first_arg_is_color_space = Graphics::Toolkit::Color::Space::Hub::is_space_name( $args[0] );
-    @args = ([ $args[0], @{$args[1]} ]) if @args == 2 and $first_arg_is_color_space and ref $args[1] eq 'ARRAY';
-    @args = ([ @args ])                 if @args == 3 or (@args > 3 and $first_arg_is_color_space);
-    @args = ({ @args })                 if @args == 6 or  @args == 8;
-    return (@args == 1) ? $args[0] : undef;
+    $color_def = _color_def_into_scalar( @args ) unless defined $color_def;
+    error($help) unless defined $color_def;
+    my $self = _new_from_scalar_def( $color_def, $space_name, $range_def, $is_raw );
+	return (ref $self) ? $self : error($self);
 }
-sub _new_from_scalar_def { # color defs of method arguments
-    my ($color_def, $range_def, $raw) = @_;
+sub color { 
+	my $self = _new_from_scalar_def( _color_def_into_scalar( @_ ) );
+	return (ref $self) ? $self : error($self);
+}
+sub _color_def_into_scalar {
+    my (@args) = @_;
+    return if @args < 1 or @args > 8 or @args == 5 or @args == 7;
+    return $args[0] if @args == 1; # pass names
+    return [@args]  if @args < 5;  # lists and named lists --> array and named array
+    return {@args};                # hashes without curly braces --> hash
+}
+sub _new_from_scalar_def {
+    my ($color_def, $space_name, $range_def, $is_raw) = @_;
     return $color_def if ref $color_def eq __PACKAGE__;
-    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def, $raw ) );
+    return _new_from_value_obj( Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $space_name, $range_def, $is_raw ) );
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
     return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
     return bless {values => $value_obj};
+}
+
+sub is_in_gamut {
+    my ($self, $space_name) = @_;
+    return is_in_gamut_sub (@_) if ref $self ne __PACKAGE__;
+    my $help = 'The method "is_in_gamut" accepts one optional, positional argument, a color space name, '.
+               'which defaults to the space the color was defined in'.$POD_link; 
+    my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
+	return error($help) if defined $space_name and not ref $space;
+    $self->{'values'}->is_in_gamut( (ref $space) ? $space->name : undef );
+}
+sub is_in_gamut_sub {
+    my (@color) = @_;
+	my $values = Graphics::Toolkit::Color::Values->new_from_any_input( 
+		_color_def_into_scalar( @_ ), undef, undef, 1 
+	);
+	return error($values.$POD_link) unless ref $values;
+    $values->is_in_gamut( );
 }
 
 ########################################################################
@@ -118,63 +123,14 @@ sub _split_named_args {
 
 ### getter #############################################################
 my $default_space_name = Graphics::Toolkit::Color::Space::Hub::default_space_name();
-sub is_in_gamut {
-    my ($self, @args) = @_;
-    my $help = <<EOH;
-    GTC method 'is_in_gamut' returns a perlish pseudo boolean (0/1),
-    telling you if a color is inside the gamut (range) of a color space or not.
-    It accepts any color definition 'new' would. And like 'new' you have to give
-    the color as value of the argument 'color', if you want to add information 
-    about the color. If no color definition is provided, the method will operate
-    upon the current color, held by the object.
-    Unlike 'new', the argument 'raw' defaults here to true (1).
-    is_in_gamut ( ...
-        color => [12,1000,5], # color definition
-        range => 2**16,       # observe these value ranges while reading the color definition
-        in => 'HSL',          # check if color is in gamut of that space
-                              # if no space name is provided, the color will be checked 
-                              # against the boundaries of the space the color was defined in 
-        raw => 0,             # clamp values to boundaries of the space, the color was defined in,
-                              # before converting it into the space you check against
-EOH
-    unshift @args, $self unless ref $self eq __PACKAGE__;
-    return $help if not ref $self and not @args;
-    my ($color_def, $space_name, $range_def, $raw);
-    if (not @args % 2 and @args and ($args[0] eq 'color' or $args[0] eq 'range' or $args[0] eq 'in' or $args[0] eq 'raw')){
-		my %args = @args;
-		$color_def = delete $args{'color'};
-		$range_def = delete $args{'range'};
-		$raw = delete $args{'raw'};
-		$space_name = delete $args{'in'};
-		return "Got no color definition!\n\n".$help unless defined $color_def or ref $self;
-	} else {
-		$color_def = _compact_color_def_into_scalar(@args);
-		return "Got no valid color definition!\n\n".$help if @args and not defined $color_def;
-	}
-	my $values = (defined $color_def) 
-	           ? Graphics::Toolkit::Color::Values->new_from_any_input( $color_def, $range_def, $raw // 1 )
-	           : $self->{'values'};
-	return $values unless ref $values;
-    $values->is_in_gamut( $space_name );
-}
-
 sub values       {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'in', [],
                                { in => $default_space_name, as => 'list', raw => 0,
                                  precision => undef, range => undef, suffix => undef } );
-    my $help = <<EOH;
-    GTC method 'values' accepts either no arguments, one color space name or four optional, named args:
-    values ( ...
-        in => 'HSL',          # color space name, defaults to "$default_space_name"
-        as => 'css_string',   # output format name, default is "list"
-        range => 1,           # value range (SCALAR or ARRAY), default set by space def
-        precision => 3,       # value precision (SCALAR or ARRAY), default set by space
-        suffix => '%',        # value suffix (SCALAR or ARRAY), default set by color space
-        raw => 1,             # no value clamping, rounding and scaling only by arg request
-
-EOH
-    return $arg.$help unless ref $arg;
+    my $help = 'The method "values" returns numeric color values and accepts six named, optional arguments: '.
+               '"in" (color space name), "as" (color definition format), "raw", "range", "precision" and "suffix"!';
+    return error($arg.$help.$POD_link) unless ref $arg;
     $self->{'values'}->formatted( @$arg{qw/in as suffix range precision raw/} );
 }
 
@@ -428,7 +384,7 @@ EOH
     return "Optional argument 'target' has to be a HASH ref !\n".$help if ref $arg->{'target'} ne 'HASH';
     my ($target_delta, $space_name);
     if (keys %{$arg->{'target'}}){
-        ($target_delta, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $arg->{'target'}, 'HSL' );
+        ($target_delta, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $arg->{'target'}, 'HSL' );
         return "Optional argument 'target' got HASH keys that do not fit HSL space (use 'h','s','l') !\n".$help
             unless ref $target_delta;
     } else { $target_delta = [] }
@@ -579,22 +535,21 @@ can be chosen, but defaults to using L<Carp>.
 =head1 DEPRECATION
 
 The next API cleanup will come with version 3.0. Please see which 
-syntax L<is on the way out|Graphics::Toolkit::Color::Manual::Deprecation>.
+syntax is L<on the way out|Graphics::Toolkit::Color::Manual::Deprecation>.
 
 =head1 CONSTRUCTOR
 
-I<GTC> objects are created either with L<new|Graphics::Toolkit::Color::Manual::Constructor>
-or the importable routine B<color>, which is a mere alias for convenience
-that avoids the long class name. I<color> understands every input I<new> would too. 
+L<new|Graphics::Toolkit::Color::Manual::Constructor/new> is the universal
+constructor to create a GTC object that takes the arguments: 
+L<color|Graphics::Toolkit::Color::Manual::Argument/color>, 
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw>, 
+L<range|Graphics::Toolkit::Color::Manual::Argument/range> and 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in>.
+C<color> is the only required argument and the default argument 
+(can be provided as the only positional argument).
 
-The primary way to use I<new> is to pass it a I<color definition>, which
-can be either a L<color name|Graphics::Toolkit::Color::Manual::Name> or
-a set of values in one of the many supported 
-L<formats|Graphics::Toolkit::Color::Manual::Format> (which are summarized below).
-Most formats contain the name of a L<color space|Graphics::Toolkit::Color::Manual::Space>
-or the names of its axes. Please be also aware that you need the appropriate
-module from the L<Bundle::Graphics::ColorNames> installed, if you wish to
-use color names from a certain scheme.
+The importable method L<color|Graphics::Toolkit::Color::Manual::Constructor/color>
+is a short alias for calling C<new> just with the argument C<color>.
 
     use Graphics::Toolkit::Color qw/color/;
 
@@ -625,21 +580,12 @@ use color names from a certain scheme.
     color( '#FF0000' );                 # hex_string format, RGB only
     color( '#f00' );                    # hex_string format, short form
 
-In order to add information to a color definition you have to provide the
-color definition via the named argument B<color>. Then you can also use
-the named argument B<range>, which allows you to set value ranges that 
-override the color space default. With the argument 
-L<Graphics::Toolkit::Color::Manual::Argument/raw> (default is false)
-you can force GTC to accept values outside the defined value ranges. 
-This might cause unwanted behaviour for some operations.
-
     # this color is even outside the RGB16 range
     Graphics::Toolkit::Color->new( color => [100_000,0,0], range => 2**16, raw => 1 );
 
 =head1 GETTER
 
-These methods return information about a color, the relationship between 
-colors, or the relationship between a color and its space.
+These methods return information about a color(s) but not a GTC object.
 
 =head2 is_in_gamut
 
@@ -1168,4 +1114,3 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-

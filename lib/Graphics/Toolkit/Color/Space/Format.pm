@@ -25,6 +25,7 @@ sub new { # -, $:Basis -- ~|@~val_form, ~|@~suffix --> :_
 
     # format --> tuple
     my %deformats = ( hash => sub { tuple_from_hash(@_)         },
+                     array => sub { [@{$_[1]}] if $_[0]->basis->is_value_tuple( $_[1] ) },
                named_array => sub { tuple_from_named_array(@_)  },
               nested_array => sub { tuple_from_nested_array(@_)  },
               named_string => sub { tuple_from_named_string(@_) },

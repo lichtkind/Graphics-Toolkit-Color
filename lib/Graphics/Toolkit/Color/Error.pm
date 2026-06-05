@@ -27,10 +27,10 @@ sub error {
     return 0 if $mode eq 'quiet';
 	my ($package, $filename, $line, $sub) = caller(1);
 	my $report = "$sub: $message";
-	if    ($mode eq 'say') {  say   $report }
-	elsif ($mode eq 'die') {  die   $report }
-	elsif ($mode eq 'carp'){  carp  $report }
-	elsif ($mode eq 'croak'){ croak $report }
+	if    ($mode eq 'say') {  print $report."\n" }
+	elsif ($mode eq 'die') {  die   $report."\n" }
+	elsif ($mode eq 'carp'){  carp  $report."\n" }
+	elsif ($mode eq 'croak'){ croak $report."\n" }
 	return 0;
 }
 

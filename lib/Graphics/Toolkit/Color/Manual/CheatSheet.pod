@@ -19,10 +19,10 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
 =head1 ARGUMENTS
 
-     in        : (all except)      new   name closest_name
+     in        : (all except)            name closest_name
      from      :                         name closest_name
-     color     :                   new   is_in_gamut
-     raw       : new  values             is_in_gamut
+     color     :                   new   
+     raw       : new  values             
      range     : new  values  distance
      only      :              distance   invert
      to        :              distance   mix          analogous  gradient

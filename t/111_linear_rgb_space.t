@@ -60,7 +60,7 @@ is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big"
 my $rgb = $space->deformat( 'lin_rgb(0, 0.1, 1)');
 is_tuple( $rgb, [0, 0.1, 1, ], [qw/red green blue/], 'deformat CSS_string');
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 
 $rgb = $space->clamp([]);
 is_tuple( $rgb, [0, 0, 0], [qw/red green blue/], 'clamped empty tuple into default color black');

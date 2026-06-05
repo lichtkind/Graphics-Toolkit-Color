@@ -51,7 +51,7 @@ $rgb = $space->clamp([-0.1, 2, 0.5, 0.4, 0.5]);
 is_tuple( $rgb, [0, 1, 0.5], $rgb_axis, 'clamp remove superfluous values and clamped into range');
 
 ($rgb, my $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
 is_tuple( $d, [0, 0, 0], $rgb_axis, 'zero delta vector between a tuple and itself');

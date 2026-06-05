@@ -28,14 +28,13 @@ or scientific standards, as long as it doesn't lead to impracticalities.
 
 =head1 HISTORY
 
-GTC started as a supporting library for modules like L<Chart> and the 
-many siblings of L<App::GUI::Harmonograph>. In that role it powers a 
-complex color picker and calculates gradients and other sets of harmonious colors.
+GTC started as a supporting library for modules like L<Chart> and the many
+siblings of L<App::GUI::Harmonograph>. In that role it powers a complex 
+color picker and calculates gradients and other sets of harmonious colors.
 But during its first iteration other goals were added, like technical
-excellence, clean code and a testbed for a certain architectural style.
+excellence, clean code and a testbed for a certain architectural style without inheritance.
 Ultimately it is just driven by personal preferences, which also developed
 while progressing from version to version.
-
 
 =head1 FUNCTIONALITY
 
@@ -50,6 +49,15 @@ lots of arguments you can arrive at the desired color (palette) quickly.
 
 =head1 API 
 
+The GTC L<philosophy|Graphics::Toolkit::Color::Manual::Philosophy/API>
+tells that there are two driving forces that shape the API. Firstly
+it has to be memorable. That means a small API (few keywords). That 
+means also consistent (reuse of the key words) and using where possible 
+plain English or established terms of the trade. The second driving
+force is to find the right abstractions so that the semantic components 
+are all optional and combinable. That way the user can take what he needs
+
+The convenience we strive for is then just a byproduct.
 
 few methods as possible with a lot of functionality
 lots of arguments

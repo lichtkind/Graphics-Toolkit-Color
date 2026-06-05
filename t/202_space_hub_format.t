@@ -7,8 +7,8 @@ use Test::Color;
 use Test::More tests => 60;
 use Graphics::Toolkit::Color::Space::Hub;
 
-my $deformat   = \&Graphics::Toolkit::Color::Space::Hub::deformat;
-my $dehash     = \&Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash;
+my $deformat   = \&Graphics::Toolkit::Color::Space::Hub::deformat_search;
+my $dehash     = \&Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash;
 my $RGB        =   Graphics::Toolkit::Color::Space::Hub::default_space();
 my $rgb_axis   = [qw/red green blue/];
 

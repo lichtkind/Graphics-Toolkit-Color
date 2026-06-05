@@ -136,8 +136,9 @@ C<set_value> creates a new GTC color object that shares some values with
 the current one, but differs in others. It is NOT a setter, since it
 doesn't change the values of the calling object. The replaced values are 
 provided as absolute numbers with their associated axis names (long or short).
-The named arguments have to be axis names of one color space. If that
-is too ambiguous, you may add the named argument 
+The named arguments have to be axis names of one 
+L<color space|Graphics::Toolkit::Color::Manual::Space>. 
+If that is too ambiguous, you may add the named argument 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> to specify the space by name.
 This space defines the acceptable value ranges.
 If the resulting color will be outside those ranges, 

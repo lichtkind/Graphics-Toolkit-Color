@@ -2,16 +2,15 @@ TODO:
 ------
 
  = 2.3:
-   + designer methods: triadic, tetradic, rectangular
+   + method: derive to substitute add_value and set_value
    + designer methods: brightness, contrast, vibrance, saturation
    + read color def with alpha channel
-   + add position of target color in 'gradient'
+   + add position of target colors in 'gradient'
    + cubehelix method
    + format 'plain_object', 'plain_object_string' (culori)
-   + argument 'in' to 'new'
-   + argument 'to' to methd 'invert'
    
  = 2.4:
+   + designer methods: triadic, tetradic, rectangular
    + 4 LMS variants
    + LMS support, Mochado/Brettel
    + gamut mapping
@@ -48,6 +47,7 @@ TODO:
 
  # Maybe:
 
+   + argument 'to' to method 'invert'
    + equal method
    + value prefixes in formats
 

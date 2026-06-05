@@ -199,38 +199,25 @@ the human perception.
 =head2 is_in_gamut
 
 C<is_in_gamut> returns a perlish pseudo boolean (zero or one). It will 
-tell you, if a color is within the gamut (value range) of a color space. 
-That color can be either the one held by the object or one that is given
-via the argument C<color> or the sole positional argument.
-It requires the same input as the named argument
-L<to|Graphics::Toolkit::Color::Manual::Argument/to>.
+tell you, if a color is within the gamut (
+L<value range|Graphics::Toolkit::Color::Manual::Argument/range>) of a color space.
+It exists as method and as an importable subroutine. 
 
-C<is_in_gamut> can be used as a GTC method or as an importable subroutine.
-In the latter case the C<color> argument is required, or there would be
-no color to check. The other optional, named arguments are: C<in> and C<raw>.
+The method has one optional default argument: 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in>
+which defaults to the space the color was defined in. If a space name
+is provided the method asks the question, can I convert into that space
+without clamping?
 
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> needs a color space name. 
-This serves two use cases. Either the color definition given via C<color>
-was ambiguous and you need to clarify in which color space this color was
-defined. The other use case arises if you want to know if a color, 
-converted into another space, is in default gamut of that other space.
-This case will be computed if the selected color space does not match
-the color space name or the axis names used in the color definition (C<color>).
-
-L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> is a pseudo boolean
-that defaults here to true. This allows to read colors via the C<color>
-argument unaltered, so that the question: is this color in gamut makes sense.
-If C<raw> were set to be false (0), the incoming color would be clamped 
-into range and thus always be in gamut. The only use case for that argument
-is if you want to clamp a color into range in one space, the one the color
-was defined in, and then ask if it is still in gamut in the selected space (C<in>).
+The subroutine has only one positional argument which works like the named
+argument L<color|Graphics::Toolkit::Color::Manual::Argument/color>, only
+with L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> set to 1 (true). 
 
     $color->is_in_gamut( in => 'okLab');                    # is $color in OKLAB gamut?
-    $color->is_in_gamut([ RGB =>  255, 0, 0]);              # will new clamp this color?
 
     use Graphics::Toolkit::Color qw/is_in_gamut/;
+    is_in_gamut([ RGB =>  255, 0, 0]);                      # is it in RGB gamut ? 
     if (is_in_gamut('rgb: 0, 0, 300')){...}                 # false, 300 has to be clamped to 255
-    is_in_gamut(color =>'rgb: 0, 0, 0', in =>'ProPhotoRGB');# black is always included
 
 
 =head1 AUTHOR

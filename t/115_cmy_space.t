@@ -47,7 +47,7 @@ is( ref $space->check_value_shape( [0, 0, -1] ),     '',  "yellow value is too s
 is( ref $space->check_value_shape( [0, 0, 2] ),      '',  "yellow value is too big");
 
 my ($rgb, $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 
 my $cmy = $space->clamp([]);
 is_tuple( $cmy, [0, 0, 0], [qw/cyan magenta yellow/], 'clamped empty tuple into default color (white)');

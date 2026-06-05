@@ -11,7 +11,7 @@ my $RGB = Graphics::Toolkit::Color::Space::Hub::default_space();
 
 #### constructor #######################################################
 sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~color_name
-    my ($pkg, $color_def, $range_def, $raw) = @_;
+    my ($pkg, $color_def, $space_name, $range_def, $raw) = @_;
     return "Can not create color value object without color definition!" unless defined $color_def;
     if (not ref $color_def) { # try to resolve color name
         my $rgb = Graphics::Toolkit::Color::Name::get_values( $color_def );
@@ -20,9 +20,12 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
             return bless { color_name => $color_def, rgb_tuple => $rgb, source_tuple => '', source_space_name => ''};
         }
     }
-    my ($tuple, $space_name) = Graphics::Toolkit::Color::Space::Hub::deformat( $color_def );
+    my ($tuple, $found_space_name, $format) = (defined $space_name)
+                                            ? Graphics::Toolkit::Color::Space::Hub::deformat( $color_def, $space_name )
+                                            : Graphics::Toolkit::Color::Space::Hub::deformat_search( $color_def );
+    return "could not recognize color value format or color name: $color_def" unless ref $tuple and defined $space_name;
     return "could not recognize color value format or color name: $color_def" unless ref $tuple;
-    new_from_tuple( '', $tuple, $space_name, $range_def, $raw);
+    new_from_tuple( '', $tuple, $found_space_name, $range_def, $raw);
 }
 sub new_from_tuple { #
     my ($pkg, $tuple, $space_name, $range_def, $raw) = @_;

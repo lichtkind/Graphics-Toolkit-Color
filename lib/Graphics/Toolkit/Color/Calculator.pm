@@ -13,7 +13,7 @@ sub apply_gamma {
     return "need a color space as third argument" if ref $color_space ne 'Graphics::Toolkit::Color::Space';
     if (ref $gamma eq 'HASH'){
         ($gamma_array, my $deduced_space_name) = 
-			Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $gamma, $color_space->name );
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $gamma, $color_space->name );
 		return 'axis names: '.join(', ', keys %$gamma).' do not correlate to the selected color space: '.
 			($color_space->name).'!' unless ref $gamma_array;
 	}
@@ -31,7 +31,7 @@ sub apply_gamma {
 sub set_value { # .values, %newval -- ~space_name --> _
     my ($color_values, $partial_hash, $preselected_space_name) = @_;
     my ($new_values, $deduced_space_name) = 
-		Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $partial_hash, $preselected_space_name );
+		Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $partial_hash, $preselected_space_name );
     unless (ref $new_values){
         my $help_start = 'axis names: '.join(', ', keys %$partial_hash).' do not correlate to ';
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
@@ -48,7 +48,7 @@ sub set_value { # .values, %newval -- ~space_name --> _
 sub add_value { # .values, %newval -- ~space_name --> _
     my ($color_values, $partial_hash, $preselected_space_name) = @_;
     my ($new_values, $deduced_space_name) = 
-		Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( $partial_hash, $preselected_space_name );
+		Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $partial_hash, $preselected_space_name );
     unless (ref $new_values){
         my $help_start = 'axis names: '.join(', ', keys %$partial_hash).' do not correlate to ';
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
@@ -142,7 +142,7 @@ sub invert {
 		my %partial_hash = map { $_ => 1 } @$only;
 		my $preselected_space_name = defined($color_space) ? $color_space->name : undef;
 		my ($new_values, $deduced_space_name) =
-			Graphics::Toolkit::Color::Space::Hub::deformat_partial_hash( \%partial_hash, $preselected_space_name );
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( \%partial_hash, $preselected_space_name );
 		return "could not find any color space that contains the axes: ". join(', ', @$only).' !' 
 			if not defined $deduced_space_name and not defined $color_space;
 		return "axes ". join(', ', @$only) . 'do not match color space '.$color_space->name.' !'

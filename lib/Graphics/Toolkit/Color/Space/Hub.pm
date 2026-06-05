@@ -179,22 +179,26 @@ sub deconvert { # normalized value tuple --> RGB tuple
     return $tuple;
 }
 
-sub deformat { # formatted color def --> normalized values
-    my ($color_def, $ranges, $suffix) = @_;
+sub deformat { # formatted color def --> tuple
+    my ($color_def, $space_name, $suffix) = @_;
     return 'got no color definition' unless defined $color_def;
     my ($tuple, $original_space, $format_name);
-    for my $space_name (@search_order) {
-        my $color_space = get_space( $space_name );
-        ($tuple, $format_name) = $color_space->deformat( $color_def );
-        if (defined $format_name){
-            $original_space = $color_space;
-            last;
-        }
-    }
-    return "could not deformat color definition: '$color_def'" unless ref $original_space;
-    return $tuple, $original_space->name, $format_name;
+    my $color_space = get_space( $space_name );
+    return "$color_space is an unknown space!" unless ref $color_space;
+    ($tuple, $format_name) = $color_space->deformat( $color_def ); #, $suffix
+    return "could not deformat color definition: '$color_def' in space: ".$color_space->name unless defined $format_name;
+    return $tuple, $color_space->name, $format_name;
 }
-sub deformat_partial_hash { # convert partial hash into
+sub deformat_search { # formatted color def --> tuple
+    my ($color_def, $suffix) = @_;
+    return 'got no color definition to deformat!' unless defined $color_def;
+    for my $space_name (@search_order) {
+        my @tuple_space_format = deformat( $color_def, $space_name, $suffix);
+        return @tuple_space_format if @tuple_space_format > 1;
+    }
+    return "could not deformat color definition in any space: '$color_def'!";
+}
+sub deformat_search_partial_hash { # convert partial hash into
     my ($value_hash, $space_name) = @_;
     return unless ref $value_hash eq 'HASH';
     my $space = try_get_space( $space_name );

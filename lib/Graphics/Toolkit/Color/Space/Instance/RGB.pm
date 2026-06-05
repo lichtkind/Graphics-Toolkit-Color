@@ -25,6 +25,5 @@ Graphics::Toolkit::Color::Space->new (
          axis => [qw/red green blue/],
         range => 255,
     precision => 0,
-       format => { 'hex_string' => [\&hex_from_tuple, \&tuple_from_hex],
-                        'array' => [ sub { $_[1] }, sub { $_[1] } ] },
+       format => { 'hex_string' => [\&hex_from_tuple, \&tuple_from_hex],}
 );

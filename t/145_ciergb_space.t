@@ -54,7 +54,7 @@ is( ref $space->check_value_shape( [0, 0, -0.1 ] ),  '', "blue value is too smal
 is( ref $space->check_value_shape( [0, 0, 1.1] ),    '', "blue value is too big");
 
 my ($rgb, $name) = $space->deformat([ 33, 44, 55]);
-is( $rgb,   undef,     'array format is RGB only');
+is( ref $rgb,   'ARRAY',     'array format is now for every space');
 
 my $d = $space->delta([.2,.2,.2],[.2,.2,.2]);
 is_tuple( $d, [0, 0, 0], [qw/red green blue/], 'dela vector between color and itself is zero tuple');

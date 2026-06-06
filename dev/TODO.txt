@@ -3,11 +3,12 @@ TODO:
 
  = 2.3:
    + method: derive to substitute add_value and set_value
-   + designer methods: brightness, contrast, vibrance, saturation
+   + designer methods: brightness, contrast, vibrance, saturation (args by set x)
    + read color def with alpha channel
    + add position of target colors in 'gradient'
    + cubehelix method
    + format 'plain_object', 'plain_object_string' (culori)
+   + error on bad scheme name
    
  = 2.4:
    + designer methods: triadic, tetradic, rectangular

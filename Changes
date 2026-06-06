@@ -17,6 +17,7 @@
     * ~ change 'amount' argument of 'mix' understanding percent as 0 .. 1 instead of 0 .. 100
     * ~ change default argument of 'invert' from 'in' to 'only'
     * ~ change default color space for most methods to 'OKLAB' or 'OKHSL'
+    * - simplify 'is_in_gamut' to 1 argument ('in') in method mode and 1 as routine ('color')
     * ! HSB constraints removal was msitake
 
 2.11   2026-05-08   lichtkind

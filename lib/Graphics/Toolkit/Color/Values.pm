@@ -67,12 +67,12 @@ sub shaped  { # in any color space, range and precision
                                                                or (defined $range_def and not defined $precision_def);
     return $tuple;
 }
-sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~range, @~|~suffix
+sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~range, @~|~suffix --> @|%|$
     my ($self, $space_name, $format_name, $suffix_def, $range_def, $precision_def, $raw) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return $color_space unless ref $color_space;
+    return \$color_space unless ref $color_space;
     my $tuple = $self->shaped( $color_space->name, $range_def, $precision_def, $raw );
-    return $tuple unless ref $tuple;
+    return \$tuple unless ref $tuple;
     return $color_space->format( $tuple, $format_name, $suffix_def );
 }
 sub name { $_[0]->{'color_name'} }

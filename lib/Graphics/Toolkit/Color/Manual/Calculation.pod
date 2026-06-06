@@ -224,7 +224,7 @@ You may provide several axis names within an ARRAY reference, as long
 they belong to one color space. The default is to invert all values of a color.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the values will be inverted in, which is per default I<OKLAB>. But please
+the values will be inverted in, which is per default I<OKHSL>. But please
 note that the method tries to get hints from the C<only> argument in order
 to determine the color space. There will be an 
 L<error|Graphics::Toolkit::Color::Manual::Error>

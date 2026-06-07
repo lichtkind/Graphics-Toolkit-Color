@@ -9,6 +9,7 @@ TODO:
    + cubehelix method
    + format 'plain_object', 'plain_object_string' (culori)
    + error on bad scheme name
+   + new format algo
    
  = 2.4:
    + designer methods: triadic, tetradic, rectangular

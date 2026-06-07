@@ -292,12 +292,13 @@ B<saturation> (short B<s>) (0 .. 1) and B<lightness> (short B<l>) (0 .. 1).
 =head2 CIELCHab
 
 (alias B<LCH>) is the cylindrical version of the L</CIELAB> with the
-dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>.
+dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>,
+with the roles of B<lightness>, B<saturation> and B<hue>.
 The real valued ranges are from zero to 100, 539 and 360 respectively.
-Like with the L</HSL> and L</HSV>, hue is the circular dimensions and its
-values are meant as degrees in a circle. For gray colors in the middle
-column the value I<chroma> has no importance and will be in this
-implementation always be zero.
+Like with the L</HSL> and L</HSV>, hue is the circular dimension and its
+value is meant as degrees in a circle. For gray colors in the middle
+column the value I<hue> has no importance and will in this implementation 
+always be zero.
 
 =head2 CIELCHuv
 
@@ -310,7 +311,8 @@ similar to L<CIELCHab> except the real valued range of B<chroma> is
 
 is the cylindrical variant of L</OKLAB> just parallels L</CIELCHab>.
 The axis names are again: B<luminance>, B<chroma> and B<hue> - in short:
-B<l>,  B<c> and B<h>. Value ranges are similar as in C<OKLAB>:
+B<l>,  B<c> and B<h> with the roles of B<lightness>, B<saturation> and B<hue>. 
+Value ranges are similar as in C<OKLAB>:
 I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
 use C<< range => [100, 120, 360] >> and a preferred suffix.

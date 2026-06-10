@@ -439,7 +439,7 @@ Graphics::Toolkit::Color - calculate color (sets), IO many spaces and formats
     say $red->add_value( 'blue' => 255 )->name;      # red + blue = 'magenta'
     my @blue = color( 0, 0, 255)->values('HSL');     # 240, 100, 50 = blue
     if (is_in_gamut('oklab(14, -106, 3)')) { ..      # check if valid
-    $red->mix( to => [HSL => 0,0,80], amount => 10); # mix red with a little grey
+    $red->mix( to => [HSL => 0,0,80], by => 0.1);     # mix red with a little grey
     $red->gradient( to => '#0000FF', steps => 10);   # 10 colors from red to blue
     my @base_triadic = $red->complement( 3 );        # get fitting red green and blue
     my @reds = $red->cluster( r => 1.1, min_d => 1 );# 13 shades of red
@@ -716,7 +716,7 @@ returns a color that differs in some chosen values from the current one.
 Its arguments have to be short or long axis names from one selected 
 L<color space|Graphics::Toolkit::Color::Manual::Space>.
 You may additionally provide the color space in mind with the argument 
-L<Graphics::Toolkit::Color::Manual::Argument/in> if the axis names 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> if the axis names 
 alone are too ambiguous.
 
     my $blue = $black->set_value( blue => 255 );                    # same as #0000ff

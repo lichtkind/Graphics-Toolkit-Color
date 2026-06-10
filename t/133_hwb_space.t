@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 55;
+use Test::More tests => 63;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HWB';
 my $space = eval "require $module";
@@ -14,6 +14,7 @@ is( $space->name,                             'HWB', 'color space has axis initi
 is( $space->name('alias'),                       '', 'color space has no alias name');
 is( $space->is_name('HwB'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');
+is( $space->family,                           'HWB', '"HWB" is also family name');
 is( $space->is_axis_name('hsb'),                  0, 'space name is not axis name');
 is( $space->is_axis_name('hue'),                  1, '"hue" is an axis name');
 is( $space->is_axis_name('whiteness'),            1, '"whiteness" is an axis name');
@@ -29,10 +30,18 @@ is( $space->pos_from_axis_name('h'),              0, '"h" is name of first axis'
 is( $space->pos_from_axis_name('w'),              1, '"w" is name of second axis');
 is( $space->pos_from_axis_name('b'),              2, '"b" is name of third axis');
 is( $space->pos_from_axis_name('a'),          undef, '"a" is not an axis name');
+is( $space->pos_from_axis_role('hue'),            0, '"hue" is role of first axis');
+is( $space->pos_from_axis_role('whiteness'),      1, '"whiteness" is role of second axis');
+is( $space->pos_from_axis_role('blackness'),      2, '"blackness" is role of third axis');
+is( $space->pos_from_axis_role('h'),              0, '"h" is role of first axis');
+is( $space->pos_from_axis_role('w'),              1, '"w" is role of second axis');
+is( $space->pos_from_axis_role('b'),              2, '"b" is role of third axis');
+is( $space->pos_from_axis_role('m'),          undef, '"m" is not an axis role');
+
 is( $space->axis_count,                           3, 'color space has 3 axis');
 is( $space->is_euclidean,                         0, 'HWB is not euclidean');
 is( $space->is_cylindrical,                       1, 'HWB is cylindrical');
-is( $space->shape->has_constraints,               1, 'HWB is actually a cone');
+is( $space->has_constraints,                      1, 'HWB is actually a cone');
 is( $space->can_convert('RGB'),                   1, 'do only convert from and to RGB');
 is( $space->can_convert('CMY'),                   0, 'do not convert from and to CMY');
 

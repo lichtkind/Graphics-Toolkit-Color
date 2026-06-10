@@ -8,35 +8,13 @@ use Graphics::Toolkit::Color::Space qw/gamma_correct mult_matrix_vector_3/;
 
 my @D65 = (0.95047, 1, 1.08883); # illuminant
 
-sub from_oklab {
-    my ($xyz) = shift;
-    my @xyz = map {$xyz->[$_] * $D65[$_]} 0 .. 2;
-    my @lms = mult_matrix_vector_3([[ 0.8189330101, 0.3618667424,-0.1288597137],
-                                    [ 0.0329845436, 0.9293118715, 0.0361456387],
-                                    [ 0.0482003018, 0.2643662691, 0.6338517070]], @xyz);
+sub from_hsl {
+    my ($hsl) = shift;
 
-    @lms = map {gamma_correct($_, 1/3)} @lms;
-
-    my @lab = mult_matrix_vector_3([[ 0.2104542553,  0.7936177850, -0.0040720468],
-                                    [ 1.9779984951, -2.4285922050,  0.4505937099],
-                                    [ 0.0259040371,  0.7827717662, -0.8086757660]], @lms);
-    $lab[1] += .5;
-    $lab[2] += .5;
     return \@lab;
 }
-sub to_oklab {
-    my (@lab) = @{$_[0]};
-    $lab[1] -= .5;
-    $lab[2] -= .5;
-    my @lms = mult_matrix_vector_3([[ 1,  0.396338 ,  0.215804  ],
-                                    [ 1, -0.105561 , -0.0638542 ],
-                                    [ 1, -0.0894842, -1.29149   ]], @lab);
-
-    @lms = map {gamma_correct($_, 3)} @lms;
-
-    my @xyz = mult_matrix_vector_3([[ 1.22701  , -0.5578  , 0.281256 ],
-                                    [-0.0405802,  1.11226 ,-0.0716767],
-                                    [-0.0763813, -0.421482, 1.58616  ]], @lms);
+sub to_hsl {
+    my (@rgb) = @{$_[0]};
     return [map {$xyz[$_] / $D65[$_]} 0 .. 2];
 }
 
@@ -47,12 +25,58 @@ Graphics::Toolkit::Color::Space->new(
          type => [qw/angular linear linear/],
         range => [360, 1, 1],
     precision => 5,
-      convert => {oklab => [\&to_oklab, \&from_oklab]},
+      convert => {LinearRGB => [\&from_hsl, \&to_hsl]},
 );
+
+use constant PI => 4 * atan2(1, 1);
+
+# sRGB (0..1, nicht-linear) -> Okhsl, gibt (h, s, l) zurück
+sub srgb_to_okhsl {
+    my ($r, $g, $b) = @_;
+
+    my ($L_lab, $a_lab, $b_lab) = linear_srgb_to_oklab(
+        srgb_transfer_function_inv($r),
+        srgb_transfer_function_inv($g),
+        srgb_transfer_function_inv($b),
+    );
+
+    my $C  = sqrt($a_lab * $a_lab + $b_lab * $b_lab);
+    my $a_ = $a_lab / $C;
+    my $b_ = $b_lab / $C;
+
+    my $L = $L_lab;
+    my $h = 0.5 + 0.5 * atan2(-$b_lab, -$a_lab) / PI;
+
+    my ($C_0, $C_mid, $C_max) = get_Cs($L, $a_, $b_);
+
+    # Inverse der Interpolation aus okhsl_to_srgb
+    my $mid     = 0.8;
+    my $mid_inv = 1.25;
+
+    my $s;
+    if ($C < $C_mid) {
+        my $k_1 = $mid * $C_0;
+        my $k_2 = 1 - $k_1 / $C_mid;
+
+        my $t = $C / ($k_1 + $k_2 * $C);
+        $s = $t * $mid;
+    }
+    else {
+        my $k_0 = $C_mid;
+        my $k_1 = (1 - $mid) * $C_mid * $C_mid * $mid_inv * $mid_inv / $C_0;
+        my $k_2 = 1 - $k_1 / ($C_max - $C_mid);
+
+        my $t = ($C - $k_0) / ($k_1 + $k_2 * ($C - $k_0));
+        $s = $mid + (1 - $mid) * $t;
+    }
+
+    my $l = toe($L);
+    return ($h, $s, $l);
+}
 
 struct HSV { float h; float s; float v; };
 struct HSL { float h; float s; float l; };
-struct LC { float L; float C; };
+struct LC  { float L; float C; };
 
 // Alternative representation of (L_cusp, C_cusp)
 // Encoded so S = C_cusp/L_cusp and T = C_cusp/(1-L_cusp) 
@@ -667,104 +691,6 @@ def oklab_to_okhsl(lab):
 
     return util.constrain_hue(h * 360), s * 100, l * 100
 
-
-def okhsv_to_oklab(hsv):
-    """Convert from Okhsv to Oklab."""
-
-    h, s, v = hsv
-    s /= 100
-    v /= 100
-    h = util.no_nan(h) / 360.0
-
-    l = toe_inv(v)
-    a = b = 0
-
-    if l != 0 and s != 0:
-        a_ = math.cos(2.0 * math.pi * h)
-        b_ = math.sin(2.0 * math.pi * h)
-
-        cusp = find_cusp(a_, b_)
-        s_max, t_max = to_st(cusp)
-        s_0 = 0.5
-        k = 1 - s_0 / s_max
-
-        # first we compute L and V as if the gamut is a perfect triangle:
-
-        # L, C when v==1:
-        l_v = 1 - s * s_0 / (s_0 + t_max - t_max * k * s)
-        c_v = s * t_max * s_0 / (s_0 + t_max - t_max * k * s)
-
-        l = v * l_v
-        c = v * c_v
-
-        # then we compensate for both toe and the curved top part of the triangle:
-        l_vt = toe_inv(l_v)
-        c_vt = c_v * l_vt / l_v
-
-        l_new = toe_inv(l)
-        c = c * l_new / l
-        l = l_new
-
-        # RGB scale
-        rs, gs, bs = oklab_to_linear_srgb([l_vt, a_ * c_vt, b_ * c_vt])
-        scale_l = util.nth_root(1.0 / max(max(rs, gs), max(bs, 0.0)), 3)
-
-        l = l * scale_l
-        c = c * scale_l
-
-        a = c * a_
-        b = c * b_
-
-    return [l, a, b]
-
-
-def oklab_to_okhsv(lab):
-    """Oklab to Okhsv."""
-
-    c = math.sqrt(lab[1] ** 2 + lab[2] ** 2)
-    l = lab[0]
-
-    h = util.NaN
-    s = 0
-    v = toe(l)
-
-    if c != 0 and l != 0 and l != 1:
-        a_ = lab[1] / c
-        b_ = lab[2] / c
-
-        h = 0.5 + 0.5 * math.atan2(-lab[2], -lab[1]) / math.pi
-
-        cusp = find_cusp(a_, b_)
-        s_max, t_max = to_st(cusp)
-        s_0 = 0.5
-        k = 1 - s_0 / s_max
-
-        # first we find L_v, C_v, L_vt and C_vt
-        t = t_max / (c + l * t_max)
-        l_v = t * l
-        c_v = t * c
-
-        l_vt = toe_inv(l_v)
-        c_vt = c_v * l_vt / l_v
-
-        # we can then use these to invert the step that compensates for the toe and the curved top part of the triangle:
-        rs, gs, bs = oklab_to_linear_srgb([l_vt, a_ * c_vt, b_ * c_vt])
-        scale_l = util.nth_root(1.0 / max(max(rs, gs), max(bs, 0.0)), 3)
-
-        l = l / scale_l
-        c = c / scale_l
-
-        c = c * toe(l) / l
-        l = toe(l)
-
-        # we can now compute v and s:
-        v = l / l_v
-        s = (s_0 + t_max) * c_v / ((t_max * s_0) + t_max * k * c_v)
-
-    if s == 0:
-        h = util.NaN
-
-    return [util.constrain_hue(h * 360), s * 100, v * 100]
 
 def srgb_to_okhsv(srgb):
     """SRGB to Okhsv."""

@@ -82,6 +82,7 @@ sub normalize          { shift->shape->normalize(@_)}         # @+tuple -- @+ran
 sub denormalize        { shift->shape->denormalize(@_)}       # @+tuple -- @+range                  --> @+tuple|!~
 sub denormalize_delta  { shift->shape->denormalize_delta(@_)} # @+tuple -- @+range                  --> @+tuple|!~
 sub delta              { shift->shape->delta( @_ ) }          # @+tuple_a, @+tuple_b                --> @+tuple|     # on normalized values
+sub has_constraints    { shift->shape->has_constraints(@_)}   #                                     --> ?
 sub add_constraint     { shift->shape->add_constraint(@_)}    # ~name, ~error, &checker, &remedy    --> %constraint
 
 ########################################################################

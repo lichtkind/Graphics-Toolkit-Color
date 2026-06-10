@@ -34,7 +34,7 @@ is( $space->pos_from_axis_name('a'),        undef, '"a" is not an axis name');
 is( $space->axis_count,                         3, 'color space has 3 axis');
 is( $space->is_euclidean,                       1, 'RGB is is_euclidean');
 is( $space->is_cylindrical,                     0, 'RGB is not cylindrical');
-is( $space->shape->has_constraints,             0, 'RGB is a cube wiht all the edges, no constraints');
+is( $space->has_constraints,                    0, 'RGB is a cube with all the edges, no constraints');
 is( $space->can_convert('RGB'),                 0, 'can not convert to itself');
 
 is( $space->is_value_tuple(['r','g','b']),     1,  'RGB tuple has to have three values');

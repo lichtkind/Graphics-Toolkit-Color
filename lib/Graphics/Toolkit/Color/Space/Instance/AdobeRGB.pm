@@ -9,15 +9,7 @@ use Graphics::Toolkit::Color::Space qw/gamma_correct mult_matrix_vector_3/;
 my @D65   = (.95047, 1, 1.08883);
 my $gamma = 563/256;
 
-sub from_xyz {
-    my ($xyz) = [ @{$_[0]} ];
-    $xyz->[$_] *= $D65[ $_ ] for 0 .. 2;
-    my @rgb = mult_matrix_vector_3( [[  2.0413690, -0.5649464, -0.3446944 ],
-                                     [ -0.9692660,  1.8760108,  0.0415560 ], 
-                                     [  0.0134474, -0.1183897,  1.0154096 ]  ], @$xyz);
-    return [map {gamma_correct($_, 1 / $gamma)} @rgb];
-}
-sub to_xyz {
+sub from_rgb {
 	my $rgb = shift;
 	$rgb = [map {gamma_correct($_, $gamma)} @$rgb];
     my @xyz = mult_matrix_vector_3( [[ 0.5767309,  0.1855540,  0.1881852 ],
@@ -26,6 +18,14 @@ sub to_xyz {
     $xyz[$_] /= $D65[ $_ ] for 0 .. 2;
     return \@xyz;
 } 
+sub to_rgb {
+    my ($xyz) = [ @{$_[0]} ];
+    $xyz->[$_] *= $D65[ $_ ] for 0 .. 2;
+    my @rgb = mult_matrix_vector_3( [[  2.0413690, -0.5649464, -0.3446944 ],
+                                     [ -0.9692660,  1.8760108,  0.0415560 ], 
+                                     [  0.0134474, -0.1183897,  1.0154096 ]  ], @$xyz);
+    return [map {gamma_correct($_, 1 / $gamma)} @rgb];
+}
  
 Graphics::Toolkit::Color::Space->new(
         name => 'AdobeRGB',
@@ -33,5 +33,5 @@ Graphics::Toolkit::Color::Space->new(
       family => 'RGB',
         axis => [qw/red green blue/],
    precision => 6,
-     convert => {CIEXYZ => [\&to_xyz, \&from_xyz]},
+     convert => {CIEXYZ => [\&from_rgb, \&to_rgb]},
 );

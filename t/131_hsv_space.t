@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 46;
+use Test::More tests => 61;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::HSV';
 my $space = eval "require $module";
@@ -14,6 +14,7 @@ is( $space->name,                             'HSV', 'color space has initials a
 is( $space->name('alias'),                       '', 'color space has no alias name');
 is( $space->is_name('Hsv'),                       1, 'recognized name');
 is( $space->is_name('Hsl'),                       0, 'ignored wrong name');
+is( $space->family,                           'HSV', '"HSV" is also family name');
 is( $space->is_axis_name('hsl'),                  0, 'space name is not axis name');
 is( $space->is_axis_name('hue'),                  1, '"hue" is an axis name');
 is( $space->is_axis_name('saturation'),           1, '"saturation" is an axis name');
@@ -22,6 +23,21 @@ is( $space->is_axis_name('h'),                    1, '"h" is an axis name');
 is( $space->is_axis_name('s'),                    1, '"s" is an axis name');
 is( $space->is_axis_name('v'),                    1, '"v" is an axis name');
 is( $space->is_axis_name('hu'),                   0, 'can not miss a lettter of axis name');
+is( $space->pos_from_axis_name('hue'),            0, '"hue" is name of first axis');
+is( $space->pos_from_axis_name('saturation'),     1, '"saturation" is name of second axis');
+is( $space->pos_from_axis_name('value'),          2, '"value" is name of third axis');
+is( $space->pos_from_axis_name('h'),              0, '"h" is name of first axis');
+is( $space->pos_from_axis_name('s'),              1, '"s" is name of second axis');
+is( $space->pos_from_axis_name('v'),              2, '"v" is name of third axis');
+is( $space->pos_from_axis_name('g'),          undef, '"g" is not an axis name');
+is( $space->pos_from_axis_role('hue'),            0, '"hue" is role of first axis');
+is( $space->pos_from_axis_role('saturation'),     1, '"saturation" is role of second axis');
+is( $space->pos_from_axis_role('value'),          2, '"value" is role of third axis');
+is( $space->pos_from_axis_role('h'),              0, '"h" is role of first axis');
+is( $space->pos_from_axis_role('s'),              1, '"s" is role of second axis');
+is( $space->pos_from_axis_role('v'),              2, '"v" is role of third axis');
+is( $space->pos_from_axis_role('m'),          undef, '"m" is not an axis role');
+
 is( $space->axis_count,                           3, 'color space has 3 axis');
 is( $space->is_euclidean,                         0, '"HSV" is not euclidean');
 is( $space->is_cylindrical,                       1, '"HSV" is cylindrical');

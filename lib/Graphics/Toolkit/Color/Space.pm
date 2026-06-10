@@ -10,7 +10,7 @@ use Graphics::Toolkit::Color::Space::Format;        # 3 ..
 use Graphics::Toolkit::Color::Space::Util qw/:all/; # forward all its symbols
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real gamma_correct mult_matrix_vector_3 is_nr/;
+our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real spow mult_matrix_vector_3 is_nr/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 ########################################################################

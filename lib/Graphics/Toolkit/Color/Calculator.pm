@@ -4,7 +4,7 @@
 package Graphics::Toolkit::Color::Calculator;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space::Util qw/is_nr/;
+use Graphics::Toolkit::Color::Space::Util qw/is_nr spow/;
 use Graphics::Toolkit::Color::Values;
 
 sub apply_gamma {
@@ -23,7 +23,7 @@ sub apply_gamma {
 	
 	my $tuple = $color_values->normalized( $color_space->name );
     for my $axis_nr ($color_space->basis->axis_iterator){
-	    $tuple->[$axis_nr] = $tuple->[$axis_nr] ** $gamma_array->[$axis_nr] if exists $gamma_array->[$axis_nr];
+	    $tuple->[$axis_nr] = spow($tuple->[$axis_nr], $gamma_array->[$axis_nr]) if exists $gamma_array->[$axis_nr];
     }
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }

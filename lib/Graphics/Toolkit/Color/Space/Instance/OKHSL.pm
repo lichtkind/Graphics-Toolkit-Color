@@ -4,18 +4,16 @@
 package Graphics::Toolkit::Color::Space::Instance::OKHSL;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/gamma_correct mult_matrix_vector_3/;
-
-my @D65 = (0.95047, 1, 1.08883); # illuminant
+use Graphics::Toolkit::Color::Space qw/spow mult_matrix_vector_3/;
 
 sub from_hsl {
-    my ($hsl) = shift;
+    my ($hsl) = @_;
 
     return \@lab;
 }
 sub to_hsl {
-    my (@rgb) = @{$_[0]};
-    return [map {$xyz[$_] / $D65[$_]} 0 .. 2];
+    my ($rgb) = @_;
+    return ;
 }
 
 Graphics::Toolkit::Color::Space->new(
@@ -27,6 +25,83 @@ Graphics::Toolkit::Color::Space->new(
     precision => 5,
       convert => {LinearRGB => [\&from_hsl, \&to_hsl]},
 );
+
+
+
+sub linear_srgb_to_oklab {
+    my ($rgb) = @_;
+    my @lms = mult_matrix_vector_3([[ 0.4122214708, 0.5363325363, 0.0514459929],
+                                    [ 0.2119034982, 0.6806995451, 0.1073969566],
+                                    [ 0.0883024619, 0.2817188376, 0.6299787005]], @$rgb);
+    @lms = map {spow($_, (1/3))} @lms; 
+    my @lab = mult_matrix_vector_3([[ 0.2104542553,  0.7936177850, -0.0040720468],
+                                    [ 1.9779984951, -2.4285922050,  0.4505937099],
+                                    [ 0.0259040371,  0.7827717662, -0.8086757660]], @lms);
+
+	return \@lab;
+}
+
+sub oklab_to_linear_srgb {
+    my ($lab) = @_;
+    
+    my @lms = mult_matrix_vector_3([[ 1,  0.3963377774,  0.2158037573],
+                                    [ 1, -0.1055613458, -0.0638541728],
+                                    [ 1, -0.0894841775, -1.2914855480]], @$lab);
+
+    @lms = map {spow($_, 3)} @lms; 
+    my @rgb = mult_matrix_vector_3([[  4.0767416621, -3.3077115913,  0.2309699292],
+                                    [ -1.2684380046,  2.6097574011, -0.3413193965],
+                                    [ -0.0041960863, -0.7034186147,  1.7076147010]], @lms);
+	return \@rgb;
+}
+
+sub compute_max_saturation {
+    my ($a, $b) = @_;  
+    my (@k, @w);   # @k = Polynom-Koeffizienten, @w = oklab->lms Zeile fuer Halley
+    if (-1.88170328 * $a - 0.80936493 * $b > 1) {          # Rot-Kanal zuerst
+        @k = ( 1.19086277,  1.76576728,  0.59662641,  0.75515197,  0.56771245);
+        @w = ( 4.0767416621, -3.3077115913, 0.2309699292);
+    } elsif (1.81444104 * $a - 1.19445276 * $b > 1) {      # Gruen-Kanal zuerst
+        @k = ( 0.73956515, -0.45954404,  0.08285427,  0.12541070,  0.14503204);
+        @w = (-1.2684380046,  2.6097574011, -0.3413193965);
+    } else {                                               # Blau-Kanal zuerst
+        @k = ( 1.35733652, -0.00915799, -1.15130210, -0.50559606,  0.00692167);
+        @w = (-0.0041960863, -0.7034186147, 1.7076147010);
+    }
+
+    # Stufe 1: Polynom-Schaetzung von S
+    my $S = $k[0] + $k[1]*$a + $k[2]*$b + $k[3]*$a*$a + $k[4]*$a*$b;
+
+    # Stufe 2: ein Halley-Schritt zur Verfeinerung
+    my @k_lms = (0.3963377774 * $a + 0.2158037573 * $b, 
+                -0.1055613458 * $a - 0.0638541728 * $b, 
+                -0.0894841775 * $a - 1.2914855480 * $b);
+
+    my @lms = map {1 + $S * $_} @k_lms;
+	my @dS  = map {3 * $k_lms[$_] * $lms[$_]   * $lms[$_]} 0 .. 2;
+	my @dS2 = map {6 * $k_lms[$_] * $k_lms[$_] * $lms[$_]} 0 .. 2;
+    @lms    = map {spow($_, 3)} @lms;
+
+    my $f  = $w[0]*$lms[0] + $w[1]*$lms[1] + $w[2]*$lms[2];
+    my $f1 = $w[0]*$dS[0]  + $w[1]*$dS[1]  + $w[2]*$dS[2];
+    my $f2 = $w[0]*$dS2[0] + $w[1]*$dS2[1] + $w[2]*$dS2[2];
+
+    $S = $S - $f * $f1 / ($f1 * $f1 - 0.5 * $f * $f2);
+
+    return $S;
+}
+
+
+linear_srgb_to_okhsl
+├── linear_srgb_to_oklab      (fusionierte Björn-Matrix, roh — neu, siehe unten)
+├── get_Cs
+│   ├── find_cusp
+│   │   ├── compute_max_saturation
+│   │   └── oklab_to_linear_srgb   (fusionierte Björn-Inverse — neu, siehe unten)
+│   ├── find_gamut_intersection
+│   ├── to_ST
+│   └── get_ST_mid
+└── toe
 
 use constant PI => 4 * atan2(1, 1);
 

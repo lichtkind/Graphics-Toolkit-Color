@@ -250,10 +250,10 @@ Additionally we have the axis of B<in-phase> (short B<i>)
 (cyan - orange - balance, range -0.5959 .. 0.5959) and
 B<quadrature> (short B<q>) (magenta - green - balance, range: -0.5227 .. 0.5227).
 
-=head2 YUV
+=head2 YPbPr
 
 Is a slightly altered version of L<YIQ> for the I<PAL> TV standard.
-We use a variant called B<YPbPr>, which can also be used as space name.
+We use a variant called B<YUV>, which can also be used as space name.
 It has computation friendly value ranges and is still relevant in video
 and image formats and compression algorithms, but under the name I<YCbCr>.
 The only difference is that I<YCbCr> works with digital values but

@@ -1,43 +1,88 @@
 
-# OKHSV color space, Conveter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
+# OKHSV color space, converter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKHSV;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/gamma_correct mult_matrix_vector_3/;
+use Graphics::Toolkit::Color::Space qw/max spow/;
+use Graphics::Toolkit::Color::Space::Instance::Helper::OK 
+	qw/find_cusp to_ST toe toe_inv oklab_to_linear_srgb linear_srgb_to_oklab/;
+my $PI      = 4 * atan2(1, 1);
 
-my @D65 = (0.95047, 1, 1.08883); # illuminant
 
 sub from_hsv {
-    my ($xyz) = shift;
-    my @xyz = map {$xyz->[$_] * $D65[$_]} 0 .. 2;
-    my @lms = mult_matrix_vector_3([[ 0.8189330101, 0.3618667424,-0.1288597137],
-                                    [ 0.0329845436, 0.9293118715, 0.0361456387],
-                                    [ 0.0482003018, 0.2643662691, 0.6338517070]], @xyz);
+    my ($hsv) = @_;
+    return [0, 0, 0] if $hsv->[2] <= 0;          # black (v == 0)
 
-    @lms = map {gamma_correct($_, 1/3)} @lms;
+    my $a = cos(2 * $PI * $hsv->[0]);            # Farbtonrichtung
+    my $b = sin(2 * $PI * $hsv->[0]);
 
-    my @lab = mult_matrix_vector_3([[ 0.2104542553,  0.7936177850, -0.0040720468],
-                                    [ 1.9779984951, -2.4285922050,  0.4505937099],
-                                    [ 0.0259040371,  0.7827717662, -0.8086757660]], @lms);
-    $lab[1] += .5;
-    $lab[2] += .5;
-    return \@lab;
+    my ($L_cusp, $C_cusp) = find_cusp($a, $b);
+    my ($S_max, $T_max)   = to_ST($L_cusp, $C_cusp);
+    my $S_0 = 0.5;
+    my $k   = 1 - $S_0 / $S_max;
+
+    # L, C als waere das Gamut ein perfektes Dreieck (Werte bei v == 1)
+    my $denom = $S_0 + $T_max - $T_max * $k * $hsv->[1];
+
+    my $L_v = 1 - $hsv->[1] * $S_0 / $denom;
+    my $C_v = $hsv->[1] * $T_max * $S_0 / $denom;
+
+    my $L = $hsv->[2] * $L_v;
+    my $C = $hsv->[2] * $C_v;
+
+    # Kompensation fuer toe und gekruemmte Dreiecksspitze
+    my $L_vt = toe_inv($L_v);
+    my $C_vt = $C_v * $L_vt / $L_v;
+
+    my $L_new = toe_inv($L);
+    $C = $C * $L_new / $L;
+    $L = $L_new;
+
+    my $rgb_scale = oklab_to_linear_srgb([$L_vt, $a * $C_vt, $b * $C_vt]);
+    my $scale_L = spow(1 / max(@$rgb_scale, 0), 1/3);
+
+    $L *= $scale_L;
+    $C *= $scale_L;
+
+    return oklab_to_linear_srgb([$L, $C * $a, $C * $b]);
 }
+
 sub to_hsv {
-    my (@lab) = @{$_[0]};
-    $lab[1] -= .5;
-    $lab[2] -= .5;
-    my @lms = mult_matrix_vector_3([[ 1,  0.396338 ,  0.215804  ],
-                                    [ 1, -0.105561 , -0.0638542 ],
-                                    [ 1, -0.0894842, -1.29149   ]], @lab);
+    my ($rgb) = @_;                                  # bereits LINEARES sRGB
+    my $lab = linear_srgb_to_oklab($rgb);            # roh, a/b um 0 zentriert
 
-    @lms = map {gamma_correct($_, 3)} @lms;
+    my $C = spow($lab->[1]**2 + $lab->[2]**2, 1/2);  # Chroma
+    return [0, 0, toe($lab->[0])] if $C < 1e-9;      # achromatisch
 
-    my @xyz = mult_matrix_vector_3([[ 1.22701  , -0.5578  , 0.281256 ],
-                                    [-0.0405802,  1.11226 ,-0.0716767],
-                                    [-0.0763813, -0.421482, 1.58616  ]], @lms);
-    return [map {$xyz[$_] / $D65[$_]} 0 .. 2];
+    my $a = $lab->[1] / $C;                          # Farbtonrichtung
+    my $b = $lab->[2] / $C;
+    my $h = 0.5 + 0.5 * atan2(-$lab->[2], -$lab->[1]) / $PI;
+
+    my ($L_cusp, $C_cusp) = find_cusp($a, $b);
+    my ($S_max, $T_max)   = to_ST($L_cusp, $C_cusp);
+    my $S_0 = 0.5;
+    my $k   = 1 - $S_0 / $S_max;
+
+    # L_v, C_v und ihre toe-kompensierten Varianten
+    my $t   = $T_max / ($C + $lab->[0] * $T_max);
+    my $L_v = $t * $lab->[0];
+    my $C_v = $t * $C;
+
+    my $L_vt = toe_inv($L_v);
+    my $C_vt = $C_v * $L_vt / $L_v;
+
+    my $rgb_scale = oklab_to_linear_srgb([$L_vt, $a * $C_vt, $b * $C_vt]);
+    my $scale_L = spow(1 / max(@$rgb_scale, 0), 1/3);
+
+    my $L = $lab->[0] / $scale_L;
+    $C = $C / $scale_L;
+    $C = $C * toe($L) / $L;
+    $L = toe($L);
+
+    my $s = ($S_0 + $T_max) * $C_v / ($T_max * $S_0 + $T_max * $k * $C_v);
+
+    return [$h, $s, $L / $L_v];
 }
 
 Graphics::Toolkit::Color::Space->new(
@@ -49,103 +94,3 @@ Graphics::Toolkit::Color::Space->new(
     precision => 5,
       convert => {LinearRGB => [\&from_hsv, \&to_hsv]},
 );
-
-
-
-def okhsv_to_oklab(hsv):
-    """Convert from Okhsv to Oklab."""
-
-    h, s, v = hsv
-    s /= 100
-    v /= 100
-    h = util.no_nan(h) / 360.0
-
-    l = toe_inv(v)
-    a = b = 0
-
-    if l != 0 and s != 0:
-        a_ = math.cos(2.0 * math.pi * h)
-        b_ = math.sin(2.0 * math.pi * h)
-
-        cusp = find_cusp(a_, b_)
-        s_max, t_max = to_st(cusp)
-        s_0 = 0.5
-        k = 1 - s_0 / s_max
-
-        # first we compute L and V as if the gamut is a perfect triangle:
-
-        # L, C when v==1:
-        l_v = 1 - s * s_0 / (s_0 + t_max - t_max * k * s)
-        c_v = s * t_max * s_0 / (s_0 + t_max - t_max * k * s)
-
-        l = v * l_v
-        c = v * c_v
-
-        # then we compensate for both toe and the curved top part of the triangle:
-        l_vt = toe_inv(l_v)
-        c_vt = c_v * l_vt / l_v
-
-        l_new = toe_inv(l)
-        c = c * l_new / l
-        l = l_new
-
-        # RGB scale
-        rs, gs, bs = oklab_to_linear_srgb([l_vt, a_ * c_vt, b_ * c_vt])
-        scale_l = util.nth_root(1.0 / max(max(rs, gs), max(bs, 0.0)), 3)
-
-        l = l * scale_l
-        c = c * scale_l
-
-        a = c * a_
-        b = c * b_
-
-    return [l, a, b]
-
-
-def oklab_to_okhsv(lab):
-    """Oklab to Okhsv."""
-
-    c = math.sqrt(lab[1] ** 2 + lab[2] ** 2)
-    l = lab[0]
-
-    h = util.NaN
-    s = 0
-    v = toe(l)
-
-    if c != 0 and l != 0 and l != 1:
-        a_ = lab[1] / c
-        b_ = lab[2] / c
-
-        h = 0.5 + 0.5 * math.atan2(-lab[2], -lab[1]) / math.pi
-
-        cusp = find_cusp(a_, b_)
-        s_max, t_max = to_st(cusp)
-        s_0 = 0.5
-        k = 1 - s_0 / s_max
-
-        # first we find L_v, C_v, L_vt and C_vt
-        t = t_max / (c + l * t_max)
-        l_v = t * l
-        c_v = t * c
-
-        l_vt = toe_inv(l_v)
-        c_vt = c_v * l_vt / l_v
-
-        # we can then use these to invert the step that compensates for the toe and the curved top part of the triangle:
-        rs, gs, bs = oklab_to_linear_srgb([l_vt, a_ * c_vt, b_ * c_vt])
-        scale_l = util.nth_root(1.0 / max(max(rs, gs), max(bs, 0.0)), 3)
-
-        l = l / scale_l
-        c = c / scale_l
-
-        c = c * toe(l) / l
-        l = toe(l)
-
-        # we can now compute v and s:
-        v = l / l_v
-        s = (s_0 + t_max) * c_v / ((t_max * s_0) + t_max * k * c_v)
-
-    if s == 0:
-        h = util.NaN
-
-    return [util.constrain_hue(h * 360), s * 100, v * 100]

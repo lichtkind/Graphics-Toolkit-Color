@@ -8,7 +8,7 @@ use warnings;
 #### internal space loading ############################################
 our $default_space_name = 'RGB';
 our @load_order = ($default_space_name,
-                  qw/RGBLinear CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
+                  qw/RGBLinear CMY CMYK HSL HSV HSB HWB NCol YIQ YPbPr/,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                   qw/AppleRGB AdobeRGB ProPhotoRGB WideGamutRGB/,
                   qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3 Rec709 Rec2020/,

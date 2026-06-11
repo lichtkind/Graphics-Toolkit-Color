@@ -6,15 +6,15 @@ use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
 use Test::More tests => 55;
 
-my $module = 'Graphics::Toolkit::Color::Space::Instance::YUV';
+my $module = 'Graphics::Toolkit::Color::Space::Instance::YPbPr';
 my $space = eval "require $module";
 
 is( not($@), 1, 'could load the module');
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got tight return value by loading module');
-is( $space->name,                           'YUV', 'color space has initials as name');
-is( $space->name('alias'),                'YPBPR', 'color space has alias name YCbCr');
+is( $space->name,                         'YPBPR', 'color space has initials as name');
+is( $space->name('alias'),                  'YUV', 'color space has alias name YCbCr');
 is( $space->is_name('YPbPr'),                   1, 'color space name YCbCr is correct');
-is( $space->is_name('YUV'),                     1, 'color space name YUV is correct');
+is( $space->is_name('YUV'),                     1, 'color space name "BT.601" is correct');
 is( $space->is_axis_name('YUV'),                0, 'space name is not axis name');
 is( $space->is_axis_name('luma'),               1, 'luma is an axis name');
 is( $space->is_axis_name('pb'),                 1, 'Pb is an axis name');
@@ -49,7 +49,7 @@ is( $space->is_partial_hash({y => 1, Pb => 0}), 1,  'found hash with some keys')
 is( $space->is_partial_hash({Y => 1, U => 0, V => 0}), 1,  'found hash with some axis names');
 is( $space->is_partial_hash({luma => 1, Pb => 0, Pr => 0}), 1, 'found hash with all axis names');
 is( $space->is_partial_hash({a => 1, v => 0, l => 0}), 0, 'found hash with one wrong axis name');
-is( $space->format([0,1,2], 'css_string'), 'yuv(0, 1, 2)', 'can format css string');
+is( $space->format([0,1,2], 'css_string'), 'ypbpr(0, 1, 2)', 'can format css string');
 
 my $yuv = $space->deformat(['yuv', 1, 0, -0.1]);
 is_tuple( $yuv, [1, 0, -0.1], [qw/Y U V/], 'deformat flat named ARRAY');

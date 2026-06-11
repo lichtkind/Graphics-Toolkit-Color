@@ -1,5 +1,6 @@
 
-# OK lab color space for Illuminant D65 and Observer 2 degree by Björn Ottosson 2020
+# OK lab color space for Illuminant D65 and Observer 2, 
+# Conveter under Copyright (c) 2020 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKLAB;
 use v5.12;

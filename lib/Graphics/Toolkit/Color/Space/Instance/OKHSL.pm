@@ -1,10 +1,10 @@
 
-# OKHSL, Conveter under Copyright (c) 2021 Björn Ottosson, licensed under MIT license
+# OKHSL, Conveter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKHSL;
 use v5.12;
 use warnings;
-use Graphics::Toolkit::Color::Space qw/spow mult_matrix_vector_3/;
+use Graphics::Toolkit::Color::Space qw/max spow mult_matrix_vector_3/;
 
 sub from_hsl {
     my ($hsl) = @_;
@@ -91,6 +91,39 @@ sub compute_max_saturation {
     return $S;
 }
 
+sub find_cusp {
+    my ($a, $b) = @_;                          # normalisiert: a**2 + b**2 == 1
+
+    # buntester Punkt dieses Farbtons als Saettigung S = C/L
+    my $S_cusp = compute_max_saturation($a, $b);
+
+    # diese Oklab-Richtung nach linearem RGB, dann so skalieren,
+    # dass der groesste Kanal genau 1 erreicht -> Gamut-Wand
+    my $rgb = oklab_to_linear_srgb([1, $S_cusp * $a, $S_cusp * $b]);
+    my $max_rgb = max(@$rgb);
+    my $L_cusp = spow(1 / $max_rgb, 1/3);
+    my $C_cusp = $L_cusp * $S_cusp;
+
+    return ($L_cusp, $C_cusp);
+}
+
+sub get_ST_mid {
+    my ($a, $b) = @_;                          # normalisiert: a**2 + b**2 == 1
+
+    my $S = 0.11516993 + 1 / (
+        + 7.44778970 + 4.15901240 * $b
+        + $a * (-2.19557347 +  1.75198401 * $b
+        + $a * (-2.13704948 - 10.02301043 * $b
+        + $a * (-4.24894561 +  5.38770819 * $b + 4.69891013 * $a))));
+
+    my $T = 0.11239642 + 1 / (
+        + 1.61320320 - 0.68124379 * $b
+        + $a * ( 0.40370612 + 0.90148123 * $b
+        + $a * (-0.27087943 + 0.61223990 * $b
+        + $a * ( 0.00299215 - 0.45399568 * $b - 0.14661872 * $a))));
+
+    return ($S, $T);
+}
 
 linear_srgb_to_okhsl
 ├── linear_srgb_to_oklab      (fusionierte Björn-Matrix, roh — neu, siehe unten)

@@ -1,5 +1,6 @@
 
 # OK LCH cylindrical color space variant of OKLAB
+# Conveter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKLCH;
 use v5.12;

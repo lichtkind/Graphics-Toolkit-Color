@@ -1,5 +1,5 @@
 
-# OKHSV color space by Björn Ottosson
+# OKHSV color space, Conveter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKHSV;
 use v5.12;

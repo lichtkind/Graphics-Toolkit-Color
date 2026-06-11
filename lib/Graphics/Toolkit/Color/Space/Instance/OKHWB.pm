@@ -1,5 +1,5 @@
 
-# OKHWB color space by Björn Ottosson
+# OKHWB color space, Conveter under Copyright (c) 2021 Björn Ottosson, see LICENSE.OK
 
 package Graphics::Toolkit::Color::Space::Instance::OKHWB;
 use v5.12;

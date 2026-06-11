@@ -60,6 +60,7 @@ sub is_name            { shift->basis->is_name(@_) }          # ~name           
 sub normalize_name     { shift->basis->normalize_name(@_) }   # ~name                      --> ~
 sub axis_count         { shift->basis->axis_count }           #                            --> +
 sub is_axis_name       { shift->basis->is_axis_name(@_) }     # ~axis_name                 --> ?
+sub is_axis_role       { shift->basis->is_axis_role(@_) }     # ~role_name                 --> ?
 sub pos_from_axis_name { shift->basis->pos_from_axis_name(@_) }# ~axis_name                --> +|
 sub pos_from_axis_role { shift->basis->pos_from_axis_role(@_) }# ~axis_name                --> +|
 sub is_value_tuple     { shift->basis->is_value_tuple(@_) }   # @+tuple                    --> ?

@@ -51,7 +51,6 @@ is( $space->is_euclidean,                       0, 'OKHSL is not euclidean');
 is( $space->is_cylindrical,                     1, 'OKHSL is cylindrical');
 is( $space->shape->has_constraints,             0, 'OKHSL is a full cylinder');
 
-
 is( ref $space->check_value_shape([0,0]),              '',   "OKHSL got too few values");
 is( ref $space->check_value_shape([0, 0, 0, 0]),       '',   "OKHSL got too many values");
 is( ref $space->check_value_shape([0, 0, 0]),     'ARRAY',   'check minimal OKHSL values are in bounds');

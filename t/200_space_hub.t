@@ -7,7 +7,7 @@ use Test::More tests => 100;
 
 my $module = 'Graphics::Toolkit::Color::Space::Hub';
 my $space_ref = 'Graphics::Toolkit::Color::Space';
-my @space_names = (qw/RGB LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YUV/,
+my @space_names = (qw/RGB LinearRGB CMY CMYK HSL HSV HSB HWB NCol YIQ YPbPr/,
                    qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                    qw/AdobeRGB AppleRGB ProPhotoRGB WideGamutRGB/,
                    qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3 Rec709 Rec2020/,

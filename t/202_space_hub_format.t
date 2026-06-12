@@ -43,7 +43,7 @@ is( $space,       'LAB', 'got LAB css_string right');
 is_tuple( $values, [0, -500, 200], [qw/L* a* b*/], 'deformat LAB CSS_string');
 
 ($values, $space) = $deformat->(['yuv', 0.4, -0.5, 0.5]);
-is( $space,        'YUV', 'found YUV named array');
+is( $space,        'YPBPR', 'found YUV named array (alias named)');
 is_tuple( $values, [0.4, -0.5, 0.5], [qw/Y U V/], 'deformat YUV named_array');
 
 ($values, $space) = $deformat->(['hunterLAB', 12, 2.5, 0.04]);

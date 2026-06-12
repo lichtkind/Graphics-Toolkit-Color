@@ -73,8 +73,8 @@ is_tuple( $rgb, [221, 238, 255], [qw/red green blue/], 'got right values from sh
 is( $name,     'array', 'could deformat ARRAY ref (RGB special)');
 is_tuple( $rgb, [33, 44, 55], [qw/red green blue/], 'got right values from ARRAY');
 
-($rgb, $name) = $space->deformat([rgb => 11, 22, 256]);
-is( $name,     'named_array', 'recognized named_string format with in values');
+($rgb, $name) = $space->deformat([srgb => 11, 22, 256]);
+is( $name,     'named_array', 'recognized named_array format with alias space name and values');
 is_tuple( $rgb, [11, 22, 256], [qw/red green blue/], 'got right values from named_string');
 
 $rgb = $space->deformat(['CMY', 11, 22, 33]);

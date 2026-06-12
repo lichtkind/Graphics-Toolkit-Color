@@ -12,7 +12,7 @@ our @load_order = ($default_space_name,
                   qw/CIEXYZ CIERGB CIELAB CIELUV CIELCHab CIELCHuv HunterLAB/,
                   qw/AppleRGB AdobeRGB ProPhotoRGB WideGamutRGB/,
                   qw/DisplayP3Linear DisplayP3 DCIP3Linear DCIP3 Rec709 Rec2020/,
-                  qw/OKLAB OKLCH/);
+                  qw/OKLAB OKLCH OKHSL OKHSV OKHWB/);
 add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_order;
 my ($default_space, @search_order, %space_obj, %next_conversion_node, %space_family);
 

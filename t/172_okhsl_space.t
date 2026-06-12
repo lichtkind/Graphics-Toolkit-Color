@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 60;
+use Test::More tests => 82;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::OKHSL';
 my $space = eval "require $module";
@@ -66,12 +66,12 @@ is( ref $space->check_value_shape([0, 0, 1.2] ),       '',   "L value is too big
 is( $space->is_value_tuple([0,0,0]),                      1, 'tuple has 3 elements');
 is( $space->is_partial_hash({h => 1, l => 0}),            1, 'found hash with some axis names');
 is( $space->is_partial_hash({l => 1, s => 0, h => 0}),    1, 'found hash with all short axis names');
-is( $space->is_partial_hash({luminance => 1, chroma => 0, hue => 0}), 1, 'found hash with all long axis names');
+is( $space->is_partial_hash({hue => 1, saturation => 0, lightness => 0}), 1, 'found hash with all long axis names');
 is( $space->is_partial_hash({c => 1, 'h*' => 0, l => 0}), 0, 'found hash with one wrong axis name');
 is( $space->can_convert( 'LinearRGB'),                    1, 'do only convert from and to LinearRGB');
 is( $space->can_convert( 'XYZ'),                          0, 'XYZ ist not converter arent');
 is( $space->can_convert( 'OKHSL'),                        0, 'can not convert to itself');
-is( $space->format([1.23,0,.41], 'css_string'), 'okhsl(1.23, 0, .41)', 'can format css string');
+is( $space->format([1.23,0,.41], 'css_string'), 'okhsl(1.23, 0, 0.41)', 'can format css string');
 
 my $val = $space->deformat(['OKHSL', 0, -1, -0.1]);
 is_tuple( $val, [0, -1, -0.1], [qw/hue saturation lightness/], 'deformated named ARRAY into tuple');
@@ -84,39 +84,51 @@ $val = $space->denormalize( [0, 0, 0] );
 is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue saturation lightness/], 'denormalize black');
 $val = $space->normalize( [0, 0, 0] );
 is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue saturation lightness/], 'normalize black');
-my $lch = $space->convert_from( 'LinearRGB',  [ 0, 0.5, 0.5]);
-is_tuple( $space->round( $lch, 9), [0, 0, 0], [qw/hue saturation lightness/], 'convert black from LinearRGB');
-my $lab = $space->convert_to( 'LinearRGB',  [ 0, 0, 0 ]);
-is_tuple( $space->round( $lab, 9), [0, 0.5, 0.5], [qw/r g b/], 'convert black to LinearRGB');
+my $hsl = $space->convert_from( 'LinearRGB',  [ 0, 0, 0]);
+is_tuple( $space->round( $hsl, 9), [0, 0, 0], [qw/hue saturation lightness/], 'convert black from LinearRGB');
+my $rgb = $space->convert_to( 'LinearRGB',  [ 0, 0, 0 ]);
+is_tuple( $space->round( $rgb, 9), [0, 0, 0], [qw/red green blue/], 'convert black to LinearRGB');
 
 # white
-$lch = $space->convert_from( 'LinearRGB',  [ 1, 0.5, 0.5]);
-is_tuple( $space->round( $lch, 9), [1, 0, 0], [qw/hue saturation lightness/], 'convert white from LinearRGB');
-$lab = $space->convert_to( 'LinearRGB',  [ 1, 0, 0 ]);
-is_tuple( $space->round( $lab, 9), [1, 0.5, 0.5], [qw/r g b/], 'convert white to LinearRGB');
+$hsl = $space->convert_from( 'LinearRGB',  [ 1, 1, 1]);
+is( $space->round( $hsl, [9,9,7])->[2], 1, 'convert white from LinearRGB needs to have a lightness of 1');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, 7), [1, 1, 1], [qw/red green blue/], 'convert white to LinearRGB');
 
 # gray
-$lch = $space->convert_from( 'LinearRGB',  [ 0.59987, .5, .5]);
-is_tuple( $space->round( $lch, 5), [0.59987, 0, 0], [qw/hue saturation lightness/], 'convert gray from LinearRGB');
-$lab = $space->convert_to( 'LinearRGB',  [ .53389, 0, 0 ]);
-is_tuple( $space->round( $lab, 5), [.53389, 0.5, 0.5], [qw/r g b/], 'convert gray to LinearRGB');
+$hsl = $space->convert_from( 'LinearRGB',  [ 0.21404114, .21404114, .21404114]);
+is( $space->round( $hsl, [9,9,6])->[2], 0.53376, 'convert mid gray from LinearRGB needs to have a lightness of 0.53376');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, 6), [0.214041, .214041, .214041], [qw/red green blue/], 'convert gray to LinearRGB');
 
 # red
-$lch = $space->convert_from( 'LinearRGB',  [ 0.6279553639214311, 0.7248630684262744, 0.625846277330585]);
-is_tuple( $space->round( $lch, 5), [0.62796, .51537, .08121], [qw/hue saturation lightness/], 'convert red from LinearRGB');
-$lab = $space->convert_to( 'LinearRGB',  [ .627955364, 0.515366608, .081205223]);
-is_tuple( $space->round( $lab, 5), [.62796, 0.72486, 0.62585], [qw/r g b/], 'convert red to LinearRGB');
-
-# blue
-$lch = $space->convert_from( 'LinearRGB',  [ 0.45201371817442365, 0.467543025, 0.188471834]);
-is_tuple( $space->round( $lch, 5), [0.45201, .62643, .73348], [qw/hue saturation lightness/], 'convert blue from LinearRGB');
-$lab = $space->convert_to( 'LinearRGB',  [ .45201371817442365, 0.626428778, .733477841 ]);
-is_tuple( $space->round( $lab, 5), [.45201, 0.46754, 0.18847], [qw/r g b/], 'convert blue to LinearRGB');
+$hsl = $space->convert_from( 'LinearRGB',  [ 1, 0, 0]);
+is_tuple( $space->round( $hsl, [7,7,6]), [0.0812052, 1, .568085], [qw/hue saturation lightness/], 'convert red from LinearRGB');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, [8,8,7]), [1, 0, 0], [qw/red green blue/], 'convert red to LinearRGB');
 
 # green
-$lch = $space->convert_from( 'LinearRGB',  [ 0.5197518313867289, 0.359697668398572, 0.60767587690661445]);
-is_tuple( $space->round( $lch, 5), [0.51975, .35372, .39582], [qw/hue saturation lightness/], 'convert green from LinearRGB');
-$lab = $space->convert_to( 'LinearRGB',  [ .5197518313867289, 0.353716489, .395820403 ]);
-is_tuple( $space->round( $lab, 5), [.51975, 0.3597, 0.60768], [qw/r g b/], 'convert blue to LinearRGB');
+$hsl = $space->convert_from( 'LinearRGB',  [ 0, 1, 0]);
+is_tuple( $space->round( $hsl, [6,7,7]), [0.395820, 1, .844529], [qw/hue saturation lightness/], 'convert green from LinearRGB');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, [6,7,6]), [ 0, 1, 0], [qw/red green blue/], 'convert green to LinearRGB');
+
+# blue
+$hsl = $space->convert_from( 'LinearRGB',  [ 0, 0, 1]);
+is_tuple( $space->round( $hsl, [7,7,6]), [0.7334778, 1, .366565], [qw/hue saturation lightness/], 'convert blue from LinearRGB');
+$rgb = $space->convert_to( 'LinearRGB',  $hsl);
+is_tuple( $space->round( $rgb, 5), [ 0, 0, 1], [qw/red green blue/], 'convert blue to LinearRGB');
+
+# nice blue
+$hsl = $space->convert_from( 'LinearRGB', [0.01, 0.2, 0.8]);
+is_tuple( $space->round( $hsl, [7,6,6]), [.709042, .952931, .525716], [qw/hue saturation lightness/], 'convert nice blue from LinearRGB');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, [7,7,6]), [0.01, 0.2, 0.8], [qw/red green blue/], 'convert nice blue to LinearRGB');
+
+# dark red
+$hsl = $space->convert_from( 'LinearRGB',  [0.95, 0.7, 0.6]);
+is_tuple( $space->round( $hsl, [6,6,6]), [0.128209, .698498, .895443], [qw/hue saturation lightness/], 'convert dark red from LinearRGB');
+$rgb = $space->convert_to( 'LinearRGB', $hsl);
+is_tuple( $space->round( $rgb, [6,7,6]), [0.95, 0.7, 0.6], [qw/red green blue/], 'convert dark red to LinearRGB');
 
 exit 0;

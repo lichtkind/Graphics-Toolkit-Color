@@ -1,4 +1,4 @@
-2.20   2026-06-05   lichtkind
+2.20   2026-06-13   lichtkind
 -------
     * = big feature release: +3 spaces, +8 methods, +6 args, new docs, error handling
     * * add methods lighten / darken, saturate / desaturate, 
@@ -17,6 +17,7 @@
     * ~ change 'amount' argument of 'mix' understanding percent as 0 .. 1 instead of 0 .. 100
     * ~ change default argument of 'invert' from 'in' to 'only'
     * ~ change default color space for most methods to 'OKLAB' or 'OKHSL'
+    * ~ change name and name alias in 'YUV' space now 'YPbPR' space
     * - simplify 'is_in_gamut' to 1 argument ('in') in method mode and 1 as routine ('color')
     * ! HSB constraints removal was msitake
 

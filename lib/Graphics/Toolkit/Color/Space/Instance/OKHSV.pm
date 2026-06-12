@@ -24,6 +24,7 @@ sub from_hsv {
 
     # L, C als waere das Gamut ein perfektes Dreieck (Werte bei v == 1)
     my $denom = $S_0 + $T_max - $T_max * $k * $hsv->[1];
+    $denom = 1e-6 if $denom < 1e-6;
 
     my $L_v = 1 - $hsv->[1] * $S_0 / $denom;
     my $C_v = $hsv->[1] * $T_max * $S_0 / $denom;

@@ -23,18 +23,24 @@ sub from_hsl {
     my ($C_0, $C_mid, $C_max) = get_Cs($L, $a, $b);
     my $C;
     # Sattigung -> absolute Chroma (Vorwaerts-Interpolation, Inverse zum Hinweg)
-    if ($hsl->[1] < $mid) {
+if ($hsl->[1] < $mid) {
         my $t  = $hsl->[1] / $mid;
         my $k1 = $mid * $C_0;
         my $k2 = 1 - $k1 / $C_mid;
-        $C = $t * $k1 / (1 - $k2 * $t);
+        my $den = 1 - $k2 * $t;
+        $den = 1e-6 if $den < 1e-6 and $den >= 0;
+        $den = -1e-6 if $den > -1e-6 and $den < 0;
+        $C = $t * $k1 / $den;
     }
     else {
         my $t  = ($hsl->[1] - $mid) / (1 - $mid);
         my $k0 = $C_mid;
         my $k1 = (1 - $mid) * $C_mid * $C_mid * $mid_inv * $mid_inv / $C_0;
         my $k2 = 1 - $k1 / ($C_max - $C_mid);
-        $C = $k0 + $t * $k1 / (1 - $k2 * $t);
+        my $den = 1 - $k2 * $t;
+        $den = 1e-6 if $den < 1e-6 and $den >= 0;
+        $den = -1e-6 if $den > -1e-6 and $den < 0;
+        $C = $k0 + $t * $k1 / $den;
     }
 
     return oklab_to_linear_srgb([$L, $C * $a, $C * $b]);

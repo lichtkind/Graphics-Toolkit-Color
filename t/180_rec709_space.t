@@ -8,7 +8,7 @@ use Test::More tests => 58;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::Rec709';
 my $space = eval "require $module";
-is( not($@), 1, 'could load the module');
+is( not($@), 1, 'could load the module'); # say $@;
 is( ref $space, 'Graphics::Toolkit::Color::Space', 'got space object by loading module');
 is( $space->name,                        'REC709', 'normalized name is : "REC709"');
 is( $space->name(undef,'original'),     'Rec.709', 'original name is : "Rec.709"');

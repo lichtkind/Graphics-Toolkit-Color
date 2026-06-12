@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 60;
+use Test::More tests => 78;
 
 my $module = 'Graphics::Toolkit::Color::Space::Instance::OKHWB';
 my $space = eval "require $module";
@@ -75,45 +75,52 @@ is_tuple( $val, [0, -1, -0.1], [qw/hue whiteness blackness/], 'deformated named 
 $val = $space->deformat(['OKHWB', 0, -1, -0.1]);
 is( ref $val,  'ARRAY', 'space name (short) was recognized in named ARRAY format');
 is( $space->format([0,1,1], 'css_string'), 'okhwb(0, 1, 1)', 'can format css string');
+$val = $space->denormalize( [0, 0, 0] );
+is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue whiteness blackness/], 'denormalize black (min)');
+$val = $space->normalize( [0, 0, 0] );
+is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue whiteness blackness/], 'normalize black (min)');
+$val = $space->denormalize( [1, 1, 1] );
+is_tuple( $space->round( $val, 9), [360, 1, 1], [qw/hue whiteness blackness/], 'denormalize max');
+$val = $space->normalize( [360, 1, 1] );
+is_tuple( $space->round( $val, 9), [1, 1, 1], [qw/hue whiteness blackness/], 'normalize max');
+
 
 # black
-$val = $space->denormalize( [0, 0, 0] );
-is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue whiteness blackness/], 'denormalize black');
-$val = $space->normalize( [0, 0, 0] );
-is_tuple( $space->round( $val, 9), [0, 0, 0], [qw/hue whiteness blackness/], 'normalize black');
-my $hwb = $space->convert_from( 'OKHSV',  [ 0, 0.5, 0.5]);
-is_tuple( $space->round( $hwb, 9), [0, 0, 0], [qw/hue whiteness blackness/], 'convert black from OKHSV');
-my $hsv = $space->convert_to( 'OKHSV',  [ 0, 0, 0 ]);
-is_tuple( $space->round( $hsv, 9), [0, 0.5, 0.5], [qw/hue saturation value/], 'convert black to OKHSV');
+
+my $hwb = $space->convert_from( 'OKHSV',  [ 0, 0, 0]);
+is_tuple( $space->round( $hwb, 9), [0, 0, 1], [qw/hue whiteness blackness/], 'convert black from OKHSV');
+my $hsv = $space->convert_to( 'OKHSV',  [ 0, 0, 1 ]);
+is_tuple( $space->round( $hsv, 9), [0, 0, 0], [qw/hue saturation value/], 'convert black to OKHSV');
 
 # white
-$hwb = $space->convert_from( 'OKHSV',  [ 1, 0.5, 0.5]);
-is_tuple( $space->round( $hwb, 9), [1, 0, 0], [qw/hue whiteness blackness/], 'convert white from OKHSV');
-$hsv = $space->convert_to( 'OKHSV',  [ 1, 0, 0 ]);
-is_tuple( $space->round( $hsv, 9), [1, 0.5, 0.5], [qw/hue saturation value/], 'convert white to OKHSV');
+$hwb = $space->convert_from( 'OKHSV',  [ 1, 0, 1]);
+is_tuple( $space->round( $hwb, 9), [1, 1, 0], [qw/hue whiteness blackness/], 'convert white from OKHSV');
+$hsv = $space->convert_to( 'OKHSV',  [ 1, 1, 0 ]);
+is_tuple( $space->round( $hsv, 9), [1, 0, 1], [qw/hue saturation value/], 'convert white to OKHSV');
 
 # gray
-$hwb = $space->convert_from( 'OKHSV',  [ 0.59987, .5, .5]);
-is_tuple( $space->round( $hwb, 5), [0.59987, 0, 0], [qw/hue whiteness blackness/], 'convert gray from OKHSV');
-$hsv = $space->convert_to( 'OKHSV',  [ .53389, 0, 0 ]);
-is_tuple( $space->round( $hsv, 5), [.53389, 0.5, 0.5], [qw/hue saturation value/], 'convert gray to OKHSV');
+$hwb = $space->convert_from( 'OKHSV',  [ 0, 0, .5]);
+is_tuple( $space->round( $hwb, 5), [ 0, 0.5, 0.5], [qw/hue whiteness blackness/], 'convert gray from OKHSV');
+$hsv = $space->convert_to( 'OKHSV',  [ 0, 0.5, 0.5 ]);
+is_tuple( $space->round( $hsv, 5), [ 0, 0, 0.5], [qw/hue saturation value/], 'convert gray to OKHSV');
 
 # red
-$hwb = $space->convert_from( 'OKHSV',  [ 0.6279553639214311, 0.7248630684262744, 0.625846277330585]);
-is_tuple( $space->round( $hwb, 5), [0.62796, .51537, .08121], [qw/hue whiteness blackness/], 'convert red from OKHSV');
-$hsv = $space->convert_to( 'OKHSV',  [ .627955364, 0.515366608, .081205223]);
-is_tuple( $space->round( $hsv, 5), [.62796, 0.72486, 0.62585], [qw/hue saturation value/], 'convert red to OKHSV');
+$hwb = $space->convert_from( 'OKHSV',  [ 0, 1, 1]);
+is_tuple( $space->round( $hwb, 5), [ 0, 0, 0], [qw/hue whiteness blackness/], 'convert red from OKHSV');
+$hsv = $space->convert_to( 'OKHSV',  [ 0, 0, 0]);
+is_tuple( $space->round( $hsv, 5), [ 0, 1, 1], [qw/hue saturation value/], 'convert red to OKHSV');
 
 # blue
-$hwb = $space->convert_from( 'OKHSV',  [ 0.45201371817442365, 0.467543025, 0.188471834]);
-is_tuple( $space->round( $hwb, 5), [0.45201, .62643, .73348], [qw/hue whiteness blackness/], 'convert blue from OKHSV');
-$hsv = $space->convert_to( 'OKHSV',  [ .45201371817442365, 0.626428778, .733477841 ]);
-is_tuple( $space->round( $hsv, 5), [.45201, 0.46754, 0.18847], [qw/hue saturation value/], 'convert blue to OKHSV');
+$hwb = $space->convert_from( 'OKHSV',  [ 1/3, 1, 1]);
+is_tuple( $space->round( $hwb, 7), [0.3333333, 0, 0], [qw/hue whiteness blackness/], 'convert blue from OKHSV');
+$hsv = $space->convert_to( 'OKHSV',  [ 1/3, 0, 0 ]);
+is_tuple( $space->round( $hsv, 7), [.3333333, 1, 1], [qw/hue saturation value/], 'convert blue to OKHSV');
 
-# green
-$hwb = $space->convert_from( 'OKHSV',  [ 0.5197518313867289, 0.359697668398572, 0.60767587690661445]);
-is_tuple( $space->round( $hwb, 5), [0.51975, .35372, .39582], [qw/hue whiteness blackness/], 'convert green from OKHSV');
-$hsv = $space->convert_to( 'OKHSV',  [ .5197518313867289, 0.353716489, .395820403 ]);
-is_tuple( $space->round( $hsv, 5), [.51975, 0.3597, 0.60768], [qw/hue saturation value/], 'convert blue to OKHSV');
+# dark red
+$hwb = $space->convert_from( 'OKHSV',  [0.1, 0.15, 0.98]);
+is_tuple( $space->round( $hwb, 7), [0.1, .833, .02], [qw/hue whiteness blackness/], 'convert dark red from OKHSV');
+$hsv = $space->convert_to( 'OKHSV',  [0.1, .833, .02]);
+is_tuple( $space->round( $hsv, 5), [.1, 0.15, 0.98], [qw/hue saturation value/], 'convert dark red to OKHSV');
+
 
 exit 0;

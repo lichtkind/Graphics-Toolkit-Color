@@ -88,7 +88,6 @@ is_tuple( $space->round( $rgb, 9), [0, 0, 0], [qw/red green blue/], 'convert bla
 
 # white
 $hsv = $space->convert_from( 'LinearRGB',  [ 1, 1, 1]);
-say for @$hsv;
 is( $space->round( $hsv, [9,9,7])->[2], 1, 'convert white from LinearRGB needs to have a value of 1');
 $rgb = $space->convert_to( 'LinearRGB', $hsv);
 is_tuple( $space->round( $rgb, [6,7,6]), [1, 1, 1], [qw/red green blue/], 'convert white to LinearRGB');

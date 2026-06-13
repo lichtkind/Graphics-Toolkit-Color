@@ -108,12 +108,12 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
 
     while ($current_space_name ne $target_space_name){
 		my $next_space_name = $next_conversion_node{ $current_space_name }{ $target_space_name };
+        my $next_space = get_space( $next_space_name );
 		# replace tuple with values from constructor if possible
-		if (defined $source_space_name and $next_space_name eq $source_space_name){
+		if (defined $source_space_name and $next_space->is_name($source_space_name)){
             $tuple = [@$source_tuple];
             $tuple_is_normal = 1;
         } else {
-			my $next_space = get_space( $next_space_name );
             my @normal_in_out = $next_space->converter_normal_states( 'from', $current_space_name );
             $tuple = $next_space->normalize( $tuple ) if not $tuple_is_normal and $normal_in_out[0];
             $tuple = $next_space->denormalize( $tuple ) if $tuple_is_normal and not $normal_in_out[0];
@@ -158,7 +158,7 @@ sub deconvert { # normalized value tuple --> RGB tuple
         my ($next_space_name, @next_options) = $current_space->conversion_tree_parent;
         $next_space_name = shift @next_options while @next_options and $next_space_name ne $default_space_name;
         # replace tuple with values from constructor if possible
-        if ($source_space_name and $next_space_name eq $source_space->name){
+        if (defined $source_space_name and $current_space->is_name( $source_space_name )){
             $tuple = [@$source_tuple];
             $tuple_is_normal = 1;
         } else {

@@ -23,7 +23,7 @@ sub new_from_any_input { #  values => %space_name => tuple ,   ~origin_space, ~c
     my ($tuple, $found_space_name, $format) = (defined $space_name)
                                             ? Graphics::Toolkit::Color::Space::Hub::deformat( $color_def, $space_name )
                                             : Graphics::Toolkit::Color::Space::Hub::deformat_search( $color_def );
-    return "could not recognize color value format or color name: $color_def" unless ref $tuple and defined $space_name;
+    return "could not recognize color value format or color name: $color_def" unless ref $tuple and defined $found_space_name;
     return "could not recognize color value format or color name: $color_def" unless ref $tuple;
     new_from_tuple( '', $tuple, $found_space_name, $range_def, $raw);
 }

@@ -40,7 +40,6 @@ my $yuv = $convert->([.1, .2, .3], 'YUV', 'normal', [1, .1, 0] ,'YUV');
 is_tuple( $yuv, [1, .1, 0], $yuv_axis, 'conversion to YUV, normal with drop in source values');
 $yuv = $convert->( [.1, .2, .3], 'YUV', undef, [1, 0.1, 0] ,'YUV');
 is_tuple( $yuv, [1, -0.4, -0.5], $yuv_axis, 'conversion to YUV, no normal with drop in source values');
-exit 0;
 
 my $cmy = $convert->([0, 0.1, 1], 'CMY');
 is_tuple( $cmy, [1, 0.9, 0], $cmy_axis, 'conversion to CMY');

@@ -232,11 +232,10 @@ sub shade {
     return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
 }
-
-sub apply {
+sub tone_curve { 
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB'} ); 
-    my $help = 'The method "apply" returns a GTC object with gamma corrected values and accepts two named arguments, '.
+    my $help = 'The method "tone_curve" returns a GTC object with gamma corrected values and accepts two named arguments, '.
                'the first being required: "gamma", "in" (color space name - default LinearRGB)!';
     return error($arg.$help.$POD_link) unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
@@ -245,6 +244,7 @@ sub apply {
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
+sub apply { tone_curve(@_) }
 
 sub set_value {
     my ($self, @args) = @_;

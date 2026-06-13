@@ -25,6 +25,7 @@ my (@colors, $values);
 # :base_color +steps +tilt %target_delta --> @:values
 my $complement = \&Graphics::Toolkit::Color::SetCalculator::complement;
 @colors = $complement->($blue, [], 1, 0, $HSL );
+say @colors;
 is( int    @colors,                     1,   'got only one complement');
 is( ref $colors[0],            $value_ref,   'but it is a value object');
 is( $colors[0]->name,            'yellow',   'and has right values');

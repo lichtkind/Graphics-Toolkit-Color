@@ -7,16 +7,15 @@ Graphics::Toolkit::Color::Manual::Philosophy - GTC design principles
 
 =head1 SYNOPSIS
 
-This document explains why GTC was built the way it is and with what
-principles in mind the API was designed. This helps to understand what
-GTC offers and how the functionality is ordered as well as the internal
-structure.
+This document explains the goals and principles GTC was designed with. 
+This encompasses the functionality, API, architecture, coding style and
+technical decisions.
 
 
 =head1 GOAL
 
 GTC is a comprehensive library on the topic of color calculations and 
-translation.
+conversion.
 It aims to be an all-in-one solution for designers and programmers,
 who create computer graphics, especially at runtime.
 Its primary goal is to enable an intuitive expression of intent
@@ -29,28 +28,38 @@ or scientific standards, as long as it doesn't lead to impracticalities.
 =head1 HISTORY
 
 GTC started as a supporting library for modules like L<Chart> and the many
-siblings of L<App::GUI::Harmonograph>. In that role it powers a complex 
-color picker and calculates gradients and other sets of harmonious colors.
+siblings of L<App::GUI::Harmonograph>. In that role it had to translate 
+color names, power a complex color picker and calculate gradients and complements.
 But during its first iteration other goals were added, like technical
-excellence, clean code and a testbed for a certain architectural style without inheritance.
+excellence, clean code and a testbed for a certain architectural style 
+without inheritance.
 Ultimately it is just driven by personal preferences, which also developed
 while progressing from version to version.
 
 =head1 FUNCTIONALITY
 
+It is important to divide the featureset into three categories: IO,
+adapt colors and color set creation.
 
-
-Humans access colors at hardware level (eye) in I<RGB>, at cognition level 
-in I<HSL> or I<LAB> (brain) and at the cultural level (language) with names.
+In order to make the usage of GTC "as easy as possible" it has to understand
+and interoperate with relevant formats, color spaces and color names:
+To recite the old documentation: Humans access colors at hardware level
+(eye) in I<RGB>, at cognition level in I<HSL> or I<LAB> (brain) and at
+the cultural level (language) with names.
 With all these options available you can express easily and intuitively
 with which color to start. And with a wealth of functions that understand
 lots of arguments you can arrive at the desired color (palette) quickly.
+On top of that, GTC has mechanisms to accommodate formatting oddities like
+custom value suffixes, custom number formats or custom translations 
+into numeric values. Moreover color values can be recalculated from and to 
+custom value ranges and are also allowed to be outside of expected ranges.
 
+The second category is about measuring colors  and color differences 
+and tweak colors accordingly.
 
 =head1 API 
 
-The GTC L<philosophy|Graphics::Toolkit::Color::Manual::Philosophy/API>
-tells that there are two driving forces that shape the API. Firstly
+The GTC API tells that there are two driving forces that shape the API. Firstly
 it has to be memorable. That means a small API (few keywords). That 
 means also consistent (reuse of the key words) and using where possible 
 plain English or established terms of the trade. The second driving
@@ -69,11 +78,68 @@ Immutable data
 
 =head1 ARCHITECTURE
 
+The GTC architecture observes just three simple principles.
+
+=over 4
+
+=item *
+
+Files should be small enough to be roughly understood in one glance,
+which I would spell out to 100 - 300 lines of code. Only the main file
+due to its special function has without documentation 400+ lines.
+This tendency to smaller units of functionality amplifies the formation
+of groups of packages that are about one topic (like color name handling)
+and that populate one common namespace (such as C<Graphics::Toolkit::Color::Name>).
+These subsystems can be procedural or object oriented.
+If procedural, then members build on top of each other
+(C<GTC::Name> uses C<GTC::Name::Scheme> uses C<GTC::Name::Constant>). 
+And if it is object oriented, then instances of member classes 
+(C<GTC::Space::Basis>, C<GTC::Space::Shape>, C<GTC::Space::Format>)
+are fat attributes of the main class of the subsystem
+(C<Graphics::Toolkit::Color::Space>).
+
+=item *
+
+Perhaps the most important principle is encapsulation: hiding complexity
+and providing useful features behind a simplified API. This will happen
+in a three tier way. First routines/methods do encapsulate complexity,
+then packages and lastly subsystems, although some subsystems consist
+of only one or two files.
+
+=item *
+
+As hinted, there is a strict ordering inside a subsystem and 
+routines/methods are only allowed to call others from same package
+or lower. The same is true about subsystems, which are also ordered.
+A routine may call into a subsystem several layers deeper, but never
+into a subsystem above. This is why the utility functions sit at the 
+bottom of the hierarchy.
+
+=back
+
+The lowest subsystem is C<GTC::Space>, which abstracts away
+all differences between color spaces that can be handled uniformly.
+It also makes adding new spaces easy, since a color space instance is
+just 4 - 8 declarative statements plus the extra code for the
+converter and sometimes formatter.
+
+Above sits the C<GTC::Space::Hub>, which holds all color space objects
+and is involved in all tasks where the right space has to be selected or
+where knowledge about the relation between spaces is needed like in conversion.
+
+Above the Hub and C<GTC::Name> is C<GTC::Values> which represents one
+color independent of a color space.
+
+Still higher is located the color computation in C<GTC::Calculator> and
+C<GTC::SetCalculator>.
+
+At the top has to sit C<Graphics::Toolkit::Color>, since it is public API.
+
 =head1 CODE STYLE
 
-=head2 SYNTAX
-
+# signatures
 simple minimal
+top down
 ddd
 consistent names
 

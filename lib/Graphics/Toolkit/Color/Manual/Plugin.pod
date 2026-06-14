@@ -14,21 +14,19 @@ mechanisms by which the user might extend GTC functionality.
 There are mainly two fronts on which GTC is easy to extend without a 
 pull request: 
 
-=over 4
 
-=item *
+=head1 COLOR SCHEME
 
-1. creating a new color space
-
-=item *
-
-1. creating a new color naming scheme
-
-=back
 
 =head1 COLOR SPACE
 
-=head1 COLOR SCHEME
+=head2 define
+
+=head2 load
+
+=head2 use
+
+
 
 
 =head1 AUTHOR
@@ -47,11 +45,6 @@ under the same terms as Perl itself.
 =cut
 
 
-=pod
-
-=head1 NAME
-
-Graphics::Toolkit::Color::Space - base class of all color spaces
 
 
 =head1 SYNOPSIS

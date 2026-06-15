@@ -8,7 +8,13 @@ use Graphics::Toolkit::Color::Space qw/round_decimals/;
 
 my $TAU = 6.283185307;
 
-sub from_lab {
+sub from_lch {
+    my ($lch) = shift;
+    my $a = $lch->[1] * cos($lch->[2] * $TAU) * 539;
+    my $b = $lch->[1] * sin($lch->[2] * $TAU) * 539;
+    return ([$lch->[0], ($a+500) / 1000, ($b+200) / 400 ]);
+}
+sub to_lch {
     my ($lab) = shift;
     my $a = $lab->[1] * 1000 - 500;
     my $b = $lab->[2] *  400 - 200;
@@ -20,12 +26,6 @@ sub from_lab {
     $h += $TAU if $h < 0;
     return ([$lab->[0], $c / 539, $h / $TAU]);
 }
-sub to_lab {
-    my ($lch) = shift;
-    my $a = $lch->[1] * cos($lch->[2] * $TAU) * 539;
-    my $b = $lch->[1] * sin($lch->[2] * $TAU) * 539;
-    return ([$lch->[0], ($a+500) / 1000, ($b+200) / 400 ]);
-}
 
 Graphics::Toolkit::Color::Space->new(
             name => 'LCH',
@@ -36,5 +36,5 @@ Graphics::Toolkit::Color::Space->new(
             type => [qw/linear linear angular/],
            range => [100, 539, 360],
        precision => 3,
-         convert => { LAB => [\&to_lab, \&from_lab] },
+         convert => { LAB => [\&from_lch, \&to_lch] },
 );

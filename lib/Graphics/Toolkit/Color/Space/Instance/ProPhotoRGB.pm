@@ -11,16 +11,7 @@ my @D65   = (0.95047, 1, 1.08883);
 my $eta   =  0.001953;
 my $gamma =  1.8;
 
-sub from_xyz {
-    my ($xyz) = [ @{$_[0]} ];
-    $xyz->[$_] *= $D65[ $_ ] for 0 .. 2;
-    my @rgb = mult_matrix_vector_3( [[  1.4032152559, -0.2231400792, -0.1015529925 ],
-                                     [ -0.5262716028,  1.4816610921,  0.0170313058 ],
-                                     [ -0.0111904728,  0.0182300474,  0.9114427432 ],  ], @$xyz);
-
-    return [map { (abs($_) <= $eta) ? ($_ * 16) : spow($_, 1 / $gamma)} @rgb];
-}
-sub to_xyz {
+sub from_rgb {
 	my @rgb = map { (abs($_) <= 16 * $eta) ? ($_ / 16) : spow( $_, $gamma ) } @{$_[0]};
 
     my @xyz = mult_matrix_vector_3( [[ 0.7556032668,  0.1127849127, 0.0820818412 ],
@@ -29,6 +20,15 @@ sub to_xyz {
     $xyz[$_] /= $D65[ $_ ] for 0 .. 2;
     return \@xyz;
 }
+sub to_rgb {
+    my ($xyz) = [ @{$_[0]} ];
+    $xyz->[$_] *= $D65[ $_ ] for 0 .. 2;
+    my @rgb = mult_matrix_vector_3( [[  1.4032152559, -0.2231400792, -0.1015529925 ],
+                                     [ -0.5262716028,  1.4816610921,  0.0170313058 ],
+                                     [ -0.0111904728,  0.0182300474,  0.9114427432 ],  ], @$xyz);
+
+    return [map { (abs($_) <= $eta) ? ($_ * 16) : spow($_, 1 / $gamma)} @rgb];
+}
 
 Graphics::Toolkit::Color::Space->new(
         name => 'ProPhotoRGB',
@@ -36,5 +36,5 @@ Graphics::Toolkit::Color::Space->new(
       family => 'RGB',  
         axis => [qw/red green blue/],
    precision => 6,
-     convert => {XYZ => [\&to_xyz, \&from_xyz]},
+     convert => {XYZ => [\&from_rgb, \&to_rgb]},
 );

@@ -106,8 +106,7 @@ my $adj_len_at_45_deg = sqrt(2) / 2;
 
 sub cluster { # :center_values, @+|+radius +min_distance -- :space --> @:values
     my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
-    my $color_space_name = $color_space->name;
-    my $center_tuple = $center_color->shaped( $color_space_name );
+    my $center_tuple = $center_color->shaped( $color_space->name );
     my $center_x = $center_tuple->[0];
     my $center_y = $center_tuple->[1];
     my $center_z = $center_tuple->[2];
@@ -183,7 +182,7 @@ sub cluster { # :center_values, @+|+radius +min_distance -- :space --> @:values
         }
     }
     # check for linear space borders and constraints
-    return map { Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space_name )}
+    return map { Graphics::Toolkit::Color::Values->new_from_tuple( $_, $color_space->name )}
            grep { $color_space->is_in_linear_bounds($_) } @result_values;
 }
 

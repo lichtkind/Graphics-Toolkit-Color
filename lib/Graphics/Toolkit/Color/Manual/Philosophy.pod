@@ -16,7 +16,7 @@ technical decisions.
 
 GTC is a comprehensive library on the topic of color calculations and 
 conversion.
-It aims to be an all-in-one solution for designers and programmers,
+It aims to be an all-in-one solution for designers and programmers
 who create computer graphics, especially at runtime.
 Its primary goal is to enable an intuitive expression of intent
 and to make the path to desired color definition(s) as easy as possible.
@@ -31,15 +31,16 @@ GTC started as a supporting library for modules like L<Chart> and the many
 siblings of L<App::GUI::Harmonograph>. In that role it had to translate 
 color names, power a complex color picker and calculate gradients and complements.
 But during its first iteration other goals were added, like technical
-excellence, clean code and a testbed for a certain architectural style 
+excellence, clean code and a testbed for a layered architectural style 
 without inheritance.
 Ultimately it is just driven by personal preferences, which also developed
 while progressing from version to version.
 
+
 =head1 FUNCTIONALITY
 
 It is important to divide the featureset into three categories: IO,
-adapt colors and color set creation.
+color adaptation and color set creation.
 
 In order to make the usage of GTC "as easy as possible" it has to understand
 and interoperate with relevant formats, color spaces and color names:
@@ -54,27 +55,45 @@ custom value suffixes, custom number formats or custom translations
 into numeric values. Moreover color values can be recalculated from and to 
 custom value ranges and are also allowed to be outside of expected ranges.
 
-The second category is about measuring colors  and color differences 
-and tweak colors accordingly.
+The second category is about measuring colors and color differences 
+and tweaking single colors accordingly. Here you have the choice between
+tweaks on the semantic level and directly touching the data (color values).
+People who have background knowledge of the many supported color spaces,
+will understand that both are in the end the same since some color spaces
+are just attempts to organise colors along semantic categories, while
+others are more led by technical considerations. Additionally you get
+functions like mixing, inverting or gamma correction that follow useful
+and established thinking patterns.
+
+The third category are color set creation methods, which are only four so far.
+But they offer a wealth of combinable arguments and thus offer a wide range
+of possibilities.
 
 =head1 API 
 
-The GTC API tells that there are two driving forces that shape the API. Firstly
-it has to be memorable. That means a small API (few keywords). That 
-means also consistent (reuse of the key words) and using where possible 
-plain English or established terms of the trade. The second driving
-force is to find the right abstractions so that the semantic components 
-are all optional and combinable. That way the user can take what he needs
+The user interface of GTC should feel like natural, simple english,
+but at the same time follow established industry or scientific conventions.
+This contrast can be solved with the right wording of arguments and methods.
 
-The convenience we strive for is then just a byproduct.
-
-few methods as possible with a lot of functionality
-lots of arguments
-argument reuse
-memory footprint
-
-
-Immutable data
+Much harder to bridge was the second dichotomy between a rich functionality
+and an interface that is easy to navigate or even easy to memorize.
+To fulfill that goal we tried to put as much functionality as possible
+into one method, so that the number of methods stays surveyable and different
+combinations of arguments can provide what different methods would have to do.
+As a consequence the majority of methods have three to six arguments.
+But with well chosen defaults many of them are only seldom needed. 
+Additionally and with very few exceptions: the most important argument can
+be used as the default argument. This means, as a sole positional argument.
+Moreover, some of the more popular arguments reappear in several methods
+under the same name and with the same or very similar functionality.
+This also keeps the memory footprint of the API down.
+ 
+A technical decision that seeps into the API usage was to keep GTC
+object readonly. This supports a functional programming style but also 
+takes out a lot of guesswork if there is a guarantee that values never 
+change. Methods that seem to change values always return a new object
+with differing values. This enables chaining methods which makes a single
+line of code much more expressive.
 
 =head1 ARCHITECTURE
 
@@ -86,7 +105,7 @@ The GTC architecture observes just three simple principles.
 
 Files should be small enough to be roughly understood in one glance,
 which I would spell out to 100 - 300 lines of code. Only the main file
-due to its special function has without documentation 400+ lines.
+due to its special function has 400+ lines without documentation.
 This tendency to smaller units of functionality amplifies the formation
 of groups of packages that are about one topic (like color name handling)
 and that populate one common namespace (such as C<Graphics::Toolkit::Color::Name>).
@@ -137,11 +156,35 @@ At the top has to sit C<Graphics::Toolkit::Color>, since it is public API.
 
 =head1 CODE STYLE
 
-# signatures
-simple minimal
-top down
-ddd
-consistent names
+Inside GTC we try to keep things simple, we encourage short comments when
+necessary which includes an extended signature comment on top of each
+method to make it clear what kind of data is expected from each argument.
+Often these comments contain the nucleus of better variable names or 
+better algorithms. Also grouping a sub in blocks is important to 
+instantly get groups of functionality that maybe get refactored into
+separate subs. 
+
+Besides that there are only two strict rules. Number one: there is a
+dictionary about how certain things are named. These names have to be
+used in any type of identifier (package, method, variable, etc.). 
+Add another qualifier if there would be a naming collision. 
+This has the benefit of uniformity and clarity since a C<$color_space> 
+is always a C<GTC::Space> object and C<$color_space_name> is always what 
+C<$color_space-E<gt>name> would return. This sounds brain dead simple but in
+accumulation it makes code much more understandable.
+
+The second strict rule is about the structure of a single code file.
+There is a certain top down order that parallels what was said about 
+the top down layering of subsystems in L</ARCHITECTURE>. Files always
+start with a 1-2 line comment that explains what is the topic of the file.
+When the context is clear, many misunderstandings resolve themselves.
+Then the whole file is ordered from the most general or abstract to 
+the most concrete (or along the life cycle of the object) and the helper
+functions come at the end. This is in contrast to what some prefer, who 
+like to first read helper functions and then the method that is calling
+them to get a precise picture. I think the name of a helper should
+make it transparent what it does and not all called functions have to be
+in that file anyway.
 
 =head1 AUTHOR
 

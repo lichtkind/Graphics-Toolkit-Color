@@ -7,22 +7,147 @@ Graphics::Toolkit::Color::Manual::Plugin - how to extend GTC
 
 =head1 SYNOPSIS
 
-This L<manual|Graphics::Toolkit::Color::Manual> page explains the two
-mechanisms by which the user might extend GTC functionality.
+This L<manual|Graphics::Toolkit::Color::Manual> page explains in detail
+the two mechanisms by which the user might add GTC functionality without
+submitting a L<pull request|https://github.com/lichtkind/Graphics-Toolkit-Color/pulls>: 
 
+One mechanism is color name schemes. These are sets of color names that
+translate to L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> values.
 
-There are mainly two fronts on which GTC is easy to extend without a 
-pull request: 
-
+The more powerful mechanism is color spaces. They define numerically 
+sets of colors that are arranged along axes in space.
 
 =head1 COLOR SCHEME
+
+=head2 Runtime
+
+The easier way to create a color name scheme ad hoc is to create a 
+C<GTC::Name::Scheme> object:
+
+  my $scheme = Graphics::Toolkit::Color::Name::Scheme->new();
+  $scheme->add_color( 'best_blue', [20, 30, 250]);            # name and RGB triplet
+  ...                                                         # add more colors
+  Graphics::Toolkit::Color::Name::add_scheme( $scheme, 'mycolors' );
+
+This will allow the user to L<create|Graphics::Toolkit::Color::Manual::Constructor>
+a GTC object with:
+
+  use Graphics::Toolkit::Color qw/color/;
+  my $color = color('mycolors:best_blue');
+  
+It also opens the possibility to search inside the crafted color set by:
+
+  my @names = $color->name( from => 'mycolors', distance => 10);
+  my $name  = $color->closest_name( from => 'mycolors');
+
+
+=head2 Module
+
+A more permanent solution will be to create your own C<Graphics::ColorNames>
+package. Please read the documentation of L<the module|Graphics::ColorNames>.
+Then create a module which might be named C<Graphics::ColorNames::MyColors>.
+Once this module is accessible for your local perl interpreter you can use:
+
+  my $color = color('MyColors:best_blue');
+  my @names = $color->name( from => 'MyColors', distance => 10);
+  my $name  = $color->closest_name( from => 'MyColors');
+
+Read more about color names L<here|Graphics::Toolkit::Color::Manual::Name>.
 
 
 =head1 COLOR SPACE
 
-=head2 define
+Because color spaces are in GTC such a huge topic they got their own 
+L<manual page|Graphics::Toolkit::Color::Manual::Space>. Please read that first.
+Spaces are C<Graphics::Toolkit::Color::Space> objects which have to be
+known by the C<Graphics::Toolkit::Color::Space::Hub>. But calling 
 
-=head2 load
+  my $success = Graphics::Toolkit::Color::Space::Hub::add_space( $my_space );
+
+is the easiest part. This section will show how to create such an object
+and how to use it.
+
+
+=head2 Construction
+
+The only C<GTC::Space> method to call is C<new>. Once you created the 
+object you announce it to the space hub as mentioned above.
+The many arguments C<new> accepts function like a small I<DSL>, a domain
+specific language that allows you to define a space with as little typing
+as possible. Only very few arguments (the last four) require some amount
+of coding. Helper functions that are very useful in that endeavour like 
+C<spow> or matrix multiplication can be imported from C<GTC::Space>.
+
+
+    use Graphics::Toolkit::Color::Space qw/:all/;
+    Graphics::Toolkit::Color::Space->new (
+              name => 'demo',                # space name, defaults to concatenated short axis names
+        alias_name => 'alias',               # second, user set space name, often a shortcut
+              axis => [qw/light dark blue/], # long axis names, required !
+             short => [qw/a b c/],           # short names, defaults to first char of long
+              type => [qw/linear circular angular/],   # axis type
+             range => [1, [-2, 2], [-3, 3]],           # axis value range
+         precision => [-1, 0, 1],                      # axis value precision of value output
+            suffix => ['', '', '%'],                   # axis value suffix of value in and output
+        value_form => ['\d{3}','\d{1,3}','\d{1,3}'],   # special axis value shape
+            values => {read => \&read, write => \&write}, # translate values to numbers and back
+           convert => {RGB => [\&from_demo, \&to_demo]}, # converter CODE, required !
+            format => {'hex_string'=> [\&hex_from_tuple,\&tuple_from_hex]}, # custom IO format
+        constraint => {cone => {checker => '$_[0][1] + $_[0][2] <= 1',
+	                           error    => 'The sum of whiteness and blackness can not exceed 100%.',
+		                       remedy   => 'my $s = $_[0][1] + $_[0][2];[$_[0][0], $_[0][1]/$s, $_[0][2]/$s]', }},
+    );
+
+
+Let us go through the arguments in detail.
+
+=head3 name
+
+=head3 alias_name
+
+=head3 axis
+
+=head3 short
+
+=head3 type
+
+=head3 range
+
+=head3 precision
+
+=head3 suffix
+
+=head3 value_form
+
+=head3 values
+
+=head3 convert
+
+=head3 format
+
+=head3 constraint
+
+
+In GTC are already included over 30 color spaces. You might want to read
+their source code under C<Graphics::Toolkit::Color::Space::Instance::*>
+to get some more inspiration.
+
+=head2 helper
+
+=head3 mult_matrix_vector_3
+
+=head3 spow
+
+=head3 min
+
+=head3 max
+
+=head3 mod_real
+
+=head3 is_nr
+
+=head3 round_decimals
+
 
 =head2 use
 
@@ -46,28 +171,6 @@ under the same terms as Perl itself.
 
 
 
-
-=head1 SYNOPSIS
-
-    use Graphics::Toolkit::Color::Space qw/:all/;
-
-    Graphics::Toolkit::Color::Space->new (
-              name => 'demo',               # space name, defaults to concatenated short axis names
-             alias => 'alias',              # second, user set space name, often a shortcut
-              axis => [qw/red green blue/], # long axis names, required !
-             short => [qw/Re Gr Bl/],       # short names, defaults to first char of long
-              type => [qw/linear circular angular/], # axis type
-             range => [1, [-2, 2], [-3, 3]],         # axis value range
-         precision => [-1, 0, 1],                    # axis value precision of value output
-            suffix => ['', '', '%'],                 # axis value suffix of value in in and output
-        value_form => ['\d{3}','\d{1,3}','\d{1,3}'], # special axis value shape
-            values => {read => \&read_vals, write => \&write_vals }, # translate values to numbers and back
-           convert => {RGB => [\&to_rgb, \&from_rgb, {..flags..}]},  # converter CODE, required !
-            format => {'hex_string'=> [\&hex_from_tuple,\&tuple_from_hex]}, # custom IO format
-        constraint => {cone => {checker => '$_[0][1] + $_[0][2] <= 1',
-	                           error    => 'The sum of whiteness and blackness can not exceed 100%.',
-		                       remedy   => 'my $s = $_[0][1] + $_[0][2];[$_[0][0], $_[0][1]/$s, $_[0][2]/$s]', }},
-    );
 
 
 =head1 DESCRIPTION
@@ -181,15 +284,3 @@ The thir key, I<error> is just a fitting error message so the use can
 know, what the condition is about, that was not met.
 
 
-=head1 AUTHOR
-
-Herbert Breunung, <lichtkind@cpan.org>
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2023-26 Herbert Breunung.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-=cut

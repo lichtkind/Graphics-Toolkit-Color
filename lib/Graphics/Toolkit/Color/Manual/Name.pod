@@ -74,7 +74,7 @@ schemes that come with GTC. They have to be obtained separately.
 For instance to access the names of the I<SVG> standard, you have to install
 the module L<Graphics::ColorNames::SVG>, which of course
 depends on the module L<Graphics::ColorNames>. The list of available 
-schemes include: I<Crayola>, I<CSS>, I<EmergyC>, I<GrayScale>, I<HTML>, 
+schemes includes: I<Crayola>, I<CSS>, I<EmergyC>, I<GrayScale>, I<HTML>, 
 I<IE>, I<Mozilla>, I<Netscape>, I<Pantone>, I<PantoneReport>, I<SVG>, 
 I<VACCC>, I<Werner>, I<Windows> and I<WWW>. The following code will check
 what is already installed:
@@ -82,7 +82,8 @@ what is already installed:
    my @schemes = Graphics::ColorNames::all_schemes();
 
 Conveniently all modules can be installed at once with 
-L<Bundle::Graphics::ColorNames>.
+L<Bundle::Graphics::ColorNames> and you can also create your own,
+which is explained L<here|Graphics::Toolkit::Color::Manual::Plugin/COLOR-SCHEME>.
 
 
 =head1 AUTHOR

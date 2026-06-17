@@ -3,6 +3,7 @@
 use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
+use Test::Warn;
 use Test::More tests => 1;
 
 my $module = 'Graphics::Toolkit::Color::Error';
@@ -11,3 +12,6 @@ is( not($@), 1, 'could load the module');
 say $@;
 
 exit 0;
+ 
+ 
+ # Graphics::Toolkit::Color::Error->import( @neue_args );

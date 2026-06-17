@@ -196,6 +196,8 @@ sub deformat_search { # formatted color def --> tuple
         my @tuple_space_format = deformat( $color_def, $space_name, $suffix);
         return @tuple_space_format if @tuple_space_format > 1;
     }
+    return "could not deformat color definition in any space: '@$color_def'!" if ref $color_def eq 'ARRAY';
+    return "could not deformat color definition in any space: '%$color_def'!" if ref $color_def eq 'HASH';
     return "could not deformat color definition in any space: '$color_def'!";
 }
 sub deformat_search_partial_hash { # convert partial hash into

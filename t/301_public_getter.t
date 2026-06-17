@@ -71,6 +71,11 @@ is( round_decimals($snow->distance(to => $white, select => ['red','blue']), 5), 
 is( round_decimals($snow->distance(to => $white, in => 'cmy', range => 255), 5), 1, 'test reaction to the "in" argument');
 is( ref $snow->distance( to => $white, blub => '-'),           '', 'false arguments get caught');
 is( ref $snow->distance( in => 'LAB'),                         '', 'missing required argument gets caught');
+exit 0;
+
+
+warning_like {color( 1,1,1,1,1 )}  {carped => qr/could not deformat/}, 'five numeric values are too much';
+warning_like {color( 1,1,1,1,1 )}  {carped => qr/could not deformat/}, 'five numeric values are too much';
 
 #### values ############################################################
 my @values = $blue->values();

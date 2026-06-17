@@ -29,12 +29,13 @@ sub new {
     my $help = 'method "new" accepts the arguments: "color" (color definition), "raw", '.
                '"range" and "in" (space name). "color" is the required and default argument.'.$POD_link;
 	my ($color_def, $space_name, $range_def, $is_raw);
-    unless (@args % 2 or not @args){
+    if (@args > 0 and not @args % 2){
 		my %h = @args;
+		return error('got an argument twice') if int(%h) * 2 < int(@args);
 		($color_def, $space_name, $range_def, $is_raw) = ($h{'color'}, $h{'in'}, $h{'range'}, $h{'raw'} // 0);
 	}
     $color_def = _color_def_into_scalar( @args ) unless defined $color_def;
-    error($help) unless defined $color_def;
+    return error($help) unless defined $color_def;
     my $self = _new_from_scalar_def( $color_def, $space_name, $range_def, $is_raw );
 	return (ref $self) ? $self : error($self);
 }

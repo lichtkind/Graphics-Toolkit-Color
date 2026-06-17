@@ -32,7 +32,7 @@ sub new { # -, $:Basis -- ~|@~val_form, ~|@~suffix --> :_
                 css_string => sub { tuple_from_css_string(@_)   },
     );
     # tuple --> format
-    my %formats = (list => sub { @{$_[1]} },                                  #   1, 2, 3
+    my %formats = (list => sub { (@{$_[1]}) },                                #   1, 2, 3
                   array => sub { [@{$_[1]}] },                                # [ 1, 2, 3 ] 
                    hash => sub { $basis->long_name_hash_from_tuple($_[1]) },  # { red => 1, green => 2, blue => 3 }
               char_hash => sub { $basis->short_name_hash_from_tuple($_[1]) }, # { r =>1, g => 2, b => 3 }
@@ -121,11 +121,6 @@ sub trim_tuple {
     return unless $self->basis->is_value_tuple( $dirty_tuple );
     my $tuple = [@$dirty_tuple];
     $tuple->[$_] =~tr/ //d for $self->basis->axis_iterator;
-    #~ for my $axis_index ($self->basis->axis_iterator){
-		#~ chomp $tuple->[$axis_index];
-		#~ $tuple->[$axis_index] = substr($tuple->[$axis_index], 1) while $tuple->[$axis_index] 
-		                                                           #~ and substr($tuple->[$axis_index],0,1) eq ' ';
-	#~ }
 	return $tuple;
 }
 

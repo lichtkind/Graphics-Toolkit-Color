@@ -5,6 +5,7 @@ use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
 use Test::More tests => 64;
+use Test::Warn;
 use Graphics::Toolkit::Color qw/color/;
 
 my $module = 'Graphics::Toolkit::Color';

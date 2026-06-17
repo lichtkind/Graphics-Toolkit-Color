@@ -63,10 +63,11 @@ sub _new_from_value_obj {
 sub values_object { $_[0]->{'values'} if ref $_[0] eq __PACKAGE__}
 
 sub is_in_gamut {
-    my ($self, $space_name) = @_;
+    my ($self, $space_name, $named_arg) = @_;
     return is_in_gamut_sub (@_) if ref $self ne __PACKAGE__;
     my $help = 'The method "is_in_gamut" accepts one optional, positional argument, a color space name, '.
-               'which defaults to the space the color was defined in'.$POD_link; 
+               'which defaults to the space the color was defined in'.$POD_link;
+	$space_name = $named_arg if defined $space_name and $space_name eq 'in' and defined $named_arg;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
 	return error($help) if defined $space_name and not ref $space;
     $self->values_object->is_in_gamut( (ref $space) ? $space->name : undef );
@@ -133,9 +134,9 @@ sub values       {
     my $help = 'The method "values" returns numeric color values and accepts six named, optional arguments: '.
                '"in" (color space name - default arg), "as" (color definition format), "raw", "range", "precision" and "suffix"!';
     return error($arg.$help.$POD_link) unless ref $arg;
-    my $result = $self->values_object->formatted( @$arg{qw/in as suffix range precision raw/} );
-    return error($result.$help.$POD_link) if ref $result eq 'SCALAR';
-    return $result;
+    my @result = $self->values_object->formatted( @$arg{qw/in as suffix range precision raw/} );
+    return error(${$result[0]}.$help.$POD_link) if ref $result[0] eq 'SCALAR';
+    return wantarray ? @result : $result[0];
 }
 
 sub name         {

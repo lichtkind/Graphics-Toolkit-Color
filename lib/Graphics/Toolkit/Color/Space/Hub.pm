@@ -25,6 +25,7 @@ sub default_space      { $default_space }
 sub get_space          { # takes only normal names or alias names
     my $name = shift;
     return unless defined $name;
+    $name = default_space()->normalize_name( $name ) if ref $default_space;
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
 sub try_get_space      { # takes any name variant and defaults to $default_space_name

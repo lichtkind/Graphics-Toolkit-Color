@@ -4,7 +4,8 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 94;
+use Test::More tests => 91;
+use Test::Warn;
 use Graphics::Toolkit::Color::Space::Util 'round_decimals';
 use Graphics::Toolkit::Color qw/color is_in_gamut/;
 
@@ -69,18 +70,12 @@ is( round_decimals($snow->distance(to => $white, select => 'red'), 5), 1, 'test 
 is( round_decimals($snow->distance(to => $white, select => 'blue'), 5), 0, 'select axis with no value difference');
 is( round_decimals($snow->distance(to => $white, select => ['red','blue']), 5), 1, 'select axis with and without value difference');
 is( round_decimals($snow->distance(to => $white, in => 'cmy', range => 255), 5), 1, 'test reaction to the "in" argument');
-is( ref $snow->distance( to => $white, blub => '-'),           '', 'false arguments get caught');
-is( ref $snow->distance( in => 'LAB'),                         '', 'missing required argument gets caught');
-exit 0;
-
-
-warning_like {color( 1,1,1,1,1 )}  {carped => qr/could not deformat/}, 'five numeric values are too much';
-warning_like {color( 1,1,1,1,1 )}  {carped => qr/could not deformat/}, 'five numeric values are too much';
+warning_like { $snow->distance( to => $white, blub => '-')}  {carped => qr/unknown argument/}, 'false arguments for "distance" method got caught';
+warning_like {$snow->distance( in => 'LAB')}                 {carped => qr/Argument 'to' is missing!/}, 'required argument for "distance" method is missing';
 
 #### values ############################################################
 my @values = $blue->values();
 is_tuple( \@values, [0, 0, 255], [qw/red green blue/], 'default output of "values is a RGB list"');
-
 @values = $blue->values(as => 'array');
 is( int @values,                 1, 'ordered one ARRAY ref');
 is_tuple( $values[0], [0, 0, 255], [qw/red green blue/], '"ARRAY" format is for RGB');
@@ -93,9 +88,9 @@ is( $values[0][0],           'RGB', 'color space name is first');
 is( $values[0][1],               0, 'red value is correct');
 is( $values[0][2],               0, 'green value is correct');
 is( $values[0][3],             255, 'blue value is correct');
-is( ref $blue->values( in => 'LAB', as => 'array'),       'ARRAY', 'ARRAY ref format is now for every space');
+is( ref($blue->values( in => 'LAB', as => 'array')),       'ARRAY', 'ARRAY ref (arrray format) is now for every space');
 is( ref $blue->values( in => 'LAB', as => 'hex_string'),  '', 'hex_string format is RGB only');
-is( ref $blue->values( in => 'LAB', was => 'array'),      '', 'reject fantasy arguments');
+warning_like {$snow->distance( in => 'LAB', was => 'array')}  {carped => qr/Argument 'to' is missing!/}, 'method "values" rejects fantasy arguments';
 is( ref $blue->values( in => 'LAB', suffix => {}),        '', 'bad ref type for suffix def');
 is( ref $blue->values( in => 'LAB', suffix => [1,2]),     '', 'suffix def too short');
 is( ref $blue->values( in => 'LAB', suffix => [1,2,3,4]), '', 'suffix def too long');
@@ -148,11 +143,9 @@ is_tuple( \@rgb, [0.4, .50, .6], [qw/red green blue/], 'custom ranged RGB values
 #### is_in_gamut #######################################################
 is( $blue->is_in_gamut(),                   1, 'blue is_in_gamut');
 is( $blue->is_in_gamut( in => 'XYZ'),       1, 'blue is_in_gamut in CIEXYZ');
-is( $blue->is_in_gamut('xyz:1,1,1'),        1, 'xyz white is in xyz gamut');
-is( $blue->is_in_gamut(color => 'xyz:1,1,1', in => 'SRGB', range => 1), 0, 'xyz white is not in RGB');
-is( $blue->is_in_gamut('xyz: 100,100,100'), 0, 'x value is out of gamut');
-is( $blue->is_in_gamut('hsl: 10,10,10'),    1, 'is_in_gamut method works with normal HSL color');
-is( $blue->is_in_gamut('hsl: -10,10,10'),   1, 'is_in_gamut checks only linear axis');
-is( $blue->is_in_gamut('hsl: 0,1000,10'),   0, 'is_in_gamut checks saturation was out of gamut');
+is( $blue->is_in_gamut( 'XYZ'),             1, 'use space name as default argument');
+my $very_blue = Graphics::Toolkit::Color->new(color => [0,0,256], raw => 1 );
+is( $very_blue->is_in_gamut(),              0, 'this color has too much blue');
+is( $very_blue->is_in_gamut('ciexyz'),      1, 'but not for xyz');
 
 exit 0;

@@ -259,7 +259,7 @@ sub set_value {
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return error($color_space.$help.$POD_link) if defined $color_space and not ref $color_space;
     my $result = Graphics::Toolkit::Color::Calculator::set_value( $self->values_object, $partial_color, $space_name );
-    return error($result.$help.$POD_link) unless ref $result;
+    return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
 sub add_value {
@@ -273,7 +273,7 @@ sub add_value {
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
     return error($color_space.$help.$POD_link) if defined $color_space and not ref $color_space;
     my $result = Graphics::Toolkit::Color::Calculator::add_value( $self->values_object, $partial_color, $space_name );
-    return error($result.$help.$POD_link) unless ref $result;
+    return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
 
@@ -282,21 +282,21 @@ sub mix {
     my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', by => undef}, {by => 'amount'});
     my $help = 'The method "mix" returns a GTC object, which is a blend between given colors. Arguments are: '.
                '"to" (other color[s]-required and default), "by" (mix amounts) and "in"(color space name, default OKLAB)!';
-    return error($arg.$help.$POD_link) unless ref $arg;
+    return error($arg.' '.$help.$POD_link) unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
-    return error($color_space.$help.$POD_link) unless ref $color_space;
+    return error($color_space.' '.$help.$POD_link) unless ref $color_space;
     my $second_color = _new_from_scalar_def($arg->{'to'});
     if (ref $second_color){ $arg->{'to'} = [$second_color->values_object] } 
     else {
         if (ref $arg->{'to'} ne 'ARRAY'){
-			return error("target color definition (argument 'to'): '$arg->{to}' is ill formed. $second_color".$help.$POD_link);
+			return error("Target color definition (argument 'to'): '$arg->{to}' is ill formed. $second_color. ".$POD_link);
         } else {
 			my @to = ();
 			for my $color_def (@{$arg->{'to'}}){
 				if (ref $color_def eq __PACKAGE__) { push @to, $color_def->values_object }
 				else {
 					$second_color = Graphics::Toolkit::Color::Values->new_from_any_input( $color_def );
-					return error("target color definition (argument 'to'): '$color_def' is ill formed. $second_color".$help.$POD_link)
+					return error("target color definition (argument 'to'). '$color_def' is ill formed: $second_color. ".$POD_link)
 						unless ref $second_color;
 					push @to, $second_color;
 				}
@@ -311,7 +311,7 @@ sub mix {
 		} elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
     }
     my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, $arg->{'to'}, $arg->{'by'}, $color_space );
-    return error($result.$help.$POD_link) unless ref $result;
+    return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
 

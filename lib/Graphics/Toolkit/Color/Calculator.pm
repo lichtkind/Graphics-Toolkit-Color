@@ -35,7 +35,7 @@ sub set_value { # .values, %newval -- ~space_name --> _
     unless (ref $new_values){
         my $help_start = 'axis names: '.join(', ', keys %$partial_hash).' do not correlate to ';
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
-                                                 : 'any supported color space!';
+                                                 : $help_start.'any supported color space!';
     }
     my $tuple = $color_values->shaped( $deduced_space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $deduced_space_name );
@@ -52,7 +52,7 @@ sub add_value { # .values, %newval -- ~space_name --> _
     unless (ref $new_values){
         my $help_start = 'axis names: '.join(', ', keys %$partial_hash).' do not correlate to ';
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
-                                                 : 'any supported color space!';
+                                                 : $help_start.'any supported color space!';
     }
     my $tuple = $color_values->shaped( $deduced_space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $deduced_space_name );

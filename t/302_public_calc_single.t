@@ -29,9 +29,9 @@ is_tuple( \@values, [ 0.0983737, 0.1373806, 0.8028696], [qw/red green blue/], 'g
 is_tuple( \@values, [ 20, 10, 200], [qw/red green blue/], 'correct nice blue with special gamma per axis');
 
 #### set_value #########################################################
-is( ref $white->set_value(),                             '',  'need some argument for "set_value"');
-is( ref $white->set_value(ar => 3),                      '',  'reject invented axis names');
-is( ref $white->set_value(r => 3, y => 1),               '',  'reject mixing axis frm different spaces');
+warning_like { $white->set_value()}  {carped => qr/The method "set_value"/}, 'method "set_value" needs arguments';
+warning_like { $white->set_value(ar => 3)}  {carped => qr/not correlate to any supported color space/}, 'reject invented axis names';
+warning_like { $white->set_value(ar => 3, y => 1)}  {carped => qr/correlate to any supported color space/}, 'reject mixing axis from different spaces';
 is( ref $white->set_value( red => 1),               $module,  'accept real axis names');
 is( ref $white->set_value( red => 1, in => 'RGB'),  $module,  'accept mixed arguments, axis name and space name');
 @values = $white->set_value( red => 1 )->values();
@@ -44,10 +44,10 @@ is( $white->set_value( lightness => 0)->name,       'black', 'dimming down to bl
 is( $white->set_value( blackness => 100)->name,      'gray', 'adding full blackness to white = gray');
 
 #### add_value #########################################################
-is( ref $white->add_value(),                               '',  'need some argument for "add_value"');
-is( ref $white->add_value( bu => 3),                       '',  'reject invented axis names');
-is( ref $white->add_value( blue => 3, 'a*' => 1),          '',  'reject mixing axis frm different spaces');
-is( ref $white->add_value( blue => 3, in => 'LAB'),        '',  'blue is no axis in CIELAB');
+warning_like { $white->add_value()}  {carped => qr/The method "add_value"/}, 'method "add_value" needs arguments';
+warning_like { $white->add_value(bu => 3)}  {carped => qr/not correlate to any supported color space/}, 'reject invented axis names';
+warning_like { $white->add_value( blue => 3, 'a*' => 1)}  {carped => qr/correlate to any supported color space/}, 'reject mixing axis from different spaces';
+warning_like { $white->add_value( blue => 3, in => 'LAB')}  {carped => qr/do not correlate to the selected color space/}, 'axis names are not from demanded space';
 is( ref $white->add_value( BLUE => 1),                $module,  'accept real axis names, even in upper case');
 is( ref $white->add_value( Yellow => 1, in => 'CMY'), $module,  'accept mixed arguments, axis name and space name');
 @values = $white->add_value( Yellow => 1)->values();
@@ -60,13 +60,13 @@ is_tuple( \@values, [ 0, 0, 99], [qw/hue saturation lightness/], 'same but in HS
 is_tuple( \@values, [ 240, 0, 100], [qw/hue saturation lightness/], 'add HSL values that get clamped into shape');
 
 #### mix ###############################################################
-is( ref $white->mix(),                                     '',  'need some argument for "mix"');
-is( ref $white->mix( 'ellow'),                             '',  'reject invented color name');
-is( ref $white->mix( to => 'ellow'),                       '',  'reject invented color name as named argument');
-is( ref $white->mix( to => 'blue', 'a*' => 1),             '',  'reject invented argument names');
-is( ref $white->mix( to => 'blue', 'in' => 'HS'),          '',  'reject invented color space name');
-is( ref $white->mix( to => 'blue', amount => []),          '',  'amount arg is ARRAY and colors not');
-is( ref $white->mix( to => ['blue'], amount => [1,2]),     '',  'amount and to arg ARRAY have different length');
+warning_like { $white->mix()}    {carped => qr/Argument 'to' is missing/}, 'method "mix" needs arguments';
+warning_like { $white->mix('ellow')}    {carped => qr/Target color definition/}, 'reject invented color name as destination color';
+warning_like { $white->mix(to => 'ellow')}   {carped => qr/Could not deformat color/}, 'reject invented color name as named argument';
+warning_like { $white->mix(to => 'blue', 'a*' => 1)}   {carped => qr/Inserted unknown argument/}, 'reject invented argument names';
+warning_like { $white->mix(to => 'blue', 'in' => 'HS')}   {carped => qr/is an unknown color space/}, 'reject invented color space name';
+warning_like { $white->mix(to => 'blue', by => [])}   {carped => qr/value for every color/}, 'argument "by" got empty ARRAY';
+warning_like { $white->mix(to => ['blue'], by => [1,2])}   {carped => qr/value for every color/}, 'argument "by" got ARRAY with too many values';
 is( ref $white->mix( 'black'),                        $module,  'one argument mode');
 is( ref $white->mix( ['black']),                      $module,  'one argument mode, but ARRAY');
 is( ref $white->mix( ['black', $blue]),               $module,  'one argument mode, but longer ARRAY');
@@ -95,8 +95,8 @@ is_tuple( \@values, [ 0, 0, 204], [qw/red green blue/], 'mix white with blue (80
 is_tuple( \@values, [ 0, 0, 191], [qw/red green blue/], 'mix white with blue (90%) and black(30%) - still no white');
 
 #### invert ############################################################
-is( ref $white->invert('-'),                     '',  'need a valid axis name space to invert');
-is( ref $white->invert( at => 'RGB'),            '',  'can not use invented arguments');
+warning_like { $white->invert('-')}    {carped => qr/that contains the axes/}, 'method "invert" needs an axis name as default argument';
+warning_like { $white->invert( at => 'RGB')}  {carped => qr/Inserted unknown argument/}, 'reject invented argument names';
 is( ref $white->invert(),                   $module,  'works without argument');
 is( ref $white->invert(in => 'RGB'),        $module,  'can use "in" argument');
 is( $white->invert()->name,                 'black',  'black is white inverted');

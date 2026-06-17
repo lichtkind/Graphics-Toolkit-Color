@@ -40,6 +40,6 @@ Graphics::Toolkit::Color::Space->new(
             range => [ 360, 100, 100 ],
         precision => 0,
              type => [qw/angular linear linear/],
-           suffix => ['', '%', '%'],
+           #suffix => ['', '%', '%'],
           convert => {RGB => [\&from_hsl, \&to_hsl]},
 );

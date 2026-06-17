@@ -33,6 +33,11 @@ jobs:
         cpanm -v
         cpanm --notest Dist::Zilla
 
+    - name: Install Test::Warn
+      run: |
+        cpanm -v
+        cpanm --notest Test::Warn
+
     - name: Install Modules
       run: |
         dzil authordeps --missing | cpanm --notest

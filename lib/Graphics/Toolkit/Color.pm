@@ -340,6 +340,7 @@ sub complement {
     return error('Optional argument "steps" has to be a number ! '.$help.$POD_link) unless is_nr($arg->{'steps'});
     return error('Optional argument "steps" is zero or negative, no complement colors will be computed! '.$help.$POD_link) if $arg->{'steps'} < 1;
     return error('Optional argument "tilt" has to be a number! '.$help.$POD_link) unless is_nr($arg->{'tilt'});
+    return error('Optional argument "skew" has to be a number! '.$help.$POD_link) unless is_nr($arg->{'skew'});
     return error('Optional argument "target" has to be a HASH ref! '.$help.$POD_link) if ref $arg->{'target'} ne 'HASH';
     my ($target_delta, $space_name);
     if (keys %{$arg->{'target'}}){
@@ -364,8 +365,9 @@ sub analogous {
     my $next_color = _new_from_scalar_def( $arg->{'to'} );
     if  (ref $next_color) { $arg->{'to'} = $next_color->values_object }
     else                  { return error('Argument "to" contains malformed color definition! '.$next_color.$POD_link) }
-    return error('Argument "steps" has to be a number greater equal two! '.$help.$POD_link) unless is_nr($arg->{'steps'}) and $arg->{'steps'} >= 2;
-    return error('Argument "tilt" has to be a number! '.$help.$POD_link) unless is_nr($arg->{'tilt'});
+    return error('Optional argument "steps" has to be a number ! '.$help.$POD_link) unless is_nr($arg->{'steps'});
+    return error('Optional argument "steps" has to be a number greater equal two! '.$help.$POD_link) unless is_nr($arg->{'steps'}) and $arg->{'steps'} >= 2;
+    return error('Optional argument "tilt" has to be a number! '.$help.$POD_link) unless is_nr($arg->{'tilt'});
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
     
@@ -411,8 +413,8 @@ sub cluster {
     return error($arg.$help.$POD_link) unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
-    return error('Argument "radius" has to be a number or an ARRAY of numbers'.$help.$POD_link)
-        unless is_nr($arg->{'radius'}) or $color_space->is_number_tuple( $arg->{'radius'} );
+    return error('Argument "radius" has to be a non-negative number or an ARRAY of numbers that holds for each space axis a radius value. '.$help.$POD_link)
+        unless (is_nr($arg->{'radius'}) and $arg->{'radius'} >= 0) or $color_space->is_number_tuple( $arg->{'radius'} );
     return error('Argument "minimal_distance" (or "min_d") has to be a number greater zero! '.$help.$POD_link)
         unless is_nr($arg->{'minimal_distance'}) and $arg->{'minimal_distance'} > 0;
     return error('Ball shaped cluster works only in spaces with three dimensions! '.$help.$POD_link)

@@ -39,7 +39,8 @@ get tetradic (quadratic) colors and so forth. For values greater than one,
 the invocant will always be the last color returned.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the C<complement> will be computed in, which is I<OKHSL> per default. 
+the C<complement> will be computed in, which is 
+L<OKHSL|Graphics::Toolkit::Color::Manual::Space/OKHSL> per default. 
 It has to be a space of the 
 L<HSL family|Graphics::Toolkit::Color::Manual::Space/HSL-family>.
 
@@ -67,8 +68,7 @@ C<skew> expects a floating point number. If that is positive, the right
 side of the circle (looking toward THE complement) is moved up (toward white)
 and vice versa. C<skew> defaults to zero. Please note that C<skew>
 (like C<target>) expects absolute values, which need to be different
-from color space to color space the produce the same results.
-
+from color space to color space to produce the same results.
 
     my @colors = $c->complement( 4 );                          # 'quadratic' colors
     my @colors = $c->complement( steps => 4, tilt => 1.585 );  # split-complementary colors
@@ -80,8 +80,8 @@ from color space to color space the produce the same results.
 =head2 analogous
 
 C<analogous> computes analogous colors (GTC objects). These are series of
-colors, where the colors of every pair of neighbours differ the same way
-from each other. This method may be used to produce a L</gradient> or
+colors, where every pair of neighbours differs the same way from each other. 
+This method may be used to produce a L</gradient> or
 L<complementary|/complement> colors but it works differently in edge cases 
 and has generally fewer options to shape the result than any of these methods. 
 Its strength comes from being able to interpolate from two given colors 
@@ -98,7 +98,8 @@ integer, which will be the maximal amount of colors produced. The method
 stops as soon as the generated color is out of range. C<steps> defaults to four.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the C<analogous> colors will be computed in, which is I<OKHSL> per default. 
+the C<analogous> colors will be computed in, which is 
+L<OKHSL|Graphics::Toolkit::Color::Manual::Space/OKHSL> per default. 
 
 L<tilt|Graphics::Toolkit::Color::Manual::Argument/tilt> helps to differ
 from the default behavior, where the 
@@ -112,7 +113,6 @@ instance 0.2, the distance between the second and the third color will be
 and fourth color will be 1.2 * 120 = 144% or 64% respectively. In any
 case all four colors will be located on one line. Please note this line
 might be curved if the color space is cylindrical.
-
 
     my @colors = $c->analogous( $second_color );             # 4 analogous colors
     my @colors = $c->analogous( to => 'black', steps => 6, in => 'OKLCH', tilt => 0.05 );
@@ -138,7 +138,8 @@ L<steps|Graphics::Toolkit::Color::Manual::Argument/steps> requires a positive
 integer, which will be the amount of colors produced. C<steps> defaults to ten.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the C<gradient> colors will be computed in, which is I<OKLAB> per default. 
+the C<gradient> colors will be computed in, which is 
+L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB> per default. 
 
 L<tilt|Graphics::Toolkit::Color::Manual::Argument/tilt> moves the colors
 of the gradient toward the end color or the starting color. The former will
@@ -148,10 +149,9 @@ C<tilt> defaults to zero, which results in a gradient of colors with equal
 L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> between them.
 Please note that the effect of C<tilt> is exponential (it is accelerating).
 
-
     # we turn to grey
     my @colors = $c->gradient( to => 'grey50', steps => 5);
-    # none-linear gradient in HSL space :
+    # non-linear gradient in HSL space :
     @colors = $c1->gradient( to =>[14,10,222], steps => 10, tilt => 1, in => 'HSL' );
     @colors = $c1->gradient( to =>['blue', 'brown', {h => 30, s => 44, l => 50}] );
 
@@ -180,11 +180,13 @@ L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> in any direction
 of two neighbouring colors.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the C<cluster> colors will be computed in, which is I<OKLAB> per default. 
-
+the C<cluster> colors will be computed in, which is 
+L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB> per default.
+Please note that cuboctahedral packing (radius is a single number) does
+not work in L<CMYK|Graphics::Toolkit::Color::Manual::Space/CMYK> space.
 
     my @blues = $blue->cluster( radius => 4, minimal_distance => 0.3 );
-    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => YUV );
+    my @c = $color->cluster( r => [2,2,3], min_d => 0.4, in => 'YUV' );
 
 
 =head1 AUTHOR

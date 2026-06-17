@@ -35,7 +35,7 @@ eval { error('nachricht 7') };
 like( $@,         qr/nachricht 7/, 'select "die" mode');
 
 Graphics::Toolkit::Color->import( 'error', 'say');
-my ($output, $ret);
+my ($output);
 {
     local $SIG{__WARN__} = sub {};   # verschluckt alle Warnungen in diesem Block
     local *STDOUT;
@@ -46,14 +46,15 @@ like( $output, qr/nachricht 8/, 'select "say" mode');
 is( $@,                     '', '"say" mode does not call exception');
 
 Graphics::Toolkit::Color->import('error', 'quiet');
+my ($output2);
 {
     local $SIG{__WARN__} = sub {};   # verschluckt alle Warnungen in diesem Block
     local *STDOUT;
-    open STDOUT, '>', \$output;
+    open STDOUT, '>', \$output2;
     eval { routine('nachricht 9') };
 }
-is( $output, '', 'select "quiet" mode');
-is( $@,      '', '"quiet" mode does not call exception');
+is( $output2, undef, 'select "quiet" mode');
+is( $@,          '', '"quiet" mode does not call exception');
 
 
 sub routine { error($_[0]) }

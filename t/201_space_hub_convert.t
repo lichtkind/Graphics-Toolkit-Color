@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 31;
+use Test::More tests => 55;
 use Graphics::Toolkit::Color::Space::Hub;
 
 ##### preparation ######################################################
@@ -87,14 +87,77 @@ is_tuple( $RGB->round($lch, 5), [.53264, .19389, 0.11118], $lch_axis, 'convert b
 $lch = $convert->([0.1, 0.2, 0.9], 'CIELCHuv');
 is_tuple( $RGB->round($lch, [4,4,5]), [34.5264, 119.3958, 264.63634], $lch_axis, 'convert bright blue to LCHuv (4 hop conversion)');
 
-$lch = $deconvert->([0.3453, 0.4575, 0.7351], 'CIELCHuv', 'normal');
+$lch = $deconvert->([0.3453, 0.4575, 0.7351], 'CIELCHuv', 'normal'); # CIELCHuv > CIELUV > CIEXYZ > LinRGB > RGB
 is_tuple( $RGB->round($lch, [4,4,3]), [0.1, 0.2, 0.9], $lch_axis, 'deconvert bright blue back to normal RGB');
 
 $rgb = $deconvert->( [0, 0.5, 0.5], 'LAB' );
 is_tuple( $RGB->round($rgb, 5), [0, 0, 0], $rgb_axis, 'deconvert black from LAB');
 
-$rgb = $deconvert->( [.53264, 104.505/539, 40.026/360], 'LCH', 1);
+$rgb = $deconvert->( [.53264, 104.505/539, 40.026/360], 'LCH', 'normal'); 
 is_tuple( $RGB->round($rgb, [5,4,5]), [1, 0.0039, 0], $rgb_axis, 'deconvert bright red from LCH');
 
-########################################################################
+
+# --- DCIP3 ---
+my $dci = $convert->( [0, 0, 0], 'DCIP3'); 
+is_tuple( $RGB->round($dci, [9,9,9]), [0, 0, 0], $rgb_axis, 'convert black to DCIP3');
+$rgb = $deconvert->( [0, 0, 0], 'DCIP3',1); 
+is_tuple( $RGB->round($rgb, [9,9,9]), [0, 0, 0], $rgb_axis, 'deconvert black from DCIP3');
+
+$dci = $convert->( [1, 1, 1], 'DCIP3'); 
+is_tuple( $RGB->round($dci, [7, 6, 7]), [1, 1, 1], $rgb_axis, 'convert white to DCIP3');
+$rgb = $deconvert->( [1, 1, 1], 'DCIP3',1); 
+is_tuple( $RGB->round($rgb, [7, 8, 7]), [1, 1, 1], $rgb_axis, 'deconvert white from DCIP3');
+
+$dci = $convert->( [0.5, 0.5, 0.5], 'DCIP3'); 
+is_tuple( $RGB->round($dci, [9, 9, 9]), [0.528111202, 0.528111269, 0.528111226], $rgb_axis, 'convert grey to DCIP3');
+$rgb = $deconvert->( [0.5281112017, 0.5281112686, 0.5281112256], 'DCIP3', 1); 
+is_tuple( $RGB->round($rgb, [7, 7, 7]), [0.5, 0.5, 0.5], $rgb_axis, 'deconvert grey from DCIP3');
+
+$dci = $convert->( [1, 0, 0], 'DCIP3' );
+is_tuple( $RGB->round($dci, [9, 9, 9]), [0.944389481, 0.234139612, 0.164010654], $rgb_axis, 'convert red to DCIP3');
+$rgb = $deconvert->( [0.9443894813, 0.2341396122, 0.1640106539], 'DCIP3', 1 );
+is_tuple( $RGB->round($rgb, [7, 9, 6]), [1, 0, 0], $rgb_axis, 'deconvert red from DCIP3');
+
+$dci = $convert->( [0, 1, 0], 'DCIP3' );
+is_tuple( $RGB->round($dci, [9, 9, 9]), [0.424696879, 0.984316996, 0.326557673], $rgb_axis, 'convert green to DCIP3');
+$rgb = $deconvert->( [0.4246968792, 0.9843169959, 0.3265576734], 'DCIP3', 1 );
+is_tuple( $RGB->round($rgb, [6, 7, 6]), [0, 1, 0], $rgb_axis, 'deconvert green from DCIP3');
+
+$dci = $convert->( [0, 0, 1], 'DCIP3' );
+is_tuple( $RGB->round($dci, [9, 9, 9]), [0.032163962, 0.066729212, 0.963347929], $rgb_axis, 'convert blue to DCIP3');
+$rgb = $deconvert->( [0.0321639621, 0.0667292123, 0.9633479292], 'DCIP3', 1 );
+is_tuple( $RGB->round($rgb, [5, 5, 7]), [0, 0, 1], $rgb_axis, 'deconvert blue from DCIP3');
+
+
+# --- WideGamutRGB ---
+my $wgrgb = $convert->( [0, 0, 0], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [9,9,9]), [0, 0, 0], $rgb_axis, 'convert black to WideGamutRGB');
+$rgb = $deconvert->( [0, 0, 0], 'WideGamutRGB' ); 
+is_tuple( $RGB->round($rgb, [9,9,9]), [0, 0, 0], $rgb_axis, 'deconvert black from WideGamutRGB');
+
+$wgrgb = $convert->( [1, 1, 1], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [7,6,7]), [1, 1, 1], $rgb_axis, 'convert white to WideGamutRGB');
+$rgb = $deconvert->( [1, 1, 1], 'WideGamutRGB', 'normal' ); 
+is_tuple( $RGB->round($rgb, [7, 8, 7]), [1, 1, 1], $rgb_axis, 'deconvert white from WideGamutRGB');
+
+$wgrgb = $convert->( [0.5, 0.5, 0.5], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [9, 9, 9]), [0.4961036950, 0.496103731, 0.496103697], $rgb_axis, 'convert grey to WideGamutRGB');
+$rgb = $deconvert->( [0.4961036950, 0.4961037305, 0.4961036967], 'WideGamutRGB', 1 );
+is_tuple( $RGB->round($rgb, [7, 7, 7]), [0.5, 0.5, 0.5], $rgb_axis, 'deconvert grey from WideGamutRGB');
+
+$wgrgb = $convert->( [1, 0, 0], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [9, 9, 9]), [0.788578572, 0.343584924, 0.131923881], $rgb_axis, 'convert red to WideGamutRGB');
+$rgb = $deconvert->( [0.7885785716, 0.3435849236, 0.1319238809], 'WideGamutRGB', 1 );
+is_tuple( $RGB->round($rgb, [7, 7, 6]), [1, 0, 0], $rgb_axis, 'deconvert red from WideGamutRGB');
+
+$wgrgb = $convert->( [0, 1, 0], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [9, 9, 9]), [0.66275451, 0.925353069, 0.296693393], $rgb_axis, 'convert green to WideGamutRGB');
+$rgb = $deconvert->( [0.6627545096, 0.9253530691, 0.2966933929], 'WideGamutRGB', 1 );
+is_tuple( $RGB->round($rgb, [6, 7, 6]), [0, 1, 0], $rgb_axis, 'deconvert green from WideGamutRGB');
+
+$wgrgb = $convert->( [0, 0, 1], 'WideGamutRGB' );
+is_tuple( $RGB->round($wgrgb, [9, 9, 9]), [0.061892655, 0.281243877, 0.962449527], $rgb_axis, 'convert blue to WideGamutRGB');
+$rgb = $deconvert->( [0.0618926553, 0.2812438774, 0.9624495267], 'WideGamutRGB', 1 );
+is_tuple( $RGB->round($rgb, [5, 5, 7]), [0, 0, 1], $rgb_axis, 'deconvert blue from WideGamutRGB');
+
 exit 0;

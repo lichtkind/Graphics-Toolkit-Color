@@ -702,15 +702,15 @@ L<shade|Graphics::Toolkit::Color::Manual::Calculation/shade> mixes (L</mix>)
 a color with I<black> by the given percentage (0.2 = 20% black, 80% given color).
 That darkens and desaturates at once. The result of shade(1) will always be I<black>.
 
-=head2 apply
+=head2 tone_curve
 
-L<apply|Graphics::Toolkit::Color::Manual::Calculation/apply> computes a 
+L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/apply> computes a 
 gamma correction. It has two named arguments: C<gamma> and 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in>, the first one 
 being required and the default argument. C<in> defaults here to I<LinearRGB>.
 
-    my $c = $blue->apply( gamma => 2.2 );                          # is the same as :
-    my $c = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
+    my $c = $blue->tone_curve( gamma => 2.2 );                          # is the same as :
+    my $c = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
 
 =head2 set_value

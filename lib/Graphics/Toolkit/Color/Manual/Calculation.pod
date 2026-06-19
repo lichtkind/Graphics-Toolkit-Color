@@ -96,7 +96,7 @@ Values above 1 have the same result as 1: full black and values of zero
 and below will return the same color as the calling object holds.
 
 
-=head2 apply
+=head2 tone_curve
 
 C<apply> calculates a gamma correction, which is just a power function on
 normalized color values (range 0 .. 1). Gamma is in this context the name 

@@ -11,7 +11,6 @@ TODO:
    + error on bad scheme name
    + add position of target colors in 'gradient'
    + cubehelix method
-   + rename 'apply' to 'tone_curve'
    
  = 2.4:
    + XYB, ICtCp

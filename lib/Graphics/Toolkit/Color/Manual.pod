@@ -45,6 +45,7 @@ L<Philosophy|Graphics::Toolkit::Color::Manual::Philosophy> - explaining the desi
 
 =back
 
+
 =item *
 
 Reference
@@ -72,6 +73,7 @@ L<Set|Graphics::Toolkit::Color::Manual::Set> - methods that calculate sets of co
 L<Argument|Graphics::Toolkit::Color::Manual::Argument> - explaining all arguments than several methods share
 
 =back
+
 
 =item *
 
@@ -101,7 +103,7 @@ L<Plugin|Graphics::Toolkit::Color::Manual::Plugin> - How to extend the library ?
 
 =item *
 
-L<Plugin|Graphics::Toolkit::Color::Manual::Deprecation> - What key words will go?
+L<Deprecation|Graphics::Toolkit::Color::Manual::Deprecation> - What key words will go?
 
 =back
 

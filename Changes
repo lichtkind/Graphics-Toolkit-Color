@@ -1,3 +1,8 @@
+2.21   2026-06-21   lichtkind
+-------
+    * = minor fix release
+    * ? various POD fixes
+
 2.20   2026-06-20   lichtkind
 -------
     * = big feature release: +3 spaces, +8 methods, +7 args, new docs, error handling
@@ -44,7 +49,7 @@
     * + added ouput format ARRAY (tuple) (output only)
     * + can insert ' ', '-', '_' and '.' into color space names
     * ? document the 'only' argument of 'invert'
-    * & compact test suite with custom color tuple test function
+    * & compact test suite with custom color 'is_tuple' test function
     * ~ CIEXYZ converts now from and to linearRGB
     * ! HSB, HWB and NCol space got same constraints as HSV
 

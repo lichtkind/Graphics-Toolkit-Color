@@ -13,7 +13,7 @@ will be removed with the next major version (3.0).
 
 =head2 apply
 
-was renamed to 'tone_curve'
+was renamed to L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/tone_curve>.
 
 =head1 ARGUMENTS
 

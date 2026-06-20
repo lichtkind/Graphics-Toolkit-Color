@@ -11,7 +11,7 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
                distance
 
    Color:      lighten / darken     saturate / desaturate    tint / tone / shade
-               apply                set_value / add_value
+               tone_curve           set_value / add_value
                mix                  invert
 
     Sets:      complement / analogous / gradient / cluster

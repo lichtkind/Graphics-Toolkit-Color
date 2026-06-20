@@ -2,7 +2,7 @@
 # public user level API: doc summary, help msg and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.20';
+our $VERSION = '2.21';
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Error       qw/error/;
@@ -662,6 +662,9 @@ L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten>
 increases the lightness by an absolute amount, but does not touch saturation.
 The result will be clamped, so lighten(1) will always return I<white>.
 
+    my $c = $mint->lighten( 0.1 );                      # is the same as :
+    my $c = $mint->lighten( by => 0.1, in => 'OKHSL' );  
+
 =head2 darken
 
 L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken> 
@@ -785,11 +788,12 @@ With no argument given it computes THE complementary color.
 =head2 analogous
 
 L<analogous|Graphics::Toolkit::Color::Manual::Set/analogous> creates a list 
-of colors that differ from each other the same way as the two given colors.
-It accepts four named arguments: 
+of colors where values of neighbours differ from each other the same way
+as the two given colors. It accepts four named arguments: 
 L<to|Graphics::Toolkit::Color::Manual::Argument/to> (next color), 
 L<steps|Graphics::Toolkit::Color::Manual::Argument/steps> (max. color count, default 4),
-C<tilt> and L<in|Graphics::Toolkit::Color::Manual::Argument/in> 
+L<tilt|Graphics::Toolkit::Color::Manual::Argument/tilt> and 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> 
 (color space name, defaults to I<OKHSL>). Only C<to> is required and also
 the default argument.
 

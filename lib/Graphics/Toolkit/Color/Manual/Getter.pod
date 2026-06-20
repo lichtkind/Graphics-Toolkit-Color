@@ -100,8 +100,8 @@ C<name> will return a color name.
 C<full> receives a pseudo boolean that defaults to false (0). 
 When set to true (1), the method will return full color names which are
 explained L<here|Graphics::Toolkit::Color::Manual::Name/SYNTAX>.
-In short: if C<<$color->name(from => 'SVG')>> returns I<'green'>,
-C<<$color->name(from => 'SVG', full => 1)>> will return I<'SVG:green'>.
+In short: if C<< $color->name(from => 'SVG') >> returns I<'green'>,
+C<< $color->name(from => 'SVG', full => 1) >> will return I<'SVG:green'>.
 Colors from the default scheme will never contain a scheme name.
 
 C<all> gets also a pseudo boolean that defaults to false (0). 
@@ -166,10 +166,10 @@ is all dimensions. It requires one or several (in a ARRAY reference)
 axis names (long or short). For instance if you want to know only the 
 difference in brightness between two colors, you choose C<< only => 'lightness' >> 
 or C<< only => 'l' >>. This naturally works only if you did also select
-I<OKLAB> as the color space or something similar that has a C<lightness> 
+I<OKLAB> as the color space or something similar that has a I<lightness> 
 axis like I<CIELAB> or I<HSL>. It is allowed to repeat axis names to 
 weight their influence on the outcome. For instance to reproduce the formula:
-C<< $distance =  sqrt( 3 * delta_red**2 + 4 * delta_green**2 + 2 * delta_blue**2) >>.
+C<< $distance =  sqrt( 3 * $delta_red**2 + 4 * $delta_green**2 + 2 * $delta_blue**2) >>
 insert C<< only => [qw/ r r r g g g g b b/] >>.
 
 L<range|Graphics::Toolkit::Color::Manual::Argument/range> requires a range
@@ -180,7 +180,7 @@ of the second color is read. Use constructor arguments and provide
 the object if the second color uses non-default ranges. This
 argument enables you for instance to calculate the distance
 in L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> as if the
-values were normalized. In that case use C<< range => 1>>.
+values were normalized. In that case use C<< range => 1 >>.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
 the L</distance> is calculated in. For compatibility it still defaults

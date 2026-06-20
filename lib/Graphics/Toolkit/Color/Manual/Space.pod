@@ -369,7 +369,7 @@ suffix I<'%'>, since they are percentual values as well.
 
 =head2 OKHWB
 
-B<OKHSL> is a variant of I<HWB> for percepual uniformity. It has no alias 
+B<OKHWB> is a variant of I<HWB> for percepual uniformity. It has no alias 
 name and the same axis names: B<hue> (short B<h>) (0 .. 360),
 B<whiteness> (short B<w>) (0 .. 1) and B<blackness> (short B<b>) (0 .. 1).
 

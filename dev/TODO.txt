@@ -2,7 +2,7 @@ TODO:
 ------
 
  = 2.3:
-   + Yxy,YCbCr, 
+   + Yxy,YCbCr
    + designer methods: brightness, contrast, vibrance, saturation (args by set x)
    + method: derive to substitute add_value and set_value
    + read color def with alpha channel

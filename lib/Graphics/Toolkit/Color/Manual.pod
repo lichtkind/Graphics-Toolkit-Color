@@ -29,7 +29,7 @@ Overviews
 
 =item *
 
-L<Overview|Graphics::Toolkit::Color> - of the public API, short description of methods
+L<Overview|Graphics::Toolkit::Color> - of the public API, short description of all methods
 
 =item *
 

@@ -7,25 +7,72 @@ use warnings;
 use Graphics::Toolkit::Color::Space::Util qw/is_nr spow/;
 use Graphics::Toolkit::Color::Values;
 
-sub apply_gamma {
-    my ($color_values, $gamma, $color_space) = @_;
-    my $gamma_array = '';
-    return "need a color space as third argument" if ref $color_space ne 'Graphics::Toolkit::Color::Space';
-    if (ref $gamma eq 'HASH'){
-        ($gamma_array, my $deduced_space_name) = 
-			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $gamma, $color_space->name );
-		return 'axis names: '.join(', ', keys %$gamma).' do not correlate to the selected color space: '.
-			($color_space->name).'!' unless ref $gamma_array;
-	}
-	$gamma_array = [ ($gamma) x $color_space->axis_count] if is_nr( $gamma );
-	$gamma_array = $gamma if not defined $gamma_array and ref $gamma eq 'ARRAY';
-    return 'got badly formatted gamma value' if ref $gamma_array ne 'ARRAY';
-	
-	my $tuple = $color_values->normalized( $color_space->name );
-    for my $axis_nr ($color_space->basis->axis_iterator){
-	    $tuple->[$axis_nr] = spow($tuple->[$axis_nr], $gamma_array->[$axis_nr]) if exists $gamma_array->[$axis_nr];
-    }
+#### light designer API ################################################
+sub lighten { add_axis_value( @_, 'lightness') }
+sub darken  {
+    my ($color_values, $by, $color_space) = @_;
+    add_axis_value($color_values, -$by, $color_space, 'lightness');
+}
+sub saturate   { add_axis_value( @_, 'saturation') }
+sub desaturate {
+    my ($color_values, $by, $color_space) = @_;
+    add_axis_value($color_values, -$by, $color_space, 'saturation');
+}
+sub add_axis_value {
+    my ($color_values, $by, $color_space, $axis_name) = _clear_args_by_and_space_name(@_);
+    return $color_values unless ref $color_values;
+    my $axis_nr = $color_space->pos_from_axis_role( $axis_name );
+    return "color space: '".$color_space->name."' has no $axis_name axis" unless defined $axis_nr;
+    my $tuple = $color_values->normalized( $color_space->name );
+	$tuple->[$axis_nr] += $by;
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+}
+sub _clear_args_by_and_space_name {
+    my ($color_values, $by, $space_name, @more) = @_;
+    return "need a GT::Color::Values object as first argument" 
+		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
+    return "need a numeric amount between 0 and 1 as first argument" unless defined $by;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+    return "$space_name is not a known color space" unless ref $color_space;
+    return ($color_values, $by, $color_space, @more);
+}
+
+sub tint     { mix_with(@_, [255  ,255  ,255  ]) } # white
+sub tone     { mix_with(@_, [127.5,127.5,127.5]) } # grey50
+sub shade    { mix_with(@_, [  0,    0,    0  ]) } # black
+sub mix_with {
+    my ($color_values, $by, $raw, $color_space, $tuple) = @_;
+    return mix( $color_values, $tuple, $by, $raw, $color_space);
+}
+
+sub lightness {
+    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+
+} 
+
+sub saturation {
+    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+
+}
+
+sub contrast {
+    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+# neu = mitte + (alt - mitte) × faktor
+# achsenmitte 
+}
+
+sub vibrance {
+    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+# alt + betrag × (1 − alt)
+}
+
+
+#### low level methods #############################################
+
+sub derive {
+    my ($color_values, $set, $mult, $add, $raw, $range, $space_name) = @_;
+    #my $tuple = ;
+    #return $color_values->new_from_tuple( $tuple, $color_space->name, undef, $raw );
 }
 
 sub set_value { # .values, %newval -- ~space_name --> _
@@ -62,75 +109,29 @@ sub add_value { # .values, %newval -- ~space_name --> _
     return $color_values->new_from_tuple( $tuple, $color_space->name );
 }
 
-
-sub derive {
-    my ($color_values, $mult, $add, $set, $raw, $space_name) = @_;
-}
-
-
-#### light designer API ################################################
-sub _clear_values_amount_space_name {
-    my ($color_values, $amount, $space_name, @more) = @_;
-    return "need a G::T::Color::Values object as first argument" 
-		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
-    return "need a numeric amount between 0 and 1 as first argument" unless defined $amount;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return "$space_name is not a known color space" unless ref $color_space;
-    return ($color_values, $amount, $color_space, @more);
-}
-
-sub lighten { add_axis_value( @_, 'lightness') }
-sub darken  {
-    my ($color_values, $amount, $color_space) = @_;
-    add_axis_value($color_values, -$amount, $color_space, 'lightness');
-}
-sub saturate   { add_axis_value( @_, 'saturation') }
-sub desaturate {
-    my ($color_values, $amount, $color_space) = @_;
-    add_axis_value($color_values, -$amount, $color_space, 'saturation');
-}
-sub add_axis_value {
-    my ($color_values, $amount, $color_space, $axis_name) = _clear_values_amount_space_name(@_);
-    return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role( $axis_name );
-    return "color space: '".$color_space->name."' has no $axis_name axis" unless defined $axis_nr;
-    my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] += $amount;
+sub apply_gamma {
+    my ($color_values, $gamma, $color_space) = @_;
+    my $gamma_array = '';
+    return "need a color space as third argument" if ref $color_space ne 'Graphics::Toolkit::Color::Space';
+    if (ref $gamma eq 'HASH'){
+        ($gamma_array, my $deduced_space_name) = 
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $gamma, $color_space->name );
+		return 'axis names: '.join(', ', keys %$gamma).' do not correlate to the selected color space: '.
+			($color_space->name).'!' unless ref $gamma_array;
+	}
+	$gamma_array = [ ($gamma) x $color_space->axis_count] if is_nr( $gamma );
+	$gamma_array = $gamma if not defined $gamma_array and ref $gamma eq 'ARRAY';
+    return 'got badly formatted gamma value' if ref $gamma_array ne 'ARRAY';
+	
+	my $tuple = $color_values->normalized( $color_space->name );
+    for my $axis_nr ($color_space->basis->axis_iterator){
+	    $tuple->[$axis_nr] = spow($tuple->[$axis_nr], $gamma_array->[$axis_nr]) if exists $gamma_array->[$axis_nr];
+    }
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
-sub tint     { mix_with(@_, [255  ,255  ,255  ]) } # white
-sub tone     { mix_with(@_, [127.5,127.5,127.5]) } # grey50
-sub shade    { mix_with(@_, [  0,    0,    0  ]) } # black
-sub mix_with {
-    my ($color_values, $amount, $color_space, $tuple) = _clear_values_amount_space_name(@_);
-    return $color_values unless ref $color_values;
-    return mix( $color_values, [Graphics::Toolkit::Color::Values->new_from_tuple( $tuple )], $amount, $color_space);
-}
-
-sub brightness {
-    my ($color_values, $mult, $add, $set, $space_name) = @_;
-
-} 
-
-sub saturation {
-    my ($color_values, $mult, $add, $set, $space_name) = @_;
-
-}
-
-sub contrast {
-    my ($color_values, $mult, $add, $set, $space_name) = @_;
-
-}
-
-sub vibrance {
-    my ($color_values, $mult, $add, $set, $space_name) = @_;
-
-}
-
-#### deep designer methods #############################################
 sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .color_values
-    my ($base_color, $added_color, $add_amount, $color_space ) = @_;
+    my ($base_color, $added_color, $add_amount, $raw, $color_space ) = @_;
     return "need color value object as first argument !\n" unless ref $base_color eq 'Graphics::Toolkit::Color::Values';
     return "second argument has to be an ARRAY !\n" unless ref $added_color eq 'ARRAY';
     return "need a color space object !\n" unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
@@ -159,7 +160,7 @@ sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .c
 }
 
 sub invert {
-    my ($color_values, $only, $color_space, $default_color_space ) = @_;
+    my ($color_values, $only, $raw, $color_space, $default_color_space ) = @_;
     $only = [$only] if defined $only and not ref $only; # selected axes
     return "need argument only as axis name (short or long) or as ARRAY of names!"
 		if defined $only and ref $only ne 'ARRAY';

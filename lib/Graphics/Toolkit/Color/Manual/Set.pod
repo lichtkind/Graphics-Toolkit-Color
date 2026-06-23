@@ -118,6 +118,9 @@ might be curved if the color space is cylindrical.
     my @colors = $c->analogous( to => 'black', steps => 6, in => 'OKLCH', tilt => 0.05 );
 
 
+=head2 cubehelix
+
+C<cubehelix>
 
 =head2 gradient
 

@@ -49,7 +49,7 @@ cone and not of a cylinder and also L</HWB> is not a cylinder since
 the sum of I<whiteness> and I<blackness> should never exceed 100%.
 
 While the author acknowledges that some of the spaces below should be called 
-systems to be technically correct, they still will be called spaces here,
+systems to be technically correct, they will still be called spaces here,
 because one goal of this software is a seamless interoperability between them.
 
 =head1 FAMILY
@@ -263,6 +263,8 @@ It has three Cartesian axis: 1. B<luma> (short B<y>) with a real value
 range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. B<Pr>
 (short I<v>, -0.5 .. 0.5). (see also L</CIELUV>)
 
+=head2 YCbCr
+
 
 =head1 HSL family
 
@@ -271,10 +273,10 @@ range of 0..1, 2. B<Pb> (short I<u>, -0.5 .. 0.5) and 3. B<Pr>
 .. is a cylindrical space that orders colors along cognitive properties.
 The first dimension is the angular one and it rotates in 360 degrees around
 the rainbow of fully saturated colors: 0 = red, 15 approximates orange,
-60 - yellow 120 - green, 180 - cyan, 240 - blue, 270 - violet,
+60 - yellow, 120 - green, 180 - cyan, 240 - blue, 270 - violet,
 300 - magenta, 330 - pink. 0 and 360 points to the same coordinate.
 This module only outputs 0, even if accepting 360 as input. The second,
-linear dimension (axis) measures the distance between a point the center
+linear dimension (axis) measures the distance between a point and the center
 column of the cylinder at the same height, no matter in which direction.
 The center column has the value 0 (white .. gray .. black) and the outer
 mantle of the cylinder contains the most saturated, purest colors.
@@ -292,7 +294,7 @@ B<saturation> (short B<s>) (0 .. 1) and B<lightness> (short B<l>) (0 .. 1).
 =head2 CIELCHab
 
 (alias B<LCH>) is the cylindrical version of the L</CIELAB> with the
-dimensions B<luminance>, B<chroma> and B<hue> - in short  B<l>,  B<c> and B<h>,
+dimensions B<luminance>, B<chroma> and B<hue> - in short B<l>, B<c> and B<h>,
 with the roles of B<lightness>, B<saturation> and B<hue>.
 The real valued ranges are from zero to 100, 539 and 360 respectively.
 Like with the L</HSL> and L</HSV>, hue is the circular dimension and its
@@ -310,8 +312,8 @@ similar to L<CIELCHab> except the real valued range of B<chroma> is
 =head2 OKLCH
 
 is the cylindrical variant of L</OKLAB> just parallels L</CIELCHab>.
-The axis names are again: B<luminance>, B<chroma> and B<hue> - in short:
-B<l>,  B<c> and B<h> with the roles of B<lightness>, B<saturation> and B<hue>. 
+The axis names are again: B<luminance>, B<chroma> and B<hue> - in short: 
+B<l>, B<c> and B<h> with the roles of B<lightness>, B<saturation> and B<hue>. 
 Value ranges are similar as in C<OKLAB>:
 I<luminance> 0 .. 1 (normal), I<chroma> 0 .. 0.5 and I<hue> are angles
 of 0 .. 360 degrees. Also if you prefer a B<CSS> compatible format,
@@ -395,6 +397,9 @@ which is the amount of black ink mixed into the CMY color.
 It also has an normalized range of 0 .. 1. This should not bother you
 since you are free to change the range at your preference.
 
+=head2 CIExyY
+
+is a variant of L</CIEXYZ>
 
 =head1 AUTHOR
 

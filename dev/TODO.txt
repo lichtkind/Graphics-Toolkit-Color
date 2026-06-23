@@ -1,17 +1,7 @@
 TODO:
 ------
 
- = 2.3:
-   + Yxy,YCbCr
-   + designer methods: brightness, contrast, vibrance, saturation (args by set x)
-   + method: derive to substitute add_value and set_value
-   + read color def with alpha channel
-   + format 'plain_object', 'plain_object_string' (culori)
-   + new format reader algo
-   + error on bad scheme name
-   + add position of target colors in 'gradient'
-   + cubehelix method
-   
+    
  = 2.4:
    + XYB, ICtCp
    + 4 LMS variants
@@ -22,10 +12,10 @@ TODO:
    + 'closest_name' can select space default to oklab
 
  = 2.5 
-   + designer methods: triadic (argument split), tetradic, rectangular
    + random color
    + spaces:  HSI, Jzazbz / JzCzhz, HSLuv / HPLuv, 
    + extend tone_curve
+   + Built-in color theme / scheme presets (Material, Tailwind, Ant Design style ramps).
 
  = 2.6
    + JCh (+ M,s,Q,H), CAM16, CIECAM02, HCT, RLAB, LLAB, 

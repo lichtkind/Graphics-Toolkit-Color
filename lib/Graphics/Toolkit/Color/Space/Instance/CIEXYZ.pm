@@ -1,6 +1,6 @@
 
-# CIEXYZ color space specific code for Illuminant D65 and Observer 2°
-
+# CIExyY color space specific code for Illuminant D65 and Observer 2°
+#  x = X/(X+Y+Z), y = Y/(X+Y+Z).
 package Graphics::Toolkit::Color::Space::Instance::CIEXYZ;
 use v5.12;
 use warnings;

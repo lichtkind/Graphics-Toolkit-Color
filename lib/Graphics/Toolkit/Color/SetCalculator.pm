@@ -82,6 +82,12 @@ sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:val
     return @result;
 }
 
+sub cubehelix {
+	# gamma, amplitude, rotations 
+	# hue role, steps, tilt
+# start als Invocant
+}
+
 ########################################################################
 sub gradient { # @:color_values -- +steps, +tilt, :space --> @:values
     my ($colors, $steps, $tilt, $color_space) = @_;

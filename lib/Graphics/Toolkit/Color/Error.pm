@@ -23,9 +23,9 @@ sub change_mode {
 }
 
 sub error {
-    my ($message) = @_;
+    my ($message, $level) = @_;
     return 0 if $mode eq 'quiet';
-	my ($package, $filename, $line, $sub) = caller(1);
+	my ($package, $filename, $line, $sub) = caller($level // 1);
 	my $report = "$sub: $message";
 	if    ($mode eq 'say') {  say   $report }
 	elsif ($mode eq 'die') {  die   $report."\n" }

@@ -6,28 +6,32 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
 
 =head1 METHODS
 
-   Value:      is_in_gamut
-               values               name / closest_name      
-               distance
+   Value:      values             name / closest_name     distance
+               is_in_gamut
 
-   Color:      lighten / darken     saturate / desaturate    tint / tone / shade
-               tone_curve           set_value / add_value
-               mix                  invert
+   Color:      lighten / darken   saturate / desaturate   tint / tone / shade
+               lightness          saturation              contrast      vibrance
+               mix                invert                  derive        tone_curve
 
-    Sets:      complement / analogous / gradient / cluster
+    Sets:      complement         triadic                 tetradic / rectangular
+               analogous          cluster                 cubehelix / gradient
 
 
 =head1 ARGUMENTS
 
-     in        : (all except)                name closest_name
-     from      :                             name closest_name
+     in        : (all except)     name   closest_name
+     raw       : (all except)     name   closest_name   distance
+     from      :                  name   closest_name
      color     : new  is_in_gamut (sub)
-     raw       : new  values             
-     range     : new  values      distance
+     range     : new  values             derive         distance
+     by        : lighten    darken   saturate   desaturate   tint   tone   shade      mix
+                 lightness           saturation              contrast      vibrance   derive
+     multiply  : lightness           saturation              contrast      vibrance   derive
+     set       : lightness           saturation              contrast      vibrance   derive
      only      :                  distance   invert
-     to        :                  distance   mix          analogous  gradient
-     steps     :                             complement   analogous  gradient 
-     tilt      :                             complement   analogous  gradient 
+     to        :                  distance   mix          analogous               gradient
+     steps     :                             complement   analogous   cubehelix   gradient 
+     tilt      :                             complement   analogous   cubehelix   gradient 
 
 
 =head1 FORMATS
@@ -48,11 +52,11 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
       RGB : RGB / LinearRGB / CIEXYZ / CIERGB 
             AdobeRGB / AppleRGB / ProPhotoRGB / WideGamutRGB 
             Display P3 / Display P3 Linear / DCI-P3 / Display P3 Linear / Rec.709 / Rec.2020
-      LAB : OKLAB / CIELAB / HunterLAB / CIELUV / YIQ / YUV
+      LAB : OKLAB / CIELAB / HunterLAB / CIELUV / YIQ / YCbCr / YPbPr
       HSL : OKHSL / OKLCH / HSL / CIELCHab / CIELCHuv
       HSV : OKHSV / HSV / HSB
       HWB : OKHWB / HWB / NCol
-    other : CMY / CMYK
+    other : CMY / CMYK / Yxy
 
 =head1 AUTHOR
 

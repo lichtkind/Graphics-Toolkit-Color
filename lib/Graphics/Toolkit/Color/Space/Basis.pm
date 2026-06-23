@@ -14,7 +14,7 @@ sub new {
         if defined $axis_short_names and (ref $axis_short_names ne 'ARRAY' or @$axis_long_names != @$axis_short_names);
 
     my @axis_long_name = map {lc} @$axis_long_names;
-    my @axis_short_name = map { color_key_shortcut($_) } (defined $axis_short_names) ? @$axis_short_names : @axis_long_name;
+    my @axis_short_name = map { _color_key_shortcut($_) } (defined $axis_short_names) ? @$axis_short_names : @axis_long_name;
     return 'need some axis names to create a color space' unless @axis_long_name > 0;
     return 'need same amount of axis short names and long names' unless @axis_long_name == @axis_short_name;
     return 'space family dan only be a string' if defined $family and ref $family;
@@ -38,10 +38,13 @@ sub new {
             axis_long_name  => \@axis_long_name,         long_name_order => \%long_name_order,
             axis_short_name => \@axis_short_name,       short_name_order => \%short_name_order,
             axis_role_name  =>  $axis_role_names // [],  role_name_order => \%role_name_order,
-            axis_iterator => \@iterator,
+            axis_iterator => \@iterator,             axis_case_sensitive => 0,
     }
 }
-sub color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
+sub _color_key_shortcut { lc substr($_[0], 0, 1) if defined $_[0] }
+sub _axis_names_case_sensitive {
+	my @axis_names = @_;
+}
 
 #### getter ############################################################
 sub space_name { #  -- ?alias ?given  --> ~

@@ -1,13 +1,29 @@
+2.30   2026-07-20   lichtkind
+-------
+    * = big feature release: +2 spaces, +9 methods, +22 args, +2 formats
+    * + spaces: xyY,YCbCr
+    * + space alias Yxy and HCL, made HSB into alias (real spaces are 34 now)
+    * + method: derive to substitute add_value and set_value
+    * + designer methods: brightness, contrast, vibrance, saturation (args by set x)
+    * + designer methods: triadic (argument split), tetradic, rectangular
+    * + cubehelix method
+    * + add position of target colors in 'gradient'
+    * + read color def with alpha channel
+    * + format 'plain_object', 'plain_object_string' (culori)
+    * ~ new format reader algo making deformat faster
+    * - remove converter flag logic
+    * + error on bad scheme name
+
 2.22   2026-06-20   lichtkind
 -------
-    * = minor fix release
+    * = tiny bug fix release
     * ! fix hash in scalar context bug while arg splitting in new
     * ? various POD fixes
 
 2.21   2026-06-20   lichtkind
 -------
-    * = minor fix release
-    * ? various POD fixes
+    * = minor POD release
+    * ? various POD fixes across 5 files
 
 2.20   2026-06-19   lichtkind
 -------

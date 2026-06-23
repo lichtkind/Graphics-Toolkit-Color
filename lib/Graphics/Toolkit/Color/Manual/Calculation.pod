@@ -7,66 +7,100 @@ Graphics::Toolkit::Color::Manual::Calculation - reference of single color calcul
 =head1 SYNOPSIS
 
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
-detailed description of the seven color calculation methods of the high
-level API: L</lighten>, L</darken>, L</saturate>, L</desaturate>,
-L</tint>, L</tone>, L</shade> and the five methods of the low level API: 
-L</apply>, L</set_value>, L</add_value>, L</mix> and L</invert>. Every
-L<argument|Graphics::Toolkit::Color::Manual::Argument> and important 
-argument combination will be explained as well. All methods return one 
-GTC object that is related to the one held by the calling object
-unless a typo or data type mismatch triggers an 
-L<error|Graphics::Toolkit::Color::Manual::Error>. 
-This allows method chaining like:
+detailed description of the fifteen methods that produce a GTC color object
+which in some fashion is related to the current one (caller): 
+L</lighten>, L</darken>, L</saturate>, L</desaturate>,
+L</tint>, L</tone>, L</shade>, 
+L</lightness>, L</saturation>, L</contrast>, L</vibrance>,
+L</tone_curve>, L</derive>, L</mix> and L</invert>.
+That allows for method chaining like:
 
-    $color->add_value( saturation => 5 )->invert->mix( to => 'green' );
+    $color->derive( set => {saturation => 5} )->invert->mix( to => 'green' );
+
+Every L<argument|Graphics::Toolkit::Color::Manual::Argument> and important 
+argument combination will be explained in the dedicated chapter of a
+method, but the first few paragraphs will explicate subject matters that
+all methods have in common, like the fact that they trigger an
+L<error|Graphics::Toolkit::Color::Manual::Error> if arguments are not used
+as described here.
 
 
 =head1 METHODS
 
-The following seven methods have a lot in common. They all belong to the 
-high-level I<designer API> and produce a color that is a result of moving 
-the original color in a certain direction in some color space. 
-They also take only two named arguments: C<by> and C<in>.
-The first is required and might be provided as a positional argument if 
-it is the only one. It is always expected to be in the range of 0 .. 1.
-The second argument (C<in>) is optional and designates the 
-color space the operation is calculated in, which defaults here in any case
-to I<OKHSL>. C<tint>, C<tone> and C<shade> can be computed in any space,
-but C<lighten> and C<darken> work only in a space that has an axis
-that can fulfill the I<role> of an I<lightness> axis. Similarly 
-C<saturate> and C<desaturate> need a space with an axis that is declared
-to fulfill the I<saturation> I<role>, which also encompasses all spaces 
-of the L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL> 
-and the L<HSV|Graphics::Toolkit::Color::Manual::Space/HSV> family.
+The fifteen methods can be divided into three groups, just by looking at
+their signature. The first seven methods: L</lighten>, L</darken>, 
+L</saturate>, L</desaturate>, L</tint>, L</tone> and L</shade>
+just accept the named arguments 
+L<by|Graphics::Toolkit::Color::Manual::Argument/by> (0..1),
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space) and 
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> (pseudo bool),
+the first one being the only required and default argument. 
+The next four methods: L</lightness>, L</saturation>, L</contrast> and L</vibrance>
+accept these three arguments too but also additionally 
+L<set|Graphics::Toolkit::Color::Manual::Argument/set> and 
+L<multiply|Graphics::Toolkit::Color::Manual::Argument/multiply>.
+Here C<set> is the default argument but nothing is required.
+Furthermore C<by> can be aliased with C<add> and instead of C<multiply> 
+one might use the shorter C<x>.
+The last four methods: L</tone_curve>, L</derive>, L</mix> and L</invert> 
+have individual signatures.
+
+All methods accept the L<in|Graphics::Toolkit::Color::Manual::Argument/in>
+argument, which will default to L<OKHSL|Graphics::Toolkit::Color::Manual::Space/OKHSL>
+except L</mix> (L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB>)
+and L</tone_curve> (L<LinearRGB|Graphics::Toolkit::Color::Manual::Space/LinearRGB>).
+The selection of color spaces is restricted for some methods, that rely
+on the existence of an axis with a certain 
+L<role|Graphics::Toolkit::Color::Manual::Space/FAMILY>. L</lighten>, L</darken>
+and L</lightness> need a I<lightness> axis (present in 
+L<LAB|Graphics::Toolkit::Color::Manual::Space/LAB-family> and 
+L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL-family> spaces)
+and L</saturate>, L</desaturate> and L</saturation> need a I<saturation> axis
+(present in L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL-family> and 
+L<HSV|Graphics::Toolkit::Color::Manual::Space/HSV-family> spaces). 
+And yes L</invert> works even in cylindrical spaces.
+
+All methods accept also L<raw|Graphics::Toolkit::Color::Manual::Argument/raw>,
+which defaults to false (0). As a consequence the result of an operation
+will be always a color within default range of the selected color space.
+Change this value to true (1) to allow out of range colors.
+
 
 =head2 lighten 
 
-C<lighten> produces a brighter color, unless you pass a negative value via
-the C<by> argument. That value is interpreted as percentages on an absolute scale.
+C<lighten> produces a brighter color than the given one, unless you pass
+a negative value via the C<by> argument. That value is interpreted as 
+percentages on an absolute scale from 0 to 1.
 Let's assume the given color is a mid blue which has a lightness that
 is 46% of the maximum I<lightness>. Calling:
 
   $midblue->lighten( 0.13 );
-  $midblue->lighten( by => 0.13 ); # same thing
+  $midblue->lighten( by => 0.13 );                          # same result
+  $midblue->lighten( by => 0.13, in => 'OKHSL' );           # also the same
+  $midblue->lighten( by => 0.13, in => 'OKHSL', raw => 0 ); # not changing yet
   
 produces a color with a lightness that is 59% (46 + 13) of the maximum
 value (100%). If the resulting lightness would be above 100% or below
-0% it will be clamped into that range.
+0% it will be clamped into that range (it can not exceed I<black> or I<white>,
+if C<raw> is set to false, which is the default).
 
 =head2 darken
 
 C<darken> works exactly like C<lighten>, just in the opposite direction,
 producing a darker color unless a negative C<by> value is passed.
-This method is not strictly necessary but helps the API expressivity.
+This method is not strictly necessary but helps API expressivity.
+
+  $midblue->darken( -0.13 );                        # still the same
 
 =head2 saturate
 
-C<saturate> produces a more saturated, more colorful color, unless the
-amount is negative. Again the value provided by the C<by> argument is
-understood as percentage added on an absolute scale that gets clamped
-into range.
+C<saturate> produces a more saturated, more colorful color. If the amount
+is negative the colorfulness is decreased. Again, the value provided by 
+the C<by> argument is understood as a percentage added on an absolute 
+scale that gets clamped into range, unless C<raw> is manually set to 1 (true).
 
-  $midblue->saturate( by => 0.13, in => 'HSL' );
+  $midblue->saturate( by => 0.13);                  # saturate in OKHSL
+  $midblue->saturate( by => 0.13, in => 'HSL' );    # saturate in HSL
 
 =head2 desaturate
 
@@ -81,6 +115,10 @@ C<tint> produces a color that is a mix between white and the current color.
 The argument C<by> states how much percentage white has in the mix.
 Values above 1 have the same result as 1: a pure white and values of zero
 and below will return the same color as the calling object holds.
+The new color has increased lightness and decreased saturation.
+
+  $midblue->tint( 0.13 );
+  $midblue->tint( by => 0.13, in => 'RGB' );        # different result
 
 =head2 tone
 
@@ -88,17 +126,38 @@ C<tone> produces a color that is a mix between mid grey and the current color.
 Mid grey is a 1:1 mix between white and black. Values above 1 have the 
 same result as 1: mid grey and values of zero and below will return the
 same color as the calling object holds.
+The new color has increased or decreased lightness and decreased saturation.
 
 =head2 shade
 
-C<shade> produces a color that is a mix between black and the current color.
+C<shade> produces a color that is a mix between the current color and black.
 Values above 1 have the same result as 1: full black and values of zero
-and below will return the same color as the calling object holds.
+and below will return the same color as the calling object holds
+(unless C<raw> is set to true).
+The new color has decreased lightness and decreased saturation.
+
+
+=head2 lightness
+
+C<lightness>
+
+=head2 saturation
+
+C<saturation>
+
+=head2 contrast
+
+C<contrast>
+
+=head2 vibrance
+
+C<vibrance>
+
 
 
 =head2 tone_curve
 
-C<apply> calculates a gamma correction, which is just a power function on
+C<tone_curve> calculates a gamma correction, which is just a power function on
 normalized color values (range 0 .. 1). Gamma is in this context the name 
 of a variable that contains the power. (C<$value = $value ** $gamma;>)
 The method expects two named arguments: C<gamma> and C<in>. The first one
@@ -125,9 +184,13 @@ L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> family, since even
 I<LAB> type spaces do not fit. They are Euclidean, but their origin is not
 in one corner but the center of one face.
 
+    my $linear_blue = $blue->tone_curve( gamma => 2.2 );         # is the same as :
+    my $linear_blue = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
-    my $linear_blue = $blue->apply( gamma => 2.2 );         # is the same as :
-    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
+
+=head2 derive
+
+C<derive>
 
 
 =head2 set_value
@@ -173,8 +236,8 @@ like L</lighten> add percentages (a normalized value).
 =head2 mix
 
 C<mix> creates a new color, that has the average values between the calling
-object and another color (or several colors). It accepts three named
-arguments: C<to>, C<by> and C<in>, but only the first one is required 
+object and another color (or several colors). It accepts four named
+arguments: C<to>, C<by>, C<raw> and C<in>, but only the first one is required 
 and can be also provided as the only positional argument. For compatibility
 C<amount> can be used as an alias for C<by>.
 
@@ -192,6 +255,11 @@ reference with several percentage values that have to be provided in the same
 order as the colors. If the sum of the percentage values exceeds one (100%)
 then only the ratio between the other colors gets preserved and the caller
 gets overlooked.
+
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> defaults to false,
+which allows C<mix> to clamp the result values into range. C<mix> can 
+only create an out of range color if some of the input color(s) are 
+already out of range.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
 the values will be mixed in, which is per default I<OKLAB>.
@@ -214,14 +282,19 @@ according to the ranges of the chosen color space. To invert means in
 a Euclidean space that the value has after the operation the same
 absolute difference to the maximal value as it had before the operation to
 the minimal value. On an angular axis it is a rotation of 180 degrees,
-which means adding half the maximum. The method accepts two named 
-arguments: C<only> and C<in>. The first one can be provided as a positional
-argument if it is the only one.
+which means adding half the maximum. The method accepts three named 
+arguments: C<only>, C<raw> and C<in>. The first one can be provided as a 
+positional argument if it is the only one.
 
 L<only|Graphics::Toolkit::Color::Manual::Argument/only> restricts the
 operation to the axes named by C<only> (long or short axis name). 
 You may provide several axis names within an ARRAY reference, as long
 they belong to one color space. The default is to invert all values of a color.
+
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> defaults to false,
+which allows C<invert> to clamp values into range. C<invert> can only create
+out of range colors if C<raw> is set to true(1) and the input (given color)
+is already out of range.
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
 the values will be inverted in, which is per default I<OKHSL>. But please
@@ -229,7 +302,6 @@ note that the method tries to get hints from the C<only> argument in order
 to determine the color space. There will be an 
 L<error|Graphics::Toolkit::Color::Manual::Error>
 if the axis names provided by C<only> do not match the space given by C<in>.
-
 
     my $black = $white->invert();                      # to state the obvious
     my $gray = $gray50->invert();                      # changed nothing

@@ -15,6 +15,12 @@ will be removed with the next major version (3.0).
 
 was renamed to L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/tone_curve>.
 
+=head2 set_value
+
+=head2 add_value
+
+both were supersedet by L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>.
+
 =head1 ARGUMENTS
 
 =head2 amount

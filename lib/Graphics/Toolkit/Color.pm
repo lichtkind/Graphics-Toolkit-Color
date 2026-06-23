@@ -2,7 +2,7 @@
 # public user level API: doc summary, help msg and arg cleaning
 
 package Graphics::Toolkit::Color;
-our $VERSION = '2.22';
+our $VERSION = '2.30';
 use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Error       qw/error/;
@@ -57,7 +57,7 @@ sub _new_from_scalar_def {
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
-    return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
+    return error($value_obj) unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
     return bless {values => $value_obj};
 }
 sub values_object { $_[0]->{'values'} if ref $_[0] eq __PACKAGE__}
@@ -83,42 +83,41 @@ sub is_in_gamut_sub {
 
 ########################################################################
 sub _split_named_args {
-    my ($raw_args, $only_parameter, $required_parameter, $optional_parameter, $parameter_alias) = @_;
+    my ($raw_args, $default_param, $required_param, $optional_param, $param_alias) = @_;
     @$raw_args = %{$raw_args->[0]} if @$raw_args == 1 and ref $raw_args->[0] eq 'HASH' and not
-                  (defined $only_parameter and $only_parameter eq 'to' and ref _new_from_scalar_def( $raw_args ) );
+                  (defined $default_param and $default_param eq 'to' and ref _new_from_scalar_def( $raw_args ) );
 
-    if (@$raw_args == 1 and defined $only_parameter and $only_parameter){
-        return "The one default argument can not cover multiple, required parameter !" if @$required_parameter > 1;
-        return "The default argument does not cover the required argument!"
-            if @$required_parameter and $required_parameter->[0] ne $only_parameter;
-
-        my %defaults = %$optional_parameter;
-        delete $defaults{$only_parameter};
-        return {$only_parameter => $raw_args->[0], %defaults};
+    if (@$raw_args == 1 and defined $default_param and $default_param){
+        return "Got onw argument, but there are ".int(@$required_param)." parameter required !" if @$required_param > 1;
+        return "Cannot accept default argument, more arguments are required!"
+            if @$required_param and $required_param->[0] ne $default_param;
+        my %defaults = %$optional_param;
+        delete $defaults{$default_param};
+        return {$default_param => $raw_args->[0], %defaults};
     }
     my %clean_arg;
     if (@$raw_args % 2) {
-        return (defined $only_parameter and $only_parameter)
+        return (defined $default_param and $default_param)
              ? "Got odd number of arguments, please use key value pairs as arguments or one default argument !\n"
              : "Got odd number of values, please use key value pairs as arguments !\n"
     }
     my %arg_hash = @$raw_args;
-    for my $parameter_name (@$required_parameter){
-        if (ref $parameter_alias eq 'HASH' and exists $parameter_alias->{ $parameter_name }
-            and exists $arg_hash{ $parameter_alias->{$parameter_name} }){
-            $arg_hash{ $parameter_name } = delete $arg_hash{ $parameter_alias->{$parameter_name} };
+    for my $parameter_name (@$required_param){
+        if (ref $param_alias eq 'HASH' and exists $param_alias->{ $parameter_name }
+            and exists $arg_hash{ $param_alias->{$parameter_name} }){
+            $arg_hash{ $parameter_name } = delete $arg_hash{ $param_alias->{$parameter_name} };
         }
         return "Argument '$parameter_name' is missing!\n" unless exists $arg_hash{$parameter_name};
         $clean_arg{ $parameter_name } = delete $arg_hash{ $parameter_name };
     }
-    for my $parameter_name (keys %$optional_parameter){
-        if (ref $parameter_alias eq 'HASH' and exists $parameter_alias->{ $parameter_name }
-            and exists $arg_hash{ $parameter_alias->{$parameter_name} }){
-            $arg_hash{ $parameter_name } = delete $arg_hash{ $parameter_alias->{$parameter_name} };
+    for my $parameter_name (keys %$optional_param){
+        if (ref $param_alias eq 'HASH' and exists $param_alias->{ $parameter_name }
+            and exists $arg_hash{ $param_alias->{$parameter_name} }){
+            $arg_hash{ $parameter_name } = delete $arg_hash{ $param_alias->{$parameter_name} };
         }
         $clean_arg{ $parameter_name } = exists $arg_hash{$parameter_name}
                                       ? delete $arg_hash{ $parameter_name }
-                                      : $optional_parameter->{ $parameter_name };
+                                      : $optional_param->{ $parameter_name };
     }
     return "Inserted unknown argument(s): ".(join ',', keys %arg_hash)."\n" if %arg_hash;
     return \%clean_arg;
@@ -190,51 +189,86 @@ sub distance {
 }
 
 ## single color creation methods #######################################
-# --- lightweight designer API ---
 my $design_default = 'OKHSL';
 sub lighten {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->values_object, @$arg{qw/by raw in/} ) );
 }
 sub darken {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub saturate {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub desaturate {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tint {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tone {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub shade {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default});
-    return "The only argument or named argument 'by' has to be a number between 0 and 1!" unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object, $arg->{'by'}, $arg->{'in'} ) );
+    my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
+    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
+		unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 
+sub lightness {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'set', [], 
+               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+    return error("The default argument or named argument 'by' has to be a number between 0 and 1!") unless ref $arg;
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lightness( $self->values_object, @$arg{qw/set x add in/} ) );
+} 
+
+sub saturation {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'set', [], 
+               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
+
+}
+sub contrast {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'set', [], 
+               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::contrast( $self->values_object, @$arg{qw/set x add in/} ) );
+}
+sub vibrance {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'set', [], 
+               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+
+	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::vibrance( $self->values_object, @$arg{qw/set x add in/} ) );
+}
 # --- low level complex API ---
 
 sub apply { tone_curve(@_) }
@@ -251,6 +285,17 @@ sub tone_curve {
     return _new_from_value_obj( $result );
 }
 
+sub derive {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, undef, [], 
+               {set => -1, add => 0, multiply => 1, range => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'} ); 
+    my $help = 'The method "derive" returns a GTC object with values that are calculated using in part the values of the given color. '.
+               'Its named and optional arguments are: "set", "add", "multiply" and "in" (color space name - default OKHSL)!';
+    return error($arg.$help.$POD_link) unless ref $arg;
+	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add raw range in/} );
+    return error($result.$help.$POD_link) unless ref $result;
+    return _new_from_value_obj( $result );
+}
 sub set_value {
     my ($self, @args) = @_;
     @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
@@ -327,7 +372,7 @@ sub invert {
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) if defined $arg->{'in'} and not ref $color_space;
     $arg->{'in'} = $color_space if defined $arg->{'in'};
-    my $default_space = Graphics::Toolkit::Color::Space::Hub::get_space( 'OKHSL' );
+    my $default_space = Graphics::Toolkit::Color::Space::Hub::get_space( $design_default );
 	my $result = Graphics::Toolkit::Color::Calculator::invert( $self->values_object, $arg->{'only'}, $arg->{'in'}, $default_space );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
@@ -359,6 +404,13 @@ sub complement {
     map {_new_from_value_obj( $_ )} @result;
 }
 
+sub triadic {
+
+}
+
+sub tetradic {
+}
+
 sub analogous {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 4, tilt => 0, in => $design_default});
@@ -374,9 +426,13 @@ sub analogous {
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
     
-    my @result = Graphics::Toolkit::Color::SetCalculator::analogous( $self->values_object, $arg->{'to'}, @$arg{qw/steps tilt/}, $color_space);
+    my @result = Graphics::Toolkit::Color::SetCalculator::analogous( $self->values_object, @$arg{qw/to steps tilt/}, $color_space);
 	return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
+}
+
+sub cubehelix {
+	
 }
 
 sub gradient {
@@ -465,7 +521,7 @@ The L<Manual|Graphics::Toolkit::Color::Manual> contains deeper explanations
 and describes every argument and topic of interest in detail. Therefore each
 chapter here starts with a link to the appropriate paragraph of a manual page.
 
-While this module can understand and output color values of many (33)
+While this module can understand and output color values of many (34)
 L<color spaces|Graphics::Toolkit::Color::Manual::Space>,
 L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> is the internal and
 primary one for input and output, because GTC is about colors that can be 
@@ -643,36 +699,44 @@ Only the C<to> is required and can be provided as the only positional argument.
 
 These methods create one GTC object with a color that is related to the
 current one. They can be divided into the simpler, high level convenience
-methods on the one side 
-(I<lighten>, I<darken>, I<saturate>, I<desaturate>, I<tint>, I<shade>, I<tone>)
+methods on the one side (C<lighten>, C<darken>, C<saturate>, C<desaturate>, 
+C<tint>, C<shade>, C<tone>, C<lightness>, C<saturation>, C<contrast>, C<vibrance>)
 and the more powerful low level operations on the other 
-(I<apply>, I<set_value>, I<add_value>, I<mix>, I<invert>).
+(C<tone_curve>, C<derive>, C<mix> and C<invert>).
 
-The signature of the high level methods is always the same. 
-It understands 2 named arguments: C<by> and C<in>. The first is the 
-required one, which can be provided as a positional argument, if it is 
-the only one. C<by> needs a floating point number between 0 and 1.
-Usually the method produces the same color again when 0 is provided and
-a fixed predictable outcome when the argument is 1. 
-The attribute L<in|Graphics::Toolkit::Color::Manual::Argument/in> is as 
-always the L<color space|Graphics::Toolkit::Color::Manual::Space> the
-method is computed in, which defaults here to I<OKHSL>. The first 4 methods
-can only operate in a space of the I<HSL> family.
+The signature of the first seven high level methods is always the same. 
+They  understand 2 named arguments: C<by> and C<in>. The first being the 
+required and default one (can be a positional argument, if it is the only one). 
+L<by|Graphics::Toolkit::Color::Manual::Argument/by> 
+needs a floating point number between 0 and 1.
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> is as 
+always a L<color space|Graphics::Toolkit::Color::Manual::Space> name the
+method is computed in, which defaults here to I<OKHSL>. The methods:
+C<lighten>, C<darken>, C<saturate>, C<desaturate>, C<lightness>, C<saturation>
+can only operate in spaces of the I<HSL> family.
+
+The next four methods C<lightness>, C<saturation>, C<contrast>, C<vibrance>
+have also the same signature and take the same four arguments. These are
+beside the alreay described C<by> and C<in> also C<multiply> and C<set>.
+For readability reasons C<by> can be replaced (alias) with C<add> and 
+C<multiply> with C<x>.
 
 =head2 lighten
 
-L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten> 
-increases the lightness by an absolute amount, but does not touch saturation.
-The result will be clamped, so lighten(1) will always return I<white>.
+L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten> creates 
+a color with increased lightness by an absolute amount, but it does not 
+touch saturation. The result is clamped, so lighten(1) will always return 
+I<white>.
 
     my $c = $mint->lighten( 0.1 );                      # is the same as :
     my $c = $mint->lighten( by => 0.1, in => 'OKHSL' );  
 
 =head2 darken
 
-L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken> 
-decreases the lightness by an absolute amount, but does not touch saturation.
-The result will be clamped, so darken(1) will always return I<black>.
+L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken> creates 
+a color with decreased the lightness by an absolute amount, but does not
+touch saturation. The result is clamped, so darken(1) will always return 
+I<black>.
 
 =head2 saturate
 
@@ -708,6 +772,17 @@ L<shade|Graphics::Toolkit::Color::Manual::Calculation/shade> mixes (L</mix>)
 a color with I<black> by the given percentage (0.2 = 20% black, 80% given color).
 That darkens and desaturates at once. The result of shade(1) will always be I<black>.
 
+=head2 lightness
+
+L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness> creates a list 
+
+
+=head2 saturation
+
+=head2 contrast
+
+=head2 vibrance
+
 =head2 tone_curve
 
 L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/apply> computes a 
@@ -719,9 +794,10 @@ being required and the default argument. C<in> defaults here to I<LinearRGB>.
     my $c = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
 
-=head2 set_value
+=head2 derive
 
-L<set_value|Graphics::Toolkit::Color::Manual::Calculation/set_value> 
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive> 
+
 returns a color that differs in some chosen values from the current one.
 Its arguments have to be short or long axis names from one selected 
 L<color space|Graphics::Toolkit::Color::Manual::Space>.
@@ -731,14 +807,6 @@ alone are too ambiguous.
 
     my $blue = $black->set_value( blue => 255 );                    # same as #0000ff
     my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # would otherwise use OKHSL
-
-=head2 add_value
-
-Works exactly as L</set_value> with only one difference: the provided
-axis values will be added to the current ones and not exchanged.
-
-    my $darkblue = $blue->add_value( Lightness => -25 );    # get a darker tone
-    my $blue3 = $blue->add_value( l => 10, in => 'LAB' );   # lighter color according to CIELAB
 
 =head2 mix
 
@@ -802,6 +870,10 @@ the default argument.
 
     my @colors = $darkblue->analogous( to => $midblue, steps => 5);     # 5 shades of blue
     @colors = $c->analogous( to => [14,10,222], steps => 3, tilt => 0.2, in => 'RGB' );
+
+=head2 cubehelix
+
+L<cubehelix|Graphics::Toolkit::Color::Manual::Set/cubehelix> creates a list 
 
 =head2 gradient
 

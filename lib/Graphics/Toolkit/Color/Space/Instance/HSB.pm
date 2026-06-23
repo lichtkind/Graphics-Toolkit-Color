@@ -1,5 +1,5 @@
 
-# HSB color space specific code
+# HSB color space specific code , alias for HSV
 
 package Graphics::Toolkit::Color::Space::Instance::HSB;
 use v5.12;

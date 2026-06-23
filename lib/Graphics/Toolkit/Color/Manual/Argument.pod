@@ -29,13 +29,14 @@ C<in> selects a L<color space|Graphics::Toolkit::Color::Manual::Space>
 in which the operation will be calculated or in which the result will be
 delivered. The argument expects a string with the name of a color space.
 The options are currently: I<RGB>, I<LinearRGB>, I<CMY>, I<CMYK>, I<HSL>, 
-I<HSV>, I<HSB>, I<HWB>, I<NCol>, I<YIQ>, I<YUV>, I<CIEXYZ>, I<CIELAB>, 
-I<HunterLAB>, I<CIELUV>, I<CIELCHab>, I<CIELCHuv>, I<CIERGB>, I<AdobeRGB>,
-I<AppleRGB>, I<ProPhotoRGB>, I<WideGamutRGB>, I<DisplayP3>, I<DisplayP3Linear>,
-I<DCIP3>, I<DCIP3Linear>, I<Rec709>, I<Rec2020>, I<OKLAB>, I<OKLCH>, 
-I<OKHSL>, I<OKHSV>, I<OKHWB>. These spaces have alias names that are
-also acceptable: I<SRGB>, I<LinRGB>, I<YPbPr>, I<XYZ>, I<LAB>, I<LUV>,
-I<LCH>, I<LCHuv>, I<opRGB>, I<ROMMRGB>, I<P3>, I<LinearDisplayP3>,
+I<HSV>, I<HSB>, I<HWB>, I<NCol>, I<YIQ>, I<YPbPr>, I<YCbCr>, 
+I<CIEXYZ>, I<CIExyY>, I<CIERGB>, I<CIELAB>, I<CIELUV>, I<CIELCHab>, I<CIELCHuv>, 
+I<HunterLAB>, I<AdobeRGB>, I<AppleRGB>, I<ProPhotoRGB>, I<WideGamutRGB>, 
+I<DisplayP3>, I<DisplayP3Linear>, I<DCIP3>, I<DCIP3Linear>, 
+I<Rec709>, I<Rec2020>, I<OKLAB>, I<OKLCH>, I<OKHSL>, I<OKHSV>, I<OKHWB>. 
+These spaces have alias names that are also acceptable: 
+I<SRGB>, I<LinRGB>, I<YPbPr>, I<XYZ>, I<xyY>, I<Yxy>, 
+I<LAB>, I<LUV>, I<LCH>, I<LCHuv>, I<opRGB>, I<ROMMRGB>, I<P3>, I<LinearDisplayP3>,
 I<SMPTEP3>, I<LinearDCIP3>, I<BT709>, I<BT2020>. Please note that there
 is a great degree of freedom with which a color space name can be written.
 The user is free to use upper and lower case characters or to insert 
@@ -58,18 +59,18 @@ L<desaturate|Graphics::Toolkit::Color::Manual::Calculation/desaturate>,
 L<tint|Graphics::Toolkit::Color::Manual::Calculation/tint>, 
 L<tone|Graphics::Toolkit::Color::Manual::Calculation/tone>, 
 L<shade|Graphics::Toolkit::Color::Manual::Calculation/shade>,
-L<apply|Graphics::Toolkit::Color::Manual::Calculation/apply>, 
-L<set_value|Graphics::Toolkit::Color::Manual::Calculation/set_value>, 
-L<add_value|Graphics::Toolkit::Color::Manual::Calculation/add_value>,
+L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/tone_curve>, 
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>, 
 L<mix|Graphics::Toolkit::Color::Manual::Calculation/mix>, 
 L<invert|Graphics::Toolkit::Color::Manual::Calculation/invert>, 
 L<complement|Graphics::Toolkit::Color::Manual::Set/complement>, 
 L<analogous|Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<cubehelix|Graphics::Toolkit::Color::Manual::Set/cubehelix>, 
 L<gradient|Graphics::Toolkit::Color::Manual::Set/gradient>, 
 L<cluster|Graphics::Toolkit::Color::Manual::Set/cluster>.
 The C<values> method also expects C<in> as a positional argument if it
 is the only one, since conversion into that space is the main purpose 
-of that method.
+of that method. Some methods have to restrict the choice of color space.
 
 
 =head2 by
@@ -86,11 +87,33 @@ L<desaturate|Graphics::Toolkit::Color::Manual::Calculation/desaturate>,
 L<tint|Graphics::Toolkit::Color::Manual::Calculation/tint>, 
 L<tone|Graphics::Toolkit::Color::Manual::Calculation/tone>, 
 L<shade|Graphics::Toolkit::Color::Manual::Calculation/shade>,
+L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness>,
+L<saturation|Graphics::Toolkit::Color::Manual::Calculation/saturation>,
+L<contrast|Graphics::Toolkit::Color::Manual::Calculation/contrast>,
+L<vibrance|Graphics::Toolkit::Color::Manual::Calculation/vibrance>,
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>,
 L<mix|Graphics::Toolkit::Color::Manual::Calculation/mix>. 
 The value may also be provided as a positional argument if it is the
 only one in all the methods except C<mix>. There you can also use the
-alias C<amount> instead of C<by>.
+alias C<amount> instead of C<by>. Sometimes C<by> can be aliased with C<add>.
 
+=head2 multiply
+
+C<multiply> expects a number which will be used as a factor by methods:
+L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness>,
+L<saturation|Graphics::Toolkit::Color::Manual::Calculation/saturation>,
+L<contrast|Graphics::Toolkit::Color::Manual::Calculation/contrast>,
+L<vibrance|Graphics::Toolkit::Color::Manual::Calculation/vibrance>,
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>.
+
+=head2 set
+
+C<multiply> expects a number which will be used as a constant by methods:
+L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness>,
+L<saturation|Graphics::Toolkit::Color::Manual::Calculation/saturation>,
+L<contrast|Graphics::Toolkit::Color::Manual::Calculation/contrast>,
+L<vibrance|Graphics::Toolkit::Color::Manual::Calculation/vibrance>,
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>.
 
 =head2 to
 
@@ -163,7 +186,8 @@ The following methods accept the I<range> argument:
 L<new|Graphics::Toolkit::Color::Manual::Constructor>, 
 L<values|Graphics::Toolkit::Color::Manual::Getter/values>,
 L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>, 
-L<distance|Graphics::Toolkit::Color::Manual::Getter/distance>.
+L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> and
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>.
 
 
 =head2 raw
@@ -188,7 +212,28 @@ when converted into another space.
 
 The I<raw> argument can be used in:
 L<new|Graphics::Toolkit::Color::Manual::Constructor>, 
-L<values|Graphics::Toolkit::Color::Manual::Getter/values>, 
+L<values|Graphics::Toolkit::Color::Manual::Getter/values>,
+L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten>, 
+L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken>, 
+L<saturate|Graphics::Toolkit::Color::Manual::Calculation/saturate>, 
+L<desaturate|Graphics::Toolkit::Color::Manual::Calculation/desaturate>, 
+L<tint|Graphics::Toolkit::Color::Manual::Calculation/tint>, 
+L<tone|Graphics::Toolkit::Color::Manual::Calculation/tone>, 
+L<shade|Graphics::Toolkit::Color::Manual::Calculation/shade>,
+L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness>,
+L<saturation|Graphics::Toolkit::Color::Manual::Calculation/saturation>,
+L<contrast|Graphics::Toolkit::Color::Manual::Calculation/contrast>,
+L<vibrance|Graphics::Toolkit::Color::Manual::Calculation/vibrance>,
+L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/tone_curve>, 
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive>, 
+L<mix|Graphics::Toolkit::Color::Manual::Calculation/mix>, 
+L<invert|Graphics::Toolkit::Color::Manual::Calculation/invert>, 
+L<complement|Graphics::Toolkit::Color::Manual::Set/complement>, 
+L<analogous|Graphics::Toolkit::Color::Manual::Set/analogous>, 
+L<cubehelix|Graphics::Toolkit::Color::Manual::Set/cubehelix>, 
+L<gradient|Graphics::Toolkit::Color::Manual::Set/gradient>, 
+L<cluster|Graphics::Toolkit::Color::Manual::Set/cluster>.
+
 
 
 =head2 steps

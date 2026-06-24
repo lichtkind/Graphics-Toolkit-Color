@@ -57,7 +57,7 @@ sub _new_from_scalar_def {
 }
 sub _new_from_value_obj {
     my ($value_obj) = @_;
-    return error($value_obj) unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
+    return $value_obj unless ref $value_obj eq 'Graphics::Toolkit::Color::Values';
     return bless {values => $value_obj};
 }
 sub values_object { $_[0]->{'values'} if ref $_[0] eq __PACKAGE__}
@@ -243,7 +243,7 @@ sub shade {
 sub lightness {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
-               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
     return error("The default argument or named argument 'by' has to be a number between 0 and 1!") unless ref $arg;
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lightness( $self->values_object, @$arg{qw/set x add in/} ) );
 } 
@@ -251,21 +251,21 @@ sub lightness {
 sub saturation {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
-               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
 
 }
 sub contrast {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
-               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
 
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::contrast( $self->values_object, @$arg{qw/set x add in/} ) );
 }
 sub vibrance {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
-               {set => -1, x => 1, add => 0, raw => 0, in => $design_default}, {x => 'multiply', add => 'by'});
+               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
 
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::vibrance( $self->values_object, @$arg{qw/set x add in/} ) );
 }
@@ -288,11 +288,11 @@ sub tone_curve {
 sub derive {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, [], 
-               {set => -1, add => 0, multiply => 1, range => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'} ); 
+               {set => undef, multiply => undef, add => undef, range => undef, raw => 0, in => undef}, {multiply => 'x', add => 'by'} ); 
     my $help = 'The method "derive" returns a GTC object with values that are calculated using in part the values of the given color. '.
                'Its named and optional arguments are: "set", "add", "multiply" and "in" (color space name - default OKHSL)!';
     return error($arg.$help.$POD_link) unless ref $arg;
-	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add raw range in/} );
+	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add raw range in/}, $design_default );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -327,7 +327,7 @@ sub add_value {
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', by => undef}, {by => 'amount'});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', by => undef, raw => 0}, {by => 'amount'});
     my $help = 'The method "mix" returns a GTC object, which is a blend between given colors. Arguments are: '.
                '"to" (other color[s]-required and default), "by" (mix amounts) and "in"(color space name, default OKLAB)!';
     return error($arg.' '.$help.$POD_link) unless ref $arg;
@@ -358,14 +358,14 @@ sub mix {
 			for (@{$arg->{'by'}}) { $_ /= 100 if is_nr($_) and $_ > 1 } 
 		} elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
     }
-    my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, $arg->{'to'}, $arg->{'by'}, $color_space );
+    my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, @$arg{qw/to by raw/}, $color_space );
     return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
 
 sub invert {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'only', [], {in => undef, only => undef});
+    my $arg = _split_named_args( \@args, 'only', [], {in => undef, only => undef, raw => 0});
     my $help = 'The method "invert" returns a GTC object with inverted ($max - $_) values. Optional arguments are: '.
                '"only" (axis selection, default is all) and "in" (color space name)!';
     return error($arg.$help.$POD_link) unless ref $arg and (not ref $arg->{'only'} or ref $arg->{'only'} eq 'ARRAY');
@@ -373,7 +373,7 @@ sub invert {
     return error($color_space.$help.$POD_link) if defined $arg->{'in'} and not ref $color_space;
     $arg->{'in'} = $color_space if defined $arg->{'in'};
     my $default_space = Graphics::Toolkit::Color::Space::Hub::get_space( $design_default );
-	my $result = Graphics::Toolkit::Color::Calculator::invert( $self->values_object, $arg->{'only'}, $arg->{'in'}, $default_space );
+	my $result = Graphics::Toolkit::Color::Calculator::invert( $self->values_object, @$arg{qw/only raw in/}, $default_space );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }

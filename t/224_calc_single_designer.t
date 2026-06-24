@@ -79,45 +79,45 @@ $values = $cyan->normalized();
 is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color in RGB');
 
 #### mix ###############################################################
-my $grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], undef, $RGB );
+my $grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], undef, 0, $RGB );
 is( ref $grey,                   $value_ref,  'created gray by mixing black and white without amount');
 $values = $grey->shaped();
 is_tuple( $values, [128, 128, 128], [qw/red green blue/], 'mixed grey from black and white');
 is( $grey->name(),                'gray',  'created gray by mixing black and white');
-$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], .5, $RGB );
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], .5, 0,  $RGB );
 is( $grey->name(),                'gray',  'created gray by mixing black and white with percentage amount');
-$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], [.50], $RGB );
+$grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], [.50], 0,  $RGB );
 is( $grey->name(),                'gray',  'the percentage amount is in ARRAY this time');
 
-my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black, $white], [5,95], $RGB);
+my $lgrey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black, $white], [5,95], 0, $RGB);
 is( ref $lgrey,                   $value_ref,  'created light gray');
 $values = $lgrey->shaped();
 is_tuple( $values, [242, 242, 242], [qw/red green blue/], 'mixed light grey from black and white');
 is( $lgrey->name(),             'gray95',  'created gray by mixing black and white');
 
-my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( $white, [$blue, $black], [50, 50], $HSL);
+my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( $white, [$blue, $black], [50, 50], 0, $HSL);
 is( ref $darkblue,               $value_ref,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
 $values = $darkblue->shaped('HSL');
 is_tuple( $values, [120, 50, 25], [qw/hue saturation lightness/], 'mixed grey from black and white in HSL');
 
 #### invert ############################################################
-my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $RGB );
+my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, 0, $RGB );
 is( $nblack->name,    'black',  'black is white inverted');
-my $nwhite = Graphics::Toolkit::Color::Calculator::invert ( $nblack, undef, $RGB );
+my $nwhite = Graphics::Toolkit::Color::Calculator::invert ( $nblack, undef, 0, $RGB );
 is( $nwhite->name,    'white',  'white is black inverted');
-my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $RGB );
+my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $RGB );
 is(  $nyellow->name,  'yellow', 'yellow is blue inverted');
-my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $HSL );
+my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $HSL );
 is( $ngray->name,     'gray',   'in HSL is gray opposite to any color');
-$nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, $LAB );
+$nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $LAB );
 is( $nblue->name,         '',   'LAB is not symmetrical');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HSL );
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef,  0, $HSL );
 is( $nblack->name,   'black',   'primary contrast works in HSL');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, $HWB );
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef,  0, $HWB );
 is( $nblack->name,   'black',  'primary contrast works in HWB');
-my $ncyan = Graphics::Toolkit::Color::Calculator::invert ( $white, 'red', $RGB );
+my $ncyan = Graphics::Toolkit::Color::Calculator::invert ( $white, 'red',  0, $RGB );
 is( $ncyan->name,     'cyan',  'inverted only on red axis: white to cyan');
-my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/], $RGB );
+my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/],  0, $RGB );
 is( $nred->name,       'red',  'inverted on two axis with short names');
 
 my $ndb = Graphics::Toolkit::Color::Calculator::invert ( $darkblue, [qw/h/], $HSL );

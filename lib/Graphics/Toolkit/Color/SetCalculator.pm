@@ -101,7 +101,7 @@ sub gradient { # @:color_values -- +steps, +tilt, :space --> @:values
         my $current_segment_nr = int ($percent_in_gradient * $segment_count);
         my $percent_in_segment = $segment_count * ($percent_in_gradient - ($current_segment_nr / $segment_count));
         push @result, Graphics::Toolkit::Color::Calculator::mix(
-                          $colors->[$current_segment_nr], [ $colors->[$current_segment_nr+1] ], $percent_in_segment, $color_space );
+                          $colors->[$current_segment_nr], [ $colors->[$current_segment_nr+1] ], $percent_in_segment, 0, $color_space );
     }
     push @result, pop @$colors if $steps > 1;
     return @result;

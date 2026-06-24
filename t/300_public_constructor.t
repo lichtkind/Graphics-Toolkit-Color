@@ -9,8 +9,8 @@ use Graphics::Toolkit::Color::Space::Util ':all';
 
 my $module = 'Graphics::Toolkit::Color';
 eval "use $module qw/color is_in_gamut/";
-
 is( not( $@), 1, 'could load the module'); # say $@; exit 0;
+
 warning_like {Graphics::Toolkit::Color->new()} {carped => qr/accepts the arguments/}, 'constructor need arguments';
 is( ref Graphics::Toolkit::Color->new('red'), $module, 'method "new" accepts color names');
 warning_like {Graphics::Toolkit::Color->new('red', 'green')} {carped => qr/Could not deformat/}, 'constructor needs only one color name';

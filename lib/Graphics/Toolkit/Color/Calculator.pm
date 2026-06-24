@@ -8,61 +8,60 @@ use Graphics::Toolkit::Color::Space::Util qw/is_nr spow/;
 use Graphics::Toolkit::Color::Values;
 
 #### light designer API ################################################
-sub lighten { add_axis_value( @_, 'lightness') }
+sub lighten { 
+    my ($color_values, $by, $raw, $color_space) = @_;
+    lightness( $color_values, undef, undef, $by, $raw, $color_space);
+}
 sub darken  {
-    my ($color_values, $by, $color_space) = @_;
-    add_axis_value($color_values, -$by, $color_space, 'lightness');
+    my ($color_values, $by, $raw, $color_space) = @_;
+    lightness( $color_values, undef, undef, -$by, $raw, $color_space);
 }
-sub saturate   { add_axis_value( @_, 'saturation') }
-sub desaturate {
-    my ($color_values, $by, $color_space) = @_;
-    add_axis_value($color_values, -$by, $color_space, 'saturation');
-}
-sub add_axis_value {
-    my ($color_values, $by, $color_space, $axis_name) = _clear_args_by_and_space_name(@_);
-    return $color_values unless ref $color_values;
-    my $axis_nr = $color_space->pos_from_axis_role( $axis_name );
-    return "color space: '".$color_space->name."' has no $axis_name axis" unless defined $axis_nr;
-    my $tuple = $color_values->normalized( $color_space->name );
-	$tuple->[$axis_nr] += $by;
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
-}
-sub _clear_args_by_and_space_name {
-    my ($color_values, $by, $space_name, @more) = @_;
-    return "need a GT::Color::Values object as first argument" 
-		unless ref $color_values eq 'Graphics::Toolkit::Color::Values';
-    return "need a numeric amount between 0 and 1 as first argument" unless defined $by;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return "$space_name is not a known color space" unless ref $color_space;
-    return ($color_values, $by, $color_space, @more);
-}
-
-sub tint     { mix_with(@_, [255  ,255  ,255  ]) } # white
-sub tone     { mix_with(@_, [127.5,127.5,127.5]) } # grey50
-sub shade    { mix_with(@_, [  0,    0,    0  ]) } # black
-sub mix_with {
-    my ($color_values, $by, $raw, $color_space, $tuple) = @_;
-    return mix( $color_values, $tuple, $by, $raw, $color_space);
-}
-
 sub lightness {
     my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
-
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+	return $color_space unless ref $color_space;
+    return "selected color space: '".$color_space->name."' has no axis with a lightness role" 
+		unless $color_space->is_axis_role( 'lightness' );
+	$set  = {'lightness' => $set}  if defined $set;
+	$mult = {'lightness' => $mult} if defined $mult;
+	$add  = {'lightness' => $add}  if defined $add;
+	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
 } 
 
+sub saturate   {
+    my ($color_values, $by, $raw, $color_space) = @_;
+    saturation( $color_values, undef, undef, $by, $raw, $color_space);
+}
+sub desaturate {
+    my ($color_values, $by, $raw, $color_space) = @_;
+    saturation( $color_values, undef, undef, -$by, $raw, $color_space);
+}
 sub saturation {
     my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
-
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+	return $color_space unless ref $color_space;
+    return "selected color space: '".$color_space->name."' has no axis with a lightness role" 
+		unless $color_space->is_axis_role( 'saturation' );
+	$set  = {'saturation' => $set}  if defined $set;
+	$mult = {'saturation' => $mult} if defined $mult;
+	$add  = {'saturation' => $add}  if defined $add;
+	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
 }
 
 sub contrast {
     my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+	return $color_space unless ref $color_space;
+	my $tuple = $color_values->shaped( $color_space->name, 'normal', -1, $raw );
 # neu = mitte + (alt - mitte) × faktor
 # achsenmitte 
 }
 
 sub vibrance {
     my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
+	return $color_space unless ref $color_space;
+	my $tuple = $color_values->shaped( $color_space->name, 'normal', -1, $raw );
 # alt + betrag × (1 − alt)
 }
 
@@ -180,11 +179,21 @@ sub apply_gamma {
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
+sub tint     { mix_with(@_, [ 1 , 1 , 1  ]) } # white
+sub tone     { mix_with(@_, [ .5, .5, .5 ]) } # grey50
+sub shade    { mix_with(@_, [ 0 , 0 , 0  ]) } # black
+sub mix_with {
+    my ($color_values, $by, $raw, $color_space, $tuple) = @_;
+    mix( $color_values, $color_values->new_from_tuple( $tuple, 'RGB', 'normal' ), $by, $raw, $color_space);
+}
 sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .color_values
-    my ($base_color, $added_color, $add_amount, $raw, $color_space ) = @_;
+    my ($base_color, $added_color, $add_amount, $raw, $color_space_name ) = @_;
     return "need color value object as first argument !\n" unless ref $base_color eq 'Graphics::Toolkit::Color::Values';
     return "second argument has to be an ARRAY !\n" unless ref $added_color eq 'ARRAY';
-    return "need a color space object !\n" unless ref $color_space eq 'Graphics::Toolkit::Color::Space';
+    return "need a color space name !\n" unless defined $color_space_name;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $color_space_name );
+    return $color_space unless ref $color_space;
+
 
     my $color_count = @$added_color + 1;
     $add_amount = 1 / $color_count unless defined $add_amount;

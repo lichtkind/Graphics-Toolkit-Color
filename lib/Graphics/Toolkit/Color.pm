@@ -331,8 +331,6 @@ sub mix {
     my $help = 'The method "mix" returns a GTC object, which is a blend between given colors. Arguments are: '.
                '"to" (other color[s]-required and default), "by" (mix amounts) and "in"(color space name, default OKLAB)!';
     return error($arg.' '.$help.$POD_link) unless ref $arg;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( delete $arg->{'in'} );
-    return error($color_space.' '.$help.$POD_link) unless ref $color_space;
     my $second_color = _new_from_scalar_def($arg->{'to'});
     if (ref $second_color){ $arg->{'to'} = [$second_color->values_object] } 
     else {
@@ -358,7 +356,7 @@ sub mix {
 			for (@{$arg->{'by'}}) { $_ /= 100 if is_nr($_) and $_ > 1 } 
 		} elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
     }
-    my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, @$arg{qw/to by raw/}, $color_space );
+    my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, @$arg{qw/to by raw in/} );
     return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }

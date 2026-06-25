@@ -1,13 +1,17 @@
 2.30   2026-07-20   lichtkind
 -------
-    * = big feature release: +2 spaces, +9 methods, +22 args, +2 formats
-    * + spaces: xyY,YCbCr
+    * = big feature release: +4 spaces, +6 methods, +44 args, +2 formats
+    * + spaces: xyY, YCbCr, XYB, ICtCp
     * + space alias Yxy and HCL, made HSB into alias (real spaces are 34 now)
-    * + method: derive to substitute add_value and set_value
-    * + designer methods: brightness, contrast, vibrance, saturation (args by set x)
+    * + cubehelix method (args: gamma, amplitude, rotations, steps, tilt, raw, in) (7)
+    * + add position of target colors in 'gradient' (1)
+    * + method: derive to substitute add_value and set_value (args: set, multiply, add, range, raw, in) (12)
+    * + designer methods: lightness, saturation (args: set, multiply, add, raw, in) (10)
     * + designer methods: triadic (argument split), tetradic, rectangular
-    * + cubehelix method
-    * + add position of target colors in 'gradient'
+    * + random method
+    * + argument 'raw' for 'lighten','darken','saturate','desaturate',
+                           'tint','tone','shade', 'tone_curve','mix','invert',
+                           'complement','analogous','gradient','cluster' (14)
     * + read color def with alpha channel
     * + format 'plain_object', 'plain_object_string' (culori)
     * ~ new format reader algo making deformat faster

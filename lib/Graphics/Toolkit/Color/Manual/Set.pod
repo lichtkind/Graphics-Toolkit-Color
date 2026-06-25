@@ -8,7 +8,7 @@ Graphics::Toolkit::Color::Manual::Set - reference of color set creation methods
 
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
 detailed description of the four color set creation methods: 
-L</complement>, L</analogous>, L</gradient> and L</cluster> with an 
+L</complement>, L</analogous>, L</cubehelix>, L</gradient> and L</cluster> with an 
 explanation of all L<arguments|Graphics::Toolkit::Color::Manual::Argument> 
 they provide. All methods return a list of GTC objects unless a typo or
 data type mismatch triggers an L<error|Graphics::Toolkit::Color::Manual::Error>.

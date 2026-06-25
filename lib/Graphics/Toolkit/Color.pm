@@ -255,20 +255,7 @@ sub saturation {
 	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
 
 }
-sub contrast {
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'set', [], 
-               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
 
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::contrast( $self->values_object, @$arg{qw/set x add in/} ) );
-}
-sub vibrance {
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'set', [], 
-               {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
-
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::vibrance( $self->values_object, @$arg{qw/set x add in/} ) );
-}
 # --- low level complex API ---
 
 sub apply { tone_curve(@_) }
@@ -323,6 +310,13 @@ sub add_value {
     my $result = Graphics::Toolkit::Color::Calculator::add_value( $self->values_object, $partial_color, $space_name );
     return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
+}
+
+sub random {
+    my ($self, @args) = @_;
+    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
+    my $help = 'The method "add_value" returns a GTC object with some values different. Arguments are selected axis '.
+               'names of target space and optionally "in" for color space disambiguation!';
 }
 
 sub mix {
@@ -430,7 +424,11 @@ sub analogous {
 }
 
 sub cubehelix {
-	
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 4, tilt => 0, in => $design_default});
+    my $help = 'The method "analogous" returns a list of GTC objects with analogous colors. Arguments are: "to" (next color - default arg. and required), '.
+               '"steps" (max. color count, default 4), "in" (color space name, default "OKHSL" and "tilt"!';
+
 }
 
 sub gradient {
@@ -777,9 +775,6 @@ L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness> creates a l
 
 =head2 saturation
 
-=head2 contrast
-
-=head2 vibrance
 
 =head2 tone_curve
 
@@ -791,6 +786,8 @@ being required and the default argument. C<in> defaults here to I<LinearRGB>.
     my $c = $blue->tone_curve( gamma => 2.2 );                          # is the same as :
     my $c = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
+
+=head2 random
 
 =head2 derive
 

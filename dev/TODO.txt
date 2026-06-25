@@ -3,7 +3,6 @@ TODO:
 
     
  = 2.4:
-   + XYB, ICtCp
    + 4 LMS variants
    + LMS support, Mochado/Brettel
    + gamut mapping
@@ -12,7 +11,6 @@ TODO:
    + 'closest_name' can select space default to oklab
 
  = 2.5 
-   + random color
    + spaces:  HSI, Jzazbz / JzCzhz, HSLuv / HPLuv, 
    + extend tone_curve
    + Built-in color theme / scheme presets (Material, Tailwind, Ant Design style ramps).

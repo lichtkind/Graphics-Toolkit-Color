@@ -17,7 +17,7 @@ sub darken  {
     lightness( $color_values, undef, undef, -$by, $raw, $color_space);
 }
 sub lightness {
-    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
+    my ($color_values, $set, $mult, $add, $spread, $raw, $space_name) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
 	return $color_space unless ref $color_space;
     return "selected color space: '".$color_space->name."' has no axis with a lightness role" 
@@ -48,78 +48,72 @@ sub saturation {
 	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
 }
 
-sub contrast {
-    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-	return $color_space unless ref $color_space;
-	my $tuple = $color_values->shaped( $color_space->name, 'normal', -1, $raw );
-# neu = mitte + (alt - mitte) × faktor
-# achsenmitte 
-}
-
-sub vibrance {
-    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-	return $color_space unless ref $color_space;
-	my $tuple = $color_values->shaped( $color_space->name, 'normal', -1, $raw );
-# alt + betrag × (1 − alt)
-}
+# L : neu = achsenmitte + (alt - mitte) × faktor
+# S : achsenmitte# alt + betrag × (1 − alt)
 
 
 #### low level methods #############################################
 
 sub derive {
-    my ($color_values, $set, $mult, $add, $raw, $range_def, $space_name, $default_space_name) = @_;
+    my ($color_values, $set, $mult, $add, $raw, $range_def, $selected_space_name, $default_space_name) = @_;
     my ($tuple, $color_space);
     my $default_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name );
+    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name ) if defined $selected_space_name;
+    return $color_space if defined $selected_space_name and not ref $color_space;
 
     if (defined $set and not ref $set){  # set constant
-		$space_name //= $default_space_name;
-	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ) unless ref $color_space;
+	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
 		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] = $set for $color_space->basis->axis_iterator;
 	} elsif (ref $set eq 'HASH'){         # set partial hash
-		#my ($new_values, $deduced_space_name) = 
-	#		Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $set, $space_name );
-		#return $new_values unless ref $new_values;
-	    #~ $deduced_color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $deduced_space_name );
-	    #~ # 
-	    #~ $color_space = $deduced_color_space unless ref $color_space;
-	    #~ #$color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $deduced_space_name ) unless ref $color_space;
-	    #~ return $color_space unless ref $color_space;
-		
-		#~ for my $pos ($color_space->basis->axis_iterator) {
-			#~ $tuple->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
-		#~ }		
+		my ($new_values, $deduced_space_name) = 
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $set, $selected_space_name );
+		return $new_values unless ref $new_values;
+	    my $deduced_color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $deduced_space_name );
+		$color_space = (ref $color_space) ? $color_space 
+		                                  :($default_space->family eq $deduced_color_space->family) 
+			                              ? $default_space 
+			                              : $deduced_color_space;
+		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
+		$tuple->[ $color_space->pos_from_axis_name($_) ] = $set->{$_} for keys %$set;
 	}
-
     if (defined $mult and not ref $mult){
-		$space_name //= $default_space_name;
-	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ) unless ref $color_space;
+	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
 		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] *= $mult for $color_space->basis->axis_iterator;
 	} elsif (ref $mult eq 'HASH'){
-		#~ for my $pos ($color_space->basis->axis_iterator) {
-			#~ $tuple->[$pos] *= $new_values->[$pos] if defined $new_values->[$pos];
-		#~ }		
+		my ($new_values, $deduced_space_name) = 
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $mult, $selected_space_name );
+		return $new_values unless ref $new_values;
+	    my $deduced_color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $deduced_space_name );
+		$color_space = (ref $color_space) ? $color_space 
+		                                  :($default_space->family eq $deduced_color_space->family) 
+			                              ? $default_space 
+			                              : $deduced_color_space;
+		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
+		$tuple->[ $color_space->pos_from_axis_name($_) ] *= $mult->{$_} for keys %$mult;
 	}
-
     if (defined $add and not ref $add){
-		$space_name //= $default_space_name;
-	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ) unless ref $color_space;
+	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
 		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] += $add for $color_space->basis->axis_iterator;
 	} elsif (ref $add eq 'HASH'){
-		
-		#~ for my $pos ($color_space->basis->axis_iterator) {
-			#~ $tuple->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
-		#~ }		
+		my ($new_values, $deduced_space_name) = 
+			Graphics::Toolkit::Color::Space::Hub::deformat_search_partial_hash( $add, $selected_space_name );
+		return $new_values unless ref $new_values;
+	    my $deduced_color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $deduced_space_name );
+		$color_space = (ref $color_space) ? $color_space 
+		                                  :($default_space->family eq $deduced_color_space->family) 
+			                              ? $default_space 
+			                              : $deduced_color_space;
+		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, $raw ) unless ref $tuple;
+		$tuple->[ $color_space->pos_from_axis_name($_) ] += $add->{$_} for keys %$add;
 	}
     return $color_values->new_from_tuple( $tuple, $color_space->name, $range_def, $raw );
 }

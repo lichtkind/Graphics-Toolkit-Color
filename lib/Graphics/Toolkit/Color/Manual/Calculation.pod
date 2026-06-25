@@ -7,12 +7,11 @@ Graphics::Toolkit::Color::Manual::Calculation - reference of single color calcul
 =head1 SYNOPSIS
 
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
-detailed description of the fifteen methods that produce a GTC color object
+detailed description of the fourteen methods that produce a GTC color object
 which in some fashion is related to the current one (caller): 
 L</lighten>, L</darken>, L</saturate>, L</desaturate>,
-L</tint>, L</tone>, L</shade>, 
-L</lightness>, L</saturation>, L</contrast>, L</vibrance>,
-L</tone_curve>, L</derive>, L</mix> and L</invert>.
+L</tint>, L</tone>, L</shade>,      L</lightness>, L</saturation>,
+L</tone_curve>, L</derive>, L</random>, L</mix> and L</invert>.
 That allows for method chaining like:
 
     $color->derive( set => {saturation => 5} )->invert->mix( to => 'green' );
@@ -27,22 +26,26 @@ as described here.
 
 =head1 METHODS
 
-The fifteen methods can be divided into three groups, just by looking at
-their signature. The first seven methods: L</lighten>, L</darken>, 
+The thirteen methods can be divided into several groups, just by looking
+at their signature. The first seven methods: L</lighten>, L</darken>, 
 L</saturate>, L</desaturate>, L</tint>, L</tone> and L</shade>
 just accept the named arguments 
 L<by|Graphics::Toolkit::Color::Manual::Argument/by> (0..1),
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space) and 
 L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> (pseudo bool),
 the first one being the only required and default argument. 
-The next four methods: L</lightness>, L</saturation>, L</contrast> and L</vibrance>
+The next two methods: L</lightness>, L</saturation> 
 accept these three arguments too but also additionally 
 L<set|Graphics::Toolkit::Color::Manual::Argument/set> and 
 L<multiply|Graphics::Toolkit::Color::Manual::Argument/multiply>.
 Here C<set> is the default argument but nothing is required.
 Furthermore C<by> can be aliased with C<add> and instead of C<multiply> 
 one might use the shorter C<x>.
-The last four methods: L</tone_curve>, L</derive>, L</mix> and L</invert> 
+L</derive> is works very similar but takes additionally a
+L<range|Graphics::Toolkit::Color::Manual::Argument/range> definition
+and C<set>, C<multiply> and C<add> can receive incomplete color definitions
+in the L<hash format|Graphics::Toolkit::Color::Manual::Format/hash>.
+The last four methods: L</tone_curve>, L</random>, L</mix> and L</invert> 
 have individual signatures.
 
 All methods accept the L<in|Graphics::Toolkit::Color::Manual::Argument/in>
@@ -77,7 +80,7 @@ is 46% of the maximum I<lightness>. Calling:
   $midblue->lighten( 0.13 );
   $midblue->lighten( by => 0.13 );                          # same result
   $midblue->lighten( by => 0.13, in => 'OKHSL' );           # also the same
-  $midblue->lighten( by => 0.13, in => 'OKHSL', raw => 0 ); # not changing yet
+  $midblue->lighten( by => 0.13, in => 'OKHSL', raw => 0 ); # no change yet
   
 produces a color with a lightness that is 59% (46 + 13) of the maximum
 value (100%). If the resulting lightness would be above 100% or below
@@ -145,13 +148,10 @@ C<lightness>
 
 C<saturation>
 
-=head2 contrast
 
-C<contrast>
+=head2 derive
 
-=head2 vibrance
-
-C<vibrance>
+C<derive>
 
 
 
@@ -188,9 +188,9 @@ in one corner but the center of one face.
     my $linear_blue = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
 
-=head2 derive
+=head2 random
 
-C<derive>
+C<random>
 
 
 =head2 set_value

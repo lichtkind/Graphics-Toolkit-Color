@@ -4,18 +4,15 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 42;
-use Graphics::Toolkit::Color::Values;
+use Test::More tests => 41;
+use Graphics::Toolkit::Color::Calculator;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';
 my $value_ref = 'Graphics::Toolkit::Color::Values';
-eval "use $module";
-is( not($@), 1, "could load the module $module"); # say "$@"; exit 1;
 
 my $blue = Graphics::Toolkit::Color::Values->new_from_any_input('blue');
 my $black = Graphics::Toolkit::Color::Values->new_from_any_input('black');
 my $white = Graphics::Toolkit::Color::Values->new_from_any_input('white');
-
 
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
 my $CMY = Graphics::Toolkit::Color::Space::Hub::get_space('CMY');
@@ -23,36 +20,11 @@ my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 my $HWB = Graphics::Toolkit::Color::Space::Hub::get_space('HWB');
 my $LAB = Graphics::Toolkit::Color::Space::Hub::get_space('LAB');
 
-#### apply_gamma #######################################################
-my $nice_blue = Graphics::Toolkit::Color::Values->new_from_any_input([10,20,200]);
-my $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 1,  $RGB);
-is( ref $nblue,    $value_ref, 'gamma of one does not change anything');
-my $values = $nblue->shaped();
-is_tuple( $values, [10, 20, 200], [qw/red green blue/], 'nice blue with no gamma');
-
-$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 2.2,  $RGB);
-is( ref $nblue,    $value_ref, 'gamma of 2.2 does skew down values');
-$values = $nblue->shaped();
-is_tuple( $values, [0, 1, 149], [qw/red green blue/], 'nice blue with gamma 2.2');
-
-$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 0.5, $CMY);
-is( ref $nblue,    $value_ref, 'gamma correction in CMY space');
-$values = $nblue->shaped();
-is_tuple( $values, [5, 10, 137], [qw/red green blue/], 'nice blue with gamma 0.5');
-
-$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, cyan => 3},  $RGB);
-is( ref $nblue,           '', 'gamma value hash had names that not belong to RGB');
-
-$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, blue => 3},  $RGB);
-is( ref $nblue,    $value_ref, 'mixed gamma values skew too');
-$values =$nblue->shaped();
-is_tuple( $values, [184, 20, 123], [qw/red green blue/], 'red and blue values have individual gamma applied');
-
 #### set_value #########################################################
 my $cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255} );
 is( ref $cyan,    $value_ref,  'aqua (set green value to max) value object');
 is( $cyan->name,      'cyan',  'color has the name "cyan" (blue + green)');
-$values = $cyan->normalized();
+my $values = $cyan->normalized();
 is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by maxing green on blue color');
 
 my $ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255}, 'CMY' );
@@ -77,6 +49,34 @@ is( ref $ret,             '',  'green and yellow axis are from different spaces'
 $cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255}, 'RGB' );
 $values = $cyan->normalized();
 is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color in RGB');
+
+#### apply_gamma #######################################################
+my $nice_blue = Graphics::Toolkit::Color::Values->new_from_any_input([10,20,200]);
+my $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 1,  $RGB);
+is( ref $nblue,    $value_ref, 'gamma of one does not change anything');
+$values = $nblue->shaped();
+is_tuple( $values, [10, 20, 200], [qw/red green blue/], 'nice blue with no gamma');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 2.2,  $RGB);
+is( ref $nblue,    $value_ref, 'gamma of 2.2 does skew down values');
+$values = $nblue->shaped();
+is_tuple( $values, [0, 1, 149], [qw/red green blue/], 'nice blue with gamma 2.2');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 0.5, $CMY);
+is( ref $nblue,    $value_ref, 'gamma correction in CMY space');
+$values = $nblue->shaped();
+is_tuple( $values, [5, 10, 137], [qw/red green blue/], 'nice blue with gamma 0.5');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, cyan => 3},  $RGB);
+is( ref $nblue,           '', 'gamma value hash had names that not belong to RGB');
+
+$nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, {red => 0.1, blue => 3},  $RGB);
+is( ref $nblue,    $value_ref, 'mixed gamma values skew too');
+$values =$nblue->shaped();
+is_tuple( $values, [184, 20, 123], [qw/red green blue/], 'red and blue values have individual gamma applied');
+
+#### random ############################################################
+
 
 #### mix ###############################################################
 my $grey = Graphics::Toolkit::Color::Calculator::mix ( $white, [$black], undef, 0, $RGB );

@@ -509,7 +509,7 @@ Graphics::Toolkit::Color, for short B<GTC>, is the top level API of this
 library and the only package a regular user should be concerned with.
 Its main purpose is the creation of related colors or sets of them,
 such as gradients, complements and more. But if you want to convert, 
-quantize, round or reformat color definitions or translate from and to 
+rescale, round or reformat color definitions or translate from and to 
 color names, it can be helpful too.
 
 This page will give you a quick overview of all GTC methods. 

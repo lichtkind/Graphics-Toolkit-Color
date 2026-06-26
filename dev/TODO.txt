@@ -12,7 +12,8 @@ TODO:
 
  = 2.5 
    + spaces:  HSI, Jzazbz / JzCzhz, HSLuv / HPLuv, 
-   + extend tone_curve
+   + extend tone_curve / transfer functions
+   + more interpolation methods between fix colors of gradient
    + Built-in color theme / scheme presets (Material, Tailwind, Ant Design style ramps).
 
  = 2.6

@@ -13,4 +13,3 @@ Graphics::Toolkit::Color::Space->new (
   precision => 6,
     convert => {RGB => [\&invert, \&invert]},
 );
-

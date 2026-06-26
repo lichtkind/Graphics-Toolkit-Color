@@ -17,7 +17,7 @@ sub darken  {
     lightness( $color_values, undef, undef, -$by, $raw, $color_space);
 }
 sub lightness {
-    my ($color_values, $set, $mult, $add, $spread, $raw, $space_name) = @_;
+    my ($color_values, $set, $mult, $add, $raw, $space_name) = @_;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
 	return $color_space unless ref $color_space;
     return "selected color space: '".$color_space->name."' has no axis with a lightness role" 
@@ -25,7 +25,7 @@ sub lightness {
 	$set  = {'lightness' => $set}  if defined $set;
 	$mult = {'lightness' => $mult} if defined $mult;
 	$add  = {'lightness' => $add}  if defined $add;
-	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
+	derive( $color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
 } 
 
 sub saturate   {
@@ -47,9 +47,8 @@ sub saturation {
 	$add  = {'saturation' => $add}  if defined $add;
 	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
 }
-
 # L : neu = achsenmitte + (alt - mitte) × faktor
-# S : achsenmitte# alt + betrag × (1 − alt)
+# S : neu = alt + betrag × (1 − alt)
 
 
 #### low level methods #############################################

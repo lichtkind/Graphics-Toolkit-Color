@@ -84,8 +84,10 @@ C<spow> or matrix multiplication can be imported from C<GTC::Space>.
     Graphics::Toolkit::Color::Space->new (
               name => 'demo',                # space name, defaults to concatenated short axis names
         alias_name => 'alias',               # second, user set space name, often a shortcut
-              axis => [qw/light dark blue/], # long axis names, required !
+            family => 'HSL',                 # this space can function as HSL replacement
+              axis => [qw/light fat blue/],  # long axis names, required !
              short => [qw/a b c/],           # short names, defaults to first char of long
+             role  => [qw/lightness saturation hue/],  # axis roles, mapping to HSL (family head) names
               type => [qw/linear circular angular/],   # axis type
              range => [1, [-2, 2], [-3, 3]],           # axis value range
          precision => [-1, 0, 1],                      # axis value precision of value output
@@ -122,16 +124,35 @@ definitions fed to GTC. But it will never be used by GTC in an output.
 Same syntactical freedoms apply as with the C<name>. 
 It defaults to an empty string.
 
+=head3 family
+
+The argument C<family> expects a name of a
+L<color space family|Graphics::Toolkit::Color::Manual::Space/FAMILY>
+which can all be found behind the link. Those families are groups of 
+similar color spaces that work the same way and thus can technically
+replace each other.
+
 =head3 axis
 
 Expects an ARRAY reference with the long names of all axes in the canonical
-order. Any axis names can be used case insensitive. It is a required argument.
+order. Axis names will be used case insensitive, unless casing is the only
+distinction between two axes. It is a required argument.
 
 =head3 short
 
 The C<short> argument expects an ARRAY reference with the short axis names 
 of all axes in the canonical order. They default to the first letter of
 the long C<axis> names.
+
+=head3 role
+
+The C<role> argument expects the long axis names of the
+L<color space family|Graphics::Toolkit::Color::Manual::Space/FAMILY> head,
+which was named by the C<family> argument. GTC already knows those axis
+names of the head but needs the order in which to map the axes of the
+current space onto the axes of the family head. This is required if the
+C<family> attribute is used unless the C<axis> are already named like 
+the family head.
 
 =head3 type
 

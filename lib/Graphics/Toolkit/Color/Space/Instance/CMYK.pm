@@ -15,7 +15,7 @@ sub from_cmyk {
 sub to_cmyk {
     my ($r, $g, $b) = @{$_[0]};
     my $km = max($r, $g, $b);
-    return ([0,0,0,1]) unless $km; # prevent / 0
+    return ([0,0,0,1]) if $km < 1e-6; # prevent / 0
     return ( [($km - $r) / $km,
               ($km - $g) / $km,
               ($km - $b) / $km,

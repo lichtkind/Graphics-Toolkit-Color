@@ -7,16 +7,17 @@
     * + add position of target colors in 'gradient' (1)
     * + method: derive to substitute add_value and set_value (args: set, multiply, add, range, raw, in) (12)
     * + designer methods: lightness, saturation (args: set, multiply, add, raw, in) (10)
-    * + designer methods: triadic (argument split), tetradic, rectangular
+    * + designer methods: triadic (argument split), tetradic, (rectangular)
     * + random method
     * + argument 'raw' for 'lighten','darken','saturate','desaturate',
                            'tint','tone','shade', 'tone_curve','mix','invert',
                            'complement','analogous','gradient','cluster' (14)
     * + read color def with alpha channel
     * + format 'plain_object', 'plain_object_string' (culori)
+    * + error on bad scheme name
     * ~ new format reader algo making deformat faster
     * - remove converter flag logic
-    * + error on bad scheme name
+    * ? added missing arguments in Plugin.pod: 'family' and 'role'
 
 2.22   2026-06-20   lichtkind
 -------

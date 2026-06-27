@@ -6,7 +6,7 @@ use v5.12;
 use warnings;
 use Graphics::Toolkit::Color::Space;
 
-sub invert { [ map {1 - $_} @{$_[0]} ] }
+sub invert { [ map { -($_-0.5)+0.5} @{$_[0]} ] }
 
 Graphics::Toolkit::Color::Space->new (
        axis => [qw/cyan magenta yellow/],

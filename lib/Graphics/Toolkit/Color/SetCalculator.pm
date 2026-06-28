@@ -62,15 +62,16 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, +skew, :space
 
 ########################################################################
 sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:values
-    my ($start_color, $next_color, $steps, $tilt, $color_space) = @_;
+    my ($start_color, $next_color, $steps, $tilt, $raw, $color_space) = @_;
     $steps = int $steps;
     return $start_color if $steps == 1;
     return $start_color, $next_color if $steps == 2;
     my @result = ($start_color, $next_color);
-    my $start_tuple = $start_color->normalized( $color_space->name );
-    my $next_tuple = $next_color->normalized( $color_space->name );
+    my $start_tuple = $start_color->shaped( $color_space->name, 'normal', -1, $raw );
+    my $next_tuple = $next_color->shaped( $color_space->name, 'normal', -1, $raw );
     my $delta_tuple = $color_space->delta( $start_tuple, $next_tuple );
     for my $color_nr (3 .. $steps){
+
 		for my $axis_nr ($color_space->basis->axis_iterator){
 			$delta_tuple->[$axis_nr] *= 1 + $tilt;
 			$next_tuple->[$axis_nr] += $delta_tuple->[$axis_nr];

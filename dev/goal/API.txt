@@ -4,6 +4,7 @@ ATTR
  from:  ~|@~scheme // 'default'
  tilt:  +          // 0
  range: +|@+|@@+range // :space_def
+ color, to: format | :GTC
 
 
   new: 'color' (name)           # from GTC::Space::Name::Constant

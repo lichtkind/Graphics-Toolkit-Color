@@ -405,7 +405,7 @@ sub tetradic {
 
 sub analogous {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 4, tilt => 0, in => $design_default});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 4, tilt => 0, raw => 0, in => $design_default});
     my $help = 'The method "analogous" returns a list of GTC objects with analogous colors. Arguments are: "to" (next color - default arg. and required), '.
                '"steps" (max. color count, default 4), "in" (color space name, default "OKHSL" and "tilt"!';
     return error($arg.$help.$POD_link) unless ref $arg;
@@ -418,7 +418,7 @@ sub analogous {
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
     
-    my @result = Graphics::Toolkit::Color::SetCalculator::analogous( $self->values_object, @$arg{qw/to steps tilt/}, $color_space);
+    my @result = Graphics::Toolkit::Color::SetCalculator::analogous( $self->values_object, @$arg{qw/to steps tilt raw/}, $color_space);
 	return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
 }

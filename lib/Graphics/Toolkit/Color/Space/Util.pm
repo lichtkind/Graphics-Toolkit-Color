@@ -7,6 +7,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT_OK = qw/min max uniq round_int round_decimals mod_real spow mult_matrix_vector_3 is_nr number_re/;
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
+my $PI = 3.14159265358979;
 
 #### lists #############################################################
 sub min {
@@ -52,6 +53,14 @@ sub spow { # sign preserving power function
     return $base ** $exponent if $base >= 0;
     return -((-$base) ** $exponent);
 }
+
+sub random_normal {
+    my ($mu, $sigma) = @_;
+    $mu    //= 0;      # Mittelwert
+    $sigma //= 1;      # Standardabweichung
+    my $z0 = sqrt(-2 * log(rand())) * cos(2 * $PI * rand());
+    return $mu + $sigma * $z0;
+} # mu +- 3 sig
 
 my $number_re = qr/^\-?(?:\d+|(?:\d*\.\d+))(?:e-?\d+)?$/;
 

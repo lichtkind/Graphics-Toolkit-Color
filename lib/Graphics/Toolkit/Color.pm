@@ -314,8 +314,8 @@ sub add_value {
 
 sub random {
     my ($self, @args) = @_;
-    @args = %{$args[0]} if @args == 1 and ref $args[0] eq 'HASH';
-    my $help = 'The method "add_value" returns a GTC object with some values different. Arguments are selected axis '.
+    my $arg = _split_named_args( \@args, undef, [], {in => 'RGB', raw => 1, mean => undef, variance => undef}, {variance => 'var'});
+    my $help = 'The method "random" returns a GTC object with random values. Arguments are selected axis '.
                'names of target space and optionally "in" for color space disambiguation!';
 }
 

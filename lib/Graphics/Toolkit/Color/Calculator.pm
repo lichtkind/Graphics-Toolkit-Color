@@ -151,7 +151,7 @@ sub add_value { # .values, %newval -- ~space_name --> _
     return $color_values->new_from_tuple( $tuple, $color_space->name );
 }
 
-sub apply_gamma {
+sub apply_gamma { # transfer
     my ($color_values, $gamma, $color_space) = @_;
     my $gamma_array = '';
     return "need a color space as third argument" if ref $color_space ne 'Graphics::Toolkit::Color::Space';
@@ -250,6 +250,10 @@ sub invert {
         }
 	}
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+}
+
+sub random {
+    my ($base_color, $mean, $spread, $raw, $color_space_name ) = @_;
 }
  
 1;

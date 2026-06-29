@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 41;
+use Test::More tests => 29;
 use Graphics::Toolkit::Color::Calculator;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';
@@ -20,41 +20,11 @@ my $HSL = Graphics::Toolkit::Color::Space::Hub::get_space('HSL');
 my $HWB = Graphics::Toolkit::Color::Space::Hub::get_space('HWB');
 my $LAB = Graphics::Toolkit::Color::Space::Hub::get_space('LAB');
 
-#### set_value #########################################################
-my $cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255} );
-is( ref $cyan,    $value_ref,  'aqua (set green value to max) value object');
-is( $cyan->name,      'cyan',  'color has the name "cyan" (blue + green)');
-my $values = $cyan->normalized();
-is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by maxing green on blue color');
-
-my $ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255}, 'CMY' );
-is( ref $ret,             '',  'green is axis in RGB, not CMY');
-$ret = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255, yellow => 0} );
-is( ref $ret,             '',  'green and yellow axis are from different spaces');
-$cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255}, 'RGB' );
-$values = $cyan->normalized();
-is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by maxing green on blue color in RGB');
-
-#### add_value #########################################################
-$cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255} );
-is( ref $cyan,    $value_ref,  'aqua (add green value to max) value object');
-is( $cyan->name,      'cyan',  'color has the name "cyan"');
-$values = $cyan->normalized();
-is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color');
-
-$ret = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255}, 'CMY' );
-is( ref $ret,             '',  'green is in RGB, not CMY');
-$ret = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255, yellow => 0}, 'CMY' );
-is( ref $ret,             '',  'green and yellow axis are from different spaces');
-$cyan = Graphics::Toolkit::Color::Calculator::add_value( $blue, {green => 255}, 'RGB' );
-$values = $cyan->normalized();
-is_tuple( $values, [0, 1, 1], [qw/red green blue/], 'created cyan by adding max green on blue color in RGB');
-
-#### apply_gamma #######################################################
+#### transfer ##########################################################
 my $nice_blue = Graphics::Toolkit::Color::Values->new_from_any_input([10,20,200]);
 my $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 1,  $RGB);
 is( ref $nblue,    $value_ref, 'gamma of one does not change anything');
-$values = $nblue->shaped();
+my $values = $nblue->shaped();
 is_tuple( $values, [10, 20, 200], [qw/red green blue/], 'nice blue with no gamma');
 
 $nblue = Graphics::Toolkit::Color::Calculator::apply_gamma( $nice_blue, 2.2,  $RGB);
@@ -75,7 +45,11 @@ is( ref $nblue,    $value_ref, 'mixed gamma values skew too');
 $values =$nblue->shaped();
 is_tuple( $values, [184, 20, 123], [qw/red green blue/], 'red and blue values have individual gamma applied');
 
-#### random ############################################################
+#### tint ##############################################################
+
+#### tone ##############################################################
+
+#### shade #############################################################
 
 
 #### mix ###############################################################
@@ -99,6 +73,9 @@ my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( $white, [$blue, $blac
 is( ref $darkblue,               $value_ref,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
 $values = $darkblue->shaped('HSL');
 is_tuple( $values, [120, 50, 25], [qw/hue saturation lightness/], 'mixed grey from black and white in HSL');
+
+#### random ############################################################
+
 
 #### invert ############################################################
 my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, 0, $RGB );

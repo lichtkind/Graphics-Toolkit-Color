@@ -279,7 +279,7 @@ sub derive {
     my $help = 'The method "derive" returns a GTC object with values that are calculated using in part the values of the given color. '.
                'Its named and optional arguments are: "set", "add", "multiply" and "in" (color space name - default OKHSL)!';
     return error($arg.$help.$POD_link) unless ref $arg;
-	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add raw range in/}, $design_default );
+	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add range raw in/}, $design_default );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -314,9 +314,12 @@ sub add_value {
 
 sub random {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, [], {in => 'RGB', raw => 1, mean => undef, variance => undef}, {variance => 'var'});
-    my $help = 'The method "random" returns a GTC object with random values. Arguments are selected axis '.
-               'names of target space and optionally "in" for color space disambiguation!';
+    my $arg = _split_named_args( \@args, undef, [], {in => undef, raw => 1, mean => undef, variance => undef}, {variance => 'var'});
+    my $help = 'The method "random" returns a GTC object with random values. Optional arguments are: '.
+               '"mean", "variance" ("var"), "raw" (default 0) and in (color space: default RGB)!';
+    my $result = Graphics::Toolkit::Color::Calculator::random( $self->values_object,@$arg{qw/mean variance raw in/, 'RGB'} );
+    return error($result.' '.$help.$POD_link) unless ref $result;
+    return _new_from_value_obj( $result );
 }
 
 sub mix {

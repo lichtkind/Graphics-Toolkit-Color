@@ -25,7 +25,7 @@ sub lightness {
 	$set  = {'lightness' => $set}  if defined $set;
 	$mult = {'lightness' => $mult} if defined $mult;
 	$add  = {'lightness' => $add}  if defined $add;
-	derive( $color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
+	derive( $color_values, $set, $mult, $add, 'normal', $raw, $color_space->name);
 } 
 
 sub saturate   {
@@ -45,7 +45,7 @@ sub saturation {
 	$set  = {'saturation' => $set}  if defined $set;
 	$mult = {'saturation' => $mult} if defined $mult;
 	$add  = {'saturation' => $add}  if defined $add;
-	derive($color_values, $set, $mult, $add, $raw, 'normal', $color_space->name);
+	derive($color_values, $set, $mult, $add, 'normal', $raw, $color_space->name);
 }
 # L : neu = achsenmitte + (alt - mitte) × faktor
 # S : neu = alt + betrag × (1 − alt)
@@ -54,10 +54,12 @@ sub saturation {
 #### low level methods #############################################
 
 sub derive {
-    my ($color_values, $set, $mult, $add, $raw, $range_def, $selected_space_name, $default_space_name) = @_;
+    my ($color_values, $set, $mult, $add, $range_def, $raw, $selected_space_name, $default_space_name) = @_;
     my ($tuple, $color_space);
     my $default_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name );
     $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name ) if defined $selected_space_name;
+    $tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) if ref $color_space;
+
     return $color_space if defined $selected_space_name and not ref $color_space;
 
     if (defined $set and not ref $set){  # set constant
@@ -211,6 +213,10 @@ sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .c
     return $base_color->new_from_tuple( $result_values, $color_space->name );
 }
 
+sub random {
+    my ($base_color, $mean, $variance, $raw, $color_space_name, $default_color_space_name ) = @_;
+}
+
 sub invert {
     my ($color_values, $only, $raw, $color_space, $default_color_space ) = @_;
     $only = [$only] if defined $only and not ref $only; # selected axes
@@ -252,8 +258,5 @@ sub invert {
     return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
 }
 
-sub random {
-    my ($base_color, $mean, $spread, $raw, $color_space_name ) = @_;
-}
- 
+
 1;

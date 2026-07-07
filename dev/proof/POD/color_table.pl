@@ -13,17 +13,17 @@ my $lightblue = $blue->lighten(0.2);
 my $font  = gdMediumBoldFont;
 my ($rows, $cols, @colors, $black, $white) = (1, 10);
 
-paint_row( '1_okhsl_complement', $blue->complement( steps => $cols) );
-paint_row( '2_lchuv_complement', $blue->complement( steps => $cols, in => 'LCHuv') );# 2
-paint_row( '3_hsl_complement', $blue->complement( steps => $cols, in => 'HSL') );  # 3
+paint_row( '01_okhsl_complement', $blue->complement( steps => $cols) );
+paint_row( '02_lchuv_complement', $blue->complement( steps => $cols, in => 'LCHuv') );# 2
+paint_row( '03_hsl_complement', $blue->complement( steps => $cols, in => 'HSL') );  # 3
 
-paint_row( '4_okhsl_light_compl', $lightblue->complement( steps => $cols) );
-paint_row( '5_lchuv_light_compl', $lightblue->complement( steps => $cols, in => 'LCHuv') );
-paint_row( '6_hsl_light_compl', $lightblue->complement( steps => $cols, in => 'HSL') );
+paint_row( '04_okhsl_light_compl', $lightblue->complement( steps => $cols) );
+paint_row( '05_lchuv_light_compl', $lightblue->complement( steps => $cols, in => 'LCHuv') );
+paint_row( '06_hsl_light_compl', $lightblue->complement( steps => $cols, in => 'HSL') );
 
-paint_row( '7_okhsl_light_compl_zero_tilt', $lightblue->complement( steps => $cols) );         
-paint_row( '8_okhsl_light_compl_half_tilt', $lightblue->complement( steps => $cols, tilt => .5	) );
-paint_row( '9_okhsl_light_compl_full_tilt', $lightblue->complement( steps => $cols, tilt => 1) );
+paint_row( '07_okhsl_light_compl_zero_tilt', $lightblue->complement( steps => $cols) );         
+paint_row( '08_okhsl_light_compl_half_tilt', $lightblue->complement( steps => $cols, tilt => .5	) );
+paint_row( '09_okhsl_light_compl_full_tilt', $lightblue->complement( steps => $cols, tilt => 1) );
 
 paint_row( '10_okhsl_light_compl_zero_skew', $lightblue->complement( steps => $cols) );              # 10
 paint_row( '11_okhsl_light_compl_half_skew', $lightblue->complement( steps => $cols, skew => 0.2) ); # 11
@@ -52,7 +52,9 @@ paint_row( '39_oklab_gradient_3colors	', $blue->gradient( to => ['white', 'green
 
 paint_row( '40_oklab_cluster', $blue->cluster( r => .3, min_d => 0.25) );
 paint_row( '41_rgb_cluster', $blue->cluster( r => 99, min_d => 55, in =>'RGB') );
-say int $blue->cluster( r => 99, min_d => 55, in =>'RGB');
+
+paint_row( '50_lin_rgb_gradient', $blue->gradient( to => 'white', steps => $cols, in => 'LinearRGB') );
+paint_row( '51_rgb_gradient', $blue->gradient( to => 'white', steps => $cols, in => 'RGB') );
 
 # cluster: r min_d in , ball cube
 

@@ -40,7 +40,7 @@ sub new {
             $properties = {%$properties};
             my $error_msg = 'constraint "$constraint_name" in '.$basis->space_name.' color space';
             for (qw/checker error remedy/){
-				return $error_msg." needs the string-propertiy '$_'" 
+				return $error_msg." needs the string-property '$_'" 
 					unless exists $properties->{$_} and $properties->{$_} and not ref $properties->{$_};
 			}
  			$properties->{'checker_code'} = $properties->{'checker'};
@@ -94,7 +94,7 @@ sub expand_range_definition { # check if range def is valid and eval (expand) it
             return $error_msg.' None numeric value at lower bound for axis number '.$axis_index unless is_nr( $axis_range->[0] );
             return $error_msg.' None numeric value at upper bound for axis number '.$axis_index unless is_nr( $axis_range->[1] );
             return $error_msg.' Lower bound (first value) is >= than upper bound at axis number '.$axis_index if $axis_range->[0] >= $axis_range->[1];
-        } else { return "Range definitin for axis $axis_index was not an two element ARRAY!" }
+        } else { return "Range definition for axis $axis_index was not an two element ARRAY!" }
     }
     return $range;
 }

@@ -51,7 +51,7 @@ sub names_from_values {
 sub closest_names_from_values {
     my ($self, $values) = @_;
     return '' unless ref $values eq 'ARRAY' and @$values == 3;
-    my $names = names_from_values( $values );
+    my $names = $self->names_from_values( $values );
     return ($names, 0) if ref $names;
     my @names;
     my $sqr_min  = 1 + 255**3;

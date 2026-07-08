@@ -88,7 +88,7 @@ sub _split_named_args {
                   (defined $default_param and $default_param eq 'to' and ref _new_from_scalar_def( $raw_args ) );
 
     if (@$raw_args == 1 and defined $default_param and $default_param){
-        return "Got onw argument, but there are ".int(@$required_param)." parameter required !" if @$required_param > 1;
+        return "Got own argument, but there are ".int(@$required_param)." parameter required !" if @$required_param > 1;
         return "Cannot accept default argument, more arguments are required!"
             if @$required_param and $required_param->[0] ne $default_param;
         my %defaults = %$optional_param;
@@ -452,7 +452,7 @@ sub gradient {
             push @colors, $target_color->values_object;
         }
     }
-    return error('Argument "steps" has to be a number greater equel two! '.$help.$POD_link) unless is_nr($arg->{'steps'}) and $arg->{'steps'} >= 2;
+    return error('Argument "steps" has to be a number greater equal two! '.$help.$POD_link) unless is_nr($arg->{'steps'}) and $arg->{'steps'} >= 2;
     $arg->{'steps'} = int $arg->{'steps'};
     return error('Argument "tilt" has to be a number! '.$help.$POD_link) unless is_nr($arg->{'tilt'});
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );

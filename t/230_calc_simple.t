@@ -4,7 +4,7 @@ use v5.12;
 use warnings;
 use lib 'lib', '../lib/', '.', './t';
 use Test::Color;
-use Test::More tests => 150;
+use Test::More tests => 140;
 use Graphics::Toolkit::Color::Values;
 
 my $module = 'Graphics::Toolkit::Color::Calculator';
@@ -163,6 +163,19 @@ is_tuple( $derive->($white,undef, -2,undef,undef,0,'RGB')->shaped('RGB'),       
 is_tuple( $derive->($twhite,undef, 0.1,undef,undef,0,'RGB')->shaped('RGB',1,4),  [.1004,.1004,.1004],$rgb, 'multiply constant with out of gamut color into gamut');
 is_tuple( $derive->($twhite,undef, 2,undef,undef,1,'RGB')->shaped('RGB',1,4,1),  [2.0078,2.0078,2.0078],$rgb, 'multiply constant with out of gamut color furthout out');
 is_tuple( $derive->($white,undef, {r=> 0, g=> .5},undef,undef,0,'RGB')->shaped('RGB'),[ 0, 128, 255],$rgb, 'multiply hash with in gamut color');
+is_tuple( $derive->($twhite,undef,{r=> .5, b=> 1},undef,undef,1,'RGB')->shaped(@raw),[ 128,256, 256],$rgb, 'multiply out of gamut color');
+is_tuple( $derive->($white,undef, undef, -10, undef, 0, 'RGB')->shaped('RGB'),       [245, 245, 245],$rgb, 'add (subtract) constant');
+is_tuple( $derive->($white,undef, undef,  1, undef, 0, 'RGB')->shaped(@raw),         [255, 255, 255],$rgb, 'add constant out of gamut, but got clamped');
+is_tuple( $derive->($white,undef, undef,  1, undef, 1, 'RGB')->shaped(@raw),         [256, 256, 256],$rgb, 'add constant out of gamut, not clamped');
+is_tuple( $derive->($white,undef,undef,{g=> 2, b=>-7},undef,0,'RGB')->shaped(@raw),  [255, 255, 248],$rgb, 'add hash, got clamped');
+is_tuple( $derive->($white,undef,undef,{r=> 0, b=>7},undef,1,'RGB')->shaped(@raw),   [255, 255, 262],$rgb, 'add hash, not clamped');
+is_tuple( $derive->($twhite,undef,undef,{r=> 0, b=>7},undef,1,'RGB')->shaped(@raw),  [256, 256, 263],$rgb, 'add hash with out of gamut color');
+is_tuple( $derive->($white, 20, 2, 4, undef,1,'RGB')->shaped('RGB'),                 [ 44,  44,  44],$rgb, 'set mult and add constant');
+is_tuple( $derive->($white, {r=>10}, {g=>.4}, {b=>-10}, undef,1,'RGB')->shaped('RGB'),[10, 102, 245],$rgb, 'set mult and add one key hashes');
+is_tuple( $derive->($white, {g=>10,b=>100},{r=>.4,g=>2},{r=>10,g=>5},undef,0,'RGB')->shaped('RGB'),[112,25,100],$rgb, 'set mult and add two key hashes');
+
+is_tuple( $derive->($white,{h=>100, s=> 20},undef,undef,undef,1,undef,'HSL')->shaped('HSL'),  [100, 20, 100], $hsl, 'default to HSL as advised');
+is_tuple( $derive->($white,undef,undef,{r=> 0, b=>7},10,1,'RGB')->shaped(@raw),  [255, 255, 433.5], $rgb, 'add hash on in range color with custom range');
 
 #### set_value #########################################################
 my $cyan = Graphics::Toolkit::Color::Calculator::set_value( $blue, {green => 255} );

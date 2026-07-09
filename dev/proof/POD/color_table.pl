@@ -48,7 +48,7 @@ paint_row( '35_hsl_gradient', $blue->gradient( to => 'white', steps => $cols, in
 paint_row( '36_oklab_gradient_tilt_neg', $blue->gradient( to => 'white', steps => $cols, tilt => -1.5) );
 paint_row( '37_oklab_gradient_tilt_pos', $blue->gradient( to => 'white', steps => $cols, tilt => 1.5) );
 paint_row( '38_oklab_gradient_2colors', $blue->gradient( to => ['white', 'green'], steps => $cols) );
-paint_row( '39_oklab_gradient_3colors	', $blue->gradient( to => ['white', 'green', 'lime'], steps => $cols) );
+paint_row( '39_oklab_gradient_3colors', $blue->gradient( to => ['white', 'green', 'lime'], steps => $cols) );
 
 paint_row( '40_oklab_cluster', $blue->cluster( r => .3, min_d => 0.25) );
 paint_row( '41_rgb_cluster', $blue->cluster( r => 99, min_d => 55, in =>'RGB') );

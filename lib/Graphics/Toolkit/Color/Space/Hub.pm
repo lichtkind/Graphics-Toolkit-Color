@@ -17,11 +17,12 @@ add_space( require "Graphics/Toolkit/Color/Space/Instance/$_.pm" ) for @load_ord
 my ($default_space, @search_order, %space_obj, %next_conversion_node, %space_family);
 
 #### space API #########################################################
-sub is_space_name      { 
-	(ref get_space( $default_space->normalize_name( $_[0] ))) ? 1 : 0 }
+sub is_space           { (ref $_[0] eq 'Graphics::Toolkit::Color::Space' ) ? 1 : 0 }
+sub is_space_name      { (ref get_space( $default_space->normalize_name( $_[0] ))) ? 1 : 0 }
 sub all_space_names    { sort keys %space_obj }
 sub default_space_name { $default_space_name }
 sub default_space      { $default_space }
+sub is_known_space     { (is_space($_[0]) and exists $space_obj{ $_[0]->name } ) ? 1 : 0 }
 sub get_space          { # takes only normal names or alias names
     my $name = shift;
     return unless defined $name;
@@ -29,8 +30,9 @@ sub get_space          { # takes only normal names or alias names
 	exists $space_obj{ $name }  ? $space_obj{ $name } : '';
 }
 sub try_get_space      { # takes any name variant and defaults to $default_space_name
-    my $name = shift || $default_space_name;
-    return $name if ref $name eq 'Graphics::Toolkit::Color::Space' and is_space_name( $name->name );
+    my $name = shift;
+    $name = $default_space_name if not defined $name or not $name;
+    return $name if is_space( $name ) and is_space_name( $name->name );
     $name = default_space()->normalize_name( $name );
     my $space = get_space( $name );
     return (ref $space) ? $space
@@ -39,7 +41,7 @@ sub try_get_space      { # takes any name variant and defaults to $default_space
 
 sub add_space {
     my $space = shift;
-    return 'add_space got no Graphics::Toolkit::Color::Space object as argument' if ref $space ne 'Graphics::Toolkit::Color::Space';
+    return 'add_space got no Graphics::Toolkit::Color::Space object as argument' unless is_space( $space );
     my $name = $space->name;
     my $alias = $space->name('alias');
     return "can not add color space object without a name" unless $name;
@@ -70,8 +72,8 @@ sub add_space {
 }
 sub remove_space {
     my $name = shift;
-    return "need name of color space as argument in order to remove the space" unless defined $name and $name;
-    my $space = try_get_space( $name );
+    return "need name of color space or color space object as argument in order to remove the space" unless defined $name and $name;
+    my $space = is_space( $name ) ? $name : try_get_space( $name );
     return "can not remove unknown color space: $name" if not ref $space;
     return "can not remove default color space: $name" if $space->name eq $default_space_name;
 
@@ -87,13 +89,11 @@ sub remove_space {
 
 #### tuple API ##########################################################
 sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wanted space
-    my ($tuple, $target_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
+    my ($tuple, $target_space, $want_result_normalized, $source_tuple, $source_space_name) = @_;
     return "need an ARRAY ref with 3 normalized RGB values as first argument in order to convert them" 
 		unless $default_space->is_number_tuple( $tuple );
-    my $target_space = try_get_space( $target_space_name );
-    return "got unknown space name: '$target_space_name' as second argument, can not convert " unless ref $target_space;
+    return "need a known color space as second argument, can not convert!" unless is_known_space( $target_space );
     my $source_space = try_get_space( $source_space_name );
-    return "did not found target color space !'$target_space_name'" unless ref $target_space;
     if ($source_space_name xor $source_tuple){
 		return "arguments source_space_name and source_values (nr. 4 and 5) have to be provided both or none of them";
 	} elsif ($source_space_name and $source_tuple) {
@@ -101,10 +101,10 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
 		return "argument source_values has to be a tuple, if provided" unless $source_space->is_number_tuple( $source_tuple );
 	}
 
-    $tuple = [@$tuple];                       # unwrap ref to avoid spooky action
+    $tuple = [@$tuple];                            # unwrap ref to avoid spooky action
     my $current_space_name = $default_space_name; # we start in RGB
-    $target_space_name = $target_space->name; # use only normalized name
-    $want_result_normalized //= 0;            # normal flags to start state
+    my $target_space_name = $target_space->name; # use only normalized name
+    $want_result_normalized //= 0;              # normal flags to start state
     my $tuple_is_normal = 1;
 
     while ($current_space_name ne $target_space_name){
@@ -132,12 +132,10 @@ sub convert { # normalized RGB tuple, ~space_name --> |normalized tuple in wante
     return $tuple;
 }
 sub deconvert { # normalized value tuple --> RGB tuple
-    my ($tuple, $original_space_name, $want_result_normalized, $source_tuple, $source_space_name) = @_;
-    my $original_space = try_get_space( $original_space_name );
+    my ($tuple, $original_space, $want_result_normalized, $source_tuple, $source_space_name) = @_;
     my $source_space = try_get_space( $source_space_name );
     $want_result_normalized //= 0;
-    return "need a space name to convert from as second argument" unless defined $original_space_name;
-    return "got unknown color space name as second argument" unless ref $original_space;
+    return "need a known color space as second argument, can not deconvert!" unless is_known_space( $original_space );
     return "need as first argument an ARRAY with valid number of normalized values from the color space ". $original_space->name
 		unless $original_space->is_number_tuple( $tuple );
    
@@ -217,11 +215,10 @@ sub deformat_search_partial_hash { # convert partial hash into
 }
 
 sub distance { # @c1 @c2 -- ~space ~select @range --> +
-    my ($tuple_a, $tuple_b, $space_name, $select_axis, $range) = @_;
-    my $color_space = try_get_space( $space_name );
-    return $color_space unless ref $color_space;
-    $tuple_a = convert( $tuple_a, $space_name, 'normal' );
-    $tuple_b = convert( $tuple_b, $space_name, 'normal' );
+    my ($tuple_a, $tuple_b, $color_space, $select_axis, $range) = @_;
+    return 'need a know color space object as second argument' unless is_known_space( $color_space );
+    $tuple_a = convert( $tuple_a, $color_space, 'normal' );
+    $tuple_b = convert( $tuple_b, $color_space, 'normal' );
     my $delta = $color_space->delta( $tuple_a, $tuple_b );
     $delta = $color_space->denormalize_delta( $delta, $range );
     if (defined $select_axis){

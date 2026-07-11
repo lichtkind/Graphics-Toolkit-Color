@@ -40,7 +40,7 @@ sub new_from_tuple { #
     if ($color_space->name ne $RGB->name){ # convert into RGB if needed
         $source_tuple = $tuple;
         $source_space_name = $color_space->name;
-        $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $tuple, $color_space->name, 'normal' );
+        $tuple = Graphics::Toolkit::Color::Space::Hub::deconvert( $tuple, $color_space, 'normal' );
     }
 
     my $name = Graphics::Toolkit::Color::Name::from_values( $RGB->round( $RGB->denormalize( $tuple ) ) );
@@ -49,39 +49,42 @@ sub new_from_tuple { #
 
 #### getter ############################################################
 sub normalized { # normalized (0..1) value tuple in any color space
-    my ($self, $space_name) = @_;
-    Graphics::Toolkit::Color::Space::Hub::convert(
-        $self->{'rgb_tuple'}, $space_name, 'normal', $self->{'source_tuple'}, $self->{'source_space_name'},
+    my ($self, $color_space, $raw) = @_;
+    $color_space //= Graphics::Toolkit::Color::Space::Hub::default_space();
+    return 'got no know color space object' unless Graphics::Toolkit::Color::Space::Hub::is_known_space( $color_space );
+    my $tuple = Graphics::Toolkit::Color::Space::Hub::convert(
+        $self->{'rgb_tuple'}, $color_space, 'normal', $self->{'source_tuple'}, $self->{'source_space_name'},
     );
+    $tuple = $color_space->clamp( $tuple, 'normal' ) unless defined $raw and $raw;
+    return $tuple;
 }
 sub shaped  { # in any color space, range and precision
-    my ($self, $space_name, $range_def, $precision_def, $raw) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return $color_space unless ref $color_space;
-    my $tuple = $self->normalized( $color_space->name );
+    my ($self, $color_space, $range_def, $precision_def, $raw) = @_;
+    $color_space //= Graphics::Toolkit::Color::Space::Hub::default_space();
+    return 'got no know color space object' unless Graphics::Toolkit::Color::Space::Hub::is_known_space( $color_space );
+    my $tuple = $self->normalized( $color_space, $raw );
     return $tuple if not ref $tuple;
     $tuple = $color_space->denormalize( $tuple, $range_def );
-    $tuple = $color_space->clamp( $tuple, $range_def ) unless $raw;
     $tuple = $color_space->round( $tuple, $precision_def ) unless ($raw and not defined $precision_def) 
                                                                or (defined $range_def and not defined $precision_def);
+    $tuple = $color_space->clamp( $tuple, $range_def ) unless defined $raw and $raw;
     return $tuple;
 }
 sub formatted { # in shape values in any format # _ -- ~space, @~|~format, @~|~range, @~|~suffix --> @|%|$
-    my ($self, $space_name, $format_name, $suffix_def, $range_def, $precision_def, $raw) = @_;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name );
-    return \$color_space unless ref $color_space;
-    my $tuple = $self->shaped( $color_space->name, $range_def, $precision_def, $raw );
-    return \$tuple unless ref $tuple;
+    my ($self, $color_space, $format_name, $suffix_def, $range_def, $precision_def, $raw) = @_;
+    $color_space //= Graphics::Toolkit::Color::Space::Hub::default_space();
+    return \'got no know color space object' unless Graphics::Toolkit::Color::Space::Hub::is_known_space( $color_space );
+    my $tuple = $self->shaped( $color_space, $range_def, $precision_def, $raw );
+    return \$tuple unless ref $tuple; # error is SCALAR ref because result can be string
     return $color_space->format( $tuple, $format_name, $suffix_def );
 }
 sub name { $_[0]->{'color_name'} }
 
 sub is_in_gamut {
-    my ($self, $space_name) = @_;
-    $space_name = $self->{'source_space_name'} if not defined $space_name and $self->{'source_space_name'};
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $space_name ); # default to RGB
-    return 0 unless ref $color_space;
-    my $tuple = $self->normalized( $space_name );
+    my ($self, $color_space) = @_;
+    $color_space //= Graphics::Toolkit::Color::Space::Hub::try_get_space( $self->{'source_space_name'} );
+    return 0 unless Graphics::Toolkit::Color::Space::Hub::is_known_space( $color_space );
+    my $tuple = $self->normalized( $color_space, 'raw' );
     return 0 unless ref $tuple;
     return $color_space->is_in_linear_bounds( $tuple, 'normal' );
 }

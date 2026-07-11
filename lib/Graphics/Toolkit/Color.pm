@@ -62,6 +62,7 @@ sub _new_from_value_obj {
 }
 sub values_object { $_[0]->{'values'} if ref $_[0] eq __PACKAGE__}
 
+
 sub is_in_gamut {
     my ($self, $space_name, $named_arg) = @_;
     return is_in_gamut_sub (@_) if ref $self ne __PACKAGE__;
@@ -70,12 +71,12 @@ sub is_in_gamut {
 	$space_name = $named_arg if defined $space_name and $space_name eq 'in' and defined $named_arg;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
 	return error($help) if defined $space_name and not ref $space;
-    $self->values_object->is_in_gamut( (ref $space) ? $space->name : undef );
+    $self->values_object->is_in_gamut( (ref $space) ? $space : undef );
 }
 sub is_in_gamut_sub {
     my (@color) = @_;
 	my $values = Graphics::Toolkit::Color::Values->new_from_any_input( 
-		_color_def_into_scalar( @_ ), undef, undef, 1 
+		_color_def_into_scalar( @_ ), undef, undef, 'raw' 
 	);
 	return error($values.$POD_link) unless ref $values;
     $values->is_in_gamut( );
@@ -133,7 +134,9 @@ sub values       {
     my $help = 'The method "values" returns numeric color values and accepts six named, optional arguments: '.
                '"in" (color space name - default arg), "as" (color definition format), "raw", "range", "precision" and "suffix"!';
     return error($arg.$help.$POD_link) unless ref $arg;
-    my @result = $self->values_object->formatted( @$arg{qw/in as suffix range precision raw/} );
+	my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return error($color_space.$help.$POD_link) unless ref $color_space;
+    my @result = $self->values_object->formatted( $color_space, @$arg{qw/as suffix range precision raw/} );
     return error(${$result[0]}.$help.$POD_link) if ref $result[0] eq 'SCALAR';
     return wantarray ? @result : $result[0];
 }
@@ -185,7 +188,7 @@ sub distance {
     my $range_def = $color_space->shape->try_check_range_definition( $arg->{'range'} );
     return error($range_def.$help.$POD_link) unless ref $range_def;
     Graphics::Toolkit::Color::Space::Hub::distance(
-        $self->values_object->normalized, $target_color->values_object->normalized, $color_space->name, $arg->{'only'}, $range_def );
+        $self->values_object->normalized, $target_color->values_object->normalized, $color_space, $arg->{'only'}, $range_def );
 }
 
 ## single color creation methods #######################################
@@ -261,7 +264,7 @@ sub saturation {
 sub apply { tone_curve(@_) }
 sub tone_curve { 
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB'} ); 
+    my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB', raw => 0} ); 
     my $help = 'The method "tone_curve" returns a GTC object with gamma corrected values and accepts two named arguments, '.
                'the first being required: "gamma", "in" (color space name - default LinearRGB)!';
     return error($arg.$help.$POD_link) unless ref $arg;
@@ -314,7 +317,7 @@ sub add_value {
 
 sub random {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, [], {in => undef, raw => 1, mean => undef, variance => undef}, {variance => 'var'});
+    my $arg = _split_named_args( \@args, undef, [], {in => undef, raw => 0, mean => undef, variance => undef}, {variance => 'var'});
     my $help = 'The method "random" returns a GTC object with random values. Optional arguments are: '.
                '"mean", "variance" ("var"), "raw" (default 0) and in (color space: default RGB)!';
     my $result = Graphics::Toolkit::Color::Calculator::random( $self->values_object,@$arg{qw/mean variance raw in/, 'RGB'} );
@@ -324,7 +327,7 @@ sub random {
 
 sub mix {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {in => 'OKLAB', by => undef, raw => 0}, {by => 'amount'});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {by => undef, raw => 0, in => 'OKLAB'}, {by => 'amount'});
     my $help = 'The method "mix" returns a GTC object, which is a blend between given colors. Arguments are: '.
                '"to" (other color[s]-required and default), "by" (mix amounts) and "in"(color space name, default OKLAB)!';
     return error($arg.' '.$help.$POD_link) unless ref $arg;
@@ -400,10 +403,18 @@ sub complement {
 }
 
 sub triadic {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, undef, [], {split => 0, in => $design_default});
+    my $help = 'The method "triadic" returns a list of GTC objects with analogous colors. Arguments are: "to" (next color - default arg. and required), '.
+               '"steps" (max. color count, default 4), "in" (color space name, default "OKHSL" and "tilt"!';
 
 }
 
 sub tetradic {
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, undef, [], {split => 0, rectangular => 0, in => $design_default});
+    my $help = 'The method "tetradic" returns a list of GTC objects with analogous colors. Arguments are: "to" (next color - default arg. and required), '.
+               '"steps" (max. color count, default 4), "in" (color space name, default "OKHSL" and "tilt"!';
 }
 
 sub analogous {
@@ -436,7 +447,7 @@ sub cubehelix {
 
 sub gradient {
     my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, in => 'OKLAB'});
+    my $arg = _split_named_args( \@args, 'to', ['to'], {steps => 10, tilt => 0, pos => undef, raw => 0, in => 'OKLAB'}, {pos => 'position'});
     my $help = 'The method "gradient" returns a list of GTC objects with a gradual transition between colors. Arguments are: '.
                '"to" (next color - default arg. and required), "steps" (color count, default 10), "in" (color space name, default "OKLAB" and "tilt")!';
     return error($arg.$help.$POD_link) unless ref $arg;

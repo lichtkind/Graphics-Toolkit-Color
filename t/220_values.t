@@ -12,6 +12,8 @@ is( not($@), 1, 'could load the module');
 
 my (@values, $values);
 my $RGB = Graphics::Toolkit::Color::Space::Hub::get_space('RGB');
+my $CMY        =   Graphics::Toolkit::Color::Space::Hub::get_space('CMY');
+my $XYZ        =   Graphics::Toolkit::Color::Space::Hub::get_space('XYZ');
 
 #### new_from_tuple ####################################################
 is( ref Graphics::Toolkit::Color::Values->new_from_tuple(),  '',  'new need at least one argument');
@@ -24,11 +26,11 @@ is_tuple( $RGB->round($fuchsia_rgb->{'rgb_tuple'}, 7), [1, 0, 1], [qw/red green 
 
 $values = $fuchsia_rgb->normalized();
 is_tuple( $values, [1, 0, 1], [qw/red green blue/], 'normalized values default to RGB');
-is( $fuchsia_rgb->formatted('', 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named RGB string');
-is( $fuchsia_rgb->formatted('CMY', 'CSS_string', undef, 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
-$values = $fuchsia_rgb->formatted( '', 'ARRAY', undef, [20,30,40]);
+is( $fuchsia_rgb->formatted(undef, 'named_string'),  'rgb: 255, 0, 255',  'got color formatted into named RGB string');
+is( $fuchsia_rgb->formatted($CMY, 'CSS_string', undef, 10),  'cmy(0, 10, 0)',  'got color formatted into CMY CSS string');
+$values = $fuchsia_rgb->formatted( undef, 'ARRAY', undef, [20,30,40]);
 is_tuple( $values, [20, 0, 40], [qw/red green blue/], 'got values formatted into an ARRAY (custom ranges)');
-$values = $fuchsia_rgb->formatted( 'CMY', 'ARRAY');
+$values = $fuchsia_rgb->formatted( $CMY, 'ARRAY');
 is_tuple( $values, [0, 1, 0], [qw/cyan magenta yellow/], 'ARRAY format can output for  any space');
 
 my $fuchsia_cmy = Graphics::Toolkit::Color::Values->new_from_tuple([0,1,0], 'CMY');
@@ -37,8 +39,8 @@ is_tuple( $RGB->round($fuchsia_cmy->{'source_tuple'}, 7), [0, 1, 0], [qw/cyan ma
 is( $fuchsia_cmy->{'source_space_name'},   'CMY',  'cource space is correct');
 is( $fuchsia_cmy->name,                'magenta',  'color has name "magenta"');
 is_tuple( $RGB->round($fuchsia_cmy->{'rgb_tuple'}, 7), [1, 0, 1], [qw/red green blue/], 'fuchsia got right rgb tuple');
-is( $fuchsia_cmy->formatted('RGB', 'hex_string'),  '#FF00FF',  'got color formatted into RGB hex string');
-is( $fuchsia_cmy->formatted('XYZ', 'hex_string'),         '',  'HEX string is RGB only');
+is( $fuchsia_cmy->formatted($RGB, 'hex_string'),  '#FF00FF',  'got color formatted into RGB hex string');
+is( $fuchsia_cmy->formatted($XYZ, 'hex_string'),         '',  'HEX string is RGB only');
 
 #### new_from_any_input ################################################
 my $fuchsia_array = Graphics::Toolkit::Color::Values->new_from_any_input([255, 0, 255]);

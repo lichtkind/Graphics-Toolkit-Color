@@ -58,14 +58,14 @@ sub derive {
     my ($tuple, $color_space);
     my $default_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name );
     $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $selected_space_name ) if defined $selected_space_name;
-    $tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) if ref $color_space;
+    $tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) if ref $color_space;
 
     return $color_space if defined $selected_space_name and not ref $color_space;
 
     if (defined $set and not ref $set){  # set constant
 	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] = $set for $color_space->basis->axis_iterator;
 	} elsif (ref $set eq 'HASH'){         # set partial hash
@@ -77,13 +77,13 @@ sub derive {
 		                                  :($default_space->family eq $deduced_color_space->family) 
 			                              ? $default_space 
 			                              : $deduced_color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		$tuple->[ $color_space->pos_from_axis_name($_) ] = $set->{$_} for keys %$set;
 	}
     if (defined $mult and not ref $mult){
 	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] *= $mult for $color_space->basis->axis_iterator;
 	} elsif (ref $mult eq 'HASH'){
@@ -95,13 +95,13 @@ sub derive {
 		                                  :($default_space->family eq $deduced_color_space->family) 
 			                              ? $default_space 
 			                              : $deduced_color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		$tuple->[ $color_space->pos_from_axis_name($_) ] *= $mult->{$_} for keys %$mult;
 	}
     if (defined $add and not ref $add){
 	    $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $default_space_name ) unless ref $color_space;
 	    return $color_space unless ref $color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		return $tuple unless ref $tuple;
 		$tuple->[$_] += $add for $color_space->basis->axis_iterator;
 	} elsif (ref $add eq 'HASH'){
@@ -113,7 +113,7 @@ sub derive {
 		                                  :($default_space->family eq $deduced_color_space->family) 
 			                              ? $default_space 
 			                              : $deduced_color_space;
-		$tuple = $color_values->shaped( $color_space->name, $range_def, -1, 'raw' ) unless ref $tuple;
+		$tuple = $color_values->shaped( $color_space, $range_def, -1, 'raw' ) unless ref $tuple;
 		$tuple->[ $color_space->pos_from_axis_name($_) ] += $add->{$_} for keys %$add;
 	}
     return $color_values->new_from_tuple( $tuple, $color_space->name, $range_def, $raw );
@@ -128,8 +128,8 @@ sub set_value { # .values, %newval -- ~space_name --> _
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
                                                  : $help_start.'any supported color space!';
     }
-    my $tuple = $color_values->shaped( $deduced_space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $deduced_space_name );
+    my $tuple = $color_values->shaped( $color_space );
     for my $pos ($color_space->basis->axis_iterator) {
         $tuple->[$pos] = $new_values->[$pos] if defined $new_values->[$pos];
     }
@@ -145,8 +145,8 @@ sub add_value { # .values, %newval -- ~space_name --> _
         return (defined $preselected_space_name) ? $help_start.'the selected color space: '.$preselected_space_name.'!'
                                                  : $help_start.'any supported color space!';
     }
-    my $tuple = $color_values->shaped( $deduced_space_name );
     my $color_space = Graphics::Toolkit::Color::Space::Hub::get_space( $deduced_space_name );
+    my $tuple = $color_values->shaped( $color_space );
     for my $pos ($color_space->basis->axis_iterator) {
         $tuple->[$pos] += $new_values->[$pos] if defined $new_values->[$pos];
     }
@@ -167,19 +167,19 @@ sub apply_gamma { # transfer
 	$gamma_array = $gamma if not defined $gamma_array and ref $gamma eq 'ARRAY';
     return 'got badly formatted gamma value' if ref $gamma_array ne 'ARRAY';
 	
-	my $tuple = $color_values->normalized( $color_space->name );
+	my $tuple = $color_values->normalized( $color_space, 'raw' );
     for my $axis_nr ($color_space->basis->axis_iterator){
 	    $tuple->[$axis_nr] = spow($tuple->[$axis_nr], $gamma_array->[$axis_nr]) if exists $gamma_array->[$axis_nr];
     }
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' ); # , $raw
 }
 
 sub tint     { mix_with(@_, [ 1 , 1 , 1  ]) } # white
 sub tone     { mix_with(@_, [ .5, .5, .5 ]) } # grey50
 sub shade    { mix_with(@_, [ 0 , 0 , 0  ]) } # black
 sub mix_with {
-    my ($color_values, $by, $raw, $color_space, $tuple) = @_;
-    mix( $color_values, $color_values->new_from_tuple( $tuple, 'RGB', 'normal' ), $by, $raw, $color_space);
+    my ($color_values, $by, $raw, $color_space_name, $tuple) = @_;
+    mix( $color_values, $color_values->new_from_tuple( $tuple, 'RGB', 'normal' ), $by, $raw, $color_space_name);
 }
 sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .color_values
     my ($base_color, $added_color, $add_amount, $raw, $color_space_name ) = @_;
@@ -207,10 +207,10 @@ sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .c
    
     my $result_values = [(0) x $color_space->axis_count];
     for my $color_nr (0 .. $#$added_color){
-        my $tuple = $added_color->[$color_nr]->shaped( $color_space->name );
+        my $tuple = $added_color->[$color_nr]->shaped( $color_space, 'normal', -1, 'raw' );
         $result_values->[$_] +=  $tuple->[$_] * $add_amount->[$color_nr] for 0 .. $#$tuple;
     }
-    return $base_color->new_from_tuple( $result_values, $color_space->name );
+    return $base_color->new_from_tuple( $result_values, $color_space->name, 'normal', $raw );
 }
 
 sub random {
@@ -242,7 +242,7 @@ sub invert {
 			$selected_axis->[$pos] = $pos;
 		}
 	} 
-    my $tuple = $color_values->normalized( $color_space->name );
+    my $tuple = $color_values->normalized( $color_space, 'raw' );
 	for my $axis_nr ($color_space->basis->axis_iterator){
         next unless defined $selected_axis->[$axis_nr];
         if ($color_space->shape->is_axis_euclidean( $axis_nr )){
@@ -255,7 +255,7 @@ sub invert {
                                 : $tuple->[$axis_nr] - 0.5;
         }
 	}
-    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal' );
+    return $color_values->new_from_tuple( $tuple, $color_space->name, 'normal', $raw );
 }
 
 

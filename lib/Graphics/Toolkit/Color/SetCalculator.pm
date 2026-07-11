@@ -18,7 +18,7 @@ sub complement { # -- :start_values, @target_delta, +steps, +tilt, +skew, :space
 	};
 	my $hue_half_max = $color_space->shape->axis_value_max( $axis_position->{'h'} ) / 2;
 
-    my $start_tuple = $start_color->shaped( $color_space->name );
+    my $start_tuple = $start_color->shaped( $color_space );
     $start_tuple = $color_space->rotate( $start_tuple );
     my $target_values = [@$start_tuple];       # target = THE complement + usr changes
     $target_values->[$axis_position->{'h'}] += $hue_half_max;
@@ -67,17 +67,16 @@ sub analogous { # :start_values, :next_values -- +steps, +tilt, :space --> @:val
     return $start_color if $steps == 1;
     return $start_color, $next_color if $steps == 2;
     my @result = ($start_color, $next_color);
-    my $start_tuple = $start_color->shaped( $color_space->name, 'normal', -1, $raw );
-    my $next_tuple = $next_color->shaped( $color_space->name, 'normal', -1, $raw );
+    my $start_tuple = $start_color->shaped( $color_space, 'normal', -1, $raw );
+    my $next_tuple = $next_color->shaped( $color_space, 'normal', -1, $raw );
     my $delta_tuple = $color_space->delta( $start_tuple, $next_tuple );
     for my $color_nr (3 .. $steps){
-
 		for my $axis_nr ($color_space->basis->axis_iterator){
 			$delta_tuple->[$axis_nr] *= 1 + $tilt;
 			$next_tuple->[$axis_nr] += $delta_tuple->[$axis_nr];
 		}
         my $next_color = $start_color->new_from_tuple( $next_tuple, $color_space->name, 'normal', 'raw' );
-		last unless $next_color->is_in_gamut( $color_space->name );
+		last unless $next_color->is_in_gamut( $color_space );
 		push @result, $next_color;
 	}
     return @result;
@@ -113,7 +112,7 @@ my $adj_len_at_45_deg = sqrt(2) / 2;
 
 sub cluster { # :center_values, @+|+radius +min_distance -- :space --> @:values
     my ($center_color, $cluster_radius, $color_distance, $color_space) = @_;
-    my $center_tuple = $center_color->shaped( $color_space->name );
+    my $center_tuple = $center_color->shaped( $color_space );
     my $center_x = $center_tuple->[0];
     my $center_y = $center_tuple->[1];
     my $center_z = $center_tuple->[2];

@@ -21,7 +21,7 @@ my $distance      = \&Graphics::Toolkit::Color::Space::Hub::distance;
 # @c1 @c2 -- ~space ~select @range --> +
 
 is( $distance->( $darkblue, $darkblue, $RGB ),    0,   'dark blue should have no distance to itself');
-is( int $distance->( $black, $white, 'RGB' ),    441,  'black and white have maximal distance in RGB');
+is( int $distance->( $black, $white, $RGB ),    441,  'black and white have maximal distance in RGB');
 is( $distance->( $fuchsia, $black, $RGB, undef, 'normal' ), sqrt 2,  'measure distance between magenta and black in RGB');
 is( $distance->( $fuchsia, $black, $RGB, 'red', 'normal' ),      1,  'measure only red component');
 is( $distance->( $black, $fuchsia, $RGB, 'red', 'normal' ),      1,  'order of args does not matter');

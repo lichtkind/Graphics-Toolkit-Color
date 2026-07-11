@@ -26,7 +26,7 @@ as described here.
 
 =head1 METHODS
 
-The thirteen methods can be divided into several groups, just by looking
+The fourteen methods can be divided into several groups, just by looking
 at their signature. The first seven methods: L</lighten>, L</darken>, 
 L</saturate>, L</desaturate>, L</tint>, L</tone> and L</shade>
 just accept the named arguments 

@@ -63,6 +63,7 @@ is_tuple( \@values, [   0, 100, 50], [qw/hue saturation lightness/], 'fourth com
 #### analogous #########################################################
 warning_like { $blue->analogous() }     {carped => qr/Argument 'to' is missing/}, 'method "analogous" needs arguments';
 @colors = $blue->analogous( '#0000EE');
+say "--";
 is( int @colors,                        4,    'computed default amount of analogous colors');
 is( ref $colors[0],               $module,    'first result is a color');
 @values = $colors[0]->values('RGB');

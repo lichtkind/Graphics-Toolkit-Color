@@ -71,7 +71,7 @@ is( $lgrey->name(),             'gray95',  'created gray by mixing black and whi
 
 my $darkblue = Graphics::Toolkit::Color::Calculator::mix ( $white, [$blue, $black], [50, 50], 0, $HSL);
 is( ref $darkblue,               $value_ref,  'mixed black and blue in HSL, recalculated percentages from sum of 120%');
-$values = $darkblue->shaped('HSL');
+$values = $darkblue->shaped($HSL);
 is_tuple( $values, [120, 50, 25], [qw/hue saturation lightness/], 'mixed grey from black and white in HSL');
 
 #### random ############################################################
@@ -82,23 +82,23 @@ my $nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, 0, $R
 is( $nblack->name,    'black',  'black is white inverted');
 my $nwhite = Graphics::Toolkit::Color::Calculator::invert ( $nblack, undef, 0, $RGB );
 is( $nwhite->name,    'white',  'white is black inverted');
-my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $RGB );
+my $nyellow = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, 0, $RGB );
 is(  $nyellow->name,  'yellow', 'yellow is blue inverted');
-my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $HSL );
+my $ngray = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, 0, $HSL );
 is( $ngray->name,     'gray',   'in HSL is gray opposite to any color');
-$nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef,  0, $LAB );
+$nblue = Graphics::Toolkit::Color::Calculator::invert ( $blue, undef, 0, $LAB );
 is( $nblue->name,         '',   'LAB is not symmetrical');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef,  0, $HSL );
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, 0, $HSL );
 is( $nblack->name,   'black',   'primary contrast works in HSL');
-$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef,  0, $HWB );
+$nblack = Graphics::Toolkit::Color::Calculator::invert ( $white, undef, 0, $HWB );
 is( $nblack->name,   'black',  'primary contrast works in HWB');
-my $ncyan = Graphics::Toolkit::Color::Calculator::invert ( $white, 'red',  0, $RGB );
+my $ncyan = Graphics::Toolkit::Color::Calculator::invert ( $white, 'red', 0, $RGB );
 is( $ncyan->name,     'cyan',  'inverted only on red axis: white to cyan');
-my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/],  0, $RGB );
+my $nred = Graphics::Toolkit::Color::Calculator::invert ( $white, [qw/b g/], 0, $RGB );
 is( $nred->name,       'red',  'inverted on two axis with short names');
 
 my $ndb = Graphics::Toolkit::Color::Calculator::invert ( $darkblue, [qw/h/], $HSL );
-$values = $ndb->shaped('HSL');
+$values = $ndb->shaped($HSL);
 is_tuple( $values, [300, 50, 25], [qw/hue saturation lightness/], 'inverted dark blue in HSL');
 
 exit 0;

@@ -10,11 +10,11 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
                is_in_gamut
 
    Color:      lighten / darken   saturate / desaturate   tint / tone / shade
-               lightness          saturation              contrast      vibrance
-               mix                invert                  derive        tone_curve
+               lightness          saturation              mix
+               derive             tone_curve              invert    /   random
 
-    Sets:      complement         triadic                 tetradic / rectangular
-               analogous          cluster                 cubehelix / gradient
+    Sets:      complement         cubehelix               triadic   /   tetradic 
+               analogous          gradient                cluster 
 
 
 =head1 ARGUMENTS
@@ -22,16 +22,16 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
      in        : (all except)     name   closest_name
      raw       : (all except)     name   closest_name   distance
      from      :                  name   closest_name
-     color     : new  is_in_gamut (sub)
-     range     : new  values             derive         distance
-     by        : lighten    darken   saturate   desaturate   tint   tone   shade      mix
-                 lightness           saturation              contrast      vibrance   derive
-     multiply  : lightness           saturation              contrast      vibrance   derive
-     set       : lightness           saturation              contrast      vibrance   derive
-     only      :                  distance   invert
-     to        :                  distance   mix          analogous               gradient
-     steps     :                             complement   analogous   cubehelix   gradient 
-     tilt      :                             complement   analogous   cubehelix   gradient 
+     color     : new       is_in_gamut (sub)
+     range     : new       values   distance                 derive
+     by        : lighten   darken   saturate    desaturate   tint    tone    shade     mix
+                 lightness          saturation               derive
+     multiply  : lightness          saturation               derive
+     set       : lightness          saturation               derive
+     only      :                    distance    invert
+     to        :                    distance    mix          analogous       gradient
+     steps     :                    complement  cubehelix    analogous       gradient 
+     tilt      :                    complement  cubehelix    analogous       gradient 
 
 
 =head1 FORMATS
@@ -56,7 +56,7 @@ Graphics::Toolkit::Color::Manual::CheatSheet - GTC keywords at a glance
       HSL : OKHSL / OKLCH / HSL / CIELCHab / CIELCHuv
       HSV : OKHSV / HSV / HSB
       HWB : OKHWB / HWB / NCol
-    other : CMY / CMYK / Yxy
+    other : CMY / CMYK / Yxy / xyY
 
 =head1 AUTHOR
 

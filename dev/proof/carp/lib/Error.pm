@@ -19,20 +19,20 @@ sub import {
     $mode = (exists $args[1]) ? $args[1] : 'carp';
     $mode = lc $mode;
     if ($mode ne 'carp' and $mode ne 'croak' and $mode ne 'say' and $mode ne 'die'){
-		say "called for illegal error mode, setting it to carp";
-		$mode = 'carp';
-	}
+        say "called for illegal error mode, setting it to carp";
+        $mode = 'carp';
+    }
     $class->Exporter::export_to_level(1, $class);
 }
 
 sub error {
     my ($message) = @_;
-	my ($package, $filename, $line, $sub) = caller(1);
-	my $report = "$sub: $message";
-	if    ($mode eq 'say') {  say   $report }
-	if    ($mode eq 'die') {  die   $report }
-	elsif ($mode eq 'carp'){  carp  $report }
-	elsif ($mode eq 'croak'){ croak $report }
+    my ($package, $filename, $line, $sub) = caller(1);
+    my $report = "$sub: $message";
+    if    ($mode eq 'say') {  say   $report }
+    if    ($mode eq 'die') {  die   $report }
+    elsif ($mode eq 'carp'){  carp  $report }
+    elsif ($mode eq 'croak'){ croak $report }
 }
 
 sub call { error(@_) }

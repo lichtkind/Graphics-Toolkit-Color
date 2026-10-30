@@ -9,49 +9,34 @@ Graphics::Toolkit::Color::Manual::Calculation - reference of single color calcul
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
 detailed description of the fourteen methods that produce a GTC color object
 which in some fashion is related to the current one (caller): 
-L</lighten>, L</darken>, L</saturate>, L</desaturate>,
-L</tint>, L</tone>, L</shade>,      L</lightness>, L</saturation>,
-L</tone_curve>, L</derive>, L</random>, L</mix> and L</invert>.
+L</lighten>, L</darken>, L</lightness>,
+L</saturate>, L</desaturate>, L</saturation>, L</derive>,
+L</invert>, L</tone_curve>, L</random>
+L</tint>, L</tone>, L</shade> and L</mix>.
 That allows for method chaining like:
 
     $color->derive( set => {saturation => 5} )->invert->mix( to => 'green' );
 
 Every L<argument|Graphics::Toolkit::Color::Manual::Argument> and important 
-argument combination will be explained in the dedicated chapter of a
-method, but the first few paragraphs will explicate subject matters that
-all methods have in common, like the fact that they trigger an
+argument combination will be explained in the dedicated chapter of a method,
+but the first few paragraphs will explicate subject matters that all methods
+have in common, like the fact that they trigger an
 L<error|Graphics::Toolkit::Color::Manual::Error> if arguments are not used
 as described here.
 
 
 =head1 METHODS
 
-The fourteen methods can be divided into several groups, just by looking
-at their signature. The first seven methods: L</lighten>, L</darken>, 
-L</saturate>, L</desaturate>, L</tint>, L</tone> and L</shade>
-just accept the named arguments 
-L<by|Graphics::Toolkit::Color::Manual::Argument/by> (0..1),
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space) and 
-L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> (pseudo bool),
-the first one being the only required and default argument. 
-The next two methods: L</lightness>, L</saturation> 
-accept these three arguments too but also additionally 
-L<set|Graphics::Toolkit::Color::Manual::Argument/set> and 
-L<multiply|Graphics::Toolkit::Color::Manual::Argument/multiply>.
-Here C<set> is the default argument but nothing is required.
-Furthermore C<by> can be aliased with C<add> and instead of C<multiply> 
-one might use the shorter C<x>.
-L</derive> is works very similar but takes additionally a
-L<range|Graphics::Toolkit::Color::Manual::Argument/range> definition
-and C<set>, C<multiply> and C<add> can receive incomplete color definitions
-in the L<hash format|Graphics::Toolkit::Color::Manual::Format/hash>.
-The last four methods: L</tone_curve>, L</random>, L</mix> and L</invert> 
-have individual signatures.
-
-All methods accept the L<in|Graphics::Toolkit::Color::Manual::Argument/in>
-argument, which will default to L<OKHSL|Graphics::Toolkit::Color::Manual::Space/OKHSL>
-except L</mix> (L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB>)
-and L</tone_curve> (L<LinearRGB|Graphics::Toolkit::Color::Manual::Space/LinearRGB>).
+All fourteen methods have in common that they accept the arguments 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space name) and 
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> (pseudo bool).
+C<in> sets the color space the operation is computed in, which in most 
+cases defaults to the perceptually uniform 
+L<OKHSL|Graphics::Toolkit::Color::Manual::Space/OKHSL> space, only 
+L<mix> and L<random> default to L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB>
+for mor meaningful results and L</tone_curve> defaults to 
+L<LinearRGB|Graphics::Toolkit::Color::Manual::Space/LinearRGB> since 
+this is most likely the space you want to apply a gamma value to.
 The selection of color spaces is restricted for some methods, that rely
 on the existence of an axis with a certain 
 L<role|Graphics::Toolkit::Color::Manual::Space/FAMILY>. L</lighten>, L</darken>
@@ -61,12 +46,28 @@ L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL-family> spaces)
 and L</saturate>, L</desaturate> and L</saturation> need a I<saturation> axis
 (present in L<HSL|Graphics::Toolkit::Color::Manual::Space/HSL-family> and 
 L<HSV|Graphics::Toolkit::Color::Manual::Space/HSV-family> spaces). 
-And yes L</invert> works even in cylindrical spaces.
 
-All methods accept also L<raw|Graphics::Toolkit::Color::Manual::Argument/raw>,
-which defaults to false (0). As a consequence the result of an operation
-will be always a color within default range of the selected color space.
-Change this value to true (1) to allow out of range colors.
+C<raw> defaults to false (0), which allows the method to clamp the color 
+values into range before delivering the result. Set C<raw> to 1 in order
+to get the unaltered result that might be less useful and cause issues later.
+
+The methods can be divided into three groups, just by looking
+at their signature. The first seven methods: L</lighten>, L</darken>, 
+L</saturate>, L</desaturate>, L</tint>, L</tone> and L</shade>
+accept beside C<in> and C<raw> also the argument 
+L<by|Graphics::Toolkit::Color::Manual::Argument/by> (0..1),
+which is required and the default argument there.
+
+The second group consists of: L</lightness> and L</saturation>, which
+additionally accept L<set|Graphics::Toolkit::Color::Manual::Argument/set> (number)
+and L<multiply|Graphics::Toolkit::Color::Manual::Argument/multiply> (number).
+For them C<set> is the default argument but none is required.
+L</derive> is very similar, but with more powerful C<set>, C<multiply> 
+and C<by> arguments and it additionally accepts 
+L<Graphics::Toolkit::Color::Manual::Argument/range>.
+
+The third group consists of the methods: L</tone_curve>, L</random>, 
+L</mix> and L</invert> which do not fit into a simple pattern. 
 
 
 =head2 lighten 
@@ -141,6 +142,8 @@ The new color has decreased lightness and decreased saturation.
 
 
 =head2 lightness
+
+
 
 C<lightness>
 

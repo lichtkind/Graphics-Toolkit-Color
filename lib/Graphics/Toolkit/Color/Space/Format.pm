@@ -121,7 +121,7 @@ sub trim_tuple {
     return unless $self->basis->is_value_tuple( $dirty_tuple );
     my $tuple = [@$dirty_tuple];
     $tuple->[$_] =~tr/ //d for $self->basis->axis_iterator;
-	return $tuple;
+    return $tuple;
 }
 
 sub remove_suffix { # and unnecessary white space and remove special number formats

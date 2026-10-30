@@ -7,7 +7,7 @@ Graphics::Toolkit::Color::Manual::Set - reference of color set creation methods
 =head1 SYNOPSIS
 
 This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
-detailed description of the four color set creation methods: 
+detailed description of the five color set creation methods: 
 L</complement>, L</analogous>, L</cubehelix>, L</gradient> and L</cluster> with an 
 explanation of all L<arguments|Graphics::Toolkit::Color::Manual::Argument> 
 they provide. All methods return a list of GTC objects unless a typo or
@@ -76,6 +76,10 @@ from color space to color space to produce the same results.
     my @colors = $c->complement( steps => 3, tilt => 2, target => { h => 20, s=> -5, l => -10 });
 
 
+=head2 cubehelix
+
+C<cubehelix>
+
 
 =head2 analogous
 
@@ -118,17 +122,13 @@ might be curved if the color space is cylindrical.
     my @colors = $c->analogous( to => 'black', steps => 6, in => 'OKLCH', tilt => 0.05 );
 
 
-=head2 cubehelix
-
-C<cubehelix>
-
 =head2 gradient
 
 C<gradient> creates a gradient (a list of color objects that build a transition)
-between the current color held by the object and a second color,
+between the current color held by the object and a second (or more) color(s),
 provided by the named argument C<to>. That is required and may be provided
 as a positional argument if it is the only one. The optional arguments are: 
-C<steps>, C<in> and C<tilt>.
+C<pos>, C<steps>, C<tilt>, C<raw> and C<in>.
 
 L<to|Graphics::Toolkit::Color::Manual::Argument/to> expects a color object
 or scalar color definition, which will be the end color of the gradient.
@@ -137,12 +137,17 @@ reference (square braces) with several independently formatted colors for
 custom gradients that will incorporate these colors in the order you inserted
 them into the ARRAY.
 
-L<steps|Graphics::Toolkit::Color::Manual::Argument/steps> requires a positive
-integer, which will be the amount of colors produced. C<steps> defaults to ten.
+C<pos> (alias is C<position>) requires an ARRAY reference with several 
+floating point numbers between zero and one. It has to be one less number 
+than colors provided by C<to>. If it happens to be only one number, then
+that number might be provided without the square brackets. These numbers
+position the colors on the gradient to allow for non-linear transitions.
+The calling GTC object will always have the position zero (starting position)
+and the last color provided by C<to> will always have the position one
+(end of the gradient).
 
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
-the C<gradient> colors will be computed in, which is 
-L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB> per default. 
+L<steps|Graphics::Toolkit::Color::Manual::Argument/steps> requires a positive
+integer, which will be the amount of colors produced. C<steps> defaults to ten(10).
 
 L<tilt|Graphics::Toolkit::Color::Manual::Argument/tilt> moves the colors
 of the gradient toward the end color or the starting color. The former will
@@ -151,6 +156,15 @@ it is negative. The greater the absolute C<tilt> value the greater the effect.
 C<tilt> defaults to zero, which results in a gradient of colors with equal
 L<distance|Graphics::Toolkit::Color::Manual::Getter/distance> between them.
 Please note that the effect of C<tilt> is exponential (it is accelerating).
+
+L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> requires a 
+pseudo-boolean, which is set by default to false (0). This drops
+out of gamut colors from the gradient. Only with C<raw> set to one (1)
+can the number of colors required by C<steps> be guaranteed.
+
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> sets the color space
+the C<gradient> colors will be computed in, which is 
+L<OKLAB|Graphics::Toolkit::Color::Manual::Space/OKLAB> per default. 
 
     # we turn to grey
     my @colors = $c->gradient( to => 'grey50', steps => 5);

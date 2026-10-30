@@ -28,20 +28,20 @@ sub new {
     my ($pkg, @args) = @_;
     my $help = 'method "new" accepts the arguments: "color" (color definition), "raw", '.
                '"range" and "in" (space name). "color" is the required and default argument.'.$POD_link;
-	my ($color_def, $space_name, $range_def, $is_raw);
+    my ($color_def, $space_name, $range_def, $is_raw);
     if (@args > 0 and not @args % 2){
-		my %h = @args;
-		return error('got an argument twice') if keys(%h) * 2 < int(@args);
-		($color_def, $space_name, $range_def, $is_raw) = ($h{'color'}, $h{'in'}, $h{'range'}, $h{'raw'} // 0);
-	}
+        my %h = @args;
+        return error('got an argument twice') if keys(%h) * 2 < int(@args);
+        ($color_def, $space_name, $range_def, $is_raw) = ($h{'color'}, $h{'in'}, $h{'range'}, $h{'raw'} // 0);
+    }
     $color_def = _color_def_into_scalar( @args ) unless defined $color_def;
     return error($help) unless defined $color_def;
     my $self = _new_from_scalar_def( $color_def, $space_name, $range_def, $is_raw );
-	return (ref $self) ? $self : error($self);
+    return (ref $self) ? $self : error($self);
 }
 sub color { 
-	my $self = _new_from_scalar_def( _color_def_into_scalar( @_ ) );
-	return (ref $self) ? $self : error($self);
+    my $self = _new_from_scalar_def( _color_def_into_scalar( @_ ) );
+    return (ref $self) ? $self : error($self);
 }
 sub _color_def_into_scalar {
     my (@args) = @_;
@@ -68,17 +68,17 @@ sub is_in_gamut {
     return is_in_gamut_sub (@_) if ref $self ne __PACKAGE__;
     my $help = 'The method "is_in_gamut" accepts one optional, positional argument, a color space name, '.
                'which defaults to the space the color was defined in'.$POD_link;
-	$space_name = $named_arg if defined $space_name and $space_name eq 'in' and defined $named_arg;
+    $space_name = $named_arg if defined $space_name and $space_name eq 'in' and defined $named_arg;
     my $space = Graphics::Toolkit::Color::Space::Hub::get_space( $space_name );
-	return error($help) if defined $space_name and not ref $space;
+    return error($help) if defined $space_name and not ref $space;
     $self->values_object->is_in_gamut( (ref $space) ? $space : undef );
 }
 sub is_in_gamut_sub {
     my (@color) = @_;
-	my $values = Graphics::Toolkit::Color::Values->new_from_any_input( 
-		_color_def_into_scalar( @_ ), undef, undef, 'raw' 
-	);
-	return error($values.$POD_link) unless ref $values;
+    my $values = Graphics::Toolkit::Color::Values->new_from_any_input( 
+        _color_def_into_scalar( @_ ), undef, undef, 'raw' 
+    );
+    return error($values.$POD_link) unless ref $values;
     $values->is_in_gamut( );
 }
 
@@ -134,7 +134,7 @@ sub values       {
     my $help = 'The method "values" returns numeric color values and accepts six named, optional arguments: '.
                '"in" (color space name - default arg), "as" (color definition format), "raw", "range", "precision" and "suffix"!';
     return error($arg.$help.$POD_link) unless ref $arg;
-	my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
     my @result = $self->values_object->formatted( $color_space, @$arg{qw/as suffix range precision raw/} );
     return error(${$result[0]}.$help.$POD_link) if ref $result[0] eq 'SCALAR';
@@ -155,7 +155,7 @@ sub closest_name {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'from', [], {from => 'default', all => 0, full => 0});
     my $help = 'The method "closest_name" returns one or several (in an ARRAY) color name strings and in list context also '.
-			    'the numeric distance and accepts three named, optional arguments: '.
+                'the numeric distance and accepts three named, optional arguments: '.
                '"from" (scheme name - default arg), "all" (color names) and "full" (name)!';
     return error($arg.$help.$POD_link) unless ref $arg;
     my ($name, $distance) = Graphics::Toolkit::Color::Name::closest_from_values(
@@ -175,15 +175,15 @@ sub distance {
     return error($color_space.$help.$POD_link) unless ref $color_space;
     if (defined $arg->{'only'}){
         if (not ref $arg->{'only'}){
-			return error($arg->{'only'}." is not an axis name or role in color space: ".$color_space->name.$help.$POD_link)
+            return error($arg->{'only'}." is not an axis name or role in color space: ".$color_space->name.$help.$POD_link)
                 unless $color_space->is_axis_role( $arg->{'only'} );
         } elsif (ref $arg->{'only'} eq 'ARRAY'){
             for my $axis_name (@{$arg->{'only'}}) {
-				return error( $axis_name." is not an axis name or role in color space: ".$color_space->name.$help.$POD_link)
-					unless $color_space->is_axis_role( $axis_name );
+                return error( $axis_name." is not an axis name or role in color space: ".$color_space->name.$help.$POD_link)
+                    unless $color_space->is_axis_role( $axis_name );
             }
         } else { return error('The "only" argument needs one axis name or an ARRAY with several axis names from '.
-			                  'the same color space!'.$help.$POD_link) }
+                              'the same color space!'.$help.$POD_link) }
     }
     my $range_def = $color_space->shape->try_check_range_definition( $arg->{'range'} );
     return error($range_def.$help.$POD_link) unless ref $range_def;
@@ -197,50 +197,50 @@ sub lighten {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->values_object, @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->values_object, @$arg{qw/by raw in/} ) );
 }
 sub darken {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub saturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub desaturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tint {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tone {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub shade {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
     return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-		unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object,  @$arg{qw/by raw in/} ) );
+        unless ref $arg;
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 
 sub lightness {
@@ -248,14 +248,14 @@ sub lightness {
     my $arg = _split_named_args( \@args, 'set', [], 
                {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
     return error("The default argument or named argument 'by' has to be a number between 0 and 1!") unless ref $arg;
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::lightness( $self->values_object, @$arg{qw/set x add in/} ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::lightness( $self->values_object, @$arg{qw/set x add in/} ) );
 } 
 
 sub saturation {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
                {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
-	_new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
+    _new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
 
 }
 
@@ -270,7 +270,7 @@ sub tone_curve {
     return error($arg.$help.$POD_link) unless ref $arg;
     my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
     return error($color_space.$help.$POD_link) unless ref $color_space;
-	my $result = Graphics::Toolkit::Color::Calculator::apply_gamma( $self->values_object, $arg->{'gamma'}, $color_space );
+    my $result = Graphics::Toolkit::Color::Calculator::apply_gamma( $self->values_object, $arg->{'gamma'}, $color_space );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -282,7 +282,7 @@ sub derive {
     my $help = 'The method "derive" returns a GTC object with values that are calculated using in part the values of the given color. '.
                'Its named and optional arguments are: "set", "add", "multiply" and "in" (color space name - default OKHSL)!';
     return error($arg.$help.$POD_link) unless ref $arg;
-	my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add range raw in/}, $design_default );
+    my $result = Graphics::Toolkit::Color::Calculator::derive( $self->values_object, @$arg{qw/set multiply add range raw in/}, $design_default );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -320,7 +320,7 @@ sub random {
     my $arg = _split_named_args( \@args, undef, [], {in => undef, raw => 0, mean => undef, variance => undef}, {variance => 'var'});
     my $help = 'The method "random" returns a GTC object with random values. Optional arguments are: '.
                '"mean", "variance" ("var"), "raw" (default 0) and in (color space: default RGB)!';
-    my $result = Graphics::Toolkit::Color::Calculator::random( $self->values_object,@$arg{qw/mean variance raw in/, 'RGB'} );
+    my $result = Graphics::Toolkit::Color::Calculator::random( $self->values_object,@$arg{qw/mean variance raw in/, 'OKLAB'} );
     return error($result.' '.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -335,26 +335,26 @@ sub mix {
     if (ref $second_color){ $arg->{'to'} = [$second_color->values_object] } 
     else {
         if (ref $arg->{'to'} ne 'ARRAY'){
-			return error("Target color definition (argument 'to'): '$arg->{to}' is ill formed. $second_color. ".$POD_link);
+            return error("Target color definition (argument 'to'): '$arg->{to}' is ill formed. $second_color. ".$POD_link);
         } else {
-			my @to = ();
-			for my $color_def (@{$arg->{'to'}}){
-				if (ref $color_def eq __PACKAGE__) { push @to, $color_def->values_object }
-				else {
-					$second_color = Graphics::Toolkit::Color::Values->new_from_any_input( $color_def );
-					return error("target color definition (argument 'to'). '$color_def' is ill formed: $second_color. ".$POD_link)
-						unless ref $second_color;
-					push @to, $second_color;
-				}
-			}
-			$arg->{'to'} = \@to;
-		}
+            my @to = ();
+            for my $color_def (@{$arg->{'to'}}){
+                if (ref $color_def eq __PACKAGE__) { push @to, $color_def->values_object }
+                else {
+                    $second_color = Graphics::Toolkit::Color::Values->new_from_any_input( $color_def );
+                    return error("target color definition (argument 'to'). '$color_def' is ill formed: $second_color. ".$POD_link)
+                        unless ref $second_color;
+                    push @to, $second_color;
+                }
+            }
+            $arg->{'to'} = \@to;
+        }
     }
     # backward compatibility: 'by' > 1 is read as percent (0 .. 100) and mapped to 0 .. 1
     if (defined $arg->{'by'}){
         if (ref $arg->{'by'} eq 'ARRAY') { 
-			for (@{$arg->{'by'}}) { $_ /= 100 if is_nr($_) and $_ > 1 } 
-		} elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
+            for (@{$arg->{'by'}}) { $_ /= 100 if is_nr($_) and $_ > 1 } 
+        } elsif (is_nr($arg->{'by'}) and $arg->{'by'} > 1) { $arg->{'by'} /= 100 }
     }
     my $result = Graphics::Toolkit::Color::Calculator::mix( $self->values_object, @$arg{qw/to by raw in/} );
     return error($result.' '.$help.$POD_link) unless ref $result;
@@ -371,7 +371,7 @@ sub invert {
     return error($color_space.$help.$POD_link) if defined $arg->{'in'} and not ref $color_space;
     $arg->{'in'} = $color_space if defined $arg->{'in'};
     my $default_space = Graphics::Toolkit::Color::Space::Hub::get_space( $design_default );
-	my $result = Graphics::Toolkit::Color::Calculator::invert( $self->values_object, @$arg{qw/only raw in/}, $default_space );
+    my $result = Graphics::Toolkit::Color::Calculator::invert( $self->values_object, @$arg{qw/only raw in/}, $default_space );
     return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
@@ -398,7 +398,7 @@ sub complement {
     return error("Need a cylindrical space from the HSL family! ".$help.$POD_link) unless $color_space->family eq 'HSL';
 
     my @result = Graphics::Toolkit::Color::SetCalculator::complement( $self->values_object, $target_delta, @$arg{qw/steps tilt skew/}, $color_space );
-	return error($result[0].$help.$POD_link) unless ref $result[0];
+    return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
 }
 
@@ -433,7 +433,7 @@ sub analogous {
     return error($color_space.$help.$POD_link) unless ref $color_space;
     
     my @result = Graphics::Toolkit::Color::SetCalculator::analogous( $self->values_object, @$arg{qw/to steps tilt raw/}, $color_space);
-	return error($result[0].$help.$POD_link) unless ref $result[0];
+    return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
 }
 
@@ -470,7 +470,7 @@ sub gradient {
     return error($color_space.$help.$POD_link) unless ref $color_space;
     
     my @result = Graphics::Toolkit::Color::SetCalculator::gradient( \@colors, @$arg{qw/steps tilt/}, $color_space);
-	return error($result[0].$help.$POD_link) unless ref $result[0];
+    return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
 }
 
@@ -490,7 +490,7 @@ sub cluster {
         if $color_space->axis_count > 3 and not ref $arg->{'radius'};
 
     my @result = Graphics::Toolkit::Color::SetCalculator::cluster( $self->values_object, @$arg{qw/radius minimal_distance/}, $color_space);
-	return error($result[0].$help.$POD_link) unless ref $result[0];
+    return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;        
 }
 
@@ -588,7 +588,7 @@ is a short alias for calling C<new> just with the argument C<color>.
     color( 'hsv(240, 100, 100)' );      # css_string format
     color( 'hsv(240, 100%, 100%)' );    # value suffix is optional
     color( 'rgb(255 0 0)' );            # commas are optional
-									    
+                                        
     color( '#FF0000' );                 # hex_string format, RGB only
     color( '#f00' );                    # hex_string format, short form
 

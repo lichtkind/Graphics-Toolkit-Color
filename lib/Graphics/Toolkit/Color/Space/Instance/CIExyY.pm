@@ -22,7 +22,7 @@ sub from_xyY {
 sub to_xyY {
 	my ($xyz) = @_;
     my $sum = $xyz->[0] + $xyz->[1] + $xyz->[2];
-    return [0.3127266147, 0.3290231303, 0] if $sum < $min;
+    return [0.3127266147, 0.3290231303, $xyz->[1]] if $sum < $min;
     return [$xyz->[0] / $sum,  $xyz->[1] / $sum,  $xyz->[1] ];
 }
 

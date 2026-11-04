@@ -193,88 +193,70 @@ sub distance {
 
 ## single color creation methods #######################################
 my $design_default = 'OKHSL';
+my $design_help = "Need value (0..1) as only positional or named argument ('by') and accept also ".
+                  "'raw' (pseudo bool - default 0) and 'in' (color space name)!";
 sub lighten {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::lighten( $self->values_object, @$arg{qw/by raw in/} ) );
 }
 sub darken {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::darken( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub saturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub desaturate {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::desaturate( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tint {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::tint( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub tone {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::tone( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 sub shade {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'by', ['by'], {in => $design_default, raw => 0});
-    return error("Need 'by' (default arg - 0 .. 1) and accept also 'raw' (pseudo bool - default 0) and 'in' (color space name) !") 
-        unless ref $arg;
+    return error( $design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::shade( $self->values_object,  @$arg{qw/by raw in/} ) );
 }
 
+my $xt_design_help = "Need value (0..1) as only positional or named argument ('set') and accept also ".
+                     "'multiply' or 'x', 'add' or 'by', 'raw' (pseudo bool - default 0) and 'in' (color space name)!";
 sub lightness {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
                {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
-    return error("The default argument or named argument 'by' has to be a number between 0 and 1!") unless ref $arg;
+    return error( $xt_design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::lightness( $self->values_object, @$arg{qw/set x add in/} ) );
 } 
-
 sub saturation {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, 'set', [], 
                {set => undef, multiply => undef, add => undef, raw => 0, in => $design_default}, {multiply => 'x', add => 'by'});
+    return error( $xt_design_help ) unless ref $arg;
     _new_from_value_obj( Graphics::Toolkit::Color::Calculator::saturation( $self->values_object, @$arg{qw/set x add in/} ) );
 
 }
 
 # --- low level complex API ---
-
-sub apply { tone_curve(@_) }
-sub tone_curve { 
-    my ($self, @args) = @_;
-    my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB', raw => 0} ); 
-    my $help = 'The method "tone_curve" returns a GTC object with gamma corrected values and accepts two named arguments, '.
-               'the first being required: "gamma", "in" (color space name - default LinearRGB)!';
-    return error($arg.$help.$POD_link) unless ref $arg;
-    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
-    return error($color_space.$help.$POD_link) unless ref $color_space;
-    my $result = Graphics::Toolkit::Color::Calculator::apply_gamma( $self->values_object, $arg->{'gamma'}, $color_space );
-    return error($result.$help.$POD_link) unless ref $result;
-    return _new_from_value_obj( $result );
-}
-
 sub derive {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, [], 
@@ -312,6 +294,20 @@ sub add_value {
     return error($color_space.$help.$POD_link) if defined $color_space and not ref $color_space;
     my $result = Graphics::Toolkit::Color::Calculator::add_value( $self->values_object, $partial_color, $space_name );
     return error($result.' '.$help.$POD_link) unless ref $result;
+    return _new_from_value_obj( $result );
+}
+
+sub apply { tone_curve(@_) }
+sub tone_curve { 
+    my ($self, @args) = @_;
+    my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB', raw => 0} ); 
+    my $help = 'The method "tone_curve" returns a GTC object with gamma corrected values and accepts two named arguments, '.
+               'the first being required: "gamma", "in" (color space name - default LinearRGB)!';
+    return error($arg.$help.$POD_link) unless ref $arg;
+    my $color_space = Graphics::Toolkit::Color::Space::Hub::try_get_space( $arg->{'in'} );
+    return error($color_space.$help.$POD_link) unless ref $color_space;
+    my $result = Graphics::Toolkit::Color::Calculator::apply_gamma( $self->values_object, $arg->{'gamma'}, $color_space );
+    return error($result.$help.$POD_link) unless ref $result;
     return _new_from_value_obj( $result );
 }
 
@@ -401,7 +397,7 @@ sub complement {
     return error($result[0].$help.$POD_link) unless ref $result[0];
     map {_new_from_value_obj( $_ )} @result;
 }
-
+# TODO
 sub triadic {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, [], {split => 0, in => $design_default});
@@ -410,6 +406,7 @@ sub triadic {
 
 }
 
+# TODO
 sub tetradic {
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, [], {split => 0, rectangular => 0, in => $design_default});
@@ -707,36 +704,19 @@ Only the C<to> is required and can be provided as the only positional argument.
 
 =head1 SINGLE COLOR
 
-These methods create one GTC object with a color that is related to the
-current one. They can be divided into the simpler, high level convenience
+Methods to create one GTC object holding one color that is related to the
+current (calling) one. They can be divided into the simpler, high level convenience
 methods on the one side (C<lighten>, C<darken>, C<saturate>, C<desaturate>, 
-C<tint>, C<shade>, C<tone>, C<lightness>, C<saturation>, C<contrast>, C<vibrance>)
+C<lightness>, C<saturation>, C<tint>, C<shade>, C<tone>, C<invert>)
 and the more powerful low level operations on the other 
-(C<tone_curve>, C<derive>, C<mix> and C<invert>).
-
-The signature of the first seven high level methods is always the same. 
-They  understand 2 named arguments: C<by> and C<in>. The first being the 
-required and default one (can be a positional argument, if it is the only one). 
-L<by|Graphics::Toolkit::Color::Manual::Argument/by> 
-needs a floating point number between 0 and 1.
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> is as 
-always a L<color space|Graphics::Toolkit::Color::Manual::Space> name the
-method is computed in, which defaults here to I<OKHSL>. The methods:
-C<lighten>, C<darken>, C<saturate>, C<desaturate>, C<lightness>, C<saturation>
-can only operate in spaces of the I<HSL> family.
-
-The next four methods C<lightness>, C<saturation>, C<contrast>, C<vibrance>
-have also the same signature and take the same four arguments. These are
-beside the alreay described C<by> and C<in> also C<multiply> and C<set>.
-For readability reasons C<by> can be replaced (alias) with C<add> and 
-C<multiply> with C<x>.
+(C<tone_curve>, C<derive>, C<mix> and C<random>).
 
 =head2 lighten
 
 L<lighten|Graphics::Toolkit::Color::Manual::Calculation/lighten> creates 
 a color with increased lightness by an absolute amount, but it does not 
-touch saturation. The result is clamped, so lighten(1) will always return 
-I<white>.
+touch saturation. The result is clamped (unless I<raw> is set to 1),
+so C<<$color->lighten(1)>> will always return I<white>.
 
     my $c = $mint->lighten( 0.1 );                      # is the same as :
     my $c = $mint->lighten( by => 0.1, in => 'OKHSL' );  
@@ -744,9 +724,9 @@ I<white>.
 =head2 darken
 
 L<darken|Graphics::Toolkit::Color::Manual::Calculation/darken> creates 
-a color with decreased the lightness by an absolute amount, but does not
-touch saturation. The result is clamped, so darken(1) will always return 
-I<black>.
+a color with decreased lightness by an absolute amount, but does not
+touch saturation. The result is clamped (unless I<raw> is set to 1),
+so C<<$color->darken(1)>> will always return I<black>.
 
 =head2 saturate
 
@@ -790,6 +770,23 @@ L<lightness|Graphics::Toolkit::Color::Manual::Calculation/lightness> creates a l
 =head2 saturation
 
 
+=head2 derive
+
+L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive> 
+
+=head2 invert
+
+L<invert|Graphics::Toolkit::Color::Manual::Calculation/invert> computes 
+a color with opposite properties (values). 
+It has two named, optional arguments: 
+L<only|Graphics::Toolkit::Color::Manual::Argument/only> (select axes) and
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space name, defaults to I<OKHSL>).
+
+    my $still_gray = $gray->invert();                 # got same color back
+    my $blue = $yellow->invert('hue');                # invert hue in 'OKHSL'
+    $yellow->invert( in => 'OKHSL', only => 'hue' );  # same in long form, same result as $yellow->complement();
+
+
 =head2 tone_curve
 
 L<tone_curve|Graphics::Toolkit::Color::Manual::Calculation/apply> computes a 
@@ -799,23 +796,6 @@ being required and the default argument. C<in> defaults here to I<LinearRGB>.
 
     my $c = $blue->tone_curve( gamma => 2.2 );                          # is the same as :
     my $c = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
-
-
-=head2 random
-
-=head2 derive
-
-L<derive|Graphics::Toolkit::Color::Manual::Calculation/derive> 
-
-returns a color that differs in some chosen values from the current one.
-Its arguments have to be short or long axis names from one selected 
-L<color space|Graphics::Toolkit::Color::Manual::Space>.
-You may additionally provide the color space in mind with the argument 
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> if the axis names 
-alone are too ambiguous.
-
-    my $blue = $black->set_value( blue => 255 );                    # same as #0000ff
-    my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # would otherwise use OKHSL
 
 =head2 mix
 
@@ -832,17 +812,17 @@ C<by> defaults to a 50:50 blend and C<in> to I<OKLAB>.
     $blue->mix( to => 'silver', by => .6 );                    # 60% silver, 40% blue
     $blue->mix( to => [qw/silver green/], by => [.1, .2]);     # 10% silver, 20% green, 70% blue
 
-=head2 invert
+=head2 random
 
-L<invert|Graphics::Toolkit::Color::Manual::Calculation/invert> computes 
-a color with opposite properties (values). 
-It has two named, optional arguments: 
-L<only|Graphics::Toolkit::Color::Manual::Argument/only> (select axes) and
-L<in|Graphics::Toolkit::Color::Manual::Argument/in> (color space name, defaults to I<OKHSL>).
+returns a color that differs in some chosen values from the current one.
+Its arguments have to be short or long axis names from one selected 
+L<color space|Graphics::Toolkit::Color::Manual::Space>.
+You may additionally provide the color space in mind with the argument 
+L<in|Graphics::Toolkit::Color::Manual::Argument/in> if the axis names 
+alone are too ambiguous.
 
-    my $still_gray = $gray->invert();                 # got same color back
-    my $blue = $yellow->invert('hue');                # invert hue in 'OKHSL'
-    $yellow->invert( in => 'OKHSL', only => 'hue' );  # same in long form, same result as $yellow->complement();
+    my $blue = $black->set_value( blue => 255 );                    # same as #0000ff
+    my $color = $blue->set_value( saturation => 50, in => 'HSV' );  # would otherwise use OKHSL
 
 
 =head1 COLOR SETS

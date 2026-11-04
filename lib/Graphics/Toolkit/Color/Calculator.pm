@@ -48,7 +48,7 @@ sub saturation {
     derive($color_values, $set, $mult, $add, 'normal', $raw, $color_space->name);
 }
 # L : neu = achsenmitte + (alt - mitte) × faktor
-# S : neu = alt + betrag × (1 − alt)
+# S : neu = alt + (1 − alt) × faktor
 
 
 #### low level methods #############################################
@@ -179,6 +179,10 @@ sub tone     { mix_with(@_, [ .5, .5, .5 ]) } # grey50
 sub shade    { mix_with(@_, [ 0 , 0 , 0  ]) } # black
 sub mix_with {
     my ($color_values, $by, $raw, $color_space_name, $tuple) = @_;
+    unless ($raw){
+        $by = 0 if $by < 0;
+        $by = 1 if $by > 1;
+    }
     mix( $color_values, $color_values->new_from_tuple( $tuple, 'RGB', 'normal' ), $by, $raw, $color_space_name);
 }
 sub mix { #  .base_color_vals, @.added_volor_vals, @+|+add_amount, .space --> .color_values

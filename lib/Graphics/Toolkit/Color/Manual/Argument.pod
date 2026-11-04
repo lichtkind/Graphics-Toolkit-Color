@@ -47,7 +47,8 @@ The default color space for input and output is I<RGB>, but most
 calculating methods default to I<OKLAB> or I<OKHSL> if a cylindrical
 option is needed (C<complement>).
 
-C<in> is understood by all methods except C<name> and C<closest_name>:
+C<in> is understood by all methods except C<name> and C<closest_name>,
+ths are:
 L<new|Graphics::Toolkit::Color::Manual::Constructor/new>, 
 L<is_in_gamut|Graphics::Toolkit::Color::Manual::Getter/is_in_gamut>, 
 L<values|Graphics::Toolkit::Color::Manual::Getter/values>, 

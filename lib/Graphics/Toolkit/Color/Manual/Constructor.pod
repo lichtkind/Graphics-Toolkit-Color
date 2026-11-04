@@ -2,31 +2,41 @@
 
 =head1 NAME
 
-Graphics::Toolkit::Color::Manual::Constructor - GTC object creation reference
+Graphics::Toolkit::Color::Manual::Constructor - GTC color object creation reference
 
 =head1 SYNOPSIS
 
-This L<manual|Graphics::Toolkit::Color::Manual> page contains the most
-detailed description about all the ways a GTC object can be created.
-This is, as to be expected, the method L</new>, but also the L</color> routine 
-and implicitly the arguments L<color|Graphics::Toolkit::Color::Manual::Argument/color>
-and L<to|Graphics::Toolkit::Color::Manual::Argument/to>. They too
-might trigger an L<error|Graphics::Toolkit::Color::Manual::Error>. 
+There are two types of methods, that can create a new GTC object:
+
+1. L<Calculator methods|Graphics::Toolkit::Color::Manual::Calculation> that need an aleady
+existing GTC color object as invocant. Their method name refers to the character of the relation
+between the invocant and the created color.
+
+2.This page of the L<manual|Graphics::Toolkit::Color::Manual> only describes the method,
+that creates color objects from just data, which unsurprisingly is named L</new>.
+L</new> is very flexible and powerful, but in a nutshell it can take a
+L<color definition|Graphics::Toolkit::Color::Manual::Format> (parameter C<color>)
+plus some additional parameters, that tell how to interpret the I<color definition>.
+If all you need to provide with L</new> is a I<color definition>, then you might
+leave out any argument names or even use the importable shortcut routine L</color>.
+
+Several other GTC methods understand the parameter
+L<to|Graphics::Toolkit::Color::Manual::Argument/to> (the other color),
+which take either a color object or a I<color definition>.
+
+Any consructor call might trigger an L<error|Graphics::Toolkit::Color::Manual::Error>. 
 
 =head1 OPTIONS
 
 =head2 new
 
-The GTC L<philosophy|Graphics::Toolkit::Color::Manual::Philosophy/API>
-tells that the API is optimized to be memorable and convenient and consistent. 
-For that reason there is only one constructor method and all the necessary
-complexity is in the arguments, which are mostly optional and combinable. 
-And there are only 4: C<color>, C<range>, C<raw> and C<in> which are seldom needed.
-In most cases it is enough to use C<color> as the only positional argument,
-which is also the only required argument.
+The method C<new> takes 4 arguments: C<color>, C<range>, C<raw> and C<in>.
+Only C<color> is required and if it is the only argument provided, you may leave
+out the argument name and the fat arrow (C< color => >). That is why it is called
+the default argument.
 
 L<color|Graphics::Toolkit::Color::Manual::Argument/color> expects a 
-color definition in one of many acceptable 
+I<color definition> in one of many acceptable 
 L<formats|Graphics::Toolkit::Color::Manual::Format>.
 This multitude is one source of perceived complexity, but it is really just
 an offer to serve convenience. Users can select the preferred format and
@@ -80,7 +90,7 @@ If you got for instance some I<AppleRGB> colors encoded as RGB32
 L<raw|Graphics::Toolkit::Color::Manual::Argument/raw> expects a pseudo boolean
 that defaults to false (0). If true (1) the color definition will be read as is,
 but if false (0) the values will be clamped into range. This is either 
-the default range of the color space, the color is defined in or the 
+the default range of the color space the color is defined in or the 
 given C<range>. If you want to read an out of gamut color to maybe convert
 it later into a wide gamut space, where it is in range you have to use:
 
@@ -89,9 +99,10 @@ it later into a wide gamut space, where it is in range you have to use:
     );
 
 L<in|Graphics::Toolkit::Color::Manual::Argument/in> expects a 
-color space name that serves only for disambiguation, since most color
-definitions already contain the name of the chosen color space. But
-formats like in the following example I<hash> can be highly ambiguous.
+L<color space name|Graphics::Toolkit::Color::Manual::Space>,
+that serves only for disambiguation, since most color definitions
+already contain the name of the chosen color space. But formats
+like in the following example I<hash> can be highly ambiguous.
 Please note also that the values in I<AppleRGB> space are normal (0..1).
 
     my $color = Graphics::Toolkit::Color->new( 

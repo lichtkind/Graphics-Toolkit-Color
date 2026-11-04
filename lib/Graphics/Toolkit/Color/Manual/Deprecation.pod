@@ -9,6 +9,12 @@ Graphics::Toolkit::Color::Manual::Deprecation - deprecated API parts
 This L<manual|Graphics::Toolkit::Color::Manual> page lists which keywords 
 will be removed with the next major version (3.0).
 
+=head1 ROUTINES
+
+=head2 is_in_gamut
+
+Please use the method with same name instead.
+
 =head1 METHODS
 
 =head2 apply

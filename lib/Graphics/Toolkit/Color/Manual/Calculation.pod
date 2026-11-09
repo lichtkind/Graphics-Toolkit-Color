@@ -144,13 +144,16 @@ C<tint> produces a color that is a mix between the current color and white (#FFF
 which has increased lightness and decreased saturation.
 The argument C<by> (default) states how much white (in %) is in the mix.
 By default values above 1 have the same result as 1 (100 %): a pure white.
-Values of zero and below will return the same color as the calling object holds.
+Values of zero will return the same color as the calling object holds.
+Values below zero will have same effect as L</shade> (with a positive value).
 Please note that unlike methods that set a different lightness or saturation directly,
 C<tint> will work in any color space.
 
-  $midblue->tint( 0.13 );                           # 13% white, 87% midblue, in OKHSL
-  $midblue->tint( by => 0.13, in => 'RGB' );        # different result
+  $midblue->tint( 0.13 );                           # 13% white, 87% midblue
+  $midblue->tint( by => 0.13, in => 'OKHSL', raw => 0 ); # same call, same result
+  $midblue->tint( by => 0.13, in => 'RGB' );        # slightly different result
   $midblue->tint( by => 1.13, raw => 1 );           # imaginary ultra white
+  $midblue->tint( -1 );                             # black
 
 If you imagine a line in a color space of your choice between the given color
 and white, you can give each position between those points a number between zero and one.
@@ -165,62 +168,95 @@ a 1:1 mix between white and black. The result has decreased saturation but can b
 lighter or darker depending on if the current color is darker or lighter than mid grey.
 Other than that it works exactly like L</tint>.
 
-  $midblue->tone( 0.13 );                           # greyish blue, in OKHSL
+  $midblue->tone( 0.13 );                           # greyish blue
+  $midblue->tone( by => 0.13, in => 'OKHSL', raw => 0 ); # filling in the defaults
   $midblue->tone( by => 0.13, in => 'RGB' );        # different greyish blue
-  $midblue->tone( by => 1.13, raw => 1 );           # light yellow
+  $midblue->tone( 1 );                              # mid grey
+  $midblue->tone( by => 1.13 );                     # light yellow
 
 =head2 shade
 
-C<shade> produces a color that is a mix between the current color and black.
+C<shade> produces a color that is a mix between the current color and black (#000000).
 The new color has decreased lightness and decreased saturation.
 Per default values above 1 have the same result as 1: a full black and values of zero
 and below will return the same color as the calling object holds
 (unless C<raw> is set to 1). Beside that all arguments work like in L</tint>.
 
-  $midblue->tone( 0.13 );                           # darker blue, in OKHSL
-  $midblue->tone( by => 0.13, in => 'RGB' );        # different darker blue
-  $midblue->tone( by => 1.13, raw => 1 );           # imaginary ultra black
-
+  $midblue->shade( 0.13 );                          # darker blue
+  $midblue->shade( by => 0.13, in => 'OKHSL', raw => 0 ); # same but explicit
+  $midblue->shade( by => 0.13, in => 'RGB' );       # different darker blue
+  $midblue->shade( by => 1.13, raw => 1 );          # imaginary ultra black
 
 =head2 lightness
 
 C<lightness> produces a color with a specific I<lightness> (brightness) but same I<hue>
 and I<saturation> as the caller (invocant) has. It can substitute the methods L<lighten> and L<darken>,
 since it also listens to the arguments C<in>, C<raw> and C<by>, which work exactly the same way as with
-the mentioned methods. Only here C<by> has also the alias C<add> since it just adds to the I<lightness>
-value. In the same way C<multiply> (alias C<x>) multiplies the lightness value with a given factor and
-<set> just sets the I<lightness> to the value (0..1) provided. <set> is also the default argument, so
+L<lighten>. Only here C<by> has also the alias C<add> since it just adds to the I<lightness> value.
+In the same way C<multiply> (alias C<x>) multiplies the lightness value with a given factor and
+<set> just sets the I<lightness> to the value provided (0..1). <set> is also the default argument, so
 a single, positional argument will be interpretet as a number the new lightness will be set to.
 <set>, C<multiply> and C<add> will be applied in this order and you have to use at least one them.
-grow?
 
-  $midblue->lightness( 0.13 );                      # blue, with a lightness of 13 %
+  $midblue->lightness( 0.13 );                      # blue, with a lightness of 13%
   $midblue->lightness( set => 0.13, raw => 0, in => 'OKHSL' ); # same result
-  $midblue->lightness( set => 0.13, x => 2 );       # blue, with a lightness of 26 %
+  $midblue->lightness( set => 0.13, x => 2 );       # blue, with a lightness of 26% =  2 * 13%
+  $midblue->lightness( set => 0.13, add => .1 );    # blue, with a lightness of 23% = 10 + 13%
   $midblue->lightness( set => 0.13, in => 'CMY' );  # error: CMY has no axis with a lightness role
-  $midblue->lightness( multiply => 1.5 );           # blue, with a lightness of 46% * 1.5 = 69%
-  $midblue->lightness( multiply => 5 );             # white (100% lightness)
+  $midblue->lightness( multiply => 1.5 );           # blue, with a lightness of 69% = 1.5 * 46% (mid blue)
+  $midblue->lightness( multiply => 5 );             # white (clamped at 100% lightness)
   $midblue->lightness( multiply => 5, raw => 1 );   # 46% * 5 = 230% lightness (virtual color)
 
 
 =head2 saturation
 
-C<saturation> produces a color with a specific I<saturation> (colorfulness) but same I<hue> and
+C<saturation> produces a color with a specific I<saturation> (colorfulness, vibrancy) but same I<hue> and
 I<lightness> as the caller (invocant) has. It can substitute the methods L</saturate> and L</desaturate>,
 since it also listens to the arguments C<in>, C<raw> and C<by>, which work exactly the same way as with
-the mentioned methods. You may have noticed, it completely mirrors the L</lightness> method with all
-arguments and their behaviour.
+L</saturate>. You may have noticed, it completely mirrors the L</lightness> method with all arguments
+(C<set>, C<multiply>, C<add>) and their behaviour .
+The only difference is, their applied to the I<saturation> value and not on the I<lightness> axis.
+Logically it can only calculated C<in> a color space which has an axis with a I<saturation> role.
 
-C<multiply>
-C<x>
-C<add>
-C<by>
-C<set>
+  $midblue->saturation( 0.13 );                     # blue, with a saturation of 13%
+  $midblue->saturation( set => 0.13, raw => 0, in => 'OKHSL' ); # same result
+  $midblue->saturation( set => 0.13, x => 2 );      # blue, with a saturation of 26%
+  $midblue->saturation( set => 0.13, in => 'CMY' ); # error: CMY has no axis with a saturation role
+  $midblue->saturation( multiply => 1.5 );          # blue, with a saturation of 20% * 1.5 = 35%
+  $midblue->saturation( multiply => 0 );            # grey (0% saturation)
+  $midblue->saturation( multiply => 7 );            # pure blue (clamped at 100% saturation)
+  $midblue->saturation( multiply => 5, raw => 1 );  # 20% * 6 = 120% saturation (virtual color)
 
+  
 =head2 derive
 
-C<derive>
+C<derive> lets you calculate any color based on basic math (C<set>, C<multiply> and C<add>
+- applied in that order) and the values of the given color. You have to use at least one of
+these three arguments. In this regard it works similar to L</lightness> and L</saturation>,
+but in any color space and on any axis. That is why these arguments do not accept numbers but
+a HASH references with numbers as values. The keys have to be axis names of one color space.
+It is enough to provide at least one axis name, but if the space name can not securely deduced,
+it is better to request the color space in which the operations are calculated explicitly
+via the argument C<in>. If the given axis names originate from different spaces or not from
+the requested space, an L<error|Graphics::Toolkit::Color::Manual::Error> might get thrown.
 
+The other difference to the methods L</lightness> and L</saturation> is the argument C<range>,
+which lets you hand pick the value range for each axis. L</lightness> and L</saturation> did not need that,
+since they operate only on normal values (0..1). Please note that the selected value ranges
+are only in effct during the calculation of the method result and are independant from value ranges
+of the input (C<new>) or output (C<values>). If no ranges are set,
+the default ranges of the selected or deduced space are in effect.
+
+  my $color = color( 20, 0, 40 );                   # new color from RGB (red, green, blue) values
+  my $c = $color->derive( set => {red => 30} );     # same as $c = color(30, 0, 40); 
+  my $c = $color->derive( multiply => {r => 2} );   # same as $c = color(40, 0, 40); # 40 = 20 * 2
+  my $c = $color->derive( add => {red => 30} );     # same as $c = color(50, 0, 40); # 50 = 20 + 30
+  # set green to max value: which is 1 in normal range (0..1) and 255 in RGB default range (0..255)
+  $color->derive( set => {green => 1}, range => 'normal' );  # same as color(20, 255, 40);
+  # blue = 60 = (20 * 2) + 20
+  $color->derive( set => {b => 20}, multiply => {b => 2}, add => {b => 20});  # same as color(20, 0, 60);
+  $color->derive( set => {cyan => 1});              # set red to 0 in CMY, same as color( 0, 0, 40);
+  $color->derive( add => {hue => 20}, in => 'HSL'); # color with hue of 340 = 320 + 20 (deep purple)
 
 
 =head2 invert
@@ -232,7 +268,7 @@ absolute difference to the maximal value as it had before the operation to
 the minimal value. On an angular axis it is a rotation of 180 degrees,
 which means adding half the maximum. The method accepts three named 
 arguments: C<only>, C<raw> and C<in>. The first one can be provided as a 
-positional argument if it is the only one.
+positional argument if it is the only one (default argument).
 
 L<only|Graphics::Toolkit::Color::Manual::Argument/only> restricts the
 operation to the axes named by C<only> (long or short axis name). 
@@ -258,11 +294,17 @@ if the axis names provided by C<only> do not match the space given by C<in>.
     $color->invert( only => 'red' );                   # same but explicit
     $yellow->invert( in => 'HSL', only => 'hue' );     # same result as $yellow->complement();
     $yellow->invert( in => 'HSL', only => [qw/s l/] ); # invert only saturation and lightness
+    $yellow->derive( x=> {s=>-1, l=>-1}, add=> {s=>1, l=>1}, in=> 'HSL', range=> 1 ); # same result
 
     
 =head2 random
 
 C<random>
+C<in>
+C<raw>
+C<type>
+C<mean>
+C<spread>
 
 
 =head2 tone_curve

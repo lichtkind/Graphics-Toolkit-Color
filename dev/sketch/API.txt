@@ -1,0 +1,3 @@
+distribution
+not both 
+ around => 'min' 'mid' 'max'

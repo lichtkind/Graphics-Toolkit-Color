@@ -11,7 +11,7 @@ detailed description of the fourteen methods that produce a GTC color object
 which in some fashion is related to the current one (caller or invocant): 
 L</lighten>, L</darken>, L</lightness>,
 L</saturate>, L</desaturate>, L</saturation>, L</derive>,
-L</invert>, L</tone_curve>, L</random>
+L</invert>, L</apply>, L</random>
 L</tint>, L</tone>, L</shade> and L</mix>.
 Because caller and result are GTC objects, chaining like this is possible:
 
@@ -35,7 +35,7 @@ These methods are L</lighten>, L</darken>, L</lightness>,
 L</saturate>, L</desaturate>, L</saturation>, L</tint>, L</tone>, L</shade>. All their functionality
 can be achieved without any effort by using L</derive> and L</mix>. With some extra math sprinkled in -
 the same holds true for L</invert>, L</random> and some might say even L</mix>.
-So strictly speaking programmers would just need L</tone_curve> and L</derive>,
+So strictly speaking programmers would just need L</apply> and L</derive>,
 but luckily this library is not only about functionality but also convenience.
 
 The methods can also be divided into three groups, just by looking
@@ -56,7 +56,7 @@ L</derive> is very similar, but with more powerful C<set>, C<multiply>
 and C<by> arguments and it additionally accepts a 
 L<Graphics::Toolkit::Color::Manual::Argument/range> argument.
 
-The third group consists of the methods: L</tone_curve>, L</random>, 
+The third group consists of the methods: L</apply>, L</random>, 
 L</mix> and L</invert> which do not fit into a simple pattern. 
 
 All fourteen color calculation methods have in common that they accept the arguments 
@@ -307,9 +307,9 @@ C<mean>
 C<spread>
 
 
-=head2 tone_curve
+=head2 apply
 
-C<tone_curve> calculates a gamma correction, which is just a power function on
+C<apply> calculates a gamma correction, which is just a power function on
 normalized color values (range 0 .. 1). Gamma is in this context the name 
 of a variable that contains the power. (C<$value = $value ** $gamma;>)
 The method expects two named arguments: C<gamma> and C<in>. The first one
@@ -336,8 +336,8 @@ L<RGB|Graphics::Toolkit::Color::Manual::Space/RGB> family, since even
 I<LAB> type spaces do not fit. They are Euclidean, but their origin is not
 in one corner but the center of one face.
 
-    my $linear_blue = $blue->tone_curve( gamma => 2.2 );         # is the same as :
-    my $linear_blue = $blue->tone_curve( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
+    my $linear_blue = $blue->apply( gamma => 2.2 );         # is the same as :
+    my $linear_blue = $blue->apply( gamma => {r => 2.2, g =>2.2, b => 2.2}, in => 'LinearRGB' );
 
 
 

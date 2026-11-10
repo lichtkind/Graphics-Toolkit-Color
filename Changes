@@ -17,6 +17,7 @@
     * ~ new format reader algo making deformat faster
     * - remove converter flag logic
     * - deprecate routine 'is_in_gamut'
+    * - remove method alias tone_curve
     * ? added missing arguments in Plugin.pod: 'family' and 'role'
 
 2.22   2026-06-20   lichtkind

@@ -297,8 +297,7 @@ sub add_value {
     return _new_from_value_obj( $result );
 }
 
-sub apply { tone_curve(@_) }
-sub tone_curve { 
+sub apply { 
     my ($self, @args) = @_;
     my $arg = _split_named_args( \@args, undef, ['gamma'], {in => 'LinearRGB', raw => 0} ); 
     my $help = 'The method "tone_curve" returns a GTC object with gamma corrected values and accepts two named arguments, '.
